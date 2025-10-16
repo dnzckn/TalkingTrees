@@ -975,16 +975,18 @@
                     return;
                 }
 
-                // Collapse toggle
-                if (clickedNode && clickedNode.children.length > 0 && !connectMode) {
+                // Collapse toggle - check BEFORE any other node interaction
+                if (clickedNode && clickedNode.children.length > 0 && !connectMode && !isPanning) {
                     const badgeX = clickedNode.x + 140;
                     const badgeY = clickedNode.y + 10;
                     const dist = Math.sqrt((x - badgeX) ** 2 + (y - badgeY) ** 2);
-                    if (dist < 12) {
+                    if (dist < 15) { // Slightly larger hit area
+                        e.preventDefault();
                         clickedNode.collapsed = !clickedNode.collapsed;
                         saveHistory();
                         render();
                         updateStatus(`${clickedNode.collapsed ? 'Collapsed' : 'Expanded'} ${clickedNode.name}`);
+                        // Don't set up dragging or anything else
                         return;
                     }
                 }
