@@ -1,0 +1,729 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "day-in-life-simulation",
+  "metadata": {
+    "name": "Day in the Life Simulation",
+    "version": "1.0.0",
+    "description": "Complex simulation of a person's day with hunger, thirst, energy, stress, and time management across morning, work, and evening phases",
+    "tags": ["simulation", "demo", "complex"],
+    "author": "PyForest Demo"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "Daily Life Cycle",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Log",
+        "name": "Start Day",
+        "config": {
+          "message": "=== NEW DAY BEGINS ==="
+        }
+      },
+      {
+        "node_type": "Selector",
+        "name": "Phase Manager",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "Morning Routine (6-9 AM)",
+            "config": {},
+            "ui_metadata": {
+              "color": "#FFD700",
+              "notes": "Morning phase: light draining, breakfast available"
+            },
+            "children": [
+              {
+                "node_type": "Log",
+                "name": "Morning Check",
+                "config": {
+                  "message": "Morning phase: Checking status and having breakfast"
+                }
+              },
+              {
+                "node_type": "Selector",
+                "name": "Hunger Management",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "name": "Critical Hunger",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Very Hungry",
+                        "config": {
+                          "message": "Hunger critical! Having large breakfast"
+                        }
+                      },
+                      {
+                        "node_type": "Log",
+                        "name": "Big Breakfast",
+                        "config": {
+                          "message": "Eating eggs, toast, and fruit (-$8, +40 hunger, +10 energy)"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "Restore Hunger",
+                        "config": {}
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "name": "Normal Hunger",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Somewhat Hungry",
+                        "config": {
+                          "message": "Having normal breakfast"
+                        }
+                      },
+                      {
+                        "node_type": "Log",
+                        "name": "Regular Breakfast",
+                        "config": {
+                          "message": "Eating cereal and coffee (-$5, +25 hunger, +15 energy)"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "Light Restore",
+                        "config": {}
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Log",
+                    "name": "Not Hungry",
+                    "config": {
+                      "message": "Skipping breakfast, just coffee (-$2, +5 energy)"
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Selector",
+                "name": "Thirst Management",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "name": "Very Thirsty",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Dehydrated",
+                        "config": {
+                          "message": "Thirst critical! Drinking large water bottle"
+                        }
+                      },
+                      {
+                        "node_type": "Log",
+                        "name": "Large Drink",
+                        "config": {
+                          "message": "Drinking 1L water (-$0, +50 thirst)"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "Hydrated",
+                        "config": {}
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Log",
+                    "name": "Normal Drink",
+                    "config": {
+                      "message": "Having morning coffee and water (-$0, +20 thirst)"
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Log",
+                "name": "Morning Prep",
+                "config": {
+                  "message": "Getting ready for work: shower, dress, pack bag"
+                }
+              },
+              {
+                "node_type": "Wait",
+                "name": "Morning Activities",
+                "config": {
+                  "duration": 0.5
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Work Phase (9 AM - 5 PM)",
+            "config": {},
+            "ui_metadata": {
+              "color": "#FF6B6B",
+              "notes": "Work phase: heavy draining, limited food options, stress builds"
+            },
+            "children": [
+              {
+                "node_type": "Log",
+                "name": "Commute",
+                "config": {
+                  "message": "Commuting to work (-5 energy, -3 thirst, +5 stress)"
+                }
+              },
+              {
+                "node_type": "Selector",
+                "name": "Work Day Manager",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "name": "Emergency Needs",
+                    "config": {},
+                    "ui_metadata": {
+                      "color": "#FF0000",
+                      "notes": "Critical needs interrupt work"
+                    },
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Critical State",
+                        "config": {
+                          "message": "EMERGENCY: Critical hunger/thirst/energy during work!"
+                        }
+                      },
+                      {
+                        "node_type": "Selector",
+                        "name": "Emergency Response",
+                        "config": {},
+                        "children": [
+                          {
+                            "node_type": "Sequence",
+                            "name": "Vending Machine",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Quick Snack",
+                                "config": {
+                                  "message": "Grabbing vending machine snack (-$3, +15 hunger, +5 energy)"
+                                }
+                              },
+                              {
+                                "node_type": "Success",
+                                "name": "Emergency Fed",
+                                "config": {}
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Log",
+                            "name": "Water Fountain",
+                            "config": {
+                              "message": "Using water fountain (-$0, +10 thirst)"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "name": "Normal Work Flow",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Parallel",
+                        "name": "Work Activities",
+                        "config": {
+                          "policy": "SuccessOnAll"
+                        },
+                        "children": [
+                          {
+                            "node_type": "Sequence",
+                            "name": "Productive Work",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Morning Tasks",
+                                "config": {
+                                  "message": "Working on tasks: emails, meetings (-10 energy, -8 hunger, -10 thirst, +15 stress)"
+                                }
+                              },
+                              {
+                                "node_type": "Wait",
+                                "name": "Work Duration",
+                                "config": {
+                                  "duration": 0.3
+                                }
+                              },
+                              {
+                                "node_type": "Success",
+                                "name": "Tasks Done",
+                                "config": {}
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Sequence",
+                            "name": "Lunch Break Check",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Wait",
+                                "name": "Wait for Lunch",
+                                "config": {
+                                  "duration": 0.2
+                                }
+                              },
+                              {
+                                "node_type": "Selector",
+                                "name": "Lunch Options",
+                                "config": {},
+                                "children": [
+                                  {
+                                    "node_type": "Sequence",
+                                    "name": "Fancy Lunch",
+                                    "config": {},
+                                    "children": [
+                                      {
+                                        "node_type": "Log",
+                                        "name": "Restaurant",
+                                        "config": {
+                                          "message": "Going to restaurant for lunch (-$15, +45 hunger, +20 thirst, -10 stress)"
+                                        }
+                                      },
+                                      {
+                                        "node_type": "Wait",
+                                        "name": "Lunch Time",
+                                        "config": {
+                                          "duration": 0.3
+                                        }
+                                      },
+                                      {
+                                        "node_type": "Success",
+                                        "name": "Well Fed",
+                                        "config": {}
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "node_type": "Sequence",
+                                    "name": "Quick Lunch",
+                                    "config": {},
+                                    "children": [
+                                      {
+                                        "node_type": "Log",
+                                        "name": "Packed Lunch",
+                                        "config": {
+                                          "message": "Eating packed lunch at desk (-$0, +30 hunger, +15 thirst, -5 stress)"
+                                        }
+                                      },
+                                      {
+                                        "node_type": "Wait",
+                                        "name": "Quick Meal",
+                                        "config": {
+                                          "duration": 0.15
+                                        }
+                                      },
+                                      {
+                                        "node_type": "Success",
+                                        "name": "Fed",
+                                        "config": {}
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "node_type": "Log",
+                                    "name": "Skip Lunch",
+                                    "config": {
+                                      "message": "Too busy, skipping lunch (+20 stress, -5 energy)"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "node_type": "Log",
+                        "name": "Afternoon Work",
+                        "config": {
+                          "message": "Afternoon tasks: project work, deadlines (-15 energy, -10 hunger, -12 thirst, +20 stress)"
+                        }
+                      },
+                      {
+                        "node_type": "Wait",
+                        "name": "Afternoon Duration",
+                        "config": {
+                          "duration": 0.3
+                        }
+                      },
+                      {
+                        "node_type": "Selector",
+                        "name": "End of Day",
+                        "config": {},
+                        "children": [
+                          {
+                            "node_type": "Sequence",
+                            "name": "Overtime",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Working Late",
+                                "config": {
+                                  "message": "Overtime! Deadline approaching (-10 energy, -8 hunger, -8 thirst, +25 stress)"
+                                }
+                              },
+                              {
+                                "node_type": "Wait",
+                                "name": "Extra Hours",
+                                "config": {
+                                  "duration": 0.2
+                                }
+                              },
+                              {
+                                "node_type": "Success",
+                                "name": "Finally Done",
+                                "config": {}
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Log",
+                            "name": "Regular End",
+                            "config": {
+                              "message": "Work day complete, heading home"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Evening Phase (5 PM - 10 PM)",
+            "config": {},
+            "ui_metadata": {
+              "color": "#4ECDC4",
+              "notes": "Evening: recovery phase, full options, stress relief"
+            },
+            "children": [
+              {
+                "node_type": "Log",
+                "name": "Arrive Home",
+                "config": {
+                  "message": "Commute home complete (-3 energy, -2 thirst, -5 stress from relief)"
+                }
+              },
+              {
+                "node_type": "Selector",
+                "name": "Evening Priorities",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "name": "Critical Recovery",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Exhausted State",
+                        "config": {
+                          "message": "Completely exhausted! Need immediate recovery"
+                        }
+                      },
+                      {
+                        "node_type": "Parallel",
+                        "name": "Emergency Recovery",
+                        "config": {
+                          "policy": "SuccessOnAll"
+                        },
+                        "children": [
+                          {
+                            "node_type": "Sequence",
+                            "name": "Quick Meal",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Fast Food",
+                                "config": {
+                                  "message": "Ordering takeout (-$20, +50 hunger, +20 thirst)"
+                                }
+                              },
+                              {
+                                "node_type": "Wait",
+                                "name": "Eating",
+                                "config": {
+                                  "duration": 0.2
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Log",
+                            "name": "Rest",
+                            "config": {
+                              "message": "Resting on couch (+20 energy, -15 stress)"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "name": "Normal Evening",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Selector",
+                        "name": "Dinner Decision",
+                        "config": {},
+                        "children": [
+                          {
+                            "node_type": "Sequence",
+                            "name": "Cook Dinner",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Cooking",
+                                "config": {
+                                  "message": "Cooking healthy dinner (-$12, -5 energy, +55 hunger, +25 thirst, -10 stress)"
+                                }
+                              },
+                              {
+                                "node_type": "Wait",
+                                "name": "Cooking Time",
+                                "config": {
+                                  "duration": 0.3
+                                }
+                              },
+                              {
+                                "node_type": "Success",
+                                "name": "Dinner Ready",
+                                "config": {}
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Sequence",
+                            "name": "Order In",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Delivery",
+                                "config": {
+                                  "message": "Ordering delivery (-$18, +45 hunger, +20 thirst)"
+                                }
+                              },
+                              {
+                                "node_type": "Wait",
+                                "name": "Wait for Food",
+                                "config": {
+                                  "duration": 0.2
+                                }
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Log",
+                            "name": "Light Snack",
+                            "config": {
+                              "message": "Just having a light snack (-$5, +20 hunger, +10 thirst)"
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "node_type": "Selector",
+                        "name": "Evening Activities",
+                        "config": {},
+                        "children": [
+                          {
+                            "node_type": "Sequence",
+                            "name": "High Stress Relief",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Need Stress Relief",
+                                "config": {
+                                  "message": "Stress very high! Need active relief"
+                                }
+                              },
+                              {
+                                "node_type": "Selector",
+                                "name": "Stress Activities",
+                                "config": {},
+                                "children": [
+                                  {
+                                    "node_type": "Sequence",
+                                    "name": "Exercise",
+                                    "config": {},
+                                    "children": [
+                                      {
+                                        "node_type": "Log",
+                                        "name": "Workout",
+                                        "config": {
+                                          "message": "Going to gym (-15 energy, -10 thirst, -30 stress, +5 hunger)"
+                                        }
+                                      },
+                                      {
+                                        "node_type": "Wait",
+                                        "name": "Exercise Time",
+                                        "config": {
+                                          "duration": 0.3
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "node_type": "Sequence",
+                                    "name": "Social Activity",
+                                    "config": {},
+                                    "children": [
+                                      {
+                                        "node_type": "Log",
+                                        "name": "Meet Friends",
+                                        "config": {
+                                          "message": "Going out with friends (-$25, -8 energy, -5 thirst, -35 stress)"
+                                        }
+                                      },
+                                      {
+                                        "node_type": "Wait",
+                                        "name": "Social Time",
+                                        "config": {
+                                          "duration": 0.4
+                                        }
+                                      }
+                                    ]
+                                  },
+                                  {
+                                    "node_type": "Log",
+                                    "name": "Gaming",
+                                    "config": {
+                                      "message": "Playing video games (-5 energy, -20 stress)"
+                                    }
+                                  }
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "node_type": "Sequence",
+                            "name": "Relaxing Evening",
+                            "config": {},
+                            "children": [
+                              {
+                                "node_type": "Log",
+                                "name": "Chill Time",
+                                "config": {
+                                  "message": "Watching TV, reading, relaxing (-2 energy, -10 stress)"
+                                }
+                              },
+                              {
+                                "node_type": "Wait",
+                                "name": "Leisure",
+                                "config": {
+                                  "duration": 0.3
+                                }
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
+                        "node_type": "Log",
+                        "name": "Bedtime Prep",
+                        "config": {
+                          "message": "Getting ready for bed: shower, teeth, wind down"
+                        }
+                      },
+                      {
+                        "node_type": "Wait",
+                        "name": "Night Routine",
+                        "config": {
+                          "duration": 0.2
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "node_type": "Log",
+                "name": "End of Day",
+                "config": {
+                  "message": "Going to sleep. Day complete! (+100 energy, +10 hunger, +10 thirst, reset stress)"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Log",
+        "name": "Day Summary",
+        "config": {
+          "message": "=== DAY COMPLETE === Starting new cycle..."
+        }
+      }
+    ]
+  },
+  "blackboard_schema": {
+    "hour": {
+      "type": "int",
+      "default": 6,
+      "description": "Current hour of day (0-23)"
+    },
+    "hunger": {
+      "type": "float",
+      "default": 50.0,
+      "description": "Hunger level (0-100, lower is more hungry)"
+    },
+    "thirst": {
+      "type": "float",
+      "default": 50.0,
+      "description": "Thirst level (0-100, lower is more thirsty)"
+    },
+    "energy": {
+      "type": "float",
+      "default": 100.0,
+      "description": "Energy level (0-100)"
+    },
+    "stress": {
+      "type": "float",
+      "default": 0.0,
+      "description": "Stress level (0-100)"
+    },
+    "money": {
+      "type": "float",
+      "default": 200.0,
+      "description": "Available money"
+    },
+    "phase": {
+      "type": "string",
+      "default": "morning",
+      "description": "Current phase: morning, work, or evening"
+    }
+  }
+}
