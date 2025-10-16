@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyForest - Guard Patrol Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .game-container {
+            display: grid;
+            grid-template-columns: 600px 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .canvas-wrapper {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        canvas {
+            border: 2px solid #34495e;
+            display: block;
+            background: #1a1a1a;
+            cursor: crosshair;
+        }
+
+        .controls {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            color: #2c3e50;
+        }
+
+        .controls h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 15px 25px;
+            font-size: 1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-start {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-start:hover {
+            background: #229954;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(39, 174, 96, 0.4);
+        }
+
+        .btn-stop {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-stop:hover {
+            background: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn-spawn {
+            background: #f39c12;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn-spawn:hover {
+            background: #e67e22;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .stats {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .stat-value {
+            color: #2c3e50;
+            font-family: monospace;
+        }
+
+        .status {
+            text-align: center;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .status.running {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status.stopped {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .status.loading {
+            background: #d6eaf8;
+            color: #3498db;
+        }
+
+        .log {
+            background: #34495e;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+        }
+
+        .log-entry {
+            padding: 5px;
+            margin-bottom: 5px;
+            border-left: 3px solid #3498db;
+            padding-left: 10px;
+        }
+
+        .log-entry.alert {
+            border-left-color: #e74c3c;
+            color: #e74c3c;
+        }
+
+        .legend {
+            background: #ecf0f1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+        }
+
+        .legend-box {
+            width: 24px;
+            height: 24px;
+            margin-right: 10px;
+            border-radius: 4px;
+            border: 2px solid #34495e;
+        }
+
+        .speed-control {
+            margin-top: 15px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 8px;
+        }
+
+        .speed-control label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .speed-control input {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PyForest Guard Patrol Game</h1>
+        <p class="subtitle">Multiple NPCs with behavior trees patrolling a 2D grid. Click to spawn intruders!</p>
+
+        <div class="game-container">
+            <div class="canvas-wrapper">
+                <canvas id="gameCanvas" width="560" height="560"></canvas>
+            </div>
+
+            <div class="controls">
+                <h2>Game Controls</h2>
+
+                <div class="status" id="status">Loading...</div>
+
+                <div class="button-group">
+                    <button class="btn-start" id="startBtn" onclick="startGame()">Start Game</button>
+                    <button class="btn-stop" id="stopBtn" onclick="stopGame()" disabled>Stop Game</button>
+                    <button class="btn-spawn" id="spawnBtn" onclick="spawnIntruder()" disabled>Spawn Intruder (or click grid)</button>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Guards Active:</span>
+                        <span class="stat-value" id="guardCount">3</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Intruders:</span>
+                        <span class="stat-value" id="intruderCount">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Total Ticks:</span>
+                        <span class="stat-value" id="tickCount">0</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Alert Level:</span>
+                        <span class="stat-value" id="alertLevel">0</span>
+                    </div>
+                </div>
+
+                <div class="speed-control">
+                    <label for="speedSlider">Simulation Speed: <span id="speedDisplay">0.5s</span></label>
+                    <input type="range" id="speedSlider" min="100" max="2000" value="500" step="100">
+                </div>
+
+                <div class="legend">
+                    <strong style="color: #2c3e50; display: block; margin-bottom: 10px;">Legend:</strong>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #3498db;"></div>
+                        <span>Guard (Patrolling)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #e74c3c;"></div>
+                        <span>Guard (Alert/Chasing)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #f39c12;"></div>
+                        <span>Intruder</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #27ae60;"></div>
+                        <span>Waypoint</span>
+                    </div>
+                </div>
+
+                <div class="log" id="eventLog">
+                    <div class="log-entry">Game initialized. Click Start to begin.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:8000';
+        const GRID_SIZE = 20;
+        const CELL_SIZE = 28;
+
+        let canvas, ctx;
+        let guards = [];
+        let intruders = [];
+        let waypoints = [[5, 5], [15, 5], [15, 15], [5, 15]];
+        let isRunning = false;
+        let tickInterval = null;
+        let tickCount = 0;
+
+        // Guard class
+        class Guard {
+            constructor(id, x, y, color) {
+                this.id = id;
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.executionId = null;
+                this.treeId = null;
+                this.waypointIndex = 0;
+                this.state = 'patrolling';
+                this.targetX = waypoints[0][0];
+                this.targetY = waypoints[0][1];
+            }
+
+            async init() {
+                // Load and create tree
+                const treeResponse = await fetch('../examples/trees/10_guard_patrol_game.json');
+                const treeDef = await treeResponse.json();
+                treeDef.tree_id = crypto.randomUUID();
+
+                const createResponse = await fetch(`${API_BASE}/trees/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(treeDef)
+                });
+
+                const tree = await createResponse.json();
+                this.treeId = tree.tree_id;
+
+                // Create execution
+                const execResponse = await fetch(`${API_BASE}/executions/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tree_id: this.treeId,
+                        initial_blackboard: {
+                            guard_x: this.x,
+                            guard_y: this.y,
+                            patrol_index: this.waypointIndex,
+                            state: 'patrolling'
+                        }
+                    })
+                });
+
+                const exec = await execResponse.json();
+                this.executionId = exec.execution_id;
+            }
+
+            async tick() {
+                if (!this.executionId) return;
+
+                // Find closest intruder
+                let closestIntruder = null;
+                let minDist = Infinity;
+
+                for (let intruder of intruders) {
+                    const dist = Math.abs(this.x - intruder.x) + Math.abs(this.y - intruder.y);
+                    if (dist < minDist && dist < 8) {
+                        minDist = dist;
+                        closestIntruder = intruder;
+                    }
+                }
+
+                // Update state
+                if (closestIntruder) {
+                    this.state = 'chasing';
+                    this.targetX = closestIntruder.x;
+                    this.targetY = closestIntruder.y;
+
+                    // Move toward intruder
+                    if (this.x < closestIntruder.x) this.x++;
+                    else if (this.x > closestIntruder.x) this.x--;
+                    else if (this.y < closestIntruder.y) this.y++;
+                    else if (this.y > closestIntruder.y) this.y--;
+
+                    // Catch intruder
+                    if (this.x === closestIntruder.x && this.y === closestIntruder.y) {
+                        intruders = intruders.filter(i => i !== closestIntruder);
+                        addLog(`Guard ${this.id} caught an intruder!`, true);
+                        this.state = 'patrolling';
+                    }
+                } else {
+                    this.state = 'patrolling';
+                    // Move toward current waypoint
+                    const wp = waypoints[this.waypointIndex];
+                    this.targetX = wp[0];
+                    this.targetY = wp[1];
+
+                    if (this.x < wp[0]) this.x++;
+                    else if (this.x > wp[0]) this.x--;
+                    else if (this.y < wp[1]) this.y++;
+                    else if (this.y > wp[1]) this.y--;
+                    else {
+                        // Reached waypoint
+                        this.waypointIndex = (this.waypointIndex + 1) % waypoints.length;
+                    }
+                }
+
+                // Tick the behavior tree
+                await fetch(`${API_BASE}/executions/${this.executionId}/tick`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ count: 1 })
+                });
+            }
+
+            draw() {
+                const color = this.state === 'chasing' ? '#e74c3c' : '#3498db';
+
+                // Draw guard
+                ctx.fillStyle = color;
+                ctx.fillRect(this.x * CELL_SIZE + 2, this.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+
+                // Draw direction indicator
+                ctx.fillStyle = 'white';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('G', this.x * CELL_SIZE + CELL_SIZE/2, this.y * CELL_SIZE + CELL_SIZE/2);
+
+                // Draw patrol line
+                if (this.state === 'patrolling') {
+                    ctx.strokeStyle = 'rgba(52, 152, 219, 0.3)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(this.x * CELL_SIZE + CELL_SIZE/2, this.y * CELL_SIZE + CELL_SIZE/2);
+                    ctx.lineTo(this.targetX * CELL_SIZE + CELL_SIZE/2, this.targetY * CELL_SIZE + CELL_SIZE/2);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Initialize canvas
+        window.addEventListener('load', () => {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+
+            // Click to spawn intruder
+            canvas.addEventListener('click', (e) => {
+                if (!isRunning) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = Math.floor((e.clientX - rect.left) / CELL_SIZE);
+                const y = Math.floor((e.clientY - rect.top) / CELL_SIZE);
+                if (x >= 0 && x < GRID_SIZE && y >= 0 && y < GRID_SIZE) {
+                    intruders.push({x, y});
+                    addLog(`Intruder spawned at (${x}, ${y})`);
+                }
+            });
+
+            document.getElementById('speedSlider').addEventListener('input', (e) => {
+                const speed = parseInt(e.target.value);
+                document.getElementById('speedDisplay').textContent = `${(speed/1000).toFixed(1)}s`;
+                if (isRunning) {
+                    clearInterval(tickInterval);
+                    startTicking();
+                }
+            });
+
+            drawGrid();
+            updateStatus('Ready to start', 'stopped');
+        });
+
+        async function startGame() {
+            try {
+                updateStatus('Initializing guards...', 'loading');
+                document.getElementById('startBtn').disabled = true;
+
+                // Create 3 guards at different positions
+                guards = [
+                    new Guard(1, 3, 3, '#3498db'),
+                    new Guard(2, 17, 3, '#3498db'),
+                    new Guard(3, 10, 17, '#3498db')
+                ];
+
+                for (let guard of guards) {
+                    await guard.init();
+                }
+
+                isRunning = true;
+                updateStatus('Game running!', 'running');
+                document.getElementById('stopBtn').disabled = false;
+                document.getElementById('spawnBtn').disabled = false;
+                addLog('Game started! 3 guards are now patrolling.');
+
+                startTicking();
+
+            } catch (error) {
+                console.error('Start error:', error);
+                updateStatus('Error: ' + error.message, 'stopped');
+                document.getElementById('startBtn').disabled = false;
+            }
+        }
+
+        function startTicking() {
+            const speed = parseInt(document.getElementById('speedSlider').value);
+            tickInterval = setInterval(async () => {
+                await gameTick();
+            }, speed);
+        }
+
+        async function gameTick() {
+            tickCount++;
+
+            // Tick all guards
+            for (let guard of guards) {
+                await guard.tick();
+            }
+
+            // Move intruders randomly
+            for (let intruder of intruders) {
+                const dir = Math.floor(Math.random() * 4);
+                if (dir === 0 && intruder.y > 0) intruder.y--;
+                else if (dir === 1 && intruder.x < GRID_SIZE - 1) intruder.x++;
+                else if (dir === 2 && intruder.y < GRID_SIZE - 1) intruder.y++;
+                else if (dir === 3 && intruder.x > 0) intruder.x--;
+            }
+
+            drawGame();
+            updateStats();
+        }
+
+        function drawGrid() {
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid lines
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 1;
+            for (let i = 0; i <= GRID_SIZE; i++) {
+                ctx.beginPath();
+                ctx.moveTo(i * CELL_SIZE, 0);
+                ctx.lineTo(i * CELL_SIZE, GRID_SIZE * CELL_SIZE);
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.moveTo(0, i * CELL_SIZE);
+                ctx.lineTo(GRID_SIZE * CELL_SIZE, i * CELL_SIZE);
+                ctx.stroke();
+            }
+
+            // Draw waypoints
+            for (let wp of waypoints) {
+                ctx.fillStyle = 'rgba(39, 174, 96, 0.3)';
+                ctx.fillRect(wp[0] * CELL_SIZE, wp[1] * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+
+                ctx.fillStyle = '#27ae60';
+                ctx.font = '12px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('WP', wp[0] * CELL_SIZE + CELL_SIZE/2, wp[1] * CELL_SIZE + CELL_SIZE/2);
+            }
+        }
+
+        function drawGame() {
+            drawGrid();
+
+            // Draw guards
+            for (let guard of guards) {
+                guard.draw();
+            }
+
+            // Draw intruders
+            for (let intruder of intruders) {
+                ctx.fillStyle = '#f39c12';
+                ctx.fillRect(intruder.x * CELL_SIZE + 2, intruder.y * CELL_SIZE + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+
+                ctx.fillStyle = 'white';
+                ctx.font = '16px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('!', intruder.x * CELL_SIZE + CELL_SIZE/2, intruder.y * CELL_SIZE + CELL_SIZE/2);
+            }
+        }
+
+        function stopGame() {
+            isRunning = false;
+            if (tickInterval) {
+                clearInterval(tickInterval);
+                tickInterval = null;
+            }
+            updateStatus('Game stopped', 'stopped');
+            document.getElementById('startBtn').disabled = false;
+            document.getElementById('stopBtn').disabled = true;
+            document.getElementById('spawnBtn').disabled = true;
+            addLog('Game stopped');
+        }
+
+        function spawnIntruder() {
+            const x = Math.floor(Math.random() * GRID_SIZE);
+            const y = Math.floor(Math.random() * GRID_SIZE);
+            intruders.push({x, y});
+            addLog(`Intruder spawned at (${x}, ${y})`);
+        }
+
+        function updateStats() {
+            document.getElementById('guardCount').textContent = guards.length;
+            document.getElementById('intruderCount').textContent = intruders.length;
+            document.getElementById('tickCount').textContent = tickCount;
+
+            const alertLevel = guards.filter(g => g.state === 'chasing').length;
+            document.getElementById('alertLevel').textContent = alertLevel;
+        }
+
+        function updateStatus(message, state) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + state;
+        }
+
+        function addLog(message, isAlert = false) {
+            const log = document.getElementById('eventLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry' + (isAlert ? ' alert' : '');
+            const time = new Date().toLocaleTimeString();
+            entry.textContent = `[${time}] ${message}`;
+            log.insertBefore(entry, log.firstChild);
+
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+    </script>
+</body>
+</html>

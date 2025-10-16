@@ -414,7 +414,11 @@ class ExecutionService:
         return [instance.get_summary() for instance in self.instances.values()]
 
     def tick_execution(
-        self, execution_id: UUID, count: int = 1, capture_snapshot: bool = True
+        self,
+        execution_id: UUID,
+        count: int = 1,
+        capture_snapshot: bool = True,
+        blackboard_updates: Optional[Dict[str, Any]] = None,
     ) -> TickResponse:
         """Tick an execution instance.
 
@@ -422,6 +426,7 @@ class ExecutionService:
             execution_id: Execution identifier
             count: Number of ticks
             capture_snapshot: Whether to capture snapshot after ticking
+            blackboard_updates: Blackboard values to update before ticking
 
         Returns:
             Tick response
@@ -430,6 +435,21 @@ class ExecutionService:
             ValueError: If execution not found
         """
         instance = self.get_execution(execution_id)
+
+        # Apply blackboard updates (sensor inputs) before ticking
+        if blackboard_updates:
+            bb = py_trees.blackboard.Client(name="ExternalSensor")
+            for key, value in blackboard_updates.items():
+                # Register and set key
+                try:
+                    bb.register_key(key=key, access=py_trees.common.Access.WRITE)
+                    bb.set(key, value, overwrite=True)
+                except Exception as e:
+                    # Already registered or other error - try to set anyway
+                    try:
+                        bb.set(key, value, overwrite=True)
+                    except Exception:
+                        print(f"Warning: Could not set blackboard key {key}: {e}")
 
         # Tick the tree
         response = instance.tick(count)

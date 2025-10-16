@@ -1,0 +1,102 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "test-automation-tree",
+  "metadata": {
+    "name": "Test Automation Tree",
+    "version": "1.0.0",
+    "description": "Test tree using SetBlackboardVariable for real automation",
+    "tags": ["test", "automation"],
+    "status": "draft"
+  },
+  "blackboard_schema": {
+    "battery_level": {
+      "type": "int",
+      "default": 100,
+      "description": "Robot battery level (0-100)"
+    },
+    "object_distance": {
+      "type": "float",
+      "default": 999.0,
+      "description": "Distance to nearest object in meters"
+    },
+    "robot_action": {
+      "type": "string",
+      "default": "idle",
+      "description": "Command for external robot system"
+    },
+    "tick_count": {
+      "type": "int",
+      "default": 0,
+      "description": "Number of ticks executed"
+    }
+  },
+  "root": {
+    "node_type": "Selector",
+    "name": "Robot Controller",
+    "config": {
+      "memory": false
+    },
+    "children": [
+      {
+        "node_type": "Sequence",
+        "name": "Low Battery Handler",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "name": "Check Battery Low",
+            "config": {
+              "variable": "battery_level",
+              "operator_str": "<",
+              "value": 20
+            }
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "name": "Command: Charge",
+            "config": {
+              "variable": "robot_action",
+              "value": "charge"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Object Detection",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "name": "Check Object Close",
+            "config": {
+              "variable": "object_distance",
+              "operator_str": "<",
+              "value": 5.0
+            }
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "name": "Command: Grasp",
+            "config": {
+              "variable": "robot_action",
+              "value": "grasp"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "SetBlackboardVariable",
+        "name": "Command: Patrol",
+        "config": {
+          "variable": "robot_action",
+          "value": "patrol"
+        }
+      }
+    ]
+  }
+}

@@ -384,6 +384,118 @@ class BehaviorRegistry:
             ),
         )
 
+        self.register(
+            node_type="SetBlackboardVariable",
+            implementation=examples.SetBlackboardVariable,
+            schema=BehaviorSchema(
+                node_type="SetBlackboardVariable",
+                category=NodeCategory.ACTION,
+                display_name="Set Variable",
+                description="Set a blackboard variable to a value (REAL ACTION for automation)",
+                icon="set_variable",
+                color="#E67E22",
+                config_schema={
+                    "variable": ConfigPropertySchema(
+                        type="string",
+                        default="result",
+                        description="Blackboard variable name to set",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "value": ConfigPropertySchema(
+                        type="string",
+                        default="",
+                        description="Value to set (JSON string, number, or boolean)",
+                        ui_hints={"widget": "text"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=0, max_children=0),
+                blackboard_access=BlackboardAccess(
+                    reads=[],
+                    writes=["variable"],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS"],
+                    description="Always returns SUCCESS after setting variable",
+                ),
+                is_builtin=False,
+            ),
+        )
+
+        self.register(
+            node_type="GetBlackboardVariable",
+            implementation=examples.GetBlackboardVariable,
+            schema=BehaviorSchema(
+                node_type="GetBlackboardVariable",
+                category=NodeCategory.ACTION,
+                display_name="Get Variable",
+                description="Read a blackboard variable (for debugging/testing)",
+                icon="get_variable",
+                color="#3498DB",
+                config_schema={
+                    "variable": ConfigPropertySchema(
+                        type="string",
+                        default="result",
+                        description="Blackboard variable name to read",
+                        ui_hints={"widget": "text"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=0, max_children=0),
+                blackboard_access=BlackboardAccess(
+                    reads=["variable"],
+                    writes=[],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS", "FAILURE"],
+                    description="SUCCESS if variable exists, FAILURE if not found",
+                ),
+                is_builtin=False,
+            ),
+        )
+
+        self.register(
+            node_type="CheckBlackboardCondition",
+            implementation=examples.CheckBlackboardCondition,
+            schema=BehaviorSchema(
+                node_type="CheckBlackboardCondition",
+                category=NodeCategory.DECORATOR,
+                display_name="Check Condition",
+                description="Check blackboard value with comparison operator, run child if true",
+                icon="condition_check",
+                color="#16A085",
+                config_schema={
+                    "variable": ConfigPropertySchema(
+                        type="string",
+                        default="value",
+                        description="Blackboard variable name to check",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "operator_str": ConfigPropertySchema(
+                        type="string",
+                        default="==",
+                        enum=["<", "<=", "==", "!=", ">=", ">"],
+                        description="Comparison operator",
+                        ui_hints={"widget": "select"},
+                    ),
+                    "value": ConfigPropertySchema(
+                        type="number",
+                        default=0,
+                        description="Value to compare against",
+                        ui_hints={"widget": "number"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=1, max_children=1),
+                blackboard_access=BlackboardAccess(
+                    reads=["variable"],
+                    writes=[],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS", "FAILURE", "RUNNING"],
+                    description="Child status if condition passes, FAILURE if condition fails",
+                ),
+                is_builtin=False,
+            ),
+        )
+
     def register(
         self,
         node_type: str,
@@ -511,6 +623,26 @@ class BehaviorRegistry:
             elif node_type == "Wait":
                 duration = config.get("duration", 1.0)
                 return implementation(name=name, duration=duration)
+            elif node_type == "SetBlackboardVariable":
+                variable = config.get("variable", "result")
+                value = config.get("value", "")
+                return implementation(name=name, variable=variable, value=value)
+            elif node_type == "GetBlackboardVariable":
+                variable = config.get("variable", "result")
+                return implementation(name=name, variable=variable)
+            elif node_type == "CheckBlackboardCondition":
+                # Conditional decorator needs child parameter (will be added later)
+                dummy_child = py_trees.behaviours.Success(name="dummy")
+                variable = config.get("variable", "value")
+                operator_str = config.get("operator_str", "==")
+                value = config.get("value", 0)
+                return implementation(
+                    name=name,
+                    child=dummy_child,
+                    variable=variable,
+                    operator_str=operator_str,
+                    value=value,
+                )
             else:
                 # Simple behaviors (Success, Failure, Running, etc.)
                 return implementation(name=name)

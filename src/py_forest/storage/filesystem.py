@@ -179,15 +179,20 @@ class FileSystemTreeLibrary(TreeLibrary):
         metadata = self._load_metadata(tree_dir)
 
         # Determine which version to load
-        if version is None:
-            # Load latest version
-            latest = next(
-                (v for v in metadata.get("versions", []) if v.get("is_latest")),
-                None,
-            )
-            if latest is None:
-                raise ValueError(f"No versions found for tree: {tree_id}")
-            version_file = latest["file_name"]
+        if version is None or version == "draft":
+            # For draft or no version specified, check for draft first
+            draft_path = tree_dir / "draft.json"
+            if draft_path.exists():
+                version_file = "draft.json"
+            else:
+                # Load latest version from versions list
+                latest = next(
+                    (v for v in metadata.get("versions", []) if v.get("is_latest")),
+                    None,
+                )
+                if latest is None:
+                    raise ValueError(f"No versions found for tree: {tree_id}")
+                version_file = latest["file_name"]
         else:
             # Load specific version
             version_info = next(

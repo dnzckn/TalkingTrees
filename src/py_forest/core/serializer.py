@@ -147,14 +147,16 @@ class TreeSerializer:
         # Build children first
         children = [self._build_node(child) for child in node_def.children]
 
-        # Create composite
-        memory = node_def.config.get("memory", True)
-
+        # Create composite with correct memory defaults
+        # Sequence defaults to memory=True (committed - completes steps in order)
+        # Selector defaults to memory=False (reactive - re-evaluates priorities each tick)
         if node_def.node_type == "Sequence":
+            memory = node_def.config.get("memory", True)
             composite = py_trees.composites.Sequence(
                 name=node_def.name, memory=memory, children=children
             )
         elif node_def.node_type == "Selector":
+            memory = node_def.config.get("memory", False)
             composite = py_trees.composites.Selector(
                 name=node_def.name, memory=memory, children=children
             )

@@ -105,6 +105,7 @@ def tick_execution(
             execution_id=execution_id,
             count=request.count,
             capture_snapshot=request.capture_snapshot,
+            blackboard_updates=request.blackboard_updates,
         )
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))

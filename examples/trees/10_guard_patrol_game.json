@@ -1,0 +1,173 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "guard-patrol-game",
+  "metadata": {
+    "name": "Guard Patrol Game",
+    "version": "1.0.0",
+    "description": "Interactive 2D grid game with guard NPCs patrolling, investigating, and chasing intruders",
+    "tags": ["game", "demo", "visual", "interactive"],
+    "author": "PyForest Demo",
+    "status": "draft"
+  },
+  "blackboard_schema": {
+    "guard_x": {"type": "int", "default": 5},
+    "guard_y": {"type": "int", "default": 5},
+    "patrol_index": {"type": "int", "default": 0},
+    "alert_level": {"type": "int", "default": 0},
+    "intruder_x": {"type": "int", "default": -1},
+    "intruder_y": {"type": "int", "default": -1},
+    "state": {"type": "string", "default": "patrolling"},
+    "target_x": {"type": "int", "default": 5},
+    "target_y": {"type": "int", "default": 5},
+    "tick_count": {"type": "int", "default": 0}
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "Guard AI",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Log",
+        "name": "Tick Start",
+        "config": {
+          "message": "=== Guard AI Tick ==="
+        }
+      },
+      {
+        "node_type": "Selector",
+        "name": "Behavior Selection",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "Chase Intruder",
+            "config": {},
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableExists",
+                "name": "Check Intruder Detected",
+                "config": {
+                  "variable_name": "intruder_x"
+                }
+              },
+              {
+                "node_type": "Log",
+                "name": "Chasing",
+                "config": {
+                  "message": "ALERT! Chasing intruder!"
+                }
+              },
+              {
+                "node_type": "Success",
+                "name": "Move Toward Intruder",
+                "config": {}
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Patrol Route",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Log",
+                "name": "Patrolling",
+                "config": {
+                  "message": "Patrolling waypoint..."
+                }
+              },
+              {
+                "node_type": "Selector",
+                "name": "Choose Patrol Action",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "name": "Patrol North",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Moving North",
+                        "config": {
+                          "message": "Moving North ↑"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "North Success",
+                        "config": {}
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "name": "Patrol East",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Moving East",
+                        "config": {
+                          "message": "Moving East →"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "East Success",
+                        "config": {}
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "name": "Patrol South",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Moving South",
+                        "config": {
+                          "message": "Moving South ↓"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "South Success",
+                        "config": {}
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "name": "Patrol West",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Log",
+                        "name": "Moving West",
+                        "config": {
+                          "message": "Moving West ←"
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "name": "West Success",
+                        "config": {}
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Success",
+        "name": "Tick Complete",
+        "config": {}
+      }
+    ]
+  }
+}

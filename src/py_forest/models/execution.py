@@ -226,6 +226,10 @@ class TickRequest(BaseModel):
         default=True,
         description="Whether to return a full snapshot after ticking",
     )
+    blackboard_updates: Dict[str, Any] = Field(
+        default_factory=dict,
+        description="Blackboard values to update before ticking (sensor inputs)",
+    )
 
 
 class TickResponse(BaseModel):

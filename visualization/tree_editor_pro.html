@@ -1,0 +1,2459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyForest - Professional Behavior Tree Editor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* App Layout */
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr 320px;
+            grid-template-rows: 50px 1fr 30px;
+            height: 100vh;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            grid-column: 1 / -1;
+            background: linear-gradient(180deg, #2d2d30 0%, #252526 100%);
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            gap: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .toolbar-group {
+            display: flex;
+            gap: 3px;
+            padding: 0 10px;
+            border-right: 1px solid #3e3e42;
+        }
+
+        .toolbar-group:last-child {
+            border-right: none;
+            margin-left: auto;
+        }
+
+        .toolbar-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #d4d4d4;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toolbar-btn:hover {
+            background: #3e3e42;
+            border-color: #4e4e52;
+        }
+
+        .toolbar-btn:active {
+            background: #4e4e52;
+        }
+
+        .toolbar-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .toolbar-btn.primary {
+            background: #0e639c;
+            color: white;
+        }
+
+        .toolbar-btn.primary:hover {
+            background: #1177bb;
+        }
+
+        .toolbar-btn.success {
+            background: #16825d;
+            color: white;
+        }
+
+        .toolbar-btn.success:hover {
+            background: #1a9870;
+        }
+
+        .toolbar-icon {
+            font-size: 16px;
+        }
+
+        /* Left Sidebar - Tree Library & Palette */
+        .sidebar-left {
+            background: #252526;
+            border-right: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            background: #2d2d30;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            color: #858585;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .sidebar-tab:hover {
+            background: #3e3e42;
+            color: #d4d4d4;
+        }
+
+        .sidebar-tab.active {
+            color: #4fc1ff;
+            border-bottom-color: #4fc1ff;
+            background: #252526;
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #858585;
+            text-transform: uppercase;
+            margin: 20px 0 10px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #3e3e42;
+            letter-spacing: 0.5px;
+        }
+
+        .section-title:first-child {
+            margin-top: 0;
+        }
+
+        /* Node Palette */
+        .node-item {
+            background: #37373d;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 5px;
+            cursor: grab;
+            border-left: 4px solid;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .node-item:hover {
+            background: #3e3e42;
+            transform: translateX(5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .node-item:active {
+            cursor: grabbing;
+        }
+
+        .node-item.composite { border-left-color: #4ec9b0; }
+        .node-item.decorator { border-left-color: #dcdcaa; }
+        .node-item.action { border-left-color: #4fc1ff; }
+        .node-item.condition { border-left-color: #c586c0; }
+
+        .node-item-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .node-item-desc {
+            font-size: 11px;
+            color: #858585;
+        }
+
+        /* Tree Library */
+        .library-item {
+            background: #37373d;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid #4fc1ff;
+        }
+
+        .library-item:hover {
+            background: #3e3e42;
+            transform: translateX(5px);
+        }
+
+        .library-item-title {
+            font-weight: 600;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .library-item-desc {
+            font-size: 11px;
+            color: #858585;
+            margin-bottom: 8px;
+        }
+
+        .library-item-meta {
+            display: flex;
+            gap: 10px;
+            font-size: 10px;
+            color: #858585;
+        }
+
+        .library-search {
+            width: 100%;
+            padding: 10px;
+            background: #3c3c3c;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            color: #d4d4d4;
+            font-size: 13px;
+            margin-bottom: 15px;
+        }
+
+        .library-search:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+
+        /* Canvas Area */
+        .canvas-area {
+            background: #1e1e1e;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #treeCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: default;
+        }
+
+        .canvas-overlay {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(37, 37, 38, 0.95);
+            padding: 12px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            border: 1px solid #3e3e42;
+            max-width: 350px;
+        }
+
+        .canvas-overlay.connect-mode {
+            background: rgba(243, 156, 18, 0.95);
+            color: white;
+            font-weight: 600;
+        }
+
+        .minimap {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            width: 200px;
+            height: 150px;
+            background: rgba(37, 37, 38, 0.95);
+            border: 2px solid #3e3e42;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        /* Right Sidebar - Properties */
+        .sidebar-right {
+            background: #252526;
+            border-left: 1px solid #3e3e42;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .properties-header {
+            background: #2d2d30;
+            padding: 12px 15px;
+            border-bottom: 1px solid #3e3e42;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .properties-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .prop-group {
+            margin-bottom: 18px;
+        }
+
+        .prop-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #858585;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prop-input, .prop-select {
+            width: 100%;
+            padding: 10px;
+            background: #3c3c3c;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            color: #d4d4d4;
+            font-size: 13px;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        .prop-input:focus, .prop-select:focus {
+            outline: none;
+            border-color: #0e639c;
+            background: #404040;
+        }
+
+        .prop-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #3c3c3c;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .prop-checkbox input {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .prop-checkbox label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .prop-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .prop-btn.danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .prop-btn.danger:hover {
+            background: #c0392b;
+        }
+
+        .prop-btn.secondary {
+            background: #3e3e42;
+            color: white;
+        }
+
+        .prop-btn.secondary:hover {
+            background: #4e4e52;
+        }
+
+        .validation-message {
+            background: #3e2723;
+            border-left: 4px solid #e74c3c;
+            padding: 12px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        .validation-message.warning {
+            background: #3e3520;
+            border-left-color: #f39c12;
+        }
+
+        .validation-message.success {
+            background: #1e3e2e;
+            border-left-color: #27ae60;
+        }
+
+        /* Status Bar */
+        .statusbar {
+            grid-column: 1 / -1;
+            background: #0e639c;
+            color: white;
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .statusbar-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .statusbar-separator {
+            width: 1px;
+            height: 16px;
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            border-radius: 8px;
+            padding: 25px;
+            min-width: 400px;
+            max-width: 600px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #4fc1ff;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            background: #3c3c3c;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            color: #d4d4d4;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .modal-input:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+
+        .modal-textarea {
+            width: 100%;
+            padding: 12px;
+            background: #3c3c3c;
+            border: 1px solid #3e3e42;
+            border-radius: 5px;
+            color: #d4d4d4;
+            font-size: 13px;
+            font-family: inherit;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .modal-textarea:focus {
+            outline: none;
+            border-color: #0e639c;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .modal-btn.primary {
+            background: #0e639c;
+            color: white;
+        }
+
+        .modal-btn.primary:hover {
+            background: #1177bb;
+        }
+
+        .modal-btn.secondary {
+            background: #3e3e42;
+            color: white;
+        }
+
+        .modal-btn.secondary:hover {
+            background: #4e4e52;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 12px;
+            height: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e1e1e;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #3e3e42;
+            border-radius: 6px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4e4e52;
+        }
+
+        /* Tooltips */
+        [data-tooltip] {
+            position: relative;
+        }
+
+        [data-tooltip]:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2d2d30;
+            color: #d4d4d4;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            margin-bottom: 5px;
+            border: 1px solid #3e3e42;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            z-index: 10000;
+        }
+
+        /* Grid toggle */
+        .canvas-grid {
+            background-image:
+                linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <!-- File Operations -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn" onclick="newTree()" data-tooltip="New Tree (Ctrl+N)">
+                    <span class="toolbar-icon">📄</span> New
+                </button>
+                <button class="toolbar-btn" onclick="openLoadModal()" data-tooltip="Load Tree (Ctrl+O)">
+                    <span class="toolbar-icon">📂</span> Open
+                </button>
+                <button class="toolbar-btn" onclick="saveToLibrary()" data-tooltip="Save to Library (Ctrl+S)">
+                    <span class="toolbar-icon">💾</span> Save
+                </button>
+            </div>
+
+            <!-- Edit Operations -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="undoBtn" onclick="undo()" disabled data-tooltip="Undo (Ctrl+Z)">
+                    <span class="toolbar-icon">↶</span> Undo
+                </button>
+                <button class="toolbar-btn" id="redoBtn" onclick="redo()" disabled data-tooltip="Redo (Ctrl+Y)">
+                    <span class="toolbar-icon">↷</span> Redo
+                </button>
+                <button class="toolbar-btn" id="connectBtn" onclick="toggleConnectMode()" data-tooltip="Connect Mode: Click parent, then child">
+                    <span class="toolbar-icon">🔗</span> Connect
+                </button>
+                <button class="toolbar-btn" id="loadExampleBtn" onclick="loadRobotExample()" data-tooltip="Load Robot Controller Example">
+                    <span class="toolbar-icon">🤖</span> Example
+                </button>
+            </div>
+
+            <!-- View Operations -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn" onclick="autoLayout()" data-tooltip="Auto Layout (Ctrl+L)">
+                    <span class="toolbar-icon">🎯</span> Layout
+                </button>
+                <button class="toolbar-btn" onclick="zoomIn()" data-tooltip="Zoom In (+)">
+                    <span class="toolbar-icon">🔍+</span>
+                </button>
+                <button class="toolbar-btn" onclick="zoomOut()" data-tooltip="Zoom Out (-)">
+                    <span class="toolbar-icon">🔍-</span>
+                </button>
+                <button class="toolbar-btn" onclick="zoomFit()" data-tooltip="Fit to View (Ctrl+0)">
+                    <span class="toolbar-icon">⊡</span> Fit
+                </button>
+                <button class="toolbar-btn" id="gridBtn" onclick="toggleGrid()" data-tooltip="Toggle Grid (Ctrl+G)">
+                    <span class="toolbar-icon">#</span> Grid
+                </button>
+            </div>
+
+            <!-- Export Operations -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn success" onclick="exportTree()" data-tooltip="Export JSON">
+                    <span class="toolbar-icon">📦</span> Export
+                </button>
+                <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Save to PyForest API">
+                    <span class="toolbar-icon">☁</span> API
+                </button>
+            </div>
+
+            <!-- Validation & Help -->
+            <div class="toolbar-group">
+                <button class="toolbar-btn" id="validateBtn" onclick="validateTree()" data-tooltip="Validate Tree (Ctrl+Shift+V)">
+                    <span class="toolbar-icon">✓</span> Validate
+                </button>
+            </div>
+        </div>
+
+        <!-- Left Sidebar -->
+        <div class="sidebar-left">
+            <div class="sidebar-tabs">
+                <div class="sidebar-tab active" onclick="switchTab('palette')">Node Palette</div>
+                <div class="sidebar-tab" onclick="switchTab('library')">Library</div>
+            </div>
+            <div class="sidebar-content" id="paletteTab">
+                <input type="text" class="library-search" id="paletteSearch" placeholder="Search nodes..." onkeyup="filterPalette()">
+
+                <div class="section-title">Composites (Multi-child)</div>
+                <div class="palette-nodes" id="compositesGroup">
+                    <div class="node-item composite" draggable="true" data-type="Sequence" data-search="sequence order sequential">
+                        <div class="node-item-title">Sequence</div>
+                        <div class="node-item-desc">Execute children in order, fail on first failure</div>
+                    </div>
+                    <div class="node-item composite" draggable="true" data-type="Selector" data-search="selector priority fallback">
+                        <div class="node-item-title">Selector</div>
+                        <div class="node-item-desc">Try until one succeeds, fallback pattern</div>
+                    </div>
+                    <div class="node-item composite" draggable="true" data-type="Parallel" data-search="parallel concurrent simultaneous">
+                        <div class="node-item-title">Parallel</div>
+                        <div class="node-item-desc">Execute children concurrently</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Decorators (Single-child)</div>
+                <div class="palette-nodes" id="decoratorsGroup">
+                    <div class="node-item decorator" draggable="true" data-type="CheckBlackboardCondition" data-search="check condition if guard">
+                        <div class="node-item-title">Check Condition</div>
+                        <div class="node-item-desc">Run child only if condition passes</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="Inverter" data-search="inverter not flip">
+                        <div class="node-item-title">Inverter</div>
+                        <div class="node-item-desc">Flip SUCCESS ⇄ FAILURE</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="Retry" data-search="retry repeat attempts">
+                        <div class="node-item-title">Retry</div>
+                        <div class="node-item-desc">Retry child N times on failure</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="Timeout" data-search="timeout timer duration">
+                        <div class="node-item-title">Timeout</div>
+                        <div class="node-item-desc">Fail if child takes too long</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Actions (Leaf nodes)</div>
+                <div class="palette-nodes" id="actionsGroup">
+                    <div class="node-item action" draggable="true" data-type="SetBlackboardVariable" data-search="set write variable action">
+                        <div class="node-item-title">Set Variable</div>
+                        <div class="node-item-desc">Write to blackboard (REAL ACTION)</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="GetBlackboardVariable" data-search="get read variable query">
+                        <div class="node-item-title">Get Variable</div>
+                        <div class="node-item-desc">Read from blackboard</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="Log" data-search="log print debug">
+                        <div class="node-item-title">Log</div>
+                        <div class="node-item-desc">Log message (debug only, not for production)</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="Wait" data-search="wait sleep delay pause">
+                        <div class="node-item-title">Wait</div>
+                        <div class="node-item-desc">Wait for duration</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="Success" data-search="success always true">
+                        <div class="node-item-title">Success</div>
+                        <div class="node-item-desc">Always return SUCCESS</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="Failure" data-search="failure always false">
+                        <div class="node-item-title">Failure</div>
+                        <div class="node-item-desc">Always return FAILURE</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Conditions (Leaf nodes)</div>
+                <div class="palette-nodes" id="conditionsGroup">
+                    <div class="node-item condition" draggable="true" data-type="CheckBlackboardVariableExists" data-search="check exists has key">
+                        <div class="node-item-title">Check Variable Exists</div>
+                        <div class="node-item-desc">Check if blackboard key exists</div>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-content" id="libraryTab" style="display: none;">
+                <input type="text" class="library-search" id="librarySearch" placeholder="Search library..." onkeyup="filterLibrary()">
+                <div id="libraryContent">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-area" id="canvasArea">
+            <div class="canvas-overlay" id="canvasHint">
+                <strong>Quick Start:</strong> Drag nodes from the palette onto the canvas, then Shift+Click parent → Click child to connect.
+            </div>
+            <canvas id="treeCanvas" width="4000" height="3000"></canvas>
+            <canvas class="minimap" id="minimap" width="200" height="150"></canvas>
+        </div>
+
+        <!-- Right Sidebar -->
+        <div class="sidebar-right">
+            <div class="properties-header">Properties</div>
+            <div class="properties-content" id="propertiesContent">
+                <div style="color: #858585; text-align: center; padding: 40px 20px;">
+                    Select a node to edit its properties
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="statusbar">
+            <div class="statusbar-item">
+                <span id="statusMessage">Ready</span>
+            </div>
+            <div class="statusbar-separator"></div>
+            <div class="statusbar-item">
+                Nodes: <strong id="nodeCount">0</strong>
+            </div>
+            <div class="statusbar-separator"></div>
+            <div class="statusbar-item">
+                Connections: <strong id="connectionCount">0</strong>
+            </div>
+            <div class="statusbar-separator"></div>
+            <div class="statusbar-item">
+                Zoom: <strong id="zoomLevel">100%</strong>
+            </div>
+            <div class="statusbar-separator"></div>
+            <div class="statusbar-item" id="treeNameDisplay">
+                <strong>Untitled Tree</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Modal -->
+    <div class="modal-overlay" id="saveModal">
+        <div class="modal">
+            <div class="modal-title">Save Tree to Library</div>
+            <div class="modal-body">
+                <input type="text" class="modal-input" id="saveTreeName" placeholder="Tree Name (e.g., Robot Controller)">
+                <textarea class="modal-textarea" id="saveTreeDesc" placeholder="Description..."></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('saveModal')">Cancel</button>
+                <button class="modal-btn primary" onclick="confirmSaveToLibrary()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Modal -->
+    <div class="modal-overlay" id="loadModal">
+        <div class="modal">
+            <div class="modal-title">Load Tree</div>
+            <div class="modal-body" id="loadModalContent">
+                <!-- Populated dynamically -->
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('loadModal')">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_BASE = 'http://localhost:8000';
+        const STORAGE_KEY_LIBRARY = 'pyforest_tree_library';
+        const STORAGE_KEY_CURRENT = 'pyforest_current_tree';
+        const LIBRARY_VERSION = '2.0'; // Increment to force reload demos
+
+        // State
+        let nodes = [];
+        let selectedNode = null;
+        let selectedNodes = new Set(); // Multi-select
+        let clipboard = null; // For copy/paste
+        let lastKeyTime = 0; // For double-key detection
+        let lastKey = null;
+        let nextNodeId = 1;
+        let canvas, ctx, minimap, minimapCtx;
+        let isDragging = false;
+        let dragOffset = {x: 0, y: 0};
+        let connectMode = false;
+        let connectFromNode = null;
+        let currentTreeName = "Untitled Tree";
+        let currentTreeId = null;
+        let showGrid = false;
+
+        // Pan & Zoom
+        let viewportX = 0;
+        let viewportY = 0;
+        let viewportScale = 1.0;
+        let isPanning = false;
+        let panStart = {x: 0, y: 0};
+
+        // Drag detection
+        let mouseDownPos = {x: 0, y: 0};
+        let hasMovedMouse = false;
+        const DRAG_THRESHOLD = 5; // pixels before drag starts
+
+        // Undo/Redo
+        let history = [];
+        let historyIndex = -1;
+        const MAX_HISTORY = 50;
+
+        // Node Definitions
+        const NODE_DEFS = {
+            'Sequence': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { memory: true } },
+            'Selector': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { memory: false } },
+            'Parallel': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { policy: 'success_on_all' } },
+            'Inverter': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'Retry': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { num_tries: 3 }},
+            'Timeout': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { duration: 5.0 }},
+            'CheckBlackboardCondition': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'value', operator_str: '==', value: 0 }},
+            'SetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result', value: '' }},
+            'GetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result' }},
+            'Log': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { message: 'Log message' }},
+            'Wait': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { duration: 1.0 }},
+            'Success': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
+            'Failure': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
+            'CheckBlackboardVariableExists': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable_name: 'key' }}
+        };
+
+        // Initialize
+        window.addEventListener('load', () => {
+            canvas = document.getElementById('treeCanvas');
+            ctx = canvas.getContext('2d');
+            minimap = document.getElementById('minimap');
+            minimapCtx = minimap.getContext('2d');
+
+            setupDragAndDrop();
+            setupCanvas();
+            setupKeyboardShortcuts();
+            loadLibrary();
+            restoreLastSession();
+            render();
+        });
+
+        // Setup Functions
+        function setupDragAndDrop() {
+            const canvasArea = document.getElementById('canvasArea');
+
+            document.querySelectorAll('.node-item').forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('nodeType', item.dataset.type);
+                });
+            });
+
+            canvasArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+            });
+
+            canvasArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const nodeType = e.dataTransfer.getData('nodeType');
+                if (nodeType) {
+                    const rect = canvasArea.getBoundingClientRect();
+                    const canvasX = e.clientX - rect.left;
+                    const canvasY = e.clientY - rect.top;
+                    const x = (canvasX - viewportX) / viewportScale;
+                    const y = (canvasY - viewportY) / viewportScale;
+                    createNode(nodeType, x, y);
+                }
+            });
+        }
+
+        function setupCanvas() {
+            // Mouse wheel for zoom
+            canvas.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const rect = canvas.getBoundingClientRect();
+                const mouseX = e.clientX - rect.left;
+                const mouseY = e.clientY - rect.top;
+
+                const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+                const newScale = Math.max(0.1, Math.min(5.0, viewportScale * zoomFactor));
+
+                const worldX = (mouseX - viewportX) / viewportScale;
+                const worldY = (mouseY - viewportY) / viewportScale;
+
+                viewportX = mouseX - worldX * newScale;
+                viewportY = mouseY - worldY * newScale;
+                viewportScale = newScale;
+
+                updateZoomDisplay();
+                render();
+            });
+
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const canvasX = e.clientX - rect.left;
+                const canvasY = e.clientY - rect.top;
+                const x = (canvasX - viewportX) / viewportScale;
+                const y = (canvasY - viewportY) / viewportScale;
+
+                const clickedNode = getNodeAt(x, y);
+
+                // Panning (middle mouse or Ctrl+drag)
+                if (e.button === 1 || (e.button === 0 && e.ctrlKey) || e.button === 2) {
+                    e.preventDefault();
+                    isPanning = true;
+                    isDragging = false; // Ensure dragging is off
+                    panStart = { x: e.clientX - viewportX, y: e.clientY - viewportY };
+                    canvas.style.cursor = 'grabbing';
+                    return;
+                }
+
+                // Collapse toggle
+                if (clickedNode && clickedNode.children.length > 0 && !connectMode) {
+                    const badgeX = clickedNode.x + 140;
+                    const badgeY = clickedNode.y + 10;
+                    const dist = Math.sqrt((x - badgeX) ** 2 + (y - badgeY) ** 2);
+                    if (dist < 12) {
+                        clickedNode.collapsed = !clickedNode.collapsed;
+                        saveHistory();
+                        render();
+                        updateStatus(`${clickedNode.collapsed ? 'Collapsed' : 'Expanded'} ${clickedNode.name}`);
+                        return;
+                    }
+                }
+
+                // Connect mode handling
+                if (connectMode && clickedNode) {
+                    if (!connectFromNode) {
+                        // First click - select parent
+                        const def = NODE_DEFS[clickedNode.type];
+                        if (def.canHaveChildren) {
+                            connectFromNode = clickedNode;
+                            updateStatus(`Selected ${clickedNode.name} - Now click child node to connect`);
+                            render();
+                        } else {
+                            updateStatus(`${clickedNode.type} cannot have children`);
+                        }
+                    } else {
+                        // Second click - connect child
+                        if (clickedNode !== connectFromNode) {
+                            connectNodes(connectFromNode, clickedNode);
+                            connectFromNode = null;
+                            updateStatus('Nodes connected! Click another parent or exit Connect Mode');
+                        } else {
+                            updateStatus('Cannot connect node to itself');
+                        }
+                        render();
+                    }
+                    return;
+                }
+
+                // Regular node interaction (not in connect mode)
+                if (clickedNode && !connectMode) {
+                    selectNode(clickedNode);
+                    // Don't start dragging yet - wait for mouse movement
+                    mouseDownPos = { x: e.clientX, y: e.clientY };
+                    hasMovedMouse = false;
+                    dragOffset = { x: x - clickedNode.x, y: y - clickedNode.y };
+                } else if (!connectMode) {
+                    // Clicked empty space
+                    selectedNode = null;
+                    showProperties(null);
+                    render();
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                if (isPanning) {
+                    viewportX = e.clientX - panStart.x;
+                    viewportY = e.clientY - panStart.y;
+                    render();
+                    return;
+                }
+
+                // Check if we should start dragging (threshold exceeded)
+                if (selectedNode && !isDragging && !hasMovedMouse && mouseDownPos.x !== 0) {
+                    const deltaX = e.clientX - mouseDownPos.x;
+                    const deltaY = e.clientY - mouseDownPos.y;
+                    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+                    if (distance > DRAG_THRESHOLD) {
+                        hasMovedMouse = true;
+                        isDragging = true;
+                        canvas.style.cursor = 'grabbing';
+                    }
+                }
+
+                // Perform dragging
+                if (isDragging && selectedNode) {
+                    const rect = canvas.getBoundingClientRect();
+                    const canvasX = e.clientX - rect.left;
+                    const canvasY = e.clientY - rect.top;
+                    const worldX = (canvasX - viewportX) / viewportScale;
+                    const worldY = (canvasY - viewportY) / viewportScale;
+
+                    if (showGrid) {
+                        selectedNode.x = Math.round((worldX - dragOffset.x) / 50) * 50;
+                        selectedNode.y = Math.round((worldY - dragOffset.y) / 50) * 50;
+                    } else {
+                        selectedNode.x = worldX - dragOffset.x;
+                        selectedNode.y = worldY - dragOffset.y;
+                    }
+                    render();
+                }
+            });
+
+            canvas.addEventListener('mouseup', (e) => {
+                if (isDragging && selectedNode) {
+                    saveHistory();
+                }
+                // Clear all dragging/panning states
+                isDragging = false;
+                isPanning = false;
+                hasMovedMouse = false;
+                mouseDownPos = {x: 0, y: 0};
+                canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+            });
+
+            // Global mouseup to catch releases outside canvas
+            document.addEventListener('mouseup', (e) => {
+                if (isDragging || isPanning || hasMovedMouse) {
+                    if (isDragging && selectedNode) {
+                        saveHistory();
+                    }
+                    isDragging = false;
+                    isPanning = false;
+                    hasMovedMouse = false;
+                    mouseDownPos = {x: 0, y: 0};
+                    canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+                    render();
+                }
+            });
+
+            canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
+
+            // Minimap navigation
+            minimap.addEventListener('click', (e) => {
+                if (nodes.length === 0) return;
+
+                const rect = minimap.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const clickY = e.clientY - rect.top;
+
+                // Find bounds
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                nodes.forEach(node => {
+                    minX = Math.min(minX, node.x);
+                    minY = Math.min(minY, node.y);
+                    maxX = Math.max(maxX, node.x + 150);
+                    maxY = Math.max(maxY, node.y + 60);
+                });
+
+                const treeWidth = maxX - minX;
+                const treeHeight = maxY - minY;
+
+                // Calculate minimap scale (same as render)
+                const minimapScale = Math.min(minimap.width / treeWidth, minimap.height / treeHeight, 1);
+
+                // Convert minimap click to world coordinates
+                // Account for offset in minimap rendering
+                const worldX = minX + (clickX / minimapScale);
+                const worldY = minY + (clickY / minimapScale);
+
+                // Center main viewport on clicked world position
+                viewportX = (canvas.width / 2) - (worldX * viewportScale);
+                viewportY = (canvas.height / 2) - (worldY * viewportScale);
+
+                render();
+                updateStatus(`Jumped to (${Math.round(worldX)}, ${Math.round(worldY)})`);
+            });
+
+            minimap.style.cursor = 'pointer';
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    if (connectMode) {
+                        toggleConnectMode(); // Exit connect mode
+                    }
+                }
+            });
+        }
+
+        function setupKeyboardShortcuts() {
+            document.addEventListener('keydown', (e) => {
+                // Ctrl/Cmd shortcuts
+                if (e.ctrlKey || e.metaKey) {
+                    switch(e.key.toLowerCase()) {
+                        case 'n':
+                            e.preventDefault();
+                            newTree();
+                            break;
+                        case 'o':
+                            e.preventDefault();
+                            openLoadModal();
+                            break;
+                        case 's':
+                            e.preventDefault();
+                            saveToLibrary();
+                            break;
+                        case 'z':
+                            e.preventDefault();
+                            undo();
+                            break;
+                        case 'y':
+                            e.preventDefault();
+                            redo();
+                            break;
+                        case 'l':
+                            e.preventDefault();
+                            autoLayout();
+                            break;
+                        case 'g':
+                            e.preventDefault();
+                            toggleGrid();
+                            break;
+                        case '0':
+                            e.preventDefault();
+                            zoomFit();
+                            break;
+                        case 'c':
+                            e.preventDefault();
+                            copySelected();
+                            break;
+                        case 'x':
+                            e.preventDefault();
+                            cutSelected();
+                            break;
+                        case 'v':
+                            e.preventDefault();
+                            if (e.shiftKey) {
+                                // Ctrl+Shift+V = Validate
+                                validateTree();
+                            } else {
+                                // Ctrl+V = Paste
+                                pasteFromClipboard();
+                            }
+                            break;
+                        case 'd':
+                            e.preventDefault();
+                            duplicateSelected();
+                            break;
+                        case 'a':
+                            e.preventDefault();
+                            selectAll();
+                            break;
+                    }
+                }
+
+                // Delete key
+                if (e.key === 'Delete') {
+                    if (selectedNodes.size > 0) {
+                        deleteSelectedNodes();
+                    } else if (selectedNode) {
+                        deleteSelectedNode();
+                    }
+                }
+
+                // Double-D to delete (vim-style)
+                if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.metaKey) {
+                    const now = Date.now();
+                    if (lastKey === 'd' && (now - lastKeyTime) < 500) {
+                        // Double-D pressed
+                        if (selectedNodes.size > 0) {
+                            deleteSelectedNodes();
+                        } else if (selectedNode) {
+                            deleteSelectedNode();
+                        }
+                        lastKey = null;
+                    } else {
+                        lastKey = 'd';
+                        lastKeyTime = now;
+                    }
+                }
+
+                // S key for connect mode toggle
+                if (e.key.toLowerCase() === 's' && !e.ctrlKey && !e.metaKey) {
+                    e.preventDefault();
+                    toggleConnectMode();
+                }
+
+                // Zoom with +/-
+                if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    zoomIn();
+                }
+                if (e.key === '-' || e.key === '_') {
+                    e.preventDefault();
+                    zoomOut();
+                }
+            });
+        }
+
+        // Node Management
+        function createNode(type, x, y) {
+            const def = NODE_DEFS[type];
+            const node = {
+                id: nextNodeId++,
+                type: type,
+                category: def.category,
+                name: type,
+                x: showGrid ? Math.round(x / 50) * 50 : x,
+                y: showGrid ? Math.round(y / 50) * 50 : y,
+                config: JSON.parse(JSON.stringify(def.config)),
+                children: [],
+                parent: null,
+                collapsed: false
+            };
+
+            nodes.push(node);
+
+            // Hide quick start hint after first node
+            if (nodes.length === 1) {
+                hideQuickStartHint();
+            }
+
+            selectNode(node);
+            saveHistory();
+            render();
+            updateStatus(`✓ Created ${type}`);
+        }
+
+        function connectNodes(parent, child) {
+            if (child.parent) {
+                updateStatus('Child already has a parent! Disconnect first.');
+                return;
+            }
+
+            const def = NODE_DEFS[parent.type];
+            if (def.maxChildren !== -1 && parent.children.length >= def.maxChildren) {
+                updateStatus(`${parent.type} can only have ${def.maxChildren} child(ren)`);
+                return;
+            }
+
+            parent.children.push(child);
+            child.parent = parent;
+            saveHistory();
+            render();
+            updateStatus(`Connected ${parent.name} → ${child.name}`);
+        }
+
+        function selectNode(node) {
+            selectedNode = node;
+            render();
+            showProperties(node);
+        }
+
+        function getNodeAt(x, y) {
+            for (let i = nodes.length - 1; i >= 0; i--) {
+                const node = nodes[i];
+                if (x >= node.x && x <= node.x + 150 &&
+                    y >= node.y && y <= node.y + 60) {
+                    return node;
+                }
+            }
+            return null;
+        }
+
+        function deleteSelectedNode() {
+            if (!selectedNode) return;
+
+            if (selectedNode.parent) {
+                selectedNode.parent.children = selectedNode.parent.children.filter(c => c !== selectedNode);
+            }
+
+            function deleteRecursive(node) {
+                for (let child of node.children) {
+                    deleteRecursive(child);
+                }
+                nodes = nodes.filter(n => n !== node);
+            }
+            deleteRecursive(selectedNode);
+
+            selectedNode = null;
+            saveHistory();
+            showProperties(null);
+            render();
+            updateStatus('Node deleted');
+        }
+
+        function disconnectNode() {
+            if (selectedNode && selectedNode.parent) {
+                const parent = selectedNode.parent;
+                parent.children = parent.children.filter(c => c !== selectedNode);
+                selectedNode.parent = null;
+                saveHistory();
+                showProperties(selectedNode);
+                render();
+                updateStatus('Node disconnected');
+            }
+        }
+
+        // Properties Panel
+        function showProperties(node) {
+            const content = document.getElementById('propertiesContent');
+
+            if (!node) {
+                content.innerHTML = '<div style="color: #858585; text-align: center; padding: 40px 20px;">Select a node to edit its properties</div>';
+                return;
+            }
+
+            const def = NODE_DEFS[node.type];
+            let html = `
+                <div class="prop-group">
+                    <div class="prop-label">Node Type</div>
+                    <input class="prop-input" value="${node.type}" disabled>
+                </div>
+                <div class="prop-group">
+                    <div class="prop-label">Node Name</div>
+                    <input class="prop-input" id="prop-name" value="${node.name}"
+                           onchange="updateNodeProperty('name', this.value)">
+                </div>
+            `;
+
+            // Configuration properties
+            if (Object.keys(node.config).length > 0) {
+                html += '<div class="section-title">Configuration</div>';
+
+                for (let key in node.config) {
+                    const value = node.config[key];
+                    const labelText = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+                    if (typeof value === 'boolean') {
+                        html += `
+                            <div class="prop-group">
+                                <div class="prop-checkbox">
+                                    <input type="checkbox" ${value ? 'checked' : ''}
+                                           onchange="updateNodeConfig('${key}', this.checked)"
+                                           id="config-${key}">
+                                    <label for="config-${key}">${labelText}</label>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="prop-group">
+                                <div class="prop-label">${labelText}</div>
+                                <input class="prop-input" value="${value}"
+                                       onchange="updateNodeConfig('${key}', this.value)">
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+            // Node info
+            html += `
+                <div class="section-title">Node Info</div>
+                <div class="prop-group">
+                    <div class="prop-label">Children Count</div>
+                    <input class="prop-input" value="${node.children.length}" disabled>
+                </div>
+            `;
+
+            if (node.parent) {
+                html += `
+                    <div class="prop-group">
+                        <div class="prop-label">Parent Node</div>
+                        <input class="prop-input" value="${node.parent.name}" disabled>
+                    </div>
+                    <div class="prop-group">
+                        <button class="prop-btn secondary" onclick="disconnectNode()">
+                            Disconnect from Parent
+                        </button>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="section-title">Actions</div>
+                <div class="prop-group">
+                    <button class="prop-btn danger" onclick="deleteSelectedNode()">
+                        Delete Node (Del)
+                    </button>
+                </div>
+            `;
+
+            content.innerHTML = html;
+        }
+
+        function updateNodeProperty(prop, value) {
+            if (selectedNode) {
+                selectedNode[prop] = value;
+                saveHistory();
+                render();
+            }
+        }
+
+        function updateNodeConfig(key, value) {
+            if (selectedNode) {
+                if (typeof value === 'string' && !isNaN(value) && value !== '') {
+                    value = parseFloat(value);
+                }
+                selectedNode.config[key] = value;
+                saveHistory();
+                render();
+            }
+        }
+
+        // Rendering
+        function render() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw grid if enabled
+            if (showGrid) {
+                const canvasArea = document.getElementById('canvasArea');
+                canvasArea.classList.add('canvas-grid');
+            } else {
+                const canvasArea = document.getElementById('canvasArea');
+                canvasArea.classList.remove('canvas-grid');
+            }
+
+            ctx.save();
+            ctx.translate(viewportX, viewportY);
+            ctx.scale(viewportScale, viewportScale);
+
+            function isNodeVisible(node) {
+                let parent = node.parent;
+                while (parent) {
+                    if (parent.collapsed) return false;
+                    parent = parent.parent;
+                }
+                return true;
+            }
+
+            // Draw connections
+            let connectionCount = 0;
+            nodes.forEach(node => {
+                if (!isNodeVisible(node)) return;
+                if (node.collapsed) return;
+
+                node.children.forEach(child => {
+                    const fromX = node.x + 75;
+                    const fromY = node.y + 60;
+                    const toX = child.x + 75;
+                    const toY = child.y;
+
+                    ctx.strokeStyle = '#4fc1ff';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(fromX, fromY);
+
+                    const midY = (fromY + toY) / 2;
+                    ctx.bezierCurveTo(fromX, midY, toX, midY, toX, toY);
+                    ctx.stroke();
+
+                    // Arrow
+                    ctx.fillStyle = '#4fc1ff';
+                    ctx.beginPath();
+                    ctx.moveTo(toX, toY);
+                    ctx.lineTo(toX - 5, toY - 10);
+                    ctx.lineTo(toX + 5, toY - 10);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    connectionCount++;
+                });
+            });
+
+            // Draw connecting line in connect mode
+            if (connectMode && connectFromNode) {
+                ctx.strokeStyle = '#f39c12';
+                ctx.lineWidth = 3;
+                ctx.setLineDash([10, 5]);
+                ctx.beginPath();
+                ctx.moveTo(connectFromNode.x + 75, connectFromNode.y + 60);
+                ctx.lineTo(connectFromNode.x + 75, connectFromNode.y + 100);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            // Draw nodes
+            nodes.forEach(node => {
+                if (!isNodeVisible(node)) return;
+
+                const isSelected = node === selectedNode;
+                const isConnecting = connectMode && node === connectFromNode;
+                const isConnectable = connectMode && !connectFromNode && NODE_DEFS[node.type].canHaveChildren;
+
+                // Shadow for depth
+                ctx.shadowColor = 'rgba(0,0,0,0.5)';
+                ctx.shadowBlur = isSelected ? 15 : 8;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 4;
+
+                // Node box
+                ctx.fillStyle = isSelected ? '#4e4e52' : (isConnecting ? '#f39c12' : '#37373d');
+                ctx.fillRect(node.x, node.y, 150, 60);
+
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetY = 0;
+
+                // Border with connect mode feedback
+                let borderColor = '#3e3e42';
+                let borderWidth = 2;
+
+                if (isConnecting) {
+                    borderColor = '#f39c12'; // Orange for parent being connected
+                    borderWidth = 4;
+                } else if (isSelected) {
+                    borderColor = '#4fc1ff'; // Blue for selected
+                    borderWidth = 3;
+                } else if (isConnectable) {
+                    borderColor = '#27ae60'; // Green glow for connectable nodes
+                    borderWidth = 3;
+                }
+
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = borderWidth;
+                ctx.strokeRect(node.x, node.y, 150, 60);
+
+                // Category indicator bar
+                const colors = {
+                    'composite': '#4ec9b0',
+                    'decorator': '#dcdcaa',
+                    'action': '#4fc1ff',
+                    'condition': '#c586c0'
+                };
+                ctx.fillStyle = colors[node.category];
+                ctx.fillRect(node.x, node.y, 5, 60);
+
+                // Node name
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '600 13px Segoe UI';
+                const nameText = node.name.substring(0, 16);
+                ctx.fillText(nameText, node.x + 12, node.y + 24);
+
+                // Node type
+                ctx.fillStyle = '#858585';
+                ctx.font = '11px Segoe UI';
+                const typeText = node.type.substring(0, 16);
+                ctx.fillText(typeText, node.x + 12, node.y + 42);
+
+                // Execution order badge
+                if (node.parent) {
+                    const orderIndex = node.parent.children.indexOf(node) + 1;
+                    ctx.fillStyle = '#27ae60';
+                    ctx.beginPath();
+                    ctx.arc(node.x + 10, node.y + 10, 11, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = 'white';
+                    ctx.font = '600 11px Segoe UI';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(orderIndex, node.x + 10, node.y + 14);
+                    ctx.textAlign = 'left';
+                }
+
+                // Child count / collapse badge
+                if (node.children.length > 0) {
+                    ctx.fillStyle = node.collapsed ? '#e67e22' : '#858585';
+                    ctx.beginPath();
+                    ctx.arc(node.x + 140, node.y + 10, 11, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = 'white';
+                    ctx.font = '600 10px Segoe UI';
+                    ctx.textAlign = 'center';
+                    const symbol = node.collapsed ? '+' : node.children.length;
+                    ctx.fillText(symbol, node.x + 140, node.y + 14);
+                    ctx.textAlign = 'left';
+                }
+            });
+
+            ctx.restore();
+
+            // Update minimap
+            renderMinimap();
+
+            // Update counters
+            document.getElementById('nodeCount').textContent = nodes.length;
+            document.getElementById('connectionCount').textContent = connectionCount;
+        }
+
+        function renderMinimap() {
+            if (nodes.length === 0) return;
+
+            minimapCtx.clearRect(0, 0, minimap.width, minimap.height);
+
+            // Find bounds
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            nodes.forEach(node => {
+                minX = Math.min(minX, node.x);
+                minY = Math.min(minY, node.y);
+                maxX = Math.max(maxX, node.x + 150);
+                maxY = Math.max(maxY, node.y + 60);
+            });
+
+            const width = maxX - minX;
+            const height = maxY - minY;
+            const scale = Math.min(minimap.width / width, minimap.height / height, 1);
+
+            minimapCtx.save();
+            minimapCtx.scale(scale, scale);
+            minimapCtx.translate(-minX, -minY);
+
+            // Draw simplified nodes
+            nodes.forEach(node => {
+                minimapCtx.fillStyle = node === selectedNode ? '#4fc1ff' : '#37373d';
+                minimapCtx.fillRect(node.x, node.y, 150, 60);
+            });
+
+            minimapCtx.restore();
+        }
+
+        // Layout
+        function autoLayout() {
+            if (nodes.length === 0) return;
+
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) {
+                updateStatus('No root node found');
+                return;
+            }
+
+            const root = roots[0];
+            layoutNode(root, canvas.width / 4, 100, 250);
+            saveHistory();
+            render();
+            updateStatus('Tree layout applied');
+        }
+
+        function layoutNode(node, x, y, horizontalSpacing) {
+            node.x = x;
+            node.y = y;
+
+            if (node.children.length === 0) return x;
+
+            const childSpacing = Math.max(200, horizontalSpacing / node.children.length);
+            let currentX = x - (childSpacing * (node.children.length - 1)) / 2;
+
+            node.children.forEach(child => {
+                layoutNode(child, currentX, y + 150, childSpacing);
+                currentX += childSpacing;
+            });
+
+            return x;
+        }
+
+        // Zoom & View
+        function zoomIn() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const worldX = (centerX - viewportX) / viewportScale;
+            const worldY = (centerY - viewportY) / viewportScale;
+
+            viewportScale = Math.min(5.0, viewportScale * 1.3);
+
+            viewportX = centerX - worldX * viewportScale;
+            viewportY = centerY - worldY * viewportScale;
+
+            updateZoomDisplay();
+            render();
+        }
+
+        function zoomOut() {
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const worldX = (centerX - viewportX) / viewportScale;
+            const worldY = (centerY - viewportY) / viewportScale;
+
+            viewportScale = Math.max(0.1, viewportScale * 0.7);
+
+            viewportX = centerX - worldX * viewportScale;
+            viewportY = centerY - worldY * viewportScale;
+
+            updateZoomDisplay();
+            render();
+        }
+
+        function zoomFit() {
+            if (nodes.length === 0) {
+                updateStatus('No nodes to fit');
+                return;
+            }
+
+            // Find bounding box of all nodes
+            let minX = Infinity, minY = Infinity;
+            let maxX = -Infinity, maxY = -Infinity;
+
+            nodes.forEach(node => {
+                minX = Math.min(minX, node.x);
+                minY = Math.min(minY, node.y);
+                maxX = Math.max(maxX, node.x + 150); // Node width
+                maxY = Math.max(maxY, node.y + 60);  // Node height
+            });
+
+            // Tree dimensions
+            const treeWidth = maxX - minX;
+            const treeHeight = maxY - minY;
+
+            // Add padding
+            const padding = 50;
+            const availableWidth = canvas.width - (padding * 2);
+            const availableHeight = canvas.height - (padding * 2);
+
+            // Calculate scale to fit (don't zoom in beyond 100%)
+            const scaleX = availableWidth / treeWidth;
+            const scaleY = availableHeight / treeHeight;
+            viewportScale = Math.min(scaleX, scaleY, 1.0);
+
+            // Center the tree in the canvas
+            const treeCenterX = (minX + maxX) / 2;
+            const treeCenterY = (minY + maxY) / 2;
+
+            viewportX = (canvas.width / 2) - (treeCenterX * viewportScale);
+            viewportY = (canvas.height / 2) - (treeCenterY * viewportScale);
+
+            updateZoomDisplay();
+            render();
+            updateStatus(`✓ Fit to view (${Math.round(viewportScale * 100)}%)`);
+        }
+
+        function toggleGrid() {
+            showGrid = !showGrid;
+            document.getElementById('gridBtn').style.background = showGrid ? '#0e639c' : 'transparent';
+            render();
+            updateStatus(showGrid ? 'Grid enabled' : 'Grid disabled');
+        }
+
+        function updateZoomDisplay() {
+            document.getElementById('zoomLevel').textContent = Math.round(viewportScale * 100) + '%';
+        }
+
+        // History (Undo/Redo)
+        function saveHistory() {
+            const state = {
+                nodes: JSON.parse(JSON.stringify(nodes)),
+                selectedNodeId: selectedNode ? selectedNode.id : null,
+                nextNodeId: nextNodeId
+            };
+
+            // Remove future history if we're not at the end
+            if (historyIndex < history.length - 1) {
+                history = history.slice(0, historyIndex + 1);
+            }
+
+            history.push(state);
+            if (history.length > MAX_HISTORY) {
+                history.shift();
+            } else {
+                historyIndex++;
+            }
+
+            updateHistoryButtons();
+        }
+
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                restoreHistoryState(history[historyIndex]);
+                updateStatus('Undo');
+            }
+        }
+
+        function redo() {
+            if (historyIndex < history.length - 1) {
+                historyIndex++;
+                restoreHistoryState(history[historyIndex]);
+                updateStatus('Redo');
+            }
+        }
+
+        function restoreHistoryState(state) {
+            nodes = JSON.parse(JSON.stringify(state.nodes));
+            nextNodeId = state.nextNodeId;
+
+            // Restore object references
+            nodes.forEach(node => {
+                if (node.parent) {
+                    const parentId = node.parent.id;
+                    node.parent = nodes.find(n => n.id === parentId);
+                } else {
+                    node.parent = null;
+                }
+
+                node.children = node.children.map(childData => {
+                    return nodes.find(n => n.id === childData.id);
+                });
+            });
+
+            selectedNode = state.selectedNodeId ? nodes.find(n => n.id === state.selectedNodeId) : null;
+            showProperties(selectedNode);
+            updateHistoryButtons();
+            render();
+        }
+
+        function updateHistoryButtons() {
+            document.getElementById('undoBtn').disabled = historyIndex <= 0;
+            document.getElementById('redoBtn').disabled = historyIndex >= history.length - 1;
+        }
+
+        // Tree Operations
+        function newTree() {
+            if (nodes.length > 0 && !confirm('Create new tree? Current tree will be lost if not saved.')) {
+                return;
+            }
+
+            nodes = [];
+            selectedNode = null;
+            nextNodeId = 1;
+            connectMode = false;
+            connectFromNode = null;
+            currentTreeName = "Untitled Tree";
+            currentTreeId = null;
+            history = [];
+            historyIndex = -1;
+
+            hideConnectHint();
+            showProperties(null);
+            updateHistoryButtons();
+            updateTreeNameDisplay();
+            render();
+            updateStatus('New tree created');
+        }
+
+        function nodeToJSON(node) {
+            const result = {
+                node_type: node.type,
+                name: node.name,
+                config: node.config
+            };
+
+            if (node.children.length > 0) {
+                result.children = node.children.map(child => nodeToJSON(child));
+            }
+
+            return result;
+        }
+
+        function exportTree() {
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) {
+                alert('No root node. Add a composite or decorator node first.');
+                return;
+            }
+
+            const tree = {
+                "$schema": "1.0.0",
+                "tree_id": currentTreeId || crypto.randomUUID(),
+                "metadata": {
+                    "name": currentTreeName,
+                    "version": "1.0.0",
+                    "description": "Created with PyForest Professional Editor",
+                    "tags": ["editor-pro"],
+                    "status": "draft"
+                },
+                "root": nodeToJSON(roots[0])
+            };
+
+            const json = JSON.stringify(tree, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentTreeName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+            a.click();
+            updateStatus('Tree exported as JSON');
+        }
+
+        async function saveToAPI() {
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) {
+                alert('No root node');
+                return;
+            }
+
+            const tree = {
+                "$schema": "1.0.0",
+                "tree_id": currentTreeId || crypto.randomUUID(),
+                "metadata": {
+                    "name": currentTreeName,
+                    "version": "1.0.0",
+                    "description": "Created with PyForest Professional Editor",
+                    "tags": ["editor-pro"],
+                    "status": "draft"
+                },
+                "root": nodeToJSON(roots[0])
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/trees/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(tree)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    currentTreeId = result.tree_id;
+                    updateStatus(`Tree saved to API! ID: ${result.tree_id}`);
+                    alert('Tree saved successfully to PyForest API!');
+                } else {
+                    const error = await response.text();
+                    alert('Failed to save tree: ' + error);
+                }
+            } catch (error) {
+                alert('Error connecting to API: ' + error.message);
+            }
+        }
+
+        // Library Management
+        function saveToLibrary() {
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) {
+                alert('No root node to save');
+                return;
+            }
+
+            document.getElementById('saveTreeName').value = currentTreeName;
+            document.getElementById('saveTreeDesc').value = '';
+            document.getElementById('saveModal').classList.add('active');
+        }
+
+        function confirmSaveToLibrary() {
+            const name = document.getElementById('saveTreeName').value.trim();
+            const desc = document.getElementById('saveTreeDesc').value.trim();
+
+            if (!name) {
+                alert('Please enter a tree name');
+                return;
+            }
+
+            const roots = nodes.filter(n => !n.parent);
+            const library = getLibrary();
+
+            const entry = {
+                id: crypto.randomUUID(),
+                name: name,
+                description: desc,
+                created: new Date().toISOString(),
+                nodes: JSON.parse(JSON.stringify(nodes)),
+                rootNodeId: roots[0].id
+            };
+
+            library.push(entry);
+            saveLibrary(library);
+
+            currentTreeName = name;
+            updateTreeNameDisplay();
+            closeModal('saveModal');
+            updateStatus(`Tree saved to library: ${name}`);
+            loadLibrary();
+        }
+
+        function loadLibrary() {
+            const library = getLibrary();
+            const content = document.getElementById('libraryContent');
+
+            if (library.length === 0) {
+                content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">No saved trees yet. Save your current tree to the library!</div>';
+                return;
+            }
+
+            let html = '';
+            library.forEach(entry => {
+                const date = new Date(entry.created).toLocaleDateString();
+                html += `
+                    <div class="library-item" onclick="loadFromLibrary('${entry.id}')">
+                        <div class="library-item-title">${entry.name}</div>
+                        <div class="library-item-desc">${entry.description || 'No description'}</div>
+                        <div class="library-item-meta">
+                            <span>📅 ${date}</span>
+                            <span>🔗 ${entry.nodes.length} nodes</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            content.innerHTML = html;
+        }
+
+        function loadFromLibrary(id) {
+            if (nodes.length > 0 && !confirm('Load tree? Current tree will be lost if not saved.')) {
+                return;
+            }
+
+            const library = getLibrary();
+            const entry = library.find(e => e.id === id);
+
+            if (!entry) return;
+
+            nodes = JSON.parse(JSON.stringify(entry.nodes));
+
+            // Restore object references
+            nodes.forEach(node => {
+                if (node.parent) {
+                    const parentId = node.parent.id;
+                    node.parent = nodes.find(n => n.id === parentId);
+                } else {
+                    node.parent = null;
+                }
+
+                node.children = node.children.map(childData => {
+                    return nodes.find(n => n.id === childData.id);
+                });
+            });
+
+            currentTreeName = entry.name;
+            selectedNode = null;
+            history = [];
+            historyIndex = -1;
+
+            hideQuickStartHint();
+            updateTreeNameDisplay();
+            updateHistoryButtons();
+            showProperties(null);
+            autoLayout();
+            updateStatus(`✓ Loaded: ${entry.name}`);
+        }
+
+        function loadFromLibraryAndClose(id) {
+            loadFromLibrary(id);
+            closeModal('loadModal');
+        }
+
+        function openLoadModal() {
+            const library = getLibrary();
+            const content = document.getElementById('loadModalContent');
+
+            if (library.length === 0) {
+                content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">No saved trees in library</div>';
+            } else {
+                let html = '';
+                library.forEach(entry => {
+                    const date = new Date(entry.created).toLocaleDateString();
+                    html += `
+                        <div class="library-item" onclick="loadFromLibraryAndClose('${entry.id}')">
+                            <div class="library-item-title">${entry.name}</div>
+                            <div class="library-item-desc">${entry.description || 'No description'}</div>
+                            <div class="library-item-meta">
+                                <span>📅 ${date}</span>
+                                <span>🔗 ${entry.nodes.length} nodes</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                content.innerHTML = html;
+            }
+
+            document.getElementById('loadModal').classList.add('active');
+        }
+
+        function loadFromLibraryAndClose(id) {
+            loadFromLibrary(id);
+            closeModal('loadModal');
+        }
+
+        function getLibrary() {
+            const data = localStorage.getItem(STORAGE_KEY_LIBRARY);
+            const versionData = localStorage.getItem(STORAGE_KEY_LIBRARY + '_version');
+
+            // Force reload if version changed or no library
+            if (!data || versionData !== LIBRARY_VERSION) {
+                console.log('Loading fresh demo trees (version changed)');
+                const newLibrary = createDemoLibrary();
+                localStorage.setItem(STORAGE_KEY_LIBRARY + '_version', LIBRARY_VERSION);
+                return newLibrary;
+            }
+
+            return JSON.parse(data);
+        }
+
+        function createDemoLibrary() {
+            const demos = [
+                {
+                    id: crypto.randomUUID(),
+                    name: "Robot Controller (Production Ready)",
+                    description: "Priority-based robot automation with battery monitoring, object detection, and patrol. Ready to export and test with test_complete_flow.py!",
+                    created: new Date().toISOString(),
+                    nodes: createRobotControllerNodes(),
+                    rootNodeId: 1
+                },
+                {
+                    id: crypto.randomUUID(),
+                    name: "Simple Patrol Behavior",
+                    description: "Basic 2-node example: Check condition → Set action. Good starting point for learning.",
+                    created: new Date().toISOString(),
+                    nodes: createSimplePatrolNodes(),
+                    rootNodeId: 1
+                }
+            ];
+
+            saveLibrary(demos);
+            return demos;
+        }
+
+        function createRobotControllerNodes() {
+            // DECORATOR PATTERN - CheckBlackboardCondition wraps SetVariable
+            // Decorator only runs child if condition passes!
+            const nodes = [
+                {id: 1, type: 'Selector', category: 'composite', name: 'Robot Controller', x: 500, y: 100, config: {memory: false}, children: [], parent: null, collapsed: false},
+                {id: 2, type: 'CheckBlackboardCondition', category: 'decorator', name: 'IF Battery < 20', x: 250, y: 250, config: {variable: 'battery_level', operator_str: '<', value: 20}, children: [], parent: null, collapsed: false},
+                {id: 3, type: 'SetBlackboardVariable', category: 'action', name: 'THEN Charge', x: 250, y: 400, config: {variable: 'robot_action', value: 'charge'}, children: [], parent: null, collapsed: false},
+                {id: 4, type: 'CheckBlackboardCondition', category: 'decorator', name: 'IF Object < 5m', x: 500, y: 250, config: {variable: 'object_distance', operator_str: '<', value: 5.0}, children: [], parent: null, collapsed: false},
+                {id: 5, type: 'SetBlackboardVariable', category: 'action', name: 'THEN Grasp', x: 500, y: 400, config: {variable: 'robot_action', value: 'grasp'}, children: [], parent: null, collapsed: false},
+                {id: 6, type: 'SetBlackboardVariable', category: 'action', name: 'ELSE Patrol', x: 750, y: 250, config: {variable: 'robot_action', value: 'patrol'}, children: [], parent: null, collapsed: false}
+            ];
+
+            // Set up parent-child relationships - Decorator pattern
+            nodes[0].children = [{id: 2}, {id: 4}, {id: 6}]; // Root selector: 3 branches
+            nodes[1].parent = {id: 1}; // CheckBattery decorator
+            nodes[1].children = [{id: 3}]; // Decorator wraps SetVariable
+            nodes[2].parent = {id: 2}; // SetVariable child of decorator
+            nodes[3].parent = {id: 1}; // CheckDistance decorator
+            nodes[3].children = [{id: 5}]; // Decorator wraps SetVariable
+            nodes[4].parent = {id: 4}; // SetVariable child of decorator
+            nodes[5].parent = {id: 1}; // Default action
+
+            return nodes;
+        }
+
+        function createSimplePatrolNodes() {
+            const nodes = [
+                {id: 1, type: 'CheckBlackboardCondition', category: 'decorator', name: 'Check Ready', x: 400, y: 100, config: {variable: 'ready', operator_str: '==', value: true}, children: [], parent: null, collapsed: false},
+                {id: 2, type: 'SetBlackboardVariable', category: 'action', name: 'Start Patrol', x: 400, y: 250, config: {variable: 'action', value: 'patrol'}, children: [], parent: null, collapsed: false}
+            ];
+
+            nodes[0].children = [{id: 2}];
+            nodes[1].parent = {id: 1};
+
+            return nodes;
+        }
+
+        function saveLibrary(library) {
+            localStorage.setItem(STORAGE_KEY_LIBRARY, JSON.stringify(library));
+        }
+
+        function restoreLastSession() {
+            const data = localStorage.getItem(STORAGE_KEY_CURRENT);
+            if (data) {
+                try {
+                    const state = JSON.parse(data);
+                    // Could restore last working tree here
+                } catch (e) {
+                    console.error('Failed to restore session:', e);
+                }
+            }
+        }
+
+        // Validation
+        function validateTree() {
+            const content = document.getElementById('propertiesContent');
+            const errors = [];
+            const warnings = [];
+
+            // Check for root
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) {
+                errors.push('No root node found. Add a Sequence or Selector as the root.');
+            } else if (roots.length > 1) {
+                errors.push(`Multiple root nodes found (${roots.length}). Only one root is allowed.`);
+            }
+
+            // Check for orphaned nodes
+            const reachable = new Set();
+            function markReachable(node) {
+                reachable.add(node);
+                node.children.forEach(child => markReachable(child));
+            }
+            if (roots.length > 0) {
+                markReachable(roots[0]);
+            }
+            const orphaned = nodes.filter(n => !reachable.has(n));
+            if (orphaned.length > 0) {
+                warnings.push(`${orphaned.length} orphaned node(s) not connected to root.`);
+            }
+
+            // Check decorator children
+            nodes.forEach(node => {
+                const def = NODE_DEFS[node.type];
+                if (def.maxChildren === 1 && node.children.length === 0) {
+                    warnings.push(`Decorator "${node.name}" has no child.`);
+                }
+                if (def.maxChildren === 1 && node.children.length > 1) {
+                    errors.push(`Decorator "${node.name}" has ${node.children.length} children (max 1).`);
+                }
+            });
+
+            // Check leaf nodes with children
+            nodes.forEach(node => {
+                const def = NODE_DEFS[node.type];
+                if (!def.canHaveChildren && node.children.length > 0) {
+                    errors.push(`Leaf node "${node.name}" cannot have children.`);
+                }
+            });
+
+            // Display results
+            let html = '<div class="section-title">Validation Results</div>';
+
+            if (errors.length === 0 && warnings.length === 0) {
+                html += '<div class="validation-message success"><strong>✓ Valid!</strong><br>Tree structure is valid and ready for execution.</div>';
+            }
+
+            if (errors.length > 0) {
+                html += '<div class="validation-message"><strong>⚠ Errors:</strong><ul style="margin: 10px 0 0 20px;">';
+                errors.forEach(err => html += `<li>${err}</li>`);
+                html += '</ul></div>';
+            }
+
+            if (warnings.length > 0) {
+                html += '<div class="validation-message warning"><strong>⚠ Warnings:</strong><ul style="margin: 10px 0 0 20px;">';
+                warnings.forEach(warn => html += `<li>${warn}</li>`);
+                html += '</ul></div>';
+            }
+
+            content.innerHTML = html;
+            updateStatus(errors.length > 0 ? 'Validation failed' : (warnings.length > 0 ? 'Validation passed with warnings' : 'Validation passed'));
+        }
+
+        // Connect Mode
+        function toggleConnectMode() {
+            connectMode = !connectMode;
+            connectFromNode = null;
+
+            const btn = document.getElementById('connectBtn');
+            if (connectMode) {
+                btn.style.background = '#f39c12';
+                btn.style.color = 'white';
+                canvas.style.cursor = 'crosshair';
+                showConnectHint();
+                updateStatus('Connect Mode: Click parent node, then child node');
+            } else {
+                btn.style.background = 'transparent';
+                btn.style.color = '#d4d4d4';
+                canvas.style.cursor = 'default';
+                hideConnectHint();
+                updateStatus('Connect Mode off');
+            }
+            render();
+        }
+
+        // Load Robot Controller Example
+        function loadRobotExample() {
+            if (nodes.length > 0 && !confirm('Load example? Current tree will be replaced.')) {
+                return;
+            }
+
+            // Clear
+            nodes = [];
+            selectedNode = null;
+            nextNodeId = 1;
+            currentTreeName = "Robot Controller Example";
+
+            // DECORATOR PATTERN - Check wraps action, action only runs if check passes!
+            const root = createNodeDirect('Selector', 500, 100, 'Robot Controller');
+            root.config.memory = false;
+
+            // Branch 1: Check battery, if low → charge
+            const checkBattery = createNodeDirect('CheckBlackboardCondition', 250, 250, 'IF Battery < 20');
+            checkBattery.config.variable = 'battery_level';
+            checkBattery.config.operator_str = '<';
+            checkBattery.config.value = 20;
+
+            const setBatteryAction = createNodeDirect('SetBlackboardVariable', 250, 400, 'THEN Charge');
+            setBatteryAction.config.variable = 'robot_action';
+            setBatteryAction.config.value = 'charge';
+
+            // Branch 2: Check distance, if close → grasp
+            const checkDistance = createNodeDirect('CheckBlackboardCondition', 500, 250, 'IF Object < 5m');
+            checkDistance.config.variable = 'object_distance';
+            checkDistance.config.operator_str = '<';
+            checkDistance.config.value = 5.0;
+
+            const setGraspAction = createNodeDirect('SetBlackboardVariable', 500, 400, 'THEN Grasp');
+            setGraspAction.config.variable = 'robot_action';
+            setGraspAction.config.value = 'grasp';
+
+            // Branch 3: Default fallback
+            const defaultAction = createNodeDirect('SetBlackboardVariable', 750, 250, 'ELSE Patrol');
+            defaultAction.config.variable = 'robot_action';
+            defaultAction.config.value = 'patrol';
+
+            // Connect tree structure - Decorator pattern!
+            root.children = [checkBattery, checkDistance, defaultAction];
+            checkBattery.parent = root;
+            checkDistance.parent = root;
+            defaultAction.parent = root;
+
+            // CheckBlackboard decorators each have SetVariable as child
+            checkBattery.children = [setBatteryAction];
+            setBatteryAction.parent = checkBattery;
+
+            checkDistance.children = [setGraspAction];
+            setGraspAction.parent = checkDistance;
+
+            history = [];
+            historyIndex = -1;
+            hideQuickStartHint();
+            updateTreeNameDisplay();
+            updateHistoryButtons();
+            render();
+            updateStatus('✓ Robot Controller loaded! Decorator pattern: Check wraps Action.');
+        }
+
+        function createNodeDirect(type, x, y, name) {
+            const def = NODE_DEFS[type];
+            const node = {
+                id: nextNodeId++,
+                type: type,
+                category: def.category,
+                name: name || type,
+                x: x,
+                y: y,
+                config: JSON.parse(JSON.stringify(def.config)),
+                children: [],
+                parent: null,
+                collapsed: false
+            };
+            nodes.push(node);
+            return node;
+        }
+
+        // UI Helpers
+        function switchTab(tab) {
+            document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+
+            if (tab === 'palette') {
+                document.querySelectorAll('.sidebar-tab')[0].classList.add('active');
+                document.getElementById('paletteTab').style.display = 'block';
+                document.getElementById('libraryTab').style.display = 'none';
+            } else {
+                document.querySelectorAll('.sidebar-tab')[1].classList.add('active');
+                document.getElementById('paletteTab').style.display = 'none';
+                document.getElementById('libraryTab').style.display = 'block';
+            }
+        }
+
+        function filterPalette() {
+            const search = document.getElementById('paletteSearch').value.toLowerCase();
+            document.querySelectorAll('.node-item').forEach(item => {
+                const searchText = item.dataset.search + ' ' + item.querySelector('.node-item-title').textContent.toLowerCase();
+                item.style.display = searchText.includes(search) ? 'block' : 'none';
+            });
+        }
+
+        function filterLibrary() {
+            const search = document.getElementById('librarySearch').value.toLowerCase();
+            document.querySelectorAll('.library-item').forEach(item => {
+                const text = item.textContent.toLowerCase();
+                item.style.display = text.includes(search) ? 'block' : 'none';
+            });
+        }
+
+        function showConnectHint() {
+            const hint = document.getElementById('canvasHint');
+            hint.textContent = '🔗 Connect Mode: Click parent node (composite/decorator), then click child node';
+            hint.classList.add('connect-mode');
+            hint.style.display = 'block';
+        }
+
+        function hideConnectHint() {
+            const hint = document.getElementById('canvasHint');
+            if (nodes.length === 0) {
+                hint.textContent = 'Quick Start: Drag nodes from palette, click 🔗Connect, or load 🤖Example';
+                hint.classList.remove('connect-mode');
+                hint.style.display = 'block';
+            } else {
+                hint.style.display = 'none';
+            }
+        }
+
+        function hideQuickStartHint() {
+            const hint = document.getElementById('canvasHint');
+            hint.style.display = 'none';
+        }
+
+        function updateStatus(message) {
+            document.getElementById('statusMessage').textContent = message;
+            setTimeout(() => {
+                document.getElementById('statusMessage').textContent = 'Ready';
+            }, 3000);
+        }
+
+        function updateTreeNameDisplay() {
+            document.getElementById('treeNameDisplay').innerHTML = `<strong>${currentTreeName}</strong>`;
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Click outside modal to close
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    overlay.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
