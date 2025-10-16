@@ -261,6 +261,8 @@
             position: absolute;
             top: 0;
             left: 0;
+            width: 100%;
+            height: 100%;
             cursor: default;
         }
 
@@ -551,6 +553,87 @@
             background: #4e4e52;
         }
 
+        /* Context Menu */
+        .context-menu {
+            position: fixed;
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            border-radius: 6px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+            padding: 5px 0;
+            min-width: 180px;
+            z-index: 10000;
+            display: none;
+        }
+
+        .context-menu.active {
+            display: block;
+        }
+
+        .context-menu-item {
+            padding: 10px 20px;
+            cursor: pointer;
+            color: #d4d4d4;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: background 0.15s;
+        }
+
+        .context-menu-item:hover {
+            background: #37373d;
+        }
+
+        .context-menu-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .context-menu-item.disabled:hover {
+            background: transparent;
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background: #3e3e42;
+            margin: 5px 0;
+        }
+
+        .context-menu-shortcut {
+            margin-left: auto;
+            font-size: 11px;
+            color: #808080;
+        }
+
+        /* Keyboard Shortcuts Panel */
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 8px 0;
+            font-size: 13px;
+            color: #d4d4d4;
+        }
+
+        .shortcut-item kbd {
+            background: #3c3c3c;
+            border: 1px solid #555;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 11px;
+            font-family: 'Segoe UI', monospace;
+            color: #fff;
+            box-shadow: 0 2px 0 #1e1e1e;
+            min-width: 60px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .shortcut-item span {
+            flex: 1;
+        }
+
         /* Scrollbar styling */
         ::-webkit-scrollbar {
             width: 12px;
@@ -670,6 +753,14 @@
                     <span class="toolbar-icon">✓</span> Validate
                 </button>
             </div>
+
+            <!-- Search -->
+            <div class="toolbar-group" style="flex: 1; max-width: 250px;">
+                <input type="text" id="nodeSearchInput" placeholder="🔍 Search nodes..."
+                       style="width: 100%; padding: 8px 12px; background: #3c3c3c; border: 1px solid #3e3e42; border-radius: 4px; color: #d4d4d4; font-size: 13px;"
+                       oninput="searchNodes(this.value)"
+                       onkeydown="if(event.key==='Escape') this.value=''; searchNodes('');">
+            </div>
         </div>
 
         <!-- Left Sidebar -->
@@ -766,7 +857,7 @@
             <div class="canvas-overlay" id="canvasHint">
                 <strong>Quick Start:</strong> Drag nodes from the palette onto the canvas, then Shift+Click parent → Click child to connect.
             </div>
-            <canvas id="treeCanvas" width="4000" height="3000"></canvas>
+            <canvas id="treeCanvas"></canvas>
             <canvas class="minimap" id="minimap" width="200" height="150"></canvas>
         </div>
 
@@ -795,11 +886,19 @@
             </div>
             <div class="statusbar-separator"></div>
             <div class="statusbar-item">
+                Selected: <strong id="selectedCount">0</strong>
+            </div>
+            <div class="statusbar-separator"></div>
+            <div class="statusbar-item">
                 Zoom: <strong id="zoomLevel">100%</strong>
             </div>
             <div class="statusbar-separator"></div>
             <div class="statusbar-item" id="treeNameDisplay">
                 <strong>Untitled Tree</strong>
+            </div>
+            <div class="statusbar-separator"></div>
+            <div class="statusbar-item" id="breadcrumbPath" style="flex: 1; min-width: 200px; font-size: 11px; color: #858585;">
+                <span id="pathText"></span>
             </div>
         </div>
     </div>
@@ -832,6 +931,85 @@
         </div>
     </div>
 
+    <!-- Keyboard Shortcuts Modal -->
+    <div class="modal-overlay" id="shortcutsModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-title">⌨️ Keyboard Shortcuts</div>
+            <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h3 style="color: #4fc1ff; margin-bottom: 10px; font-size: 14px;">File Operations</h3>
+                        <div class="shortcut-item"><kbd>Ctrl+N</kbd><span>New Tree</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+O</kbd><span>Open from Library</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+S</kbd><span>Save to Library</span></div>
+
+                        <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Edit Operations</h3>
+                        <div class="shortcut-item"><kbd>Ctrl+Z</kbd><span>Undo</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+Y</kbd><span>Redo</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+C</kbd><span>Copy</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+X</kbd><span>Cut</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+V</kbd><span>Paste</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+D</kbd><span>Duplicate</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+A</kbd><span>Select All</span></div>
+                        <div class="shortcut-item"><kbd>Delete</kbd><span>Delete Node</span></div>
+                        <div class="shortcut-item"><kbd>DD</kbd><span>Delete (vim-style)</span></div>
+                    </div>
+                    <div>
+                        <h3 style="color: #4fc1ff; margin-bottom: 10px; font-size: 14px;">View Operations</h3>
+                        <div class="shortcut-item"><kbd>Ctrl+L</kbd><span>Auto Layout</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+G</kbd><span>Toggle Grid</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+0</kbd><span>Zoom to Fit</span></div>
+                        <div class="shortcut-item"><kbd>+</kbd><span>Zoom In</span></div>
+                        <div class="shortcut-item"><kbd>-</kbd><span>Zoom Out</span></div>
+
+                        <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Tree Operations</h3>
+                        <div class="shortcut-item"><kbd>S</kbd><span>Toggle Connect Mode</span></div>
+                        <div class="shortcut-item"><kbd>Escape</kbd><span>Exit Connect Mode</span></div>
+                        <div class="shortcut-item"><kbd>Shift+Click</kbd><span>Multi-select</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+Drag</kbd><span>Pan Canvas</span></div>
+                        <div class="shortcut-item"><kbd>Right-Click</kbd><span>Context Menu</span></div>
+
+                        <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Help</h3>
+                        <div class="shortcut-item"><kbd>F1</kbd><span>Show Shortcuts</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn primary" onclick="closeModal('shortcutsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Context Menu -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="contextMenuAction('copy')">
+            <span>📋</span> Copy
+            <span class="context-menu-shortcut">Ctrl+C</span>
+        </div>
+        <div class="context-menu-item" onclick="contextMenuAction('cut')">
+            <span>✂️</span> Cut
+            <span class="context-menu-shortcut">Ctrl+X</span>
+        </div>
+        <div class="context-menu-item" onclick="contextMenuAction('paste')">
+            <span>📄</span> Paste
+            <span class="context-menu-shortcut">Ctrl+V</span>
+        </div>
+        <div class="context-menu-item" onclick="contextMenuAction('duplicate')">
+            <span>📑</span> Duplicate
+            <span class="context-menu-shortcut">Ctrl+D</span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="contextMenuAction('delete')">
+            <span>🗑️</span> Delete
+            <span class="context-menu-shortcut">Del</span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="contextMenuAction('selectAll')">
+            <span>☑️</span> Select All
+            <span class="context-menu-shortcut">Ctrl+A</span>
+        </div>
+    </div>
+
     <script>
         // Configuration
         const API_BASE = 'http://localhost:8000';
@@ -844,6 +1022,7 @@
         let selectedNode = null;
         let selectedNodes = new Set(); // Multi-select
         let clipboard = null; // For copy/paste
+        let searchResults = new Set(); // Nodes matching search
         let lastKeyTime = 0; // For double-key detection
         let lastKey = null;
         let nextNodeId = 1;
@@ -862,11 +1041,13 @@
         let viewportScale = 1.0;
         let isPanning = false;
         let panStart = {x: 0, y: 0};
+        let isSpacePressed = false; // For Space+Drag panning
 
         // Drag detection
         let mouseDownPos = {x: 0, y: 0};
         let hasMovedMouse = false;
         const DRAG_THRESHOLD = 5; // pixels before drag starts
+        let dragTargetNode = null; // Node being hovered over during drag (for drag-to-connect)
 
         // Undo/Redo
         let history = [];
@@ -891,12 +1072,32 @@
             'CheckBlackboardVariableExists': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable_name: 'key' }}
         };
 
+        // Resize canvas to match container (CRITICAL FIX for viewport bugs)
+        function resizeCanvas() {
+            const canvasArea = document.getElementById('canvasArea');
+            const rect = canvasArea.getBoundingClientRect();
+
+            // Set canvas dimensions to match container
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+
+            render();
+        }
+
         // Initialize
         window.addEventListener('load', () => {
             canvas = document.getElementById('treeCanvas');
             ctx = canvas.getContext('2d');
             minimap = document.getElementById('minimap');
             minimapCtx = minimap.getContext('2d');
+
+            // Resize canvas to match container
+            resizeCanvas();
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                resizeCanvas();
+            });
 
             setupDragAndDrop();
             setupCanvas();
@@ -965,8 +1166,8 @@
 
                 const clickedNode = getNodeAt(x, y);
 
-                // Panning (middle mouse or Ctrl+drag)
-                if (e.button === 1 || (e.button === 0 && e.ctrlKey) || e.button === 2) {
+                // Panning (Space+drag, middle mouse, Ctrl+drag, or right mouse)
+                if (isSpacePressed || e.button === 1 || (e.button === 0 && e.ctrlKey) || e.button === 2) {
                     e.preventDefault();
                     isPanning = true;
                     isDragging = false; // Ensure dragging is off
@@ -975,19 +1176,27 @@
                     return;
                 }
 
-                // Collapse toggle - check BEFORE any other node interaction
-                if (clickedNode && clickedNode.children.length > 0 && !connectMode && !isPanning) {
+                // Collapse toggle - check FIRST, before ANY state changes
+                if (clickedNode && clickedNode.children.length > 0 && !connectMode) {
                     const badgeX = clickedNode.x + 140;
                     const badgeY = clickedNode.y + 10;
                     const dist = Math.sqrt((x - badgeX) ** 2 + (y - badgeY) ** 2);
-                    if (dist < 15) { // Slightly larger hit area
+                    if (dist < 30) { // VERY large hit area - 30px radius (almost 3x visual size)
                         e.preventDefault();
+                        e.stopPropagation();
                         clickedNode.collapsed = !clickedNode.collapsed;
+                        // DO NOT set any drag state
+                        // DO NOT set mouseDownPos
+                        // DO NOT select node
+                        // Clear any existing drag state just to be safe
+                        isDragging = false;
+                        mouseDownPos = { x: 0, y: 0 };
+                        hasMovedMouse = false;
+                        canvas.style.cursor = 'default';
                         saveHistory();
                         render();
                         updateStatus(`${clickedNode.collapsed ? 'Collapsed' : 'Expanded'} ${clickedNode.name}`);
-                        // Don't set up dragging or anything else
-                        return;
+                        return; // Exit immediately without setting ANY other state
                     }
                 }
 
@@ -1019,14 +1228,20 @@
 
                 // Regular node interaction (not in connect mode)
                 if (clickedNode && !connectMode) {
-                    selectNode(clickedNode);
-                    // Don't start dragging yet - wait for mouse movement
-                    mouseDownPos = { x: e.clientX, y: e.clientY };
-                    hasMovedMouse = false;
-                    dragOffset = { x: x - clickedNode.x, y: y - clickedNode.y };
+                    // Support multi-select with Shift+Click
+                    selectNode(clickedNode, e.shiftKey);
+
+                    // Set up potential drag - but only START dragging after threshold
+                    // Only allow dragging if single node selected (not multi-select)
+                    if (!e.shiftKey || selectedNodes.size === 1) {
+                        mouseDownPos = { x: e.clientX, y: e.clientY };
+                        hasMovedMouse = false;
+                        dragOffset = { x: x - clickedNode.x, y: y - clickedNode.y };
+                    }
                 } else if (!connectMode) {
-                    // Clicked empty space
+                    // Clicked empty space - clear all selections
                     selectedNode = null;
+                    selectedNodes.clear();
                     showProperties(null);
                     render();
                 }
@@ -1038,6 +1253,31 @@
                     viewportY = e.clientY - panStart.y;
                     render();
                     return;
+                }
+
+                // Get world coordinates for hover detection
+                const rect = canvas.getBoundingClientRect();
+                const canvasX = e.clientX - rect.left;
+                const canvasY = e.clientY - rect.top;
+                const worldX = (canvasX - viewportX) / viewportScale;
+                const worldY = (canvasY - viewportY) / viewportScale;
+
+                // Check if hovering over collapse badge
+                let overBadge = false;
+                if (!isDragging) {
+                    const hoveredNode = getNodeAt(worldX, worldY);
+                    if (hoveredNode && hoveredNode.children.length > 0) {
+                        const badgeX = hoveredNode.x + 140;
+                        const badgeY = hoveredNode.y + 10;
+                        const dist = Math.sqrt((worldX - badgeX) ** 2 + (worldY - badgeY) ** 2);
+                        if (dist < 30) {
+                            overBadge = true;
+                            canvas.style.cursor = 'pointer';
+                        }
+                    }
+                    if (!overBadge && canvas.style.cursor === 'pointer') {
+                        canvas.style.cursor = 'default';
+                    }
                 }
 
                 // Check if we should start dragging (threshold exceeded)
@@ -1055,12 +1295,6 @@
 
                 // Perform dragging
                 if (isDragging && selectedNode) {
-                    const rect = canvas.getBoundingClientRect();
-                    const canvasX = e.clientX - rect.left;
-                    const canvasY = e.clientY - rect.top;
-                    const worldX = (canvasX - viewportX) / viewportScale;
-                    const worldY = (canvasY - viewportY) / viewportScale;
-
                     if (showGrid) {
                         selectedNode.x = Math.round((worldX - dragOffset.x) / 50) * 50;
                         selectedNode.y = Math.round((worldY - dragOffset.y) / 50) * 50;
@@ -1068,12 +1302,44 @@
                         selectedNode.x = worldX - dragOffset.x;
                         selectedNode.y = worldY - dragOffset.y;
                     }
+
+                    // Check if dragging over another node (for drag-to-connect)
+                    dragTargetNode = null;
+                    const hoveredNode = getNodeAt(worldX, worldY);
+                    if (hoveredNode && hoveredNode !== selectedNode) {
+                        // Check if hoveredNode can be a parent
+                        const def = NODE_DEFS[hoveredNode.type];
+                        if (def.canHaveChildren) {
+                            // Check if we're not creating a cycle
+                            const wouldCreateCycle = (potentialChild, potentialParent) => {
+                                let ancestor = potentialParent;
+                                while (ancestor) {
+                                    if (ancestor === potentialChild) return true;
+                                    ancestor = ancestor.parent;
+                                }
+                                return false;
+                            };
+
+                            if (!wouldCreateCycle(selectedNode, hoveredNode)) {
+                                // Check max children limit
+                                if (def.maxChildren === -1 || hoveredNode.children.length < def.maxChildren) {
+                                    dragTargetNode = hoveredNode;
+                                }
+                            }
+                        }
+                    }
+
                     render();
                 }
             });
 
             canvas.addEventListener('mouseup', (e) => {
                 if (isDragging && selectedNode) {
+                    // Check if dropping on a valid connection target
+                    if (dragTargetNode) {
+                        connectNodes(dragTargetNode, selectedNode);
+                        updateStatus(`✓ Connected ${selectedNode.name} to ${dragTargetNode.name}`);
+                    }
                     saveHistory();
                 }
                 // Clear all dragging/panning states
@@ -1081,19 +1347,27 @@
                 isPanning = false;
                 hasMovedMouse = false;
                 mouseDownPos = {x: 0, y: 0};
+                dragTargetNode = null;
                 canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+                render();
             });
 
             // Global mouseup to catch releases outside canvas
             document.addEventListener('mouseup', (e) => {
                 if (isDragging || isPanning || hasMovedMouse) {
                     if (isDragging && selectedNode) {
+                        // Check if dropping on a valid connection target
+                        if (dragTargetNode) {
+                            connectNodes(dragTargetNode, selectedNode);
+                            updateStatus(`✓ Connected ${selectedNode.name} to ${dragTargetNode.name}`);
+                        }
                         saveHistory();
                     }
                     isDragging = false;
                     isPanning = false;
                     hasMovedMouse = false;
                     mouseDownPos = {x: 0, y: 0};
+                    dragTargetNode = null;
                     canvas.style.cursor = connectMode ? 'crosshair' : 'default';
                     render();
                 }
@@ -1101,6 +1375,30 @@
 
             canvas.addEventListener('contextmenu', (e) => {
                 e.preventDefault();
+
+                // Clear any drag states when right-clicking
+                isDragging = false;
+                isPanning = false;
+                hasMovedMouse = false;
+                mouseDownPos = {x: 0, y: 0};
+                dragTargetNode = null;
+                canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+
+                showContextMenu(e.clientX, e.clientY);
+            });
+
+            // Double-click to rename
+            canvas.addEventListener('dblclick', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const canvasX = e.clientX - rect.left;
+                const canvasY = e.clientY - rect.top;
+                const worldX = (canvasX - viewportX) / viewportScale;
+                const worldY = (canvasY - viewportY) / viewportScale;
+
+                const clickedNode = getNodeAt(worldX, worldY);
+                if (clickedNode) {
+                    startInlineRename(clickedNode, canvasX, canvasY);
+                }
             });
 
             // Minimap navigation
@@ -1111,7 +1409,7 @@
                 const clickX = e.clientX - rect.left;
                 const clickY = e.clientY - rect.top;
 
-                // Find bounds
+                // Find bounds (same as renderMinimap)
                 let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
                 nodes.forEach(node => {
                     minX = Math.min(minX, node.x);
@@ -1123,20 +1421,21 @@
                 const treeWidth = maxX - minX;
                 const treeHeight = maxY - minY;
 
-                // Calculate minimap scale (same as render)
-                const minimapScale = Math.min(minimap.width / treeWidth, minimap.height / treeHeight, 1);
+                // Calculate scale - must match renderMinimap exactly
+                const scale = Math.min(minimap.width / treeWidth, minimap.height / treeHeight, 1);
 
-                // Convert minimap click to world coordinates
-                // Account for offset in minimap rendering
-                const worldX = minX + (clickX / minimapScale);
-                const worldY = minY + (clickY / minimapScale);
+                // The minimap rendering uses: ctx.scale(scale); ctx.translate(-minX, -minY);
+                // So a world point (wx, wy) renders at minimap point ((wx - minX) * scale, (wy - minY) * scale)
+                // Therefore, to go from minimap click (clickX, clickY) to world coords:
+                const worldX = (clickX / scale) + minX;
+                const worldY = (clickY / scale) + minY;
 
                 // Center main viewport on clicked world position
                 viewportX = (canvas.width / 2) - (worldX * viewportScale);
                 viewportY = (canvas.height / 2) - (worldY * viewportScale);
 
                 render();
-                updateStatus(`Jumped to (${Math.round(worldX)}, ${Math.round(worldY)})`);
+                updateStatus(`Jumped to position`);
             });
 
             minimap.style.cursor = 'pointer';
@@ -1148,10 +1447,171 @@
                     }
                 }
             });
+
+            // Global click handler to close context menu
+            document.addEventListener('click', (e) => {
+                const contextMenu = document.getElementById('contextMenu');
+                if (!contextMenu.contains(e.target)) {
+                    contextMenu.classList.remove('active');
+                }
+            });
+        }
+
+        // Context Menu Functions
+        function showContextMenu(x, y) {
+            const contextMenu = document.getElementById('contextMenu');
+
+            // Position the menu at cursor
+            contextMenu.style.left = x + 'px';
+            contextMenu.style.top = y + 'px';
+
+            // Update menu items based on current state
+            updateContextMenuState();
+
+            // Show menu
+            contextMenu.classList.add('active');
+        }
+
+        function updateContextMenuState() {
+            const hasSelection = selectedNodes.size > 0;
+            const hasClipboard = clipboard !== null;
+
+            // Enable/disable menu items based on state
+            const items = document.querySelectorAll('.context-menu-item');
+            items.forEach(item => {
+                const action = item.getAttribute('onclick');
+                if (!action) return;
+
+                // Disable copy/cut/duplicate/delete if no selection
+                if (action.includes('copy') || action.includes('cut') ||
+                    action.includes('duplicate') || action.includes('delete')) {
+                    if (hasSelection) {
+                        item.classList.remove('disabled');
+                    } else {
+                        item.classList.add('disabled');
+                    }
+                }
+
+                // Disable paste if no clipboard
+                if (action.includes('paste')) {
+                    if (hasClipboard) {
+                        item.classList.remove('disabled');
+                    } else {
+                        item.classList.add('disabled');
+                    }
+                }
+            });
+        }
+
+        function contextMenuAction(action) {
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.classList.remove('active');
+
+            switch(action) {
+                case 'copy':
+                    if (selectedNodes.size > 0) copySelected();
+                    break;
+                case 'cut':
+                    if (selectedNodes.size > 0) cutSelected();
+                    break;
+                case 'paste':
+                    if (clipboard) pasteFromClipboard();
+                    break;
+                case 'duplicate':
+                    if (selectedNodes.size > 0) duplicateSelected();
+                    break;
+                case 'delete':
+                    if (selectedNodes.size > 0) deleteSelectedNodes();
+                    break;
+                case 'selectAll':
+                    selectAll();
+                    break;
+            }
+        }
+
+        // Inline rename functionality
+        function startInlineRename(node, canvasX, canvasY) {
+            // Remove any existing rename input
+            const existingInput = document.getElementById('inlineRenameInput');
+            if (existingInput) {
+                existingInput.remove();
+            }
+
+            // Create input overlay
+            const input = document.createElement('input');
+            input.id = 'inlineRenameInput';
+            input.type = 'text';
+            input.value = node.name;
+            input.style.position = 'absolute';
+            input.style.left = canvasX + 'px';
+            input.style.top = canvasY + 'px';
+            input.style.width = '140px';
+            input.style.padding = '4px 8px';
+            input.style.background = '#3c3c3c';
+            input.style.border = '2px solid #4fc1ff';
+            input.style.borderRadius = '3px';
+            input.style.color = '#ffffff';
+            input.style.fontSize = '13px';
+            input.style.fontFamily = 'Segoe UI, sans-serif';
+            input.style.zIndex = '10000';
+            input.style.outline = 'none';
+
+            const canvasArea = document.getElementById('canvasArea');
+            canvasArea.appendChild(input);
+
+            // Select all text
+            input.select();
+            input.focus();
+
+            // Save on Enter or blur
+            const saveRename = () => {
+                const newName = input.value.trim();
+                if (newName && newName !== node.name) {
+                    node.name = newName;
+                    saveHistory();
+                    updateStatus(`✓ Renamed to "${newName}"`);
+                    showProperties(node);
+                }
+                input.remove();
+                render();
+            };
+
+            // Cancel on Escape
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    saveRename();
+                } else if (e.key === 'Escape') {
+                    e.preventDefault();
+                    input.remove();
+                    render();
+                }
+            });
+
+            input.addEventListener('blur', saveRename);
         }
 
         function setupKeyboardShortcuts() {
             document.addEventListener('keydown', (e) => {
+                // Ignore keyboard shortcuts when typing in input fields or textareas
+                const activeElement = document.activeElement;
+                const isInputField = activeElement && (
+                    activeElement.tagName === 'INPUT' ||
+                    activeElement.tagName === 'TEXTAREA' ||
+                    activeElement.isContentEditable
+                );
+
+                // Allow Escape to work even in input fields
+                if (e.key === 'Escape' && isInputField) {
+                    activeElement.blur();
+                    return;
+                }
+
+                // Skip all other shortcuts if in input field (except Ctrl+F)
+                if (isInputField && !(e.ctrlKey && e.key.toLowerCase() === 'f')) {
+                    return;
+                }
+
                 // Ctrl/Cmd shortcuts
                 if (e.ctrlKey || e.metaKey) {
                     switch(e.key.toLowerCase()) {
@@ -1189,7 +1649,13 @@
                             break;
                         case 'c':
                             e.preventDefault();
-                            copySelected();
+                            if (e.shiftKey) {
+                                // Ctrl+Shift+C = Copy node path
+                                copyNodePath();
+                            } else {
+                                // Ctrl+C = Copy node
+                                copySelected();
+                            }
                             break;
                         case 'x':
                             e.preventDefault();
@@ -1208,6 +1674,12 @@
                         case 'd':
                             e.preventDefault();
                             duplicateSelected();
+                            break;
+                        case 'f':
+                            e.preventDefault();
+                            document.getElementById('nodeSearchInput').focus();
+                            document.getElementById('nodeSearchInput').select();
+                            updateStatus('Search focused - type to search nodes');
                             break;
                         case 'a':
                             e.preventDefault();
@@ -1248,6 +1720,12 @@
                     toggleConnectMode();
                 }
 
+                // F1 for keyboard shortcuts reference
+                if (e.key === 'F1') {
+                    e.preventDefault();
+                    document.getElementById('shortcutsModal').classList.add('active');
+                }
+
                 // Zoom with +/-
                 if (e.key === '+' || e.key === '=') {
                     e.preventDefault();
@@ -1256,6 +1734,152 @@
                 if (e.key === '-' || e.key === '_') {
                     e.preventDefault();
                     zoomOut();
+                }
+
+                // Arrow key navigation
+                if (selectedNode && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                    e.preventDefault();
+
+                    if (e.key === 'ArrowUp' && selectedNode.parent) {
+                        // Select parent
+                        selectNode(selectedNode.parent, false);
+                        centerViewOnNode(selectedNode.parent);
+                        updateStatus(`↑ Selected parent: ${selectedNode.parent.name}`);
+                    } else if (e.key === 'ArrowDown' && selectedNode.children.length > 0) {
+                        // Select first child
+                        const firstChild = selectedNode.children[0];
+                        selectNode(firstChild, false);
+                        centerViewOnNode(firstChild);
+                        updateStatus(`↓ Selected child: ${firstChild.name}`);
+                    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+                        // Select sibling
+                        if (selectedNode.parent) {
+                            const siblings = selectedNode.parent.children;
+                            const currentIndex = siblings.indexOf(selectedNode);
+
+                            if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                                const prevSibling = siblings[currentIndex - 1];
+                                selectNode(prevSibling, false);
+                                centerViewOnNode(prevSibling);
+                                updateStatus(`← Selected previous: ${prevSibling.name}`);
+                            } else if (e.key === 'ArrowRight' && currentIndex < siblings.length - 1) {
+                                const nextSibling = siblings[currentIndex + 1];
+                                selectNode(nextSibling, false);
+                                centerViewOnNode(nextSibling);
+                                updateStatus(`→ Selected next: ${nextSibling.name}`);
+                            }
+                        }
+                    }
+                }
+
+                // Enter/Space to toggle collapse
+                if (selectedNode && (e.key === 'Enter' || e.key === ' ')) {
+                    if (selectedNode.children.length > 0) {
+                        e.preventDefault();
+                        selectedNode.collapsed = !selectedNode.collapsed;
+                        saveHistory();
+                        render();
+                        updateStatus(`${selectedNode.collapsed ? 'Collapsed' : 'Expanded'} ${selectedNode.name}`);
+                    }
+                }
+
+                // F2 to rename
+                if (e.key === 'F2' && selectedNode) {
+                    e.preventDefault();
+                    // Get screen position of selected node
+                    const screenX = (selectedNode.x * viewportScale) + viewportX + 75;
+                    const screenY = (selectedNode.y * viewportScale) + viewportY + 30;
+                    startInlineRename(selectedNode, screenX, screenY);
+                }
+
+                // Backspace to disconnect node from parent (but don't delete it)
+                if (e.key === 'Backspace' && selectedNode && selectedNode.parent) {
+                    e.preventDefault();
+                    disconnectNode(selectedNode);
+                    updateStatus(`✓ Disconnected ${selectedNode.name} from parent`);
+                }
+
+                // Tab to cycle through nodes
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    if (nodes.length > 0) {
+                        if (!selectedNode) {
+                            // Select first node
+                            selectNode(nodes[0], false);
+                        } else {
+                            // Find current index and select next (or first if at end)
+                            const currentIndex = nodes.indexOf(selectedNode);
+                            const nextIndex = (currentIndex + 1) % nodes.length;
+                            selectNode(nodes[nextIndex], false);
+                            centerViewOnNode(nodes[nextIndex]);
+                        }
+                        updateStatus(`Tab: ${selectedNode.name}`);
+                    }
+                }
+
+                // Home/End to navigate to first/last sibling
+                if (selectedNode && selectedNode.parent && (e.key === 'Home' || e.key === 'End')) {
+                    e.preventDefault();
+                    const siblings = selectedNode.parent.children;
+                    if (e.key === 'Home' && siblings.length > 0) {
+                        const firstSibling = siblings[0];
+                        selectNode(firstSibling, false);
+                        centerViewOnNode(firstSibling);
+                        updateStatus(`Home: ${firstSibling.name}`);
+                    } else if (e.key === 'End' && siblings.length > 0) {
+                        const lastSibling = siblings[siblings.length - 1];
+                        selectNode(lastSibling, false);
+                        centerViewOnNode(lastSibling);
+                        updateStatus(`End: ${lastSibling.name}`);
+                    }
+                }
+
+                // Shift+Arrow to swap sibling positions (reorder children)
+                if (selectedNode && selectedNode.parent && e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
+                    e.preventDefault();
+                    const parent = selectedNode.parent;
+                    const siblings = parent.children;
+                    const currentIndex = siblings.indexOf(selectedNode);
+
+                    if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                        // Swap with previous sibling
+                        [siblings[currentIndex - 1], siblings[currentIndex]] = [siblings[currentIndex], siblings[currentIndex - 1]];
+                        saveHistory();
+                        render();
+                        updateStatus(`⇐ Moved ${selectedNode.name} left`);
+                    } else if (e.key === 'ArrowRight' && currentIndex < siblings.length - 1) {
+                        // Swap with next sibling
+                        [siblings[currentIndex], siblings[currentIndex + 1]] = [siblings[currentIndex + 1], siblings[currentIndex]];
+                        saveHistory();
+                        render();
+                        updateStatus(`⇒ Moved ${selectedNode.name} right`);
+                    }
+                }
+
+                // PageUp to navigate to root, PageDown to navigate to deepest visible child
+                if (selectedNode && (e.key === 'PageUp' || e.key === 'PageDown')) {
+                    e.preventDefault();
+                    if (e.key === 'PageUp') {
+                        // Navigate to root
+                        let root = selectedNode;
+                        while (root.parent) {
+                            root = root.parent;
+                        }
+                        selectNode(root, false);
+                        centerViewOnNode(root);
+                        updateStatus(`Root: ${root.name}`);
+                    } else if (e.key === 'PageDown') {
+                        // Navigate to deepest child (keep going down first child)
+                        let deepest = selectedNode;
+                        while (deepest.children.length > 0 && !deepest.collapsed) {
+                            deepest = deepest.children[0];
+                        }
+                        if (deepest !== selectedNode) {
+                            selectNode(deepest, false);
+                            centerViewOnNode(deepest);
+                            updateStatus(`Deepest: ${deepest.name}`);
+                        }
+                    }
                 }
             });
         }
@@ -1308,10 +1932,56 @@
             updateStatus(`Connected ${parent.name} → ${child.name}`);
         }
 
-        function selectNode(node) {
-            selectedNode = node;
+        function disconnectNode(node) {
+            if (!node.parent) {
+                updateStatus('Node has no parent to disconnect from');
+                return;
+            }
+
+            const parent = node.parent;
+            const parentName = parent.name;
+
+            // Remove from parent's children array
+            const index = parent.children.indexOf(node);
+            if (index > -1) {
+                parent.children.splice(index, 1);
+            }
+
+            // Clear parent reference
+            node.parent = null;
+
+            saveHistory();
             render();
-            showProperties(node);
+            updateStatus(`✓ Disconnected ${node.name} from ${parentName}`);
+        }
+
+        function selectNode(node, multiSelect = false) {
+            if (multiSelect) {
+                // Multi-select mode (Shift+Click)
+                if (selectedNodes.has(node)) {
+                    // Deselect if already selected
+                    selectedNodes.delete(node);
+                    if (node === selectedNode) {
+                        // If removing primary selection, make another node primary
+                        selectedNode = selectedNodes.size > 0 ? Array.from(selectedNodes)[0] : null;
+                    }
+                    updateStatus(`Deselected ${node.name} (${selectedNodes.size} nodes selected)`);
+                } else {
+                    // Add to selection
+                    selectedNodes.add(node);
+                    selectedNode = node; // Make this the primary selection
+                    updateStatus(`Added ${node.name} to selection (${selectedNodes.size} nodes selected)`);
+                }
+            } else {
+                // Single select mode (normal click)
+                selectedNodes.clear();
+                selectedNodes.add(node);
+                selectedNode = node;
+                updateStatus(`Selected ${node.name}`);
+            }
+            updateBreadcrumbPath(); // Update path display
+            render();
+            showProperties(selectedNode);
         }
 
         function getNodeAt(x, y) {
@@ -1505,21 +2175,37 @@
                     const toX = child.x + 75;
                     const toY = child.y;
 
+                    // Calculate control point offset based on distance
+                    const distance = Math.abs(toY - fromY);
+                    const controlOffset = Math.min(distance * 0.4, 80); // Smooth, adaptive curve
+
+                    // Add subtle shadow for depth
+                    ctx.shadowColor = 'rgba(79, 193, 255, 0.3)';
+                    ctx.shadowBlur = 4;
+
                     ctx.strokeStyle = '#4fc1ff';
-                    ctx.lineWidth = 2;
+                    ctx.lineWidth = 2.5;
                     ctx.beginPath();
                     ctx.moveTo(fromX, fromY);
 
-                    const midY = (fromY + toY) / 2;
-                    ctx.bezierCurveTo(fromX, midY, toX, midY, toX, toY);
+                    // Improved bezier control points for more natural curve
+                    const cp1x = fromX;
+                    const cp1y = fromY + controlOffset;
+                    const cp2x = toX;
+                    const cp2y = toY - controlOffset;
+
+                    ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, toX, toY);
                     ctx.stroke();
 
-                    // Arrow
+                    // Reset shadow
+                    ctx.shadowBlur = 0;
+
+                    // Arrow with better proportions
                     ctx.fillStyle = '#4fc1ff';
                     ctx.beginPath();
                     ctx.moveTo(toX, toY);
-                    ctx.lineTo(toX - 5, toY - 10);
-                    ctx.lineTo(toX + 5, toY - 10);
+                    ctx.lineTo(toX - 6, toY - 12);
+                    ctx.lineTo(toX + 6, toY - 12);
                     ctx.closePath();
                     ctx.fill();
 
@@ -1543,7 +2229,8 @@
             nodes.forEach(node => {
                 if (!isNodeVisible(node)) return;
 
-                const isSelected = node === selectedNode;
+                const isSelected = selectedNodes.has(node);
+                const isPrimarySelection = node === selectedNode;
                 const isConnecting = connectMode && node === connectFromNode;
                 const isConnectable = connectMode && !connectFromNode && NODE_DEFS[node.type].canHaveChildren;
 
@@ -1553,23 +2240,62 @@
                 ctx.shadowOffsetX = 0;
                 ctx.shadowOffsetY = 4;
 
-                // Node box
-                ctx.fillStyle = isSelected ? '#4e4e52' : (isConnecting ? '#f39c12' : '#37373d');
+                // Node box with gradient for professional look
+                let gradient = ctx.createLinearGradient(node.x, node.y, node.x, node.y + 60);
+                if (isConnecting) {
+                    gradient.addColorStop(0, '#f39c12');
+                    gradient.addColorStop(1, '#d68910');
+                } else if (isSelected) {
+                    gradient.addColorStop(0, '#4e4e52');
+                    gradient.addColorStop(1, '#3a3a3e');
+                } else {
+                    gradient.addColorStop(0, '#37373d');
+                    gradient.addColorStop(1, '#2d2d30');
+                }
+                ctx.fillStyle = gradient;
                 ctx.fillRect(node.x, node.y, 150, 60);
+
+                // Add subtle inner highlight at top for 3D effect
+                if (!isConnecting) {
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.03)';
+                    ctx.fillRect(node.x, node.y, 150, 1);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.02)';
+                    ctx.fillRect(node.x, node.y + 1, 150, 1);
+                }
 
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
 
-                // Border with connect mode feedback
+                // Border with connect mode feedback and multi-select styling
+                const isSearchResult = searchResults.has(node);
+                const isDragTarget = node === dragTargetNode;
                 let borderColor = '#3e3e42';
                 let borderWidth = 2;
+                let useDashedBorder = false;
 
-                if (isConnecting) {
+                if (isDragTarget) {
+                    borderColor = '#27ae60'; // Green for valid drop target
+                    borderWidth = 5;
+                    // Add strong glow for drag target
+                    ctx.shadowColor = 'rgba(39, 174, 96, 0.8)';
+                    ctx.shadowBlur = 20;
+                } else if (isConnecting) {
                     borderColor = '#f39c12'; // Orange for parent being connected
                     borderWidth = 4;
-                } else if (isSelected) {
-                    borderColor = '#4fc1ff'; // Blue for selected
+                } else if (isPrimarySelection && isSelected) {
+                    borderColor = '#4fc1ff'; // Solid blue for primary selection
                     borderWidth = 3;
+                } else if (isSelected) {
+                    borderColor = '#4fc1ff'; // Blue for secondary selections
+                    borderWidth = 2.5;
+                    useDashedBorder = true; // Dashed border for secondary selections
+                } else if (isSearchResult) {
+                    borderColor = '#f1c40f'; // Yellow/gold for search results
+                    borderWidth = 3;
+                    // Add animated pulse effect for search results
+                    const pulseAlpha = 0.5 + 0.5 * Math.sin(Date.now() / 300);
+                    ctx.shadowColor = `rgba(241, 196, 15, ${pulseAlpha})`;
+                    ctx.shadowBlur = 15;
                 } else if (isConnectable) {
                     borderColor = '#27ae60'; // Green glow for connectable nodes
                     borderWidth = 3;
@@ -1577,7 +2303,16 @@
 
                 ctx.strokeStyle = borderColor;
                 ctx.lineWidth = borderWidth;
+
+                // Apply dashed border for secondary selections
+                if (useDashedBorder) {
+                    ctx.setLineDash([8, 4]);
+                } else {
+                    ctx.setLineDash([]);
+                }
+
                 ctx.strokeRect(node.x, node.y, 150, 60);
+                ctx.setLineDash([]); // Reset dash pattern
 
                 // Category indicator bar
                 const colors = {
@@ -1638,6 +2373,7 @@
             // Update counters
             document.getElementById('nodeCount').textContent = nodes.length;
             document.getElementById('connectionCount').textContent = connectionCount;
+            document.getElementById('selectedCount').textContent = selectedNodes.size;
         }
 
         function renderMinimap() {
@@ -1664,28 +2400,53 @@
 
             // Draw simplified nodes
             nodes.forEach(node => {
-                minimapCtx.fillStyle = node === selectedNode ? '#4fc1ff' : '#37373d';
+                const isSelected = selectedNodes.has(node);
+                minimapCtx.fillStyle = isSelected ? '#4fc1ff' : '#37373d';
                 minimapCtx.fillRect(node.x, node.y, 150, 60);
             });
+
+            // Draw viewport indicator rectangle
+            // Calculate visible viewport in world coordinates
+            const viewportWidth = canvas.width / viewportScale;
+            const viewportHeight = canvas.height / viewportScale;
+            const viewportLeft = -viewportX / viewportScale;
+            const viewportTop = -viewportY / viewportScale;
+
+            // Draw semi-transparent overlay showing current view
+            minimapCtx.strokeStyle = '#4fc1ff';
+            minimapCtx.lineWidth = 2 / scale; // Scale line width to minimap space
+            minimapCtx.strokeRect(viewportLeft, viewportTop, viewportWidth, viewportHeight);
+
+            // Add subtle fill to make it more visible
+            minimapCtx.fillStyle = 'rgba(79, 193, 255, 0.1)';
+            minimapCtx.fillRect(viewportLeft, viewportTop, viewportWidth, viewportHeight);
 
             minimapCtx.restore();
         }
 
         // Layout
         function autoLayout() {
-            if (nodes.length === 0) return;
+            if (nodes.length === 0) {
+                updateStatus('No nodes to layout');
+                return;
+            }
 
             const roots = nodes.filter(n => !n.parent);
             if (roots.length === 0) {
-                updateStatus('No root node found');
+                updateStatus('⚠ No root node found - cannot auto-layout');
                 return;
             }
 
             const root = roots[0];
-            layoutNode(root, canvas.width / 4, 100, 250);
+            // Start at a reasonable position
+            layoutNode(root, 500, 100, 250);
             saveHistory();
-            render();
-            updateStatus('Tree layout applied');
+            render(); // Show layout immediately
+
+            // Auto-fit after layout to ensure everything is visible
+            setTimeout(() => {
+                zoomFit();
+            }, 50); // Shorter delay
         }
 
         function layoutNode(node, x, y, horizontalSpacing) {
@@ -1736,6 +2497,17 @@
             render();
         }
 
+        function centerViewOnNode(node) {
+            // Smoothly center the viewport on a specific node
+            const nodeCenterX = node.x + 75; // Node width / 2
+            const nodeCenterY = node.y + 30; // Node height / 2
+
+            viewportX = (canvas.width / 2) - (nodeCenterX * viewportScale);
+            viewportY = (canvas.height / 2) - (nodeCenterY * viewportScale);
+
+            render();
+        }
+
         function zoomFit() {
             if (nodes.length === 0) {
                 updateStatus('No nodes to fit');
@@ -1757,15 +2529,28 @@
             const treeWidth = maxX - minX;
             const treeHeight = maxY - minY;
 
+            // Safety check
+            if (treeWidth === 0 || treeHeight === 0) {
+                viewportScale = 1.0;
+                viewportX = (canvas.width / 2) - (minX + 75) * viewportScale;
+                viewportY = (canvas.height / 2) - (minY + 30) * viewportScale;
+                updateZoomDisplay();
+                render();
+                return;
+            }
+
             // Add padding
-            const padding = 50;
+            const padding = 100; // Increased padding for better visibility
             const availableWidth = canvas.width - (padding * 2);
             const availableHeight = canvas.height - (padding * 2);
 
-            // Calculate scale to fit (don't zoom in beyond 100%)
+            // Calculate scale to fit (allow zooming in for small trees)
             const scaleX = availableWidth / treeWidth;
             const scaleY = availableHeight / treeHeight;
-            viewportScale = Math.min(scaleX, scaleY, 1.0);
+            viewportScale = Math.min(scaleX, scaleY, 2.0); // Allow up to 200% zoom
+
+            // Clamp minimum scale to ensure visibility
+            viewportScale = Math.max(viewportScale, 0.1);
 
             // Center the tree in the canvas
             const treeCenterX = (minX + maxX) / 2;
@@ -2444,6 +3229,96 @@
             document.getElementById('treeNameDisplay').innerHTML = `<strong>${currentTreeName}</strong>`;
         }
 
+        function updateBreadcrumbPath() {
+            const pathText = document.getElementById('pathText');
+
+            if (!selectedNode) {
+                pathText.textContent = '';
+                return;
+            }
+
+            // Build path from root to selected node
+            const path = [];
+            let current = selectedNode;
+            while (current) {
+                path.unshift(current.name);
+                current = current.parent;
+            }
+
+            // Format path with separators
+            const formattedPath = path.join(' → ');
+            pathText.textContent = `Path: ${formattedPath}`;
+            pathText.title = formattedPath; // Tooltip for long paths
+        }
+
+        // Animation loop for search results pulse
+        let searchAnimationId = null;
+        function animateSearchResults() {
+            if (searchResults.size > 0) {
+                render();
+                searchAnimationId = requestAnimationFrame(animateSearchResults);
+            } else {
+                if (searchAnimationId) {
+                    cancelAnimationFrame(searchAnimationId);
+                    searchAnimationId = null;
+                }
+            }
+        }
+
+        // Search functionality
+        function searchNodes(query) {
+            searchResults.clear();
+
+            if (!query || query.trim() === '') {
+                render();
+                updateStatus('Search cleared');
+                return;
+            }
+
+            const lowerQuery = query.toLowerCase().trim();
+            let matchCount = 0;
+
+            nodes.forEach(node => {
+                // Search in node name and type
+                const nameMatch = node.name.toLowerCase().includes(lowerQuery);
+                const typeMatch = node.type.toLowerCase().includes(lowerQuery);
+
+                // Also search in config values
+                let configMatch = false;
+                try {
+                    const configStr = JSON.stringify(node.config).toLowerCase();
+                    configMatch = configStr.includes(lowerQuery);
+                } catch (e) {}
+
+                if (nameMatch || typeMatch || configMatch) {
+                    searchResults.add(node);
+                    matchCount++;
+                }
+            });
+
+            // Start animation loop for pulse effect
+            if (matchCount > 0 && !searchAnimationId) {
+                animateSearchResults();
+            }
+
+            render();
+
+            if (matchCount > 0) {
+                updateStatus(`Found ${matchCount} matching node(s)`);
+
+                // Auto-focus first result if only one match
+                if (matchCount === 1) {
+                    const firstResult = Array.from(searchResults)[0];
+                    // Center viewport on the result
+                    viewportX = (canvas.width / 2) - (firstResult.x + 75) * viewportScale;
+                    viewportY = (canvas.height / 2) - (firstResult.y + 30) * viewportScale;
+                    render();
+                }
+            } else {
+                updateStatus('No nodes found');
+            }
+        }
+
         function closeModal(modalId) {
             document.getElementById(modalId).classList.remove('active');
         }
@@ -2456,6 +3331,204 @@
                 }
             });
         });
+
+        // Copy/Paste/Duplicate Operations
+        function copyNodeSubtree(node) {
+            // Deep copy node and all its children with new IDs
+            const copy = {
+                type: node.type,
+                category: node.category,
+                name: node.name + ' (Copy)',
+                config: JSON.parse(JSON.stringify(node.config)),
+                collapsed: false,
+                children: []
+            };
+
+            // Recursively copy children
+            node.children.forEach(child => {
+                copy.children.push(copyNodeSubtree(child));
+            });
+
+            return copy;
+        }
+
+        function pasteNodeSubtree(nodeDef, x, y, parent = null) {
+            // Create node from definition
+            const node = {
+                id: nextNodeId++,
+                type: nodeDef.type,
+                category: nodeDef.category,
+                name: nodeDef.name,
+                x: x,
+                y: y,
+                config: JSON.parse(JSON.stringify(nodeDef.config)),
+                children: [],
+                parent: parent,
+                collapsed: false
+            };
+
+            nodes.push(node);
+
+            // Recursively create children
+            nodeDef.children.forEach((childDef, index) => {
+                const childNode = pasteNodeSubtree(childDef, x + (index - nodeDef.children.length / 2) * 200, y + 150, node);
+                node.children.push(childNode);
+            });
+
+            return node;
+        }
+
+        function copyNodePath() {
+            if (!selectedNode) {
+                updateStatus('No node selected');
+                return;
+            }
+
+            // Build path from root to selected node
+            const path = [];
+            let current = selectedNode;
+            while (current) {
+                path.unshift(current.name);
+                current = current.parent;
+            }
+
+            const pathString = path.join(' → ');
+
+            // Copy to clipboard
+            navigator.clipboard.writeText(pathString).then(() => {
+                updateStatus(`✓ Copied path: ${pathString}`);
+            }).catch(() => {
+                updateStatus('Failed to copy to clipboard');
+            });
+        }
+
+        function copySelected() {
+            if (selectedNodes.size === 0) {
+                updateStatus('No nodes selected to copy');
+                return;
+            }
+
+            // For multi-select, copy all selected nodes
+            if (selectedNodes.size === 1) {
+                clipboard = copyNodeSubtree(selectedNode);
+                updateStatus(`Copied ${selectedNode.name}`);
+            } else {
+                // Copy multiple nodes as array
+                clipboard = {
+                    multipleNodes: true,
+                    nodes: Array.from(selectedNodes).map(node => copyNodeSubtree(node))
+                };
+                updateStatus(`Copied ${selectedNodes.size} nodes`);
+            }
+        }
+
+        function cutSelected() {
+            if (selectedNodes.size === 0) {
+                updateStatus('No nodes selected to cut');
+                return;
+            }
+
+            // Copy to clipboard first
+            copySelected();
+
+            // Then delete
+            deleteSelectedNodes();
+
+            updateStatus(`Cut ${selectedNodes.size} node(s) to clipboard`);
+        }
+
+        function pasteFromClipboard() {
+            if (!clipboard) {
+                updateStatus('Clipboard is empty');
+                return;
+            }
+
+            // Paste at center of viewport
+            const centerX = (-viewportX + canvas.width / 2) / viewportScale;
+            const centerY = (-viewportY + canvas.height / 2) / viewportScale;
+
+            if (clipboard.multipleNodes) {
+                // Paste multiple nodes
+                selectedNodes.clear();
+                clipboard.nodes.forEach((nodeDef, index) => {
+                    const offsetY = index * 100; // Stack nodes vertically
+                    const pastedNode = pasteNodeSubtree(nodeDef, centerX, centerY + offsetY);
+                    selectedNodes.add(pastedNode);
+                    if (index === 0) selectedNode = pastedNode;
+                });
+                updateStatus(`Pasted ${clipboard.nodes.length} nodes`);
+            } else {
+                // Paste single node
+                const pastedNode = pasteNodeSubtree(clipboard, centerX, centerY);
+                selectNode(pastedNode);
+                updateStatus(`Pasted ${clipboard.name}`);
+            }
+
+            saveHistory();
+            render();
+        }
+
+        function duplicateSelected() {
+            if (selectedNodes.size === 0) {
+                updateStatus('No nodes selected to duplicate');
+                return;
+            }
+
+            const newSelectedNodes = new Set();
+
+            Array.from(selectedNodes).forEach((node, index) => {
+                const copy = copyNodeSubtree(node);
+                const offsetX = 50;
+                const offsetY = 50 + (index * 20); // Stagger multiple duplicates
+                const duplicatedNode = pasteNodeSubtree(copy, node.x + offsetX, node.y + offsetY);
+                newSelectedNodes.add(duplicatedNode);
+            });
+
+            // Select the duplicated nodes
+            selectedNodes.clear();
+            newSelectedNodes.forEach(node => selectedNodes.add(node));
+            selectedNode = Array.from(selectedNodes)[0];
+
+            saveHistory();
+            render();
+            updateStatus(`Duplicated ${newSelectedNodes.size} node(s)`);
+        }
+
+        function selectAll() {
+            selectedNodes.clear();
+            nodes.forEach(node => selectedNodes.add(node));
+            updateStatus(`Selected ${nodes.length} nodes`);
+            render();
+        }
+
+        function deleteSelectedNodes() {
+            if (selectedNodes.size === 0) {
+                updateStatus('No nodes selected');
+                return;
+            }
+
+            const count = selectedNodes.size;
+            selectedNodes.forEach(node => {
+                if (node.parent) {
+                    node.parent.children = node.parent.children.filter(c => c !== node);
+                }
+
+                function deleteRecursive(n) {
+                    for (let child of n.children) {
+                        deleteRecursive(child);
+                    }
+                    nodes = nodes.filter(nd => nd !== n);
+                }
+                deleteRecursive(node);
+            });
+
+            selectedNodes.clear();
+            selectedNode = null;
+            saveHistory();
+            showProperties(null);
+            render();
+            updateStatus(`Deleted ${count} nodes`);
+        }
     </script>
 </body>
 </html>
