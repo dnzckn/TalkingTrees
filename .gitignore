@@ -51,3 +51,4 @@ data/catalog.json
 # OS
 .DS_Store
 Thumbs.db
+clones_of_repo_for_reference/*
