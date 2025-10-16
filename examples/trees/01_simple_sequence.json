@@ -1,0 +1,47 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Simple Sequence",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Demonstrates a basic sequence that executes actions in order",
+    "tags": ["tutorial", "basic", "sequence"]
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "Main Sequence",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Log",
+        "name": "Step 1",
+        "config": {
+          "message": "Executing step 1"
+        }
+      },
+      {
+        "node_type": "Log",
+        "name": "Step 2",
+        "config": {
+          "message": "Executing step 2"
+        }
+      },
+      {
+        "node_type": "Log",
+        "name": "Step 3",
+        "config": {
+          "message": "Executing step 3"
+        }
+      },
+      {
+        "node_type": "Success",
+        "name": "Complete",
+        "config": {}
+      }
+    ]
+  },
+  "blackboard_schema": {},
+  "dependencies": {
+    "behaviors": ["Sequence", "Log", "Success"]
+  }
+}

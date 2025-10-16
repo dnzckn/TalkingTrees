@@ -1,0 +1,48 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Simple Selector",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Demonstrates a selector that tries children until one succeeds",
+    "tags": ["tutorial", "basic", "selector"]
+  },
+  "root": {
+    "node_type": "Selector",
+    "name": "Try Options",
+    "config": {},
+    "children": [
+      {
+        "node_type": "CheckBattery",
+        "name": "Check Battery High",
+        "config": {
+          "threshold": 80.0
+        }
+      },
+      {
+        "node_type": "CheckBattery",
+        "name": "Check Battery Medium",
+        "config": {
+          "threshold": 50.0
+        }
+      },
+      {
+        "node_type": "Log",
+        "name": "Battery Low Warning",
+        "config": {
+          "message": "Battery critically low!"
+        }
+      }
+    ]
+  },
+  "blackboard_schema": {
+    "battery_level": {
+      "type": "float",
+      "default": 75.0,
+      "description": "Current battery level (0-100)"
+    }
+  },
+  "dependencies": {
+    "behaviors": ["Selector", "CheckBattery", "Log"]
+  }
+}

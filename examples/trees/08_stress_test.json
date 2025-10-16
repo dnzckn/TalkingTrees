@@ -1,0 +1,142 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Stress Test - Large Tree",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Large tree for performance and stress testing",
+    "tags": ["test", "performance", "stress", "large"]
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "Root",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Parallel",
+        "name": "Parallel Branch 1",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "Seq 1.1",
+            "config": {},
+            "children": [
+              {"node_type": "Success", "name": "Node 1.1.1", "config": {}},
+              {"node_type": "Success", "name": "Node 1.1.2", "config": {}},
+              {"node_type": "Success", "name": "Node 1.1.3", "config": {}},
+              {"node_type": "Success", "name": "Node 1.1.4", "config": {}},
+              {"node_type": "Success", "name": "Node 1.1.5", "config": {}}
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Seq 1.2",
+            "config": {},
+            "children": [
+              {"node_type": "Success", "name": "Node 1.2.1", "config": {}},
+              {"node_type": "Success", "name": "Node 1.2.2", "config": {}},
+              {"node_type": "Success", "name": "Node 1.2.3", "config": {}},
+              {"node_type": "Success", "name": "Node 1.2.4", "config": {}},
+              {"node_type": "Success", "name": "Node 1.2.5", "config": {}}
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Seq 1.3",
+            "config": {},
+            "children": [
+              {"node_type": "Success", "name": "Node 1.3.1", "config": {}},
+              {"node_type": "Success", "name": "Node 1.3.2", "config": {}},
+              {"node_type": "Success", "name": "Node 1.3.3", "config": {}},
+              {"node_type": "Success", "name": "Node 1.3.4", "config": {}},
+              {"node_type": "Success", "name": "Node 1.3.5", "config": {}}
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Selector",
+        "name": "Selector Branch 2",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "Seq 2.1",
+            "config": {},
+            "children": [
+              {"node_type": "Failure", "name": "Node 2.1.1", "config": {}},
+              {"node_type": "Success", "name": "Node 2.1.2", "config": {}}
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Seq 2.2",
+            "config": {},
+            "children": [
+              {"node_type": "Success", "name": "Node 2.2.1", "config": {}},
+              {"node_type": "Success", "name": "Node 2.2.2", "config": {}},
+              {"node_type": "Success", "name": "Node 2.2.3", "config": {}}
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Deep Nesting Test",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "Level 1",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "Level 2",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "name": "Level 3",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "Sequence",
+                        "name": "Level 4",
+                        "config": {},
+                        "children": [
+                          {"node_type": "Success", "name": "Deepest Node", "config": {}}
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Selector",
+        "name": "Many Children Test",
+        "config": {},
+        "children": [
+          {"node_type": "Failure", "name": "Child 1", "config": {}},
+          {"node_type": "Failure", "name": "Child 2", "config": {}},
+          {"node_type": "Failure", "name": "Child 3", "config": {}},
+          {"node_type": "Failure", "name": "Child 4", "config": {}},
+          {"node_type": "Failure", "name": "Child 5", "config": {}},
+          {"node_type": "Failure", "name": "Child 6", "config": {}},
+          {"node_type": "Failure", "name": "Child 7", "config": {}},
+          {"node_type": "Failure", "name": "Child 8", "config": {}},
+          {"node_type": "Failure", "name": "Child 9", "config": {}},
+          {"node_type": "Success", "name": "Child 10 - Success", "config": {}}
+        ]
+      }
+    ]
+  },
+  "dependencies": {
+    "behaviors": ["Sequence", "Selector", "Parallel", "Success", "Failure"]
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Retry Pattern",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Demonstrates retry decorator for handling failures",
+    "tags": ["tutorial", "decorator", "retry", "pattern"]
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "Main Flow",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Log",
+        "name": "Start Task",
+        "config": {
+          "message": "Starting unreliable task with retry"
+        }
+      },
+      {
+        "node_type": "Retry",
+        "name": "Retry Up To 3 Times",
+        "config": {
+          "num_attempts": 3
+        },
+        "children": [
+          {
+            "node_type": "Success",
+            "name": "Potentially Failing Task",
+            "config": {}
+          }
+        ]
+      },
+      {
+        "node_type": "Log",
+        "name": "Task Succeeded",
+        "config": {
+          "message": "Task completed successfully!"
+        }
+      }
+    ]
+  },
+  "dependencies": {
+    "behaviors": ["Sequence", "Retry", "Log", "Success"]
+  }
+}

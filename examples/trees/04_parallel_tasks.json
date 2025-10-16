@@ -1,0 +1,80 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Parallel Tasks",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Demonstrates parallel execution of multiple tasks",
+    "tags": ["tutorial", "parallel", "concurrent"]
+  },
+  "root": {
+    "node_type": "Parallel",
+    "name": "Concurrent Tasks",
+    "config": {
+      "policy": {
+        "synchronise": false
+      }
+    },
+    "children": [
+      {
+        "node_type": "Sequence",
+        "name": "Task A",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Log",
+            "name": "Start A",
+            "config": {
+              "message": "Starting task A"
+            }
+          },
+          {
+            "node_type": "Wait",
+            "name": "Wait A",
+            "config": {
+              "duration": 1.0
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Finish A",
+            "config": {
+              "message": "Completed task A"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Task B",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Log",
+            "name": "Start B",
+            "config": {
+              "message": "Starting task B"
+            }
+          },
+          {
+            "node_type": "Wait",
+            "name": "Wait B",
+            "config": {
+              "duration": 0.5
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Finish B",
+            "config": {
+              "message": "Completed task B"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "dependencies": {
+    "behaviors": ["Parallel", "Sequence", "Log", "Wait"]
+  }
+}

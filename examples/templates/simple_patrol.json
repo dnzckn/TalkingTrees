@@ -1,0 +1,117 @@
+{
+  "template_id": "simple_patrol",
+  "name": "Simple Patrol Template",
+  "description": "Parameterized patrol tree with configurable waypoint count and scan duration",
+  "category": "robot",
+  "tags": ["patrol", "robot", "template"],
+  "parameters": [
+    {
+      "name": "num_waypoints",
+      "type": "int",
+      "description": "Number of waypoints to patrol",
+      "required": true,
+      "default": 3
+    },
+    {
+      "name": "scan_duration",
+      "type": "float",
+      "description": "Duration to scan at each waypoint (seconds)",
+      "required": true,
+      "default": 1.0
+    },
+    {
+      "name": "battery_threshold",
+      "type": "float",
+      "description": "Battery level to trigger charging (percentage)",
+      "required": false,
+      "default": 20.0
+    }
+  ],
+  "example_params": {
+    "num_waypoints": 4,
+    "scan_duration": 2.0,
+    "battery_threshold": 25.0
+  },
+  "tree_structure": {
+    "root": {
+      "node_type": "Selector",
+      "name": "Patrol Controller",
+      "config": {},
+      "children": [
+        {
+          "node_type": "Sequence",
+          "name": "Battery Check",
+          "config": {},
+          "children": [
+            {
+              "node_type": "Inverter",
+              "name": "Battery Low",
+              "config": {},
+              "children": [
+                {
+                  "node_type": "CheckBattery",
+                  "name": "Check Battery",
+                  "config": {
+                    "threshold": "{{battery_threshold}}"
+                  }
+                }
+              ]
+            },
+            {
+              "node_type": "Log",
+              "name": "Going to Charge",
+              "config": {
+                "message": "Battery low, returning to charger"
+              }
+            },
+            {
+              "node_type": "Success",
+              "name": "Navigate to Charger",
+              "config": {}
+            }
+          ]
+        },
+        {
+          "node_type": "Sequence",
+          "name": "Patrol Route",
+          "config": {},
+          "children": [
+            {
+              "node_type": "Log",
+              "name": "Start Patrol",
+              "config": {
+                "message": "Starting patrol of {{num_waypoints}} waypoints"
+              }
+            },
+            {
+              "node_type": "Success",
+              "name": "Execute Patrol",
+              "config": {}
+            },
+            {
+              "node_type": "Wait",
+              "name": "Scan Area",
+              "config": {
+                "duration": "{{scan_duration}}"
+              }
+            },
+            {
+              "node_type": "Log",
+              "name": "Patrol Complete",
+              "config": {
+                "message": "Patrol cycle completed"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "blackboard_schema": {
+      "battery_level": {
+        "type": "float",
+        "default": 100.0,
+        "description": "Current battery level"
+      }
+    }
+  }
+}

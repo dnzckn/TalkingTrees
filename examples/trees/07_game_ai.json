@@ -1,0 +1,176 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Game AI - NPC Behavior",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Game AI decision tree for NPC behavior with combat and exploration",
+    "tags": ["example", "game", "ai", "npc"]
+  },
+  "root": {
+    "node_type": "Selector",
+    "name": "NPC Main AI",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Sequence",
+        "name": "Combat Mode",
+        "config": {},
+        "ui_metadata": {
+          "notes": "Engages if enemy nearby"
+        },
+        "children": [
+          {
+            "node_type": "Success",
+            "name": "Enemy Detected",
+            "config": {},
+            "ui_metadata": {
+              "notes": "Check if enemy in range"
+            }
+          },
+          {
+            "node_type": "Selector",
+            "name": "Combat Strategy",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "Health Low - Retreat",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Inverter",
+                    "name": "Health Not OK",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "CheckBattery",
+                        "name": "Check Health > 30%",
+                        "config": {
+                          "threshold": 30.0
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Log",
+                    "name": "Retreating",
+                    "config": {
+                      "message": "Health low! Retreating..."
+                    }
+                  },
+                  {
+                    "node_type": "Success",
+                    "name": "Move to Safety",
+                    "config": {}
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "Engage Enemy",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Log",
+                    "name": "Attacking",
+                    "config": {
+                      "message": "Engaging enemy!"
+                    }
+                  },
+                  {
+                    "node_type": "Success",
+                    "name": "Move to Attack Position",
+                    "config": {}
+                  },
+                  {
+                    "node_type": "Success",
+                    "name": "Execute Attack",
+                    "config": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Exploration Mode",
+        "config": {},
+        "ui_metadata": {
+          "notes": "Default behavior when no threats"
+        },
+        "children": [
+          {
+            "node_type": "Log",
+            "name": "Exploring",
+            "config": {
+              "message": "Exploring area..."
+            }
+          },
+          {
+            "node_type": "Selector",
+            "name": "Choose Action",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Success",
+                "name": "Collect Item",
+                "config": {}
+              },
+              {
+                "node_type": "Success",
+                "name": "Patrol Route",
+                "config": {}
+              },
+              {
+                "node_type": "Sequence",
+                "name": "Idle",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Wait",
+                    "name": "Rest",
+                    "config": {
+                      "duration": 1.0
+                    }
+                  },
+                  {
+                    "node_type": "Log",
+                    "name": "Resting",
+                    "config": {
+                      "message": "Standing idle..."
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "blackboard_schema": {
+    "health": {
+      "type": "float",
+      "default": 100.0,
+      "description": "NPC health (0-100)",
+      "min": 0.0,
+      "max": 100.0
+    },
+    "enemy_distance": {
+      "type": "float",
+      "default": 100.0,
+      "description": "Distance to nearest enemy"
+    },
+    "has_item_nearby": {
+      "type": "bool",
+      "default": false,
+      "description": "Whether collectible item is nearby"
+    }
+  },
+  "dependencies": {
+    "behaviors": ["Selector", "Sequence", "Inverter", "CheckBattery", "Log", "Wait", "Success"]
+  }
+}

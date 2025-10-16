@@ -1,0 +1,105 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "550e8400-e29b-41d4-a716-446655440001",
+  "metadata": {
+    "name": "Simple Patrol Example",
+    "version": "1.0.0",
+    "author": "PyForest Team",
+    "description": "A simple example demonstrating a basic patrol behavior tree with battery check",
+    "tags": ["example", "patrol", "tutorial"],
+    "status": "active"
+  },
+  "root": {
+    "node_type": "Selector",
+    "name": "root_selector",
+    "config": {
+      "memory": false
+    },
+    "ui_metadata": {
+      "position": {"x": 100, "y": 100},
+      "color": "#E67E22",
+      "notes": "Top level: handle low battery or normal operations"
+    },
+    "children": [
+      {
+        "node_type": "Sequence",
+        "name": "normal_operations",
+        "config": {
+          "memory": true
+        },
+        "ui_metadata": {
+          "position": {"x": 80, "y": 200},
+          "color": "#4A90E2"
+        },
+        "children": [
+          {
+            "node_type": "CheckBattery",
+            "name": "battery_check",
+            "config": {
+              "threshold": 0.2
+            },
+            "ui_metadata": {
+              "position": {"x": 60, "y": 300},
+              "color": "#F39C12",
+              "notes": "Ensure battery above 20%"
+            },
+            "children": []
+          },
+          {
+            "node_type": "Log",
+            "name": "patrol_log",
+            "config": {
+              "message": "Executing patrol route"
+            },
+            "ui_metadata": {
+              "position": {"x": 120, "y": 300}
+            },
+            "children": []
+          },
+          {
+            "node_type": "Wait",
+            "name": "patrol_action",
+            "config": {
+              "duration": 2.0
+            },
+            "ui_metadata": {
+              "position": {"x": 180, "y": 300},
+              "notes": "Simulate patrol action"
+            },
+            "children": []
+          }
+        ]
+      },
+      {
+        "node_type": "Log",
+        "name": "low_battery_log",
+        "config": {
+          "message": "Battery low - returning to base"
+        },
+        "ui_metadata": {
+          "position": {"x": 280, "y": 200},
+          "color": "#E74C3C"
+        },
+        "children": []
+      }
+    ]
+  },
+  "blackboard_schema": {
+    "/battery/level": {
+      "type": "float",
+      "default": 1.0,
+      "min": 0.0,
+      "max": 1.0,
+      "description": "Current battery level (0.0 to 1.0)"
+    }
+  },
+  "dependencies": {
+    "behaviors": ["Selector", "Sequence", "CheckBattery", "Log", "Wait"],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}

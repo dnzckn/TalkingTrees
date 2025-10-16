@@ -1,0 +1,126 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Robot Patrol",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Autonomous robot patrol behavior with battery management",
+    "tags": ["example", "robot", "patrol", "realistic"]
+  },
+  "root": {
+    "node_type": "Selector",
+    "name": "Main Control",
+    "config": {},
+    "children": [
+      {
+        "node_type": "Sequence",
+        "name": "Battery Low - Go Charge",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Inverter",
+            "name": "Battery Not OK",
+            "config": {},
+            "children": [
+              {
+                "node_type": "CheckBattery",
+                "name": "Check Battery > 20%",
+                "config": {
+                  "threshold": 20.0
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Log",
+            "name": "Battery Low Alert",
+            "config": {
+              "message": "Battery low! Returning to charge station"
+            }
+          },
+          {
+            "node_type": "Success",
+            "name": "Navigate to Charger",
+            "config": {}
+          },
+          {
+            "node_type": "Wait",
+            "name": "Charging",
+            "config": {
+              "duration": 2.0
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Charged",
+            "config": {
+              "message": "Battery fully charged"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Normal Patrol",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Log",
+            "name": "Patrolling",
+            "config": {
+              "message": "Patrolling area..."
+            }
+          },
+          {
+            "node_type": "Success",
+            "name": "Move to Waypoint 1",
+            "config": {}
+          },
+          {
+            "node_type": "Wait",
+            "name": "Scan Area 1",
+            "config": {
+              "duration": 1.0
+            }
+          },
+          {
+            "node_type": "Success",
+            "name": "Move to Waypoint 2",
+            "config": {}
+          },
+          {
+            "node_type": "Wait",
+            "name": "Scan Area 2",
+            "config": {
+              "duration": 1.0
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Patrol Complete",
+            "config": {
+              "message": "Patrol cycle completed"
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "blackboard_schema": {
+    "battery_level": {
+      "type": "float",
+      "default": 100.0,
+      "description": "Current battery percentage",
+      "min": 0.0,
+      "max": 100.0
+    },
+    "current_waypoint": {
+      "type": "int",
+      "default": 0,
+      "description": "Current waypoint index"
+    }
+  },
+  "dependencies": {
+    "behaviors": ["Selector", "Sequence", "Inverter", "CheckBattery", "Log", "Wait", "Success"]
+  }
+}

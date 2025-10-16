@@ -1,0 +1,126 @@
+{
+  "$schema": "1.0.0",
+  "metadata": {
+    "name": "Debug Showcase",
+    "version": "1.0.0",
+    "author": "PyForest Examples",
+    "description": "Demonstrates debugging features: breakpoints, watches, and step execution",
+    "tags": ["tutorial", "debug", "breakpoint", "watch"]
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "Debug Demo",
+    "config": {},
+    "ui_metadata": {
+      "notes": "Set breakpoints on any node to pause execution. Watch 'counter' variable."
+    },
+    "children": [
+      {
+        "node_type": "Log",
+        "name": "Initialize",
+        "config": {
+          "message": "Starting debug demo - set breakpoint here!"
+        },
+        "ui_metadata": {
+          "breakpoint": true,
+          "notes": "Good place for initial breakpoint"
+        }
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Loop Simulation",
+        "config": {},
+        "children": [
+          {
+            "node_type": "Log",
+            "name": "Iteration 1",
+            "config": {
+              "message": "Loop iteration 1"
+            }
+          },
+          {
+            "node_type": "Wait",
+            "name": "Pause 1",
+            "config": {
+              "duration": 0.5
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Iteration 2",
+            "config": {
+              "message": "Loop iteration 2"
+            },
+            "ui_metadata": {
+              "notes": "Watch counter variable changes here"
+            }
+          },
+          {
+            "node_type": "Wait",
+            "name": "Pause 2",
+            "config": {
+              "duration": 0.5
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Iteration 3",
+            "config": {
+              "message": "Loop iteration 3"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Selector",
+        "name": "Decision Point",
+        "config": {},
+        "ui_metadata": {
+          "notes": "Step through this selector to see decision logic"
+        },
+        "children": [
+          {
+            "node_type": "CheckBattery",
+            "name": "Check High Battery",
+            "config": {
+              "threshold": 80.0
+            }
+          },
+          {
+            "node_type": "Log",
+            "name": "Battery Not High",
+            "config": {
+              "message": "Battery below 80%"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Log",
+        "name": "Complete",
+        "config": {
+          "message": "Debug demo complete!"
+        },
+        "ui_metadata": {
+          "breakpoint": true,
+          "notes": "Final breakpoint to inspect state"
+        }
+      }
+    ]
+  },
+  "blackboard_schema": {
+    "counter": {
+      "type": "int",
+      "default": 0,
+      "description": "Loop counter - watch this variable!"
+    },
+    "battery_level": {
+      "type": "float",
+      "default": 75.0,
+      "description": "Simulated battery level"
+    }
+  },
+  "dependencies": {
+    "behaviors": ["Sequence", "Selector", "Log", "Wait", "CheckBattery"]
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "template_id": "retry_task",
+  "name": "Retry Task Template",
+  "description": "Template for a task with configurable retry attempts",
+  "category": "pattern",
+  "tags": ["retry", "error-handling", "template"],
+  "parameters": [
+    {
+      "name": "task_name",
+      "type": "string",
+      "description": "Name of the task",
+      "required": true,
+      "default": "My Task"
+    },
+    {
+      "name": "max_attempts",
+      "type": "int",
+      "description": "Maximum number of retry attempts",
+      "required": true,
+      "default": 3
+    },
+    {
+      "name": "log_attempts",
+      "type": "bool",
+      "description": "Whether to log each attempt",
+      "required": false,
+      "default": true
+    }
+  ],
+  "example_params": {
+    "task_name": "Download File",
+    "max_attempts": 5,
+    "log_attempts": true
+  },
+  "tree_structure": {
+    "root": {
+      "node_type": "Sequence",
+      "name": "Main Flow",
+      "config": {},
+      "children": [
+        {
+          "node_type": "Log",
+          "name": "Start Task",
+          "config": {
+            "message": "Starting task: {{task_name}}"
+          }
+        },
+        {
+          "node_type": "Retry",
+          "name": "Retry Logic",
+          "config": {
+            "num_attempts": "{{max_attempts}}"
+          },
+          "children": [
+            {
+              "node_type": "Success",
+              "name": "Execute Task",
+              "config": {}
+            }
+          ]
+        },
+        {
+          "node_type": "Log",
+          "name": "Success",
+          "config": {
+            "message": "Task {{task_name}} completed successfully"
+          }
+        }
+      ]
+    }
+  }
+}
