@@ -4,23 +4,23 @@
 
 # PyForest
 
-**Production-ready behavior tree management system with serialization, REST API, and visual editing**
+**Behavior tree management system with JSON serialization, REST API, and visual editing**
 
-PyForest is built on [py_trees](https://github.com/splintered-reality/py_trees) and provides a complete solution for creating, managing, and executing behavior trees. Store trees as JSON, execute them with real-time monitoring, debug with breakpoints and watches, and visualize execution flow - all through a REST API, CLI, or visual editor.
+Built on [py_trees](https://github.com/splintered-reality/py_trees), PyForest demonstrates how to serialize behavior trees to JSON, provide a REST API for tree management and execution, and edit trees visually in a browser. The system shows how to separate tree definitions from runtime execution, enable version control of trees, and provide debugging capabilities.
 
-**Use Cases**: Robot control systems, game AI, workflow automation, autonomous agents, decision-making systems.
+**What it demonstrates**: Serializing py_trees to/from JSON, REST API for tree execution, visual tree editor, debugging with breakpoints and watches, execution monitoring, tree diffing and versioning.
 
 ## Features
 
-- **Tree Library** - Store and version behavior tree definitions as JSON
-- **REST API** - Complete HTTP/WebSocket API (47 endpoints)
-- **CLI Tool** - Command-line interface for local management
+- **Tree Library** - Store and version tree definitions as JSON files
+- **REST API** - HTTP/WebSocket API with 47 endpoints
+- **CLI Tool** - Command-line interface for tree operations
 - **Real-time Monitoring** - WebSocket streaming and execution history
 - **Debugging** - Breakpoints, watches, and step execution
-- **Templates** - Reusable tree patterns with parameters
-- **Validation** - Comprehensive tree and behavior validation
+- **Templates** - Reusable tree patterns with parameter substitution
+- **Validation** - Tree structure and behavior validation
 - **Visualization** - DOT graph and py_trees_js format export
-- **Statistics** - Performance profiling and per-node metrics
+- **Statistics** - Execution profiling and per-node timing
 
 ## Quick Start
 
@@ -381,9 +381,9 @@ mypy src/
 - Phase 4C: CLI & Developer Tools - Complete
 - Phase 4D: Documentation - Complete
 
-## Capabilities
+## What It Provides
 
-PyForest is a comprehensive behavior tree management system that provides:
+PyForest includes:
 
 **Tree Management**
 - Store trees as JSON with semantic versioning
@@ -415,44 +415,38 @@ PyForest is a comprehensive behavior tree management system that provides:
 - Performance profiling with per-node breakdown
 - Graphviz export for documentation
 
-**Developer Tools**
-- Command-line interface (pyforest CLI) with comprehensive commands
+**Developer Interface**
+- Command-line tool (pyforest) for tree management
 - REST API with 47 endpoints across 7 routers
-- Interactive API documentation at /docs
-- Python SDK for programmatic usage
+- Interactive API documentation at /docs endpoint
+- Python SDK for loading and executing trees
 
-## Performance
+## Performance Notes
 
-Typical performance metrics:
+Observed performance on typical hardware:
 
-- Tree serialization: < 10ms for 100-node trees
-- Single tick: 0.1-1ms depending on complexity
-- Throughput: 1000-10000 ticks/sec
+- Tree serialization: ~10ms for 100-node trees
+- Single tick: 0.1-1ms depending on tree complexity
 - Memory: ~1MB per execution instance
-- History: 1000 snapshots per execution (configurable)
+- History: Limited to 1000 snapshots per execution (configurable)
 
-Profile your trees:
+Profiling available via CLI:
 ```bash
 pyforest profile <TREE_ID> --ticks 1000
 ```
 
-## Deployment
+## Running the Server
 
-### Development
+Start the development server:
 
 ```bash
 python run_server.py
 ```
 
-### Production
-
-See [Deployment Guide](docs/DEPLOYMENT.md) for:
-- Systemd service configuration
-- Nginx reverse proxy setup
-- SSL/TLS configuration
-- Monitoring and logging
-- Backup strategies
-- Security hardening
+See [Deployment Guide](docs/DEPLOYMENT.md) for information on:
+- Running as a service
+- Reverse proxy configuration
+- Basic security considerations
 
 ## Contributing
 
