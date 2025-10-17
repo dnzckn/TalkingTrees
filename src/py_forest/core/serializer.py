@@ -15,13 +15,22 @@ class TreeSerializer:
 
     Maintains bidirectional mapping between:
     - TreeNodeDefinition UUID ↔ py_trees Behaviour instance
+
+    Security Features:
+    - Cycle detection in subtree resolution (prevents infinite loops)
+    - Depth limits (prevents stack overflow from deeply nested trees)
     """
 
-    def __init__(self):
-        """Initialize the serializer."""
+    def __init__(self, max_depth: int = 100):
+        """Initialize the serializer.
+
+        Args:
+            max_depth: Maximum tree depth allowed (default: 100)
+        """
         self.registry = get_registry()
         self.node_map: Dict[UUID, behaviour.Behaviour] = {}
         self.reverse_map: Dict[behaviour.Behaviour, UUID] = {}
+        self.max_depth = max_depth
 
     def deserialize(self, tree_def: TreeDefinition) -> py_trees.trees.BehaviourTree:
         """Convert TreeDefinition to executable py_trees.BehaviourTree.
@@ -38,11 +47,12 @@ class TreeSerializer:
         self.node_map = {}
         self.reverse_map = {}
 
-        # Resolve subtree references first
-        resolved_root = self._resolve_subtrees(tree_def.root, tree_def.subtrees)
+        # Resolve subtree references first (with cycle detection)
+        visited_refs = set()
+        resolved_root = self._resolve_subtrees(tree_def.root, tree_def.subtrees, visited_refs)
 
-        # Build the tree recursively
-        root_node = self._build_node(resolved_root)
+        # Build the tree recursively (with depth limits)
+        root_node = self._build_node(resolved_root, depth=0)
 
         # Create BehaviourTree wrapper
         tree = py_trees.trees.BehaviourTree(root=root_node)
@@ -56,24 +66,34 @@ class TreeSerializer:
         self,
         node: TreeNodeDefinition,
         subtrees: Dict[str, TreeNodeDefinition],
+        visited_refs: set[str],
     ) -> TreeNodeDefinition:
-        """Resolve $ref pointers to subtrees.
+        """Resolve $ref pointers to subtrees with cycle detection.
 
         Args:
             node: Node definition (may have $ref)
             subtrees: Available subtree definitions
+            visited_refs: Set of already visited refs (for cycle detection)
 
         Returns:
             Resolved node definition
 
         Raises:
-            ValueError: If referenced subtree not found
+            ValueError: If referenced subtree not found or circular reference detected
         """
         # If this node has a $ref, replace it with the subtree
         if node.ref:
             ref_name = node.ref.lstrip("#/subtrees/")
+
+            # Cycle detection: check if we've already visited this ref
+            if ref_name in visited_refs:
+                raise ValueError(f"Circular subtree reference detected: {node.ref} (path: {visited_refs})")
+
             if ref_name not in subtrees:
                 raise ValueError(f"Subtree reference not found: {node.ref}")
+
+            # Mark this ref as visited
+            visited_refs.add(ref_name)
 
             # Get the subtree definition
             subtree = subtrees[ref_name]
@@ -89,10 +109,10 @@ class TreeSerializer:
             )
             node = resolved
 
-        # Recursively resolve children
+        # Recursively resolve children (share visited_refs to detect cycles)
         if node.children:
             resolved_children = [
-                self._resolve_subtrees(child, subtrees) for child in node.children
+                self._resolve_subtrees(child, subtrees, visited_refs) for child in node.children
             ]
             node = TreeNodeDefinition(
                 node_type=node.node_type,
@@ -105,18 +125,26 @@ class TreeSerializer:
 
         return node
 
-    def _build_node(self, node_def: TreeNodeDefinition) -> behaviour.Behaviour:
-        """Recursively build a py_trees node from definition.
+    def _build_node(self, node_def: TreeNodeDefinition, depth: int = 0) -> behaviour.Behaviour:
+        """Recursively build a py_trees node from definition with depth limits.
 
         Args:
             node_def: Node definition
+            depth: Current depth in the tree
 
         Returns:
             Instantiated py_trees Behaviour
 
         Raises:
-            ValueError: If node type is unknown or construction fails
+            ValueError: If node type is unknown, construction fails, or max depth exceeded
         """
+        # Depth limit check
+        if depth > self.max_depth:
+            raise ValueError(
+                f"Tree depth exceeded maximum ({self.max_depth}). "
+                f"This may indicate a circular reference or excessively deep nesting."
+            )
+
         # Get implementation from registry
         implementation = self.registry.get_implementation(node_def.node_type)
         if implementation is None:
@@ -125,27 +153,28 @@ class TreeSerializer:
         # Handle different node categories differently
         if node_def.node_type in ["Sequence", "Selector"]:
             # Composites: build children first, then composite
-            return self._build_composite(node_def)
+            return self._build_composite(node_def, depth)
         elif node_def.node_type == "Parallel":
-            return self._build_parallel(node_def)
+            return self._build_parallel(node_def, depth)
         elif node_def.node_type in ["Inverter", "Timeout", "Retry", "OneShot"]:
             # Decorators: need child in constructor
-            return self._build_decorator(node_def)
+            return self._build_decorator(node_def, depth)
         else:
             # Simple behaviors (leaf nodes)
             return self._build_behavior(node_def)
 
-    def _build_composite(self, node_def: TreeNodeDefinition) -> behaviour.Behaviour:
+    def _build_composite(self, node_def: TreeNodeDefinition, depth: int) -> behaviour.Behaviour:
         """Build a composite node (Sequence, Selector).
 
         Args:
             node_def: Node definition
+            depth: Current depth in tree
 
         Returns:
             Composite behaviour with children attached
         """
-        # Build children first
-        children = [self._build_node(child) for child in node_def.children]
+        # Build children first (increment depth)
+        children = [self._build_node(child, depth + 1) for child in node_def.children]
 
         # Create composite with correct memory defaults
         # Sequence defaults to memory=True (committed - completes steps in order)
@@ -168,17 +197,18 @@ class TreeSerializer:
 
         return composite
 
-    def _build_parallel(self, node_def: TreeNodeDefinition) -> behaviour.Behaviour:
+    def _build_parallel(self, node_def: TreeNodeDefinition, depth: int) -> behaviour.Behaviour:
         """Build a parallel node.
 
         Args:
             node_def: Node definition
+            depth: Current depth in tree
 
         Returns:
             Parallel behaviour
         """
-        # Build children first
-        children = [self._build_node(child) for child in node_def.children]
+        # Build children first (increment depth)
+        children = [self._build_node(child, depth + 1) for child in node_def.children]
 
         # Create policy
         policy_name = node_def.config.get("policy", "SuccessOnAll")
@@ -209,11 +239,12 @@ class TreeSerializer:
 
         return parallel
 
-    def _build_decorator(self, node_def: TreeNodeDefinition) -> behaviour.Behaviour:
+    def _build_decorator(self, node_def: TreeNodeDefinition, depth: int) -> behaviour.Behaviour:
         """Build a decorator node.
 
         Args:
             node_def: Node definition
+            depth: Current depth in tree
 
         Returns:
             Decorator behaviour
@@ -228,8 +259,8 @@ class TreeSerializer:
                 f"got {len(node_def.children)}"
             )
 
-        # Build child first
-        child = self._build_node(node_def.children[0])
+        # Build child first (increment depth)
+        child = self._build_node(node_def.children[0], depth + 1)
 
         # Create decorator based on type
         if node_def.node_type == "Inverter":

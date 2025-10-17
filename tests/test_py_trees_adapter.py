@@ -27,7 +27,7 @@ def test_basic_conversion():
     root.add_child(py_trees.behaviours.Failure(name="Step 3"))
 
     # Convert to PyForest
-    pf_tree = from_py_trees(root, name="Basic Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Basic Test", version="1.0.0")
 
     # Verify structure
     assert pf_tree.metadata.name == "Basic Test"
@@ -60,7 +60,7 @@ def test_blackboard_condition():
     root.add_child(condition)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Condition Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Condition Test", version="1.0.0")
 
     # Verify
     condition_node = pf_tree.root.children[0]
@@ -96,7 +96,7 @@ def test_blackboard_setter():
     root.add_child(setter)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Setter Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Setter Test", version="1.0.0")
 
     # Verify
     setter_node = pf_tree.root.children[0]
@@ -153,7 +153,7 @@ def test_complex_tree():
     root.add_child(normal)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Complex Robot AI", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Complex Robot AI", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Selector"
@@ -182,7 +182,7 @@ def test_save_load_roundtrip():
 
     # Convert and save
     pf = PyForest()
-    pf_tree = from_py_trees(root, name="Roundtrip Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Roundtrip Test", version="1.0.0")
     pf.save_tree(pf_tree, "/tmp/test_roundtrip.json")
 
     # Load back
@@ -224,7 +224,7 @@ def test_reverse_conversion():
 
     # Convert to PyForest
     pf = PyForest()
-    pf_tree = from_py_trees(root, name="Reverse Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Reverse Test", version="1.0.0")
 
     # Save
     pf.save_tree(pf_tree, "/tmp/test_reverse.json")
@@ -282,7 +282,7 @@ def test_multiple_operators():
         root.add_child(condition)
 
         # Convert
-        pf_tree = from_py_trees(root, name="Op Test", version="1.0.0")
+        pf_tree, _ = from_py_trees(root, name="Op Test", version="1.0.0")
 
         # Verify
         cond_node = pf_tree.root.children[0]
@@ -313,7 +313,7 @@ def test_nested_composites():
     root.add_child(l2)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Nested Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Nested Test", version="1.0.0")
 
     # Verify depth
     assert pf_tree.root.node_type == "Selector"
@@ -341,7 +341,7 @@ def test_parallel_composite():
     root.add_child(py_trees.behaviours.Success(name="Monitor Comms"))
 
     # Convert
-    pf_tree = from_py_trees(root, name="Parallel Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Parallel Test", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Parallel"
@@ -362,7 +362,7 @@ def test_inverter_decorator():
     root = py_trees.decorators.Inverter(name="Invert It", child=child)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Inverter Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Inverter Test", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Inverter"
@@ -385,7 +385,7 @@ def test_repeat_decorator():
     root = py_trees.decorators.Repeat(name="Repeat 5 times", child=child, num_success=5)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Repeat Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Repeat Test", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Repeat"
@@ -407,7 +407,7 @@ def test_retry_decorator():
     root = py_trees.decorators.Retry(name="Retry 3 times", child=child, num_failures=3)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Retry Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Retry Test", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Retry"
@@ -429,7 +429,7 @@ def test_timeout_decorator():
     root = py_trees.decorators.Timeout(name="5 second timeout", child=child, duration=5.0)
 
     # Convert
-    pf_tree = from_py_trees(root, name="Timeout Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Timeout Test", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Timeout"
@@ -454,7 +454,7 @@ def test_decorator_reverse_conversion():
 
     # Convert to PyForest
     pf = PyForest()
-    pf_tree = from_py_trees(root, name="Decorator Test", version="1.0.0")
+    pf_tree, _ = from_py_trees(root, name="Decorator Test", version="1.0.0")
 
     # Save and load
     pf.save_tree(pf_tree, "/tmp/test_decorator.json")

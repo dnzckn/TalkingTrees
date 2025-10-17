@@ -21,7 +21,7 @@ Example:
     root.add_child(py_trees.behaviours.Success("Step2"))
 
     # Convert to PyForest
-    pf_tree = from_py_trees(root, name="My Tree", version="1.0.0")
+    pf_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
     # Now use with PyForest SDK
     from py_forest.sdk import PyForest
@@ -376,7 +376,8 @@ def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) 
 def _convert_node(
     py_trees_node,
     parent_path: str = "",
-    use_deterministic_uuids: bool = True
+    use_deterministic_uuids: bool = True,
+    context: Optional[ConversionContext] = None
 ) -> TreeNodeDefinition:
     """
     Convert a py_trees node to PyForest TreeNodeDefinition.
@@ -386,6 +387,7 @@ def _convert_node(
         py_trees_node: Node to convert
         parent_path: Path from root (for deterministic UUIDs)
         use_deterministic_uuids: If True, generate deterministic UUIDs
+        context: Conversion context for tracking warnings
 
     Returns:
         TreeNodeDefinition with all children converted
@@ -398,10 +400,10 @@ def _convert_node(
     if hasattr(py_trees_node, 'children'):
         # Composite nodes have 'children' (list)
         for child in py_trees_node.children:
-            children.append(_convert_node(child, current_path, use_deterministic_uuids))
+            children.append(_convert_node(child, current_path, use_deterministic_uuids, context))
     elif hasattr(py_trees_node, 'child'):
         # Decorator nodes have 'child' (single node)
-        children.append(_convert_node(py_trees_node.child, current_path, use_deterministic_uuids))
+        children.append(_convert_node(py_trees_node.child, current_path, use_deterministic_uuids, context))
 
     # Generate UUID
     if use_deterministic_uuids:
@@ -411,10 +413,10 @@ def _convert_node(
 
     # Create PyForest node
     return TreeNodeDefinition(
-        node_type=_get_node_type(py_trees_node),
+        node_type=_get_node_type(py_trees_node, context),
         node_id=node_id,
         name=py_trees_node.name,
-        config=_extract_config(py_trees_node),
+        config=_extract_config(py_trees_node, context),
         children=children
     )
 
@@ -530,7 +532,7 @@ def from_py_trees(
     tree_id: Optional[UUID] = None,
     auto_detect_blackboard: bool = True,
     use_deterministic_uuids: bool = True
-) -> TreeDefinition:
+) -> tuple[TreeDefinition, ConversionContext]:
     """
     Convert a py_trees tree to PyForest format.
 
@@ -545,7 +547,9 @@ def from_py_trees(
             (recommended for version control - same tree gets same UUIDs)
 
     Returns:
-        TreeDefinition that can be used with PyForest SDK
+        Tuple of (TreeDefinition, ConversionContext)
+        - TreeDefinition: The converted tree
+        - ConversionContext: Warnings and issues encountered during conversion
 
     Example:
         >>> import py_trees
@@ -555,20 +559,28 @@ def from_py_trees(
         >>> root = py_trees.composites.Sequence("Root", memory=False)
         >>> root.add_child(py_trees.behaviours.Success("Step1"))
         >>>
-        >>> # Convert to PyForest with deterministic UUIDs
-        >>> pf_tree = from_py_trees(root, name="My Tree")
+        >>> # Convert to PyForest
+        >>> pf_tree, context = from_py_trees(root, name="My Tree")
+        >>>
+        >>> # Check for warnings
+        >>> if context.has_warnings():
+        >>>     print(context.summary())
         >>>
         >>> # Use with PyForest
         >>> from py_forest.sdk import PyForest
         >>> pf = PyForest()
         >>> pf.save_tree(pf_tree, "tree.json")
-        >>>
-        >>> # Convert again - UUIDs will be the same!
-        >>> pf_tree2 = from_py_trees(root, name="My Tree")
-        >>> assert pf_tree.root.node_id == pf_tree2.root.node_id
     """
+    # Create conversion context for tracking warnings
+    context = ConversionContext()
+
     # Convert root node recursively
-    pf_root = _convert_node(root, parent_path="", use_deterministic_uuids=use_deterministic_uuids)
+    pf_root = _convert_node(
+        root,
+        parent_path="",
+        use_deterministic_uuids=use_deterministic_uuids,
+        context=context
+    )
 
     # Collect blackboard variables
     blackboard_schema = {}
@@ -594,7 +606,7 @@ def from_py_trees(
         dependencies=TreeDependencies()
     )
 
-    return tree
+    return tree, context
 
 
 def to_py_trees(tree: TreeDefinition):

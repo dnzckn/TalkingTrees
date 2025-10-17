@@ -88,7 +88,7 @@ class TestRESTAPIIntegration:
         print("\nStep 2: Convert to PyForest format...")
 
         pf = PyForest()
-        tree_def = from_py_trees(
+        tree_def, _ = from_py_trees(
             root,
             name="REST API Test Tree",
             version="1.0.0",

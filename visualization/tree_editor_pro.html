@@ -2517,7 +2517,7 @@
             minimapCtx.restore();
         }
 
-        // Layout
+        // Layout - Hierarchical Tree Layout (Reingold-Tilford Algorithm)
         function autoLayout() {
             if (nodes.length === 0) {
                 updateStatus('No nodes to layout');
@@ -2531,32 +2531,113 @@
             }
 
             const root = roots[0];
-            // Start at a reasonable position
-            layoutNode(root, 500, 100, 250);
-            saveHistory();
-            render(); // Show layout immediately
 
-            // Auto-fit after layout to ensure everything is visible
+            // Configuration
+            const config = {
+                nodeWidth: 180,      // Approximate node width
+                nodeHeight: 80,      // Approximate node height
+                horizontalSpacing: 40,  // Space between sibling nodes
+                verticalSpacing: 120,   // Space between levels
+                startX: 500,         // Starting X position
+                startY: 100          // Starting Y position
+            };
+
+            // Phase 1: Calculate relative positions (post-order traversal)
+            calculateSubtreePositions(root, config);
+
+            // Phase 2: Convert to absolute coordinates
+            // Start with root at the configured position + its offset
+            const rootX = config.startX + root._layout.offset;
+            applyAbsolutePositions(root, rootX, config.startY, config);
+
+            saveHistory();
+            render();
+
+            // Auto-fit after layout
             setTimeout(() => {
                 zoomFit();
-            }, 50); // Shorter delay
+            }, 50);
+
+            updateStatus('✓ Layout applied');
         }
 
-        function layoutNode(node, x, y, horizontalSpacing) {
+        function calculateSubtreePositions(node, config) {
+            // Post-order: process children first
+            if (node.children.length > 0) {
+                node.children.forEach(child => calculateSubtreePositions(child, config));
+            }
+
+            // Calculate this node's position relative to its children
+            if (node.children.length === 0) {
+                // Leaf node: width is just the node width
+                node._layout = {
+                    width: config.nodeWidth,
+                    offset: 0,  // Node is at center of its own subtree
+                    subtreeLeft: 0  // Left edge of subtree (for positioning among siblings)
+                };
+            } else if (node.children.length === 1) {
+                // Single child: center over child
+                const child = node.children[0];
+                node._layout = {
+                    width: Math.max(child._layout.width, config.nodeWidth),
+                    offset: child._layout.offset,  // Align with child
+                    subtreeLeft: 0
+                };
+            } else {
+                // Multiple children: space them out and center parent
+                let currentX = 0;
+
+                node.children.forEach((child, i) => {
+                    if (i === 0) {
+                        // First child's subtree starts at 0
+                        child._layout.subtreeLeft = 0;
+                        currentX = child._layout.width / 2;
+                    } else {
+                        // Position next child's subtree after previous one with spacing
+                        const subtreeLeft = currentX + config.horizontalSpacing + child._layout.width / 2;
+                        child._layout.subtreeLeft = subtreeLeft;
+                        currentX = subtreeLeft + child._layout.width / 2;
+                    }
+                });
+
+                // Calculate total width and center parent
+                const leftmost = node.children[0];
+                const rightmost = node.children[node.children.length - 1];
+                const leftEdge = leftmost._layout.subtreeLeft - leftmost._layout.width / 2;
+                const rightEdge = rightmost._layout.subtreeLeft + rightmost._layout.width / 2;
+                const subtreeWidth = rightEdge - leftEdge;
+                const center = (leftEdge + rightEdge) / 2;
+
+                node._layout = {
+                    width: subtreeWidth,
+                    offset: center,  // Parent positioned at center of its subtree
+                    subtreeLeft: 0
+                };
+            }
+        }
+
+        function applyAbsolutePositions(node, x, y, config) {
+            // Set this node's absolute position
             node.x = x;
             node.y = y;
 
-            if (node.children.length === 0) return x;
+            // Process children if any
+            if (node.children.length > 0) {
+                const nextY = y + config.nodeHeight + config.verticalSpacing;
 
-            const childSpacing = Math.max(200, horizontalSpacing / node.children.length);
-            let currentX = x - (childSpacing * (node.children.length - 1)) / 2;
+                // Calculate the absolute position of this subtree's left edge
+                const subtreeOrigin = x - node._layout.offset;
 
-            node.children.forEach(child => {
-                layoutNode(child, currentX, y + 150, childSpacing);
-                currentX += childSpacing;
-            });
+                node.children.forEach(child => {
+                    // Child's position = subtree origin + child's subtree position + child's internal offset
+                    const childSubtreeX = subtreeOrigin + child._layout.subtreeLeft;
+                    const childX = childSubtreeX + child._layout.offset;
+                    applyAbsolutePositions(child, childX, nextY, config);
+                });
+            }
 
-            return x;
+            // Clean up temporary layout data
+            delete node._layout;
         }
 
         // Zoom & View
