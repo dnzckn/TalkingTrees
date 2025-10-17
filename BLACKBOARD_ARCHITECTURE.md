@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 Current Problem
+##  Current Problem
 
 ### Architectural Issue
 
@@ -38,7 +38,7 @@ Trees should reference external data sources, not embed data schemas.
 
 ---
 
-## 🔍 Current Implementation
+##  Current Implementation
 
 ### Data Model
 
@@ -48,7 +48,7 @@ class TreeDefinition(BaseModel):
     metadata: TreeMetadata
     root: TreeNodeDefinition
     subtrees: Dict[str, TreeNodeDefinition]
-    blackboard_schema: Dict[str, BlackboardVariableSchema]  # ← Problem!
+    blackboard_schema: Dict[str, BlackboardVariableSchema]  #  Problem!
 ```
 
 ### Issues
@@ -86,25 +86,25 @@ The **source of those variables** should be external.
 
 ---
 
-## 🏗️ Proposed Architecture (v2.0)
+##  Proposed Architecture (v2.0)
 
 ### Separation of Concerns
 
 ```
 ┌─────────────────┐
-│  TreeDefinition │  ← Pure Logic (what to do)
+│  TreeDefinition │   Pure Logic (what to do)
 │  - Structure    │
 │  - Control flow │
 │  - Node configs │
 └─────────────────┘
-         ↓ references
+          references
 ┌─────────────────┐
-│  Variable Names │  ← Just names: "battery", "speed"
+│  Variable Names │   Just names: "battery", "speed"
 │  (strings only) │
 └─────────────────┘
-         ↓ bound to
+          bound to
 ┌─────────────────┐
-│  Data Source    │  ← Runtime State (where data lives)
+│  Data Source    │   Runtime State (where data lives)
 │  - Blackboard   │
 │  - Database     │
 │  - API          │
@@ -148,11 +148,11 @@ execution = engine.execute(tree)
 
 ---
 
-## 🔄 Migration Strategy
+##  Migration Strategy
 
 ### Phase 1: Deprecation (Current - v1.x)
 
-**Status:** ✅ IN PROGRESS
+**Status:**  IN PROGRESS
 
 1. **Mark blackboard_schema as deprecated**
    - Add deprecation warnings
@@ -206,11 +206,11 @@ execution = engine.execute(tree)
 
 ---
 
-## 📝 Implementation Plan
+##  Implementation Plan
 
 ### Immediate (This Session)
 
-- [x] ✅ Analyze current usage
+- [x]  Analyze current usage
 - [ ] Add deprecation warning to blackboard_schema
 - [ ] Update documentation
 - [ ] Add migration examples
@@ -231,7 +231,7 @@ execution = engine.execute(tree)
 
 ---
 
-## 🎓 Examples
+##  Examples
 
 ### Current (v1.x - Deprecated)
 
@@ -289,7 +289,7 @@ execution = pf.create_execution(tree, data_source=redis_source)
 
 ---
 
-## 🔧 Backward Compatibility
+##  Backward Compatibility
 
 ### v1.x Behavior (Current)
 
@@ -311,7 +311,7 @@ execution = pf.create_execution(tree, data_source=redis_source)
 
 ---
 
-## 📊 Impact Analysis
+##  Impact Analysis
 
 ### Files Affected
 
@@ -341,7 +341,7 @@ execution = pf.create_execution(py_tree, data_source=bb)
 
 ---
 
-## ✅ Success Criteria
+##  Success Criteria
 
 - [ ] blackboard_schema marked as deprecated
 - [ ] Deprecation warnings displayed
@@ -360,4 +360,4 @@ execution = pf.create_execution(py_tree, data_source=bb)
 - Better testability
 - More flexible deployment scenarios
 
-The migration will be gradual (deprecation → transition → breaking change) to minimize disruption.
+The migration will be gradual (deprecation  transition  breaking change) to minimize disruption.

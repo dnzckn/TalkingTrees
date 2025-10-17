@@ -125,7 +125,7 @@ print(response.json())
 
 ## Documentation
 
-- **[Launcher Guide](LAUNCHER_GUIDE.md)** - 🚀 Launch scripts and visual editor
+- **[Launcher Guide](LAUNCHER_GUIDE.md)** - Launch scripts and visual editor
 - **[Getting Started](docs/GETTING_STARTED.md)** - Installation and first steps
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and components
 - **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation

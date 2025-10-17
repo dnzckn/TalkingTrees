@@ -4,25 +4,25 @@ This directory contains visual behavior tree editors for PyForest.
 
 ## Files
 
-### tree_editor_pro.html ⭐ **RECOMMENDED**
+### tree_editor_pro.html (RECOMMENDED)
 The professional-grade behavior tree editor with complete feature set.
 
 **Features:**
-- ✅ Modern toolbar with all essential actions
-- ✅ Undo/Redo history (Ctrl+Z/Y)
-- ✅ Tree library for saving/loading trees
-- ✅ Validation with error checking
-- ✅ Search/filter nodes
-- ✅ Auto-layout algorithm
-- ✅ Grid snap for alignment
-- ✅ Pan, zoom, minimap
-- ✅ Collapse/expand subtrees
-- ✅ Export to JSON
-- ✅ Save to PyForest API
-- ✅ Keyboard shortcuts
-- ✅ Professional VSCode-style theme
-- ✅ Properties panel with type-aware inputs
-- ✅ Status bar with metrics
+- Modern toolbar with all essential actions
+- Undo/Redo history (Ctrl+Z/Y)
+- Tree library for saving/loading trees
+- Validation with error checking
+- Search/filter nodes
+- Auto-layout algorithm
+- Grid snap for alignment
+- Pan, zoom, minimap
+- Collapse/expand subtrees
+- Export to JSON
+- Save to PyForest API
+- Keyboard shortcuts
+- Professional VSCode-style theme
+- Properties panel with type-aware inputs
+- Status bar with metrics
 
 **Usage:**
 ```bash
@@ -88,7 +88,7 @@ python test_complete_flow.py
 ## Integration
 
 ### With PyForest API
-1. Click "☁ API" button to save directly to backend
+1. Click "API" button to save directly to backend
 2. Or export JSON and POST to `/trees/` endpoint
 
 ### With External Systems
@@ -128,10 +128,10 @@ The professional editor is a single-page application built with:
 ## Browser Compatibility
 
 Tested on:
-- ✅ Chrome 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Edge 90+
+- Chrome 90+
+- Firefox 88+
+- Safari 14+
+- Edge 90+
 
 ## Development
 

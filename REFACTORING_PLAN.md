@@ -6,7 +6,7 @@
 
 ---
 
-## 🎯 User Requirements & Insights
+##  User Requirements & Insights
 
 ### Key User Insights (Chronological)
 
@@ -42,9 +42,9 @@
 
 ---
 
-## 📋 Refactoring Checklist
+##  Refactoring Checklist
 
-### Phase 1: Data Model Cleanup ✅ (70% Complete)
+### Phase 1: Data Model Cleanup  (70% Complete)
 
 - [x] **Remove UIMetadata class** from tree.py
 - [x] **Remove ui_metadata field** from TreeNodeDefinition
@@ -53,7 +53,7 @@
 - [x] **Update diff.py** to not compare ui_metadata
 - [ ] **Update existing JSON files** to remove ui_metadata (migration needed)
 
-### Phase 2: SetBlackboardVariable Data Loss Fix ✅ DONE
+### Phase 2: SetBlackboardVariable Data Loss Fix  DONE
 
 - [x] **Add value extraction** using reflection (multiple approaches)
   - Try `_value` attribute (private)
@@ -62,7 +62,7 @@
 - [x] **Add warning** if value cannot be extracted
 - [ ] **Test round-trip** conversion with SetBlackboardVariable
 
-### Phase 3: ComparisonExpression Abstraction ✅ DONE
+### Phase 3: ComparisonExpression Abstraction  DONE
 
 - [x] **Create ComparisonExpressionExtractor class**
   - Clear method names (`extract`, `create`)
@@ -71,16 +71,16 @@
 - [x] **Update _collect_blackboard_variables()** to use abstraction
 - [ ] **Update tests** to use abstraction
 
-### Phase 4: Deterministic UUIDs ⏳ PENDING
+### Phase 4: Deterministic UUIDs  PENDING
 
 - [ ] **Implement UUID generation** based on node structure
   - Use SHA-256 hash of (type, name, path, config)
-  - Ensures same node → same UUID
+  - Ensures same node  same UUID
 - [ ] **Add optional uuid_map** parameter to `from_py_trees()`
 - [ ] **Update adapter** to use deterministic UUIDs
 - [ ] **Test UUID stability** across multiple conversions
 
-### Phase 5: Conversion Warnings ⏳ PENDING
+### Phase 5: Conversion Warnings  PENDING
 
 - [ ] **Create ConversionContext class**
   - `warnings: List[str]`
@@ -93,7 +93,7 @@
   - Parallel policy unsupported
 - [ ] **Update examples** to check warnings
 
-### Phase 6: Round-Trip Validation ⏳ PENDING
+### Phase 6: Round-Trip Validation  PENDING
 
 - [ ] **Create RoundTripValidator class**
   - `validate(original, round_trip)` method
@@ -108,7 +108,7 @@
 - [ ] **Add to test suite**
 - [ ] **Document limitations**
 
-### Phase 7: Type Inference Improvements ⏳ PENDING
+### Phase 7: Type Inference Improvements  PENDING
 
 - [ ] **Extend _infer_type()** function
   - Support `list`, `dict`, `tuple`
@@ -118,7 +118,7 @@
 - [ ] **Update blackboard schema** generation
 - [ ] **Add type validation** option
 
-### Phase 8: Security Hardening ⏳ PENDING
+### Phase 8: Security Hardening  PENDING
 
 - [ ] **Add cycle detection** in subtree resolution
   - Track visited refs with set
@@ -130,7 +130,7 @@
   - Prevent arbitrary code execution
   - Document whitelisting API
 
-### Phase 9: Blackboard Architecture Change ⏳ PENDING
+### Phase 9: Blackboard Architecture Change  PENDING
 
 **Critical architectural decision based on user insight:**
 
@@ -144,7 +144,7 @@
 - [ ] **Document new architecture**
 - [ ] **Migrate existing code**
 
-### Phase 10: Visualization Auto-Layout ⏳ PENDING
+### Phase 10: Visualization Auto-Layout  PENDING
 
 **Required due to ui_metadata removal:**
 
@@ -152,7 +152,7 @@
   - Hierarchical layout (parent above children)
   - Balanced tree spacing
   - Depth-first left-to-right positioning
-  - Deterministic (same tree → same layout)
+  - Deterministic (same tree  same layout)
 - [ ] **Remove ui_metadata** from visualization code
 - [ ] **Store UI state** in localStorage (optional)
   - Separate from tree JSON
@@ -160,7 +160,7 @@
 - [ ] **Test layout** with various tree structures
 - [ ] **Document layout algorithm**
 
-### Phase 11: Testing & Migration ⏳ PENDING
+### Phase 11: Testing & Migration  PENDING
 
 - [ ] **Update all tests** for new serializer
   - test_py_trees_adapter.py
@@ -180,9 +180,9 @@
 
 ---
 
-## 🏗️ Current Progress
+##  Current Progress
 
-### ✅ Completed (3/11 phases)
+###  Completed (3/11 phases)
 
 1. **Data Model Cleanup** - 70% complete
    - UIMetadata removed from code
@@ -199,11 +199,11 @@
    - All usages updated
    - Much clearer code
 
-### ⏳ In Progress (0/11 phases)
+###  In Progress (0/11 phases)
 
 None currently active
 
-### ⏸️ Pending (8/11 phases)
+###  Pending (8/11 phases)
 
 4. Deterministic UUIDs
 5. Conversion Warnings
@@ -216,7 +216,7 @@ None currently active
 
 ---
 
-## 📊 Impact Analysis
+##  Impact Analysis
 
 ### Breaking Changes
 
@@ -240,7 +240,7 @@ None currently active
 
 ---
 
-## 🎯 Success Criteria
+##  Success Criteria
 
 ### Must Have (Critical)
 
@@ -265,19 +265,19 @@ None currently active
 
 ---
 
-## 🔄 Iteration Strategy
+##  Iteration Strategy
 
 ### Current Iteration (Iteration 1)
 
 **Focus:** Core serializer fixes
 
 **Tasks:**
-1. ✅ Remove ui_metadata
-2. ✅ Fix SetBlackboardVariable
-3. ✅ Add ComparisonExpression abstraction
-4. ⏳ Implement deterministic UUIDs
-5. ⏳ Add conversion warnings
-6. ⏳ Create round-trip validator
+1.  Remove ui_metadata
+2.  Fix SetBlackboardVariable
+3.  Add ComparisonExpression abstraction
+4.  Implement deterministic UUIDs
+5.  Add conversion warnings
+6.  Create round-trip validator
 
 **Goal:** Lossless, validated, clean serialization
 
@@ -308,7 +308,7 @@ None currently active
 
 ---
 
-## 📝 Notes & Decisions
+##  Notes & Decisions
 
 ### Design Decisions
 
@@ -343,13 +343,13 @@ None currently active
 
 ---
 
-## 🚀 Next Steps
+##  Next Steps
 
 **Immediate (This Session):**
-1. ✅ Document refactoring plan (this file)
-2. ⏳ Implement deterministic UUIDs
-3. ⏳ Add ConversionContext warnings
-4. ⏳ Create RoundTripValidator
+1.  Document refactoring plan (this file)
+2.  Implement deterministic UUIDs
+3.  Add ConversionContext warnings
+4.  Create RoundTripValidator
 
 **Short-term (Next Session):**
 1. Implement visualization auto-layout

@@ -4,7 +4,7 @@ Quick reference for launching PyForest tools.
 
 ---
 
-## 🚀 Quick Start Scripts
+## Quick Start Scripts
 
 ### 1. Tree Editor Pro (Main Editor)
 
@@ -13,9 +13,9 @@ Quick reference for launching PyForest tools.
 ```
 
 **What it does:**
-- ✅ Starts the API server (if not running)
-- ✅ Opens the PyForest Tree Editor Pro in your browser
-- ✅ Provides full visual tree editing capabilities
+- Starts the API server (if not running)
+- Opens the PyForest Tree Editor Pro in your browser
+- Provides full visual tree editing capabilities
 
 **Use when:**
 - Creating/editing behavior trees visually
@@ -39,8 +39,8 @@ Quick reference for launching PyForest tools.
 ```
 
 **What it does:**
-- ✅ Starts the API server (if not running)
-- ✅ Opens the Day in Life simulation demo
+- Starts the API server (if not running)
+- Opens the Day in Life simulation demo
 
 **Use when:**
 - Running the autonomous robot simulation demo
@@ -56,9 +56,9 @@ Quick reference for launching PyForest tools.
 ```
 
 **What it does:**
-- ✅ Starts the API server (if not running)
-- ✅ Starts a local HTTP server on port 8080
-- ✅ Opens visualization via HTTP (not file://)
+- Starts the API server (if not running)
+- Starts a local HTTP server on port 8080
+- Opens visualization via HTTP (not file://)
 
 **Use when:**
 - Need to avoid CORS issues
@@ -67,7 +67,7 @@ Quick reference for launching PyForest tools.
 
 ---
 
-## 🔧 Manual Server Launch
+## Manual Server Launch
 
 ### API Server Only
 
@@ -87,12 +87,12 @@ python run_server.py --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## 📁 Which Files to Open
+## Which Files to Open
 
 ### Tree Editor Pro (Recommended)
 **File:** `visualization/tree_editor_pro.html`
 **Launch:** `./run_editor.sh`
-**Use for:** Visual tree creation/editing, Python code generation (via "🐍 Copy Python" button)
+**Use for:** Visual tree creation/editing, Python code generation (via "Copy Python Code" button)
 
 ### Other Visualizations
 
@@ -118,7 +118,7 @@ python run_server.py --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## 🛑 Stopping Servers
+## Stopping Servers
 
 ### Stop API Server
 ```bash
@@ -138,7 +138,7 @@ pkill -f 'python3 -m http.server 8080'
 
 ---
 
-## 📋 Prerequisites
+## Prerequisites
 
 ### Required
 - Python 3.8+
@@ -151,7 +151,7 @@ pkill -f 'python3 -m http.server 8080'
 
 ---
 
-## 🔍 Troubleshooting
+## Troubleshooting
 
 ### "Port already in use"
 The scripts check if servers are already running and reuse them.
@@ -175,7 +175,7 @@ Example trees are in:
 
 ---
 
-## 💡 Recommended Workflow
+## Recommended Workflow
 
 ### For New Users
 1. Run `./run_editor.sh`
@@ -199,24 +199,24 @@ Example trees are in:
 
 ---
 
-## 📊 Script Comparison
+## Script Comparison
 
 | Script | API Server | HTTP Server | Opens | Best For |
 |--------|------------|-------------|-------|----------|
-| `run_editor.sh` | ✅ | ❌ | Tree Editor Pro | **Visual editing + Python code** |
-| `run_visualization.sh` | ✅ | ❌ | Day in Life | **Quick demo** |
-| `run_visualization_server.sh` | ✅ | ✅ | Day in Life (HTTP) | **CORS-free** |
-| `run_server.py` | ✅ | ❌ | Nothing | **Manual control** |
+| `run_editor.sh` | Yes | No | Tree Editor Pro | Visual editing + Python code |
+| `run_visualization.sh` | Yes | No | Day in Life | Quick demo |
+| `run_visualization_server.sh` | Yes | Yes | Day in Life (HTTP) | CORS-free |
+| `run_server.py` | Yes | No | Nothing | Manual control |
 
 ---
 
-## ✅ Summary
+## Summary
 
 **Just want to edit trees visually?**
 ```bash
 ./run_editor.sh
 ```
-*Includes "🐍 Copy Python" button for instant code generation!*
+Includes "Copy Python Code" button for instant code generation.
 
 **Want to see a demo?**
 ```bash

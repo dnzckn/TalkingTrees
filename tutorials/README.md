@@ -23,9 +23,9 @@ pip install -e .
 
 ## Tutorial Overview
 
-**🎯 START HERE: Tutorial 6 - Complete Workflow!**
+**START HERE: Tutorial 6 - Complete Workflow**
 
-This shows you everything you need: design → export → control.
+This shows you everything you need: design, export, and control.
 
 ---
 
@@ -72,7 +72,7 @@ python 05_py_trees_integration.py
 
 ---
 
-### Tutorial 6: Complete Workflow ⭐ RECOMMENDED
+### Tutorial 6: Complete Workflow (RECOMMENDED)
 **File:** `06_complete_workflow.py`
 **Duration:** 20 minutes
 **Level:** Beginner
@@ -80,10 +80,10 @@ python 05_py_trees_integration.py
 **THIS IS THE TUTORIAL TO START WITH!**
 
 Shows the complete recommended PyForest workflow:
-- ✅ Design trees visually in Tree Editor Pro
-- ✅ Use "🐍 Copy Python" button to get ready-to-use code
-- ✅ Load tree in Python
-- ✅ **USE the tree to actually CONTROL a robot simulator**
+- Design trees visually in Tree Editor Pro
+- Use "Copy Python" button to get ready-to-use code
+- Load tree in Python
+- **USE the tree to actually CONTROL a robot simulator**
 
 **Run it:**
 ```bash
@@ -116,7 +116,7 @@ python 06_complete_workflow.py
 - Ready-to-use code from "Copy Python" button
 - Real control system example, not just theory
 
-**💡 Pro Tip:** This tutorial demonstrates the REAL VALUE of behavior trees - making decisions to control systems (robots, game AI, automation, etc.). Start here to understand the complete picture!
+**Pro Tip:** This tutorial demonstrates the REAL VALUE of behavior trees - making decisions to control systems (robots, game AI, automation, etc.). Start here to understand the complete picture.
 
 ---
 
@@ -132,7 +132,7 @@ python 06_complete_workflow.py
        └─> Test visually
 
 2. Export with "Copy Python" Button
-   └─> Click "🐍 Copy Python"
+   └─> Click "Copy Python"
        └─> Choose "Load from File" or "Save to API"
        └─> Get ready-to-use Python code
        └─> Paste into your project
@@ -175,7 +175,7 @@ while True:
 
 ### Copy Python Button Output
 
-When you click "🐍 Copy Python" in Tree Editor Pro, you get:
+When you click "Copy Python" in Tree Editor Pro, you get:
 
 ```python
 from py_forest.sdk import PyForest
@@ -235,7 +235,7 @@ pf.save_tree(pf_tree, "my_tree.json")
 ./run_editor.sh
   → Design tree visually
   → Click "Export" to save JSON
-  → Click "🐍 Copy Python"
+  → Click "Copy Python"
   → Paste code into your project
   → Run!
 ```
@@ -273,31 +273,31 @@ python 06_complete_workflow.py
 
 ### Design
 
-- ✅ Start with visual editor for rapid prototyping
-- ✅ Use examples/robot_v1.json as reference
-- ✅ Test tree visually before exporting
-- ✅ Use meaningful node names
+- Start with visual editor for rapid prototyping
+- Use examples/robot_v1.json as reference
+- Test tree visually before exporting
+- Use meaningful node names
 
 ### Integration
 
-- ✅ Use "Copy Python" button for quick code generation
-- ✅ Save trees as JSON (version control friendly)
-- ✅ Load trees at startup, not every tick
-- ✅ Reuse executions (don't create new each tick)
+- Use "Copy Python" button for quick code generation
+- Save trees as JSON (version control friendly)
+- Load trees at startup, not every tick
+- Reuse executions (don't create new each tick)
 
 ### Control Loop
 
-- ✅ Keep sensor updates separate from actions
-- ✅ Read from `result.blackboard` for outputs
-- ✅ Log tick count to detect infinite loops
-- ✅ Handle tree status (SUCCESS, FAILURE, RUNNING)
+- Keep sensor updates separate from actions
+- Read from `result.blackboard` for outputs
+- Log tick count to detect infinite loops
+- Handle tree status (SUCCESS, FAILURE, RUNNING)
 
 ### Debugging
 
-- ✅ Use `result.tip_node` to see active node
-- ✅ Print blackboard state each tick
-- ✅ Test scenarios with different sensor values
-- ✅ Use visual editor to verify tree structure
+- Use `result.tip_node` to see active node
+- Print blackboard state each tick
+- Test scenarios with different sensor values
+- Use visual editor to verify tree structure
 
 ---
 
@@ -406,7 +406,7 @@ After completing these tutorials:
 
 ---
 
-**Start with Tutorial 6 to see the complete picture! 🎉**
+**Start with Tutorial 6 to see the complete picture!**
 
 **The key insight:** Behavior trees make decisions. Your code provides sensors and executes actions. The tree connects them.
 
@@ -416,4 +416,4 @@ Sensors → Behavior Tree → Actions
   └─────── Your System ────────┘
 ```
 
-That's it! Now go build something awesome! 🚀
+That's it! Now go build something awesome!
