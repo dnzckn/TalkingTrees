@@ -1,155 +1,48 @@
 # PyForest SDK Tutorials
 
-Welcome to the PyForest SDK tutorials! These hands-on examples will teach you how to use PyForest's Python SDK to build, execute, profile, and version-control behavior trees.
+Welcome to PyForest SDK tutorials! These hands-on examples teach you how to use PyForest to design, export, and USE behavior trees to control real systems.
 
-## Why Use the SDK?
+## Why Use PyForest?
 
-The PyForest SDK allows you to use behavior trees directly in Python without needing the API server. Perfect for:
+PyForest provides the complete workflow for behavior trees:
 
-- **Jupyter Notebooks** - Interactive experimentation and data analysis
-- **Python Scripts** - Automated testing and batch processing
-- **Embedded Systems** - Lightweight deployment without REST API overhead
-- **Research & Learning** - Quick prototyping and exploration
+- **Visual Design** - Tree Editor Pro for rapid prototyping
+- **One-Click Export** - "Copy Python" button generates ready-to-use code
+- **Python Integration** - Load trees and control your systems
+- **py_trees Compatible** - Bridge between py_trees and PyForest
 
 ## Prerequisites
 
 ```bash
-# Install PyForest (adjust path as needed)
-pip install -e /path/to/py_forest
-
-# Or if using a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Install PyForest
+cd /path/to/py_forest
 pip install -e .
 ```
 
+---
+
 ## Tutorial Overview
 
-### Tutorial 1: Getting Started
-**File:** `01_getting_started.py`
-**Duration:** 15 minutes
-**Level:** Beginner
+**🎯 START HERE: Tutorial 6 - Complete Workflow!**
 
-Learn the basics:
-- Loading behavior trees from JSON files
-- Creating executions
-- Ticking trees with blackboard updates
-- Reading execution results
-- Creating trees programmatically
-- Error handling
-
-**Run it:**
-```bash
-cd tutorials
-python 01_getting_started.py
-```
-
-**Key Concepts:**
-- `PyForest()` - Main SDK entry point
-- `load_tree()` - Load from visual editor exports
-- `create_execution()` - Initialize tree execution
-- `tick()` - Execute one step of the tree
-- `load_and_run()` - Convenience one-liner
+This shows you everything you need: design → export → control.
 
 ---
 
-### Tutorial 2: Profiling & Performance
-**File:** `02_profiling_performance.py`
-**Duration:** 20 minutes
-**Level:** Intermediate
-
-Master performance analysis:
-- Enable profiling at different levels
-- Understand overhead vs detail tradeoffs
-- Identify bottlenecks
-- Production monitoring best practices
-- Export profiling data
-
-**Run it:**
-```bash
-python 02_profiling_performance.py
-```
-
-**Key Concepts:**
-- `ProfilingLevel.BASIC` - 1-2% overhead, production-ready
-- `ProfilingLevel.DETAILED` - 3-5% overhead, debugging
-- `ProfilingLevel.FULL` - 8-10% overhead, deep analysis
-- `get_profiling_report()` - Access performance metrics
-- Bottleneck detection (>100ms nodes highlighted)
-
----
-
-### Tutorial 3: Version Control & Diffing
-**File:** `03_version_control.py`
-**Duration:** 20 minutes
-**Level:** Intermediate
-
-Learn version control workflows:
-- Compare tree versions
-- Understand semantic vs UUID matching
-- Merge trees with conflict detection
-- Track evolution over time
-- Git integration patterns
-- Multiple diff output formats
-
-**Run it:**
-```bash
-python 03_version_control.py
-```
-
-**Key Concepts:**
-- `diff_trees()` - Compare two tree versions
-- `diff_files()` - Quick file comparison
-- `merge_trees()` - Three-way merge with conflict detection
-- Semantic matching - Handle UUID changes gracefully
-- JSON export for CI/CD integration
-
----
-
-### Tutorial 4: Complete Robot Controller
-**File:** `04_robot_controller.py`
-**Duration:** 30 minutes
-**Level:** Advanced
-
-Build a complete system:
-- Autonomous patrol robot with battery management
-- Sensor integration and simulation
-- Emergency handling
-- Action logging and analysis
-- Step-by-step debugging
-- Real-world patterns and practices
-
-**Run it:**
-```bash
-python 04_robot_controller.py
-```
-
-**What You'll Build:**
-- Robot that patrols between waypoints
-- Returns to charging station when battery is low
-- Handles emergency conditions (critical battery)
-- Obstacle detection and avoidance
-- Complete simulation with logging
-
-**Key Concepts:**
-- Building complex trees programmatically
-- Simulation loop integration
-- Behavioral debugging techniques
-- Action pattern analysis
-
----
+## Tutorials
 
 ### Tutorial 5: py_trees Integration
 **File:** `05_py_trees_integration.py`
 **Duration:** 25 minutes
 **Level:** Intermediate
 
+**For existing py_trees users:**
+
 Bridge between py_trees and PyForest:
 - Create trees using py_trees programmatic API
-- Convert to PyForest format
-- Visualize in PyForest editor
+- Convert to PyForest format for visualization
 - Save/load JSON files
-- Run via PyForest SDK or REST API
+- Run via PyForest SDK
 - Reverse conversion (PyForest → py_trees)
 
 **Run it:**
@@ -167,9 +60,9 @@ python 05_py_trees_integration.py
 **Key Concepts:**
 - `pf.from_py_trees()` - Convert py_trees to PyForest
 - `to_py_trees()` - Convert PyForest to py_trees
-- `print_comparison()` - Debug conversions
 - Automatic blackboard variable detection
-- Custom behavior preservation
+- All decorator support (Inverter, Repeat, Retry, Timeout)
+- ComparisonExpression for conditions
 
 **Why This Matters:**
 - py_trees is the standard Python behavior tree library
@@ -179,7 +72,77 @@ python 05_py_trees_integration.py
 
 ---
 
+### Tutorial 6: Complete Workflow ⭐ RECOMMENDED
+**File:** `06_complete_workflow.py`
+**Duration:** 20 minutes
+**Level:** Beginner
+
+**THIS IS THE TUTORIAL TO START WITH!**
+
+Shows the complete recommended PyForest workflow:
+- ✅ Design trees visually in Tree Editor Pro
+- ✅ Use "🐍 Copy Python" button to get ready-to-use code
+- ✅ Load tree in Python
+- ✅ **USE the tree to actually CONTROL a robot simulator**
+
+**Run it:**
+```bash
+python 06_complete_workflow.py
+```
+
+**What You'll Learn:**
+- The complete visual → code → control workflow
+- How to use the "Copy Python" button (new feature!)
+- **The control loop pattern: sensors → tree → actions**
+- How to integrate behavior trees into real systems
+- Testing different scenarios
+
+**What You'll Build:**
+- A robot simulator controlled by a behavior tree
+- Battery management logic (patrol when high, charge when low)
+- Patrol behavior with automatic charging
+- Complete control loop implementation
+
+**Key Concepts:**
+- Visual design for rapid prototyping
+- One-click Python code generation ("Copy Python" button)
+- **The control loop pattern (THE MOST IMPORTANT!)**
+- Integration with real systems
+- How behavior trees make decisions
+
+**Why This Matters:**
+- **This shows you how to ACTUALLY USE behavior trees!**
+- Most efficient workflow (visual design + Python integration)
+- Ready-to-use code from "Copy Python" button
+- Real control system example, not just theory
+
+**💡 Pro Tip:** This tutorial demonstrates the REAL VALUE of behavior trees - making decisions to control systems (robots, game AI, automation, etc.). Start here to understand the complete picture!
+
+---
+
 ## Quick Reference
+
+### Recommended Workflow
+
+```
+1. Design Tree Visually
+   └─> ./run_editor.sh
+       └─> Drag and drop nodes
+       └─> Configure behaviors
+       └─> Test visually
+
+2. Export with "Copy Python" Button
+   └─> Click "🐍 Copy Python"
+       └─> Choose "Load from File" or "Save to API"
+       └─> Get ready-to-use Python code
+       └─> Paste into your project
+
+3. Use Tree to Control Your System
+   └─> Load tree: pf.load_tree("tree.json")
+       └─> Create execution: execution = pf.create_execution(tree)
+       └─> Control loop:
+           sensors → execution.tick(sensors) → actions → execute
+```
 
 ### Basic Usage Pattern
 
@@ -193,77 +156,64 @@ pf = PyForest()
 tree = pf.load_tree("my_tree.json")
 
 # Create execution
-execution = pf.create_execution(tree, initial_blackboard={
-    "sensor_value": 42.0
-})
+execution = pf.create_execution(tree)
 
-# Tick with sensor updates
-result = execution.tick(blackboard_updates={
-    "sensor_value": 45.0
-})
+# THE CONTROL LOOP (repeat this)
+while True:
+    # 1. Get sensor readings from your system
+    sensors = get_system_sensors()
 
-# Read outputs
-print(f"Status: {result.status}")
-print(f"Output: {result.blackboard.get('/output_key')}")
+    # 2. Tick behavior tree with sensor data
+    result = execution.tick(blackboard_updates=sensors)
+
+    # 3. Read action from tree output
+    action = result.blackboard.get('/action_key')
+
+    # 4. Execute action on your system
+    execute_system_action(action)
 ```
 
-### One-Liner for Quick Tests
+### Copy Python Button Output
 
-```python
-from py_forest.sdk import load_and_run
-
-result = load_and_run(
-    "tree.json",
-    blackboard_updates={"input": 100},
-    ticks=1
-)
-print(result.status)
-```
-
-### With Profiling
+When you click "🐍 Copy Python" in Tree Editor Pro, you get:
 
 ```python
 from py_forest.sdk import PyForest
-from py_forest.core.profiler import ProfilingLevel
 
-pf = PyForest(profiling_level=ProfilingLevel.BASIC)
-tree = pf.load_tree("tree.json")
-execution = pf.create_execution(tree)
-
-# Run workload
-for i in range(100):
-    execution.tick(blackboard_updates={"value": i})
-
-# Get performance report
-print(execution.get_profiling_report(verbose=True))
-```
-
-### Comparing Versions
-
-```python
-from py_forest.sdk import diff_files
-
-# Quick diff
-print(diff_files("tree_v1.json", "tree_v2.json"))
-
-# Or with SDK
 pf = PyForest()
-tree_v1 = pf.load_tree("tree_v1.json")
-tree_v2 = pf.load_tree("tree_v2.json")
-diff = pf.diff_trees(tree_v1, tree_v2, verbose=True)
-print(diff)
+
+# Option 1: From File
+tree = pf.load_tree("robot_controller.json")
+
+# Option 2: From API
+pf = PyForest(api_url="http://localhost:8000")
+tree = pf.get_tree("tree-id-here")
+
+# Create and run
+execution = pf.create_execution(tree)
+result = execution.tick(blackboard_updates={"sensor": value})
+print(result.status)
 ```
 
 ### py_trees Integration
 
 ```python
 import py_trees
+import operator
+from py_trees.common import ComparisonExpression
 from py_forest.sdk import PyForest
 
 # Create tree with py_trees
-root = py_trees.composites.Sequence("MySequence")
-root.add_child(py_trees.behaviours.Success("Step1"))
-root.add_child(py_trees.behaviours.Success("Step2"))
+root = py_trees.composites.Sequence("MySequence", memory=False)
+
+# Add condition
+check = ComparisonExpression('battery_level', operator.lt, 20)
+root.add_child(
+    py_trees.behaviours.CheckBlackboardVariableValue(
+        name="Battery Low?",
+        check=check
+    )
+)
 
 # Convert to PyForest
 pf = PyForest()
@@ -272,140 +222,102 @@ pf_tree = pf.from_py_trees(root, name="My Tree", version="1.0.0")
 # Save for visualization
 pf.save_tree(pf_tree, "my_tree.json")
 
-# Load and run
-loaded = pf.load_tree("my_tree.json")
-execution = pf.create_execution(loaded)
-result = execution.tick()
+# Load in visual editor: ./run_editor.sh
 ```
+
+---
 
 ## Common Workflows
 
-### Jupyter Notebook Exploration
+### 1. Visual First (Recommended)
+
+```
+./run_editor.sh
+  → Design tree visually
+  → Click "Export" to save JSON
+  → Click "🐍 Copy Python"
+  → Paste code into your project
+  → Run!
+```
+
+### 2. py_trees First (For py_trees Users)
 
 ```python
-# In a Jupyter cell
-from py_forest.sdk import PyForest
+# Write py_trees code
+root = py_trees.composites.Selector("Root")
+root.add_child(...)
 
+# Convert and visualize
 pf = PyForest()
-tree = pf.load_tree("experiment.json")
-execution = pf.create_execution(tree)
+tree = pf.from_py_trees(root, "Tree", "1.0")
+pf.save_tree(tree, "tree.json")
 
-# Interactive testing
-result = execution.tick(blackboard_updates={"param": 10})
-result.blackboard.items()  # Inspect state
+# Open in editor: ./run_editor.sh
+# Load tree.json to see visualization
 ```
 
-### Automated Testing
+### 3. Quick Testing
 
-```python
-# test_behavior.py
-from py_forest.sdk import load_and_run
+```bash
+# Run tutorial to see example
+python 06_complete_workflow.py
 
-def test_low_battery_behavior():
-    result = load_and_run(
-        "robot_tree.json",
-        {"battery_level": 5.0},
-        ticks=1
-    )
-    assert result.blackboard.get("/action") == "return_to_base"
-
-def test_normal_operation():
-    result = load_and_run(
-        "robot_tree.json",
-        {"battery_level": 100.0},
-        ticks=1
-    )
-    assert result.blackboard.get("/action") == "patrol"
+# Modify and test
+# Edit the tutorial file
+# Run again
 ```
 
-### Production Monitoring
-
-```python
-import logging
-from py_forest.sdk import PyForest
-from py_forest.core.profiler import ProfilingLevel
-
-# Setup
-pf = PyForest(profiling_level=ProfilingLevel.BASIC)
-tree = pf.load_tree("production_tree.json")
-execution = pf.create_execution(tree)
-
-# Run loop
-while True:
-    sensors = read_sensors()
-    result = execution.tick(blackboard_updates=sensors)
-
-    # Log performance every 1000 ticks
-    if result.tick_count % 1000 == 0:
-        report = execution.get_profiling_report()
-        logging.info(f"Performance: {report}")
-
-    # Execute outputs
-    execute_action(result.blackboard.get("/action"))
-```
+---
 
 ## Tips & Best Practices
 
-### Performance
+### Design
 
-- Use `ProfilingLevel.BASIC` in production (minimal overhead)
-- Use `ProfilingLevel.DETAILED` for debugging (more metrics)
-- Only use `ProfilingLevel.FULL` for deep analysis (highest overhead)
-- Profile with realistic workloads, not toy examples
+- ✅ Start with visual editor for rapid prototyping
+- ✅ Use examples/robot_v1.json as reference
+- ✅ Test tree visually before exporting
+- ✅ Use meaningful node names
 
-### Version Control
+### Integration
 
-- Track `.json` tree files in Git
-- Use semantic matching for diffs (handles UUID changes)
-- Run `diff_files()` before committing changes
-- Include diff output in PR descriptions
-- Tag releases with tree version numbers
+- ✅ Use "Copy Python" button for quick code generation
+- ✅ Save trees as JSON (version control friendly)
+- ✅ Load trees at startup, not every tick
+- ✅ Reuse executions (don't create new each tick)
 
-### Development
+### Control Loop
 
-- Start with the visual editor for tree design
-- Export to JSON for SDK integration
-- Use SDK for automated testing
-- Profile regularly to catch performance regressions
-- Log tick counts and status to detect infinite loops
+- ✅ Keep sensor updates separate from actions
+- ✅ Read from `result.blackboard` for outputs
+- ✅ Log tick count to detect infinite loops
+- ✅ Handle tree status (SUCCESS, FAILURE, RUNNING)
 
 ### Debugging
 
-- Use `verbose=True` in profiling reports for details
-- Check `result.tip_node` to see which node is active
-- Log blackboard state at each tick
-- Create minimal test cases that reproduce issues
-- Use `ProfilingLevel.DETAILED` to track node execution patterns
+- ✅ Use `result.tip_node` to see active node
+- ✅ Print blackboard state each tick
+- ✅ Test scenarios with different sensor values
+- ✅ Use visual editor to verify tree structure
+
+---
 
 ## File Structure
 
-After running all tutorials, you'll have:
+After running tutorials:
 
 ```
 tutorials/
 ├── README.md                      # This file
-├── 01_getting_started.py          # Basic SDK usage
-├── 02_profiling_performance.py    # Performance analysis
-├── 03_version_control.py          # Version control & diffing
-├── 04_robot_controller.py         # Complete example
 ├── 05_py_trees_integration.py     # py_trees integration
+├── 06_complete_workflow.py        # Complete workflow (START HERE!)
 │
-├── temp_control.json              # Created by tutorial 1
-├── profile_export.json            # Created by tutorial 2
-├── tree_diff.json                 # Created by tutorial 3
-├── feature_v1.json                # Created by tutorial 3
-├── feature_v1_1.json              # Created by tutorial 3
-├── feature_v2.json                # Created by tutorial 3
-├── merged_tree.json               # Created by tutorial 3
-├── validate_trees.py              # Created by tutorial 3
-├── robot_controller.json          # Created by tutorial 4
-├── robot_simulation_log.json      # Created by tutorial 4
 ├── py_trees_simple.json           # Created by tutorial 5
 ├── py_trees_complex.json          # Created by tutorial 5
-├── py_trees_task_manager.json     # Created by tutorial 5
-├── py_trees_custom.json           # Created by tutorial 5
-└── py_trees_api.json              # Created by tutorial 5
+├── py_trees_decorators.json       # Created by tutorial 5
+└── py_trees_custom.json           # Created by tutorial 5
 ```
+
+---
 
 ## Troubleshooting
 
@@ -413,7 +325,6 @@ tutorials/
 
 ```python
 # If you get: ModuleNotFoundError: No module named 'py_forest'
-# Make sure you've installed the package:
 cd /path/to/py_forest
 pip install -e .
 ```
@@ -421,64 +332,88 @@ pip install -e .
 ### File Not Found
 
 ```python
-# Make sure you're running from the tutorials directory
+# Make sure you're in the right directory
 cd tutorials
-python 01_getting_started.py
+python 06_complete_workflow.py
 
 # Or use absolute paths
 pf.load_tree("/absolute/path/to/tree.json")
 ```
 
-### Tree Validation Errors
+### Tree Editor Not Opening
 
-```python
-# Trees exported from the visual editor should work
-# If you create trees programmatically, ensure:
-# 1. All nodes have unique IDs
-# 2. Parent IDs reference existing nodes
-# 3. Root node has parent_id=None
-# 4. Blackboard variables match tree requirements
+```bash
+# Make sure you're in repo root
+cd /path/to/py_forest
+./run_editor.sh
+
+# If API server won't start
+python run_server.py
+# Check: http://localhost:8000/health
 ```
+
+---
 
 ## Next Steps
 
 After completing these tutorials:
 
-1. **Read the Documentation**
-   - See `IMPROVEMENTS_SUMMARY.md` for feature details
-   - Check `SESSION_CONTEXT.md` for architecture overview
+1. **Design Your Own Tree**
+   - Open `./run_editor.sh`
+   - Design tree for your use case
+   - Export and integrate
 
-2. **Explore the Visual Editor**
-   - Open `visualization/tree_editor_pro.html`
-   - Design trees visually
-   - Export to JSON for SDK usage
+2. **Explore Examples**
+   - See `examples/robot_v1.json`
+   - See `examples/robot_v2.json`
+   - Load in editor to understand structure
 
-3. **Try the Visual Diff Tool**
-   - Open `visualization/tree_diff_viewer.html`
-   - Load v1 and v2 of your trees
-   - See changes highlighted visually
+3. **Read Documentation**
+   - `COPY_PYTHON_FEATURE.md` - How "Copy Python" button works
+   - `FINAL_REPORT.md` - System capabilities
+   - `README.md` - Main documentation
 
-4. **Build Your Own Project**
-   - Start with a simple behavior tree
-   - Integrate with your system
-   - Add profiling and monitoring
-   - Version control your trees
-
-## Getting Help
-
-- **Documentation:** See `IMPROVEMENTS_SUMMARY.md` and `SESSION_CONTEXT.md`
-- **Examples:** Check `examples/` directory for sample trees
-- **Source Code:** Explore `src/py_forest/` for implementation details
-
-## Contributing
-
-Found an issue or have a tutorial idea? Please:
-1. Document the problem/idea
-2. Create a minimal reproducible example
-3. Share with the team
+4. **Build Your Project**
+   - Start with Tutorial 6 pattern
+   - Adapt control loop to your system
+   - Use visual editor for iterations
 
 ---
 
-Happy coding! 🎉
+## Getting Help
 
-**Pro Tip:** Start with Tutorial 1, then pick tutorials based on your needs. Tutorial 4 shows everything working together in a realistic scenario. If you're already familiar with py_trees, start with Tutorial 5 to see how to integrate it with PyForest!
+- **Documentation:** See `docs/` directory and root `.md` files
+- **Examples:** Check `examples/` directory for sample trees
+- **Source Code:** Explore `src/py_forest/` for implementation
+
+---
+
+## Summary
+
+**PyForest provides two complete workflows:**
+
+1. **Visual-First (Recommended):**
+   ```
+   Tree Editor Pro → Export JSON → "Copy Python" → Control System
+   ```
+
+2. **py_trees-First (For py_trees users):**
+   ```
+   py_trees Code → PyForest Adapter → Visualize → Control System
+   ```
+
+**Both workflows lead to the same goal:** Using behavior trees to control real systems!
+
+---
+
+**Start with Tutorial 6 to see the complete picture! 🎉**
+
+**The key insight:** Behavior trees make decisions. Your code provides sensors and executes actions. The tree connects them.
+
+```
+Sensors → Behavior Tree → Actions
+  ↑                           ↓
+  └─────── Your System ────────┘
+```
+
+That's it! Now go build something awesome! 🚀
