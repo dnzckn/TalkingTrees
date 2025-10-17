@@ -32,34 +32,7 @@ Quick reference for launching PyForest tools.
 
 ---
 
-### 2. Code View (NEW: Visual ↔ JSON ↔ Python)
-
-```bash
-./run_code_view.sh
-```
-
-**What it does:**
-- ✅ Opens the PyForest Code View tool
-- ✅ Shows three synchronized views of your tree
-- ✅ No API server needed (standalone tool)
-
-**Use when:**
-- You want to see Python code for a tree
-- Editing JSON directly while seeing visual + code
-- Copying py_trees code for external development
-- Learning how visual nodes map to py_trees API
-
-**Features:**
-- **Visual Tree** (read-only) - See tree structure
-- **JSON Editor** (editable) - Direct TreeDefinition editing
-- **Python Code** (read-only) - Generated py_trees code
-- Edit JSON → updates visual + Python automatically
-- Copy Python code to clipboard
-- Save edited JSON
-
----
-
-### 3. Day in Life Simulation
+### 2. Day in Life Simulation
 
 ```bash
 ./run_visualization.sh
@@ -76,7 +49,7 @@ Quick reference for launching PyForest tools.
 
 ---
 
-### 4. Visualization with HTTP Server
+### 3. Visualization with HTTP Server
 
 ```bash
 ./run_visualization_server.sh
@@ -119,12 +92,7 @@ python run_server.py --host 0.0.0.0 --port 8000 --reload
 ### Tree Editor Pro (Recommended)
 **File:** `visualization/tree_editor_pro.html`
 **Launch:** `./run_editor.sh`
-**Use for:** Visual tree creation/editing
-
-### Code View (NEW)
-**File:** `visualization/code_view.html`
-**Launch:** `./run_code_view.sh`
-**Use for:** Viewing Python code + JSON editing
+**Use for:** Visual tree creation/editing, Python code generation (via "🐍 Copy Python" button)
 
 ### Other Visualizations
 
@@ -235,8 +203,7 @@ Example trees are in:
 
 | Script | API Server | HTTP Server | Opens | Best For |
 |--------|------------|-------------|-------|----------|
-| `run_editor.sh` | ✅ | ❌ | Tree Editor Pro | **Visual editing** |
-| `run_code_view.sh` | ❌ | ❌ | Code View | **Code/JSON editing** |
+| `run_editor.sh` | ✅ | ❌ | Tree Editor Pro | **Visual editing + Python code** |
 | `run_visualization.sh` | ✅ | ❌ | Day in Life | **Quick demo** |
 | `run_visualization_server.sh` | ✅ | ✅ | Day in Life (HTTP) | **CORS-free** |
 | `run_server.py` | ✅ | ❌ | Nothing | **Manual control** |
@@ -249,11 +216,7 @@ Example trees are in:
 ```bash
 ./run_editor.sh
 ```
-
-**Want to see Python code + edit JSON?**
-```bash
-./run_code_view.sh
-```
+*Includes "🐍 Copy Python" button for instant code generation!*
 
 **Want to see a demo?**
 ```bash

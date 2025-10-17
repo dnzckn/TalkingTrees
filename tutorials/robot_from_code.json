@@ -1,0 +1,205 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "e58fcc3c-5726-4d24-9112-7b484ece5f29",
+  "metadata": {
+    "name": "Robot Controller (Code-Created)",
+    "version": "1.0.0",
+    "author": null,
+    "created_at": "2025-10-17 04:21:19.161777",
+    "modified_at": "2025-10-17 04:21:19.161961",
+    "description": "Created entirely from py_trees code",
+    "tags": [],
+    "changelog": null,
+    "status": "draft"
+  },
+  "root": {
+    "node_type": "Selector",
+    "node_id": "0c49d73f-de02-4cb5-a7fc-3db2ba3b6dd0",
+    "name": "Robot Controller",
+    "config": {
+      "memory": false,
+      "_py_trees_class": "Selector"
+    },
+    "ui_metadata": {
+      "position": null,
+      "collapsed": false,
+      "color": null,
+      "icon": null,
+      "notes": null,
+      "breakpoint": false
+    },
+    "children": [
+      {
+        "node_type": "Sequence",
+        "node_id": "9d77dd73-e988-41b0-99e5-31a1bfb77401",
+        "name": "Emergency Handler",
+        "config": {
+          "memory": false,
+          "_py_trees_class": "Sequence"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "07ceb8bb-fcf3-46b6-8d34-63ca56085ea5",
+            "name": "Battery Critical?",
+            "config": {
+              "variable": "battery_level",
+              "value": 5.0,
+              "operator": "<",
+              "_py_trees_class": "CheckBlackboardVariableValue"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "node_id": "876a75b9-0d20-4247-8537-5fbbf35668d8",
+            "name": "Emergency Stop",
+            "config": {
+              "variable": "robot_action",
+              "overwrite": true,
+              "_py_trees_class": "SetBlackboardVariable"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Sequence",
+        "node_id": "21bacd73-a338-4141-bce3-e8ebef27397c",
+        "name": "Low Battery Handler",
+        "config": {
+          "memory": false,
+          "_py_trees_class": "Sequence"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "286515a8-d1f8-4211-88a6-6a4a70626774",
+            "name": "Battery Low?",
+            "config": {
+              "variable": "battery_level",
+              "value": 20.0,
+              "operator": "<",
+              "_py_trees_class": "CheckBlackboardVariableValue"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "node_id": "795badc5-6d30-404b-b96e-a0facfeea930",
+            "name": "Command: Charge",
+            "config": {
+              "variable": "robot_action",
+              "overwrite": true,
+              "_py_trees_class": "SetBlackboardVariable"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "SetBlackboardVariable",
+        "node_id": "30a0dcc8-ec89-4dc7-9a2f-33a1439b8179",
+        "name": "Command: Patrol",
+        "config": {
+          "variable": "robot_action",
+          "overwrite": true,
+          "_py_trees_class": "SetBlackboardVariable"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "blackboard_schema": {
+    "battery_level": {
+      "type": "float",
+      "default": null,
+      "description": null,
+      "min": null,
+      "max": null,
+      "items": null
+    },
+    "robot_action": {
+      "type": "string",
+      "default": null,
+      "description": null,
+      "min": null,
+      "max": null,
+      "items": null
+    }
+  },
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}

@@ -2,21 +2,26 @@
 PyForest Tutorial 6: Complete Workflow - Design, Export, Control
 ===================================================================
 
-This is THE DEFINITIVE TUTORIAL showing the complete PyForest workflow:
+This is THE DEFINITIVE TUTORIAL showing BOTH approaches to behavior trees:
 
+APPROACH 1: CODE-FIRST (Programmatic)
+--------------------------------------
+1. Create tree using py_trees Python code (from scratch!)
+2. Convert to PyForest format
+3. Use tree to control robot
+
+APPROACH 2: VISUAL-FIRST (Recommended for beginners)
+-----------------------------------------------------
 1. Design trees visually in Tree Editor Pro
 2. Use "Copy Python" button to get ready-to-use code
 3. Load tree in Python
-4. Use tree to control a real system (robot simulator)
+4. Use tree to control robot
 
-This tutorial demonstrates the recommended workflow for PyForest:
+This tutorial demonstrates:
+- Creating trees entirely from Python code (py_trees)
 - Visual design for rapid prototyping
-- Python integration for real control
-- Complete simulation showing actual usage
-
-WORKFLOW:
----------
-Visual Editor → Copy Python Button → Python Code → Control System
+- Complete integration with real systems
+- THE CONTROL LOOP PATTERN (most important!)
 """
 
 import time
@@ -102,7 +107,128 @@ class SimpleRobot:
 
 
 # =============================================================================
-# STEP 2: Load Tree from Visual Editor
+# STEP 2: Create Tree from Pure Python Code (py_trees)
+# =============================================================================
+
+def create_tree_from_code():
+    """
+    APPROACH 1: Create behavior tree entirely from Python code (no visual editor)
+
+    This shows creating a tree using py_trees, then converting to PyForest.
+    This is the CODE-FIRST approach.
+    """
+
+    print("=" * 70)
+    print("STEP 2A: Creating Tree from Pure Python Code (py_trees)")
+    print("=" * 70)
+    print()
+
+    import py_trees
+    import operator
+    from py_trees.common import ComparisonExpression
+
+    print("Building behavior tree with py_trees...")
+    print()
+
+    # Root: Selector (try each branch in order)
+    root = py_trees.composites.Selector(
+        name="Robot Controller",
+        memory=False
+    )
+
+    # Branch 1: Emergency Handler (battery critical)
+    emergency = py_trees.composites.Sequence("Emergency Handler", memory=False)
+
+    # Check if battery is critical (< 5%)
+    critical_check = ComparisonExpression('battery_level', operator.lt, 5.0)
+    emergency.add_child(
+        py_trees.behaviours.CheckBlackboardVariableValue(
+            name="Battery Critical?",
+            check=critical_check
+        )
+    )
+
+    # If critical, emergency stop
+    emergency.add_child(
+        py_trees.behaviours.SetBlackboardVariable(
+            name="Emergency Stop",
+            variable_name="robot_action",
+            variable_value="emergency_stop",
+            overwrite=True
+        )
+    )
+
+    root.add_child(emergency)
+
+    # Branch 2: Low Battery Handler (return to charge)
+    low_battery = py_trees.composites.Sequence("Low Battery Handler", memory=False)
+
+    # Check if battery is low (< 20%)
+    low_check = ComparisonExpression('battery_level', operator.lt, 20.0)
+    low_battery.add_child(
+        py_trees.behaviours.CheckBlackboardVariableValue(
+            name="Battery Low?",
+            check=low_check
+        )
+    )
+
+    # If low, command charge
+    low_battery.add_child(
+        py_trees.behaviours.SetBlackboardVariable(
+            name="Command: Charge",
+            variable_name="robot_action",
+            variable_value="charge",
+            overwrite=True
+        )
+    )
+
+    root.add_child(low_battery)
+
+    # Branch 3: Normal Patrol (default behavior)
+    patrol = py_trees.behaviours.SetBlackboardVariable(
+        name="Command: Patrol",
+        variable_name="robot_action",
+        variable_value="patrol",
+        overwrite=True
+    )
+
+    root.add_child(patrol)
+
+    print("✓ Created py_trees behavior tree:")
+    print(f"  Root: {root.name} ({root.__class__.__name__})")
+    print(f"  Children: {len(root.children)}")
+    for i, child in enumerate(root.children, 1):
+        print(f"    {i}. {child.name}")
+    print()
+
+    # Convert to PyForest format
+    print("Converting to PyForest format...")
+    pf = PyForest()
+    tree = pf.from_py_trees(
+        root,
+        name="Robot Controller (Code-Created)",
+        version="1.0.0",
+        description="Created entirely from py_trees code"
+    )
+
+    print(f"✓ Converted to PyForest")
+    print(f"  Tree: {tree.metadata.name}")
+    print(f"  Version: {tree.metadata.version}")
+    print(f"  Blackboard variables detected: {len(tree.blackboard_schema)}")
+    print()
+
+    # Optionally save
+    print("Saving to JSON...")
+    pf.save_tree(tree, "tutorials/robot_from_code.json")
+    print("✓ Saved to tutorials/robot_from_code.json")
+    print("  (You can now load this in Tree Editor Pro to see visual representation!)")
+    print()
+
+    return tree
+
+
+# =============================================================================
+# STEP 3: Load Tree from Visual Editor
 # =============================================================================
 
 def load_tree_from_editor():
@@ -382,44 +508,114 @@ def test_scenarios():
 if __name__ == "__main__":
     print("\n" + "=" * 70)
     print(" PyForest Tutorial 6: Complete Workflow")
-    print(" Design → Export → Control")
+    print(" BOTH Approaches: Code-First + Visual-First")
     print("=" * 70 + "\n")
 
-    print("This tutorial shows:")
-    print("  ✓ How to design trees in the visual editor")
-    print("  ✓ How to use 'Copy Python' button")
-    print("  ✓ How to load trees in Python")
+    print("This tutorial shows BOTH approaches:")
+    print("  ✓ APPROACH 1: Create trees from pure Python code (py_trees)")
+    print("  ✓ APPROACH 2: Design trees in visual editor")
     print("  ✓ HOW TO ACTUALLY USE TREES TO CONTROL SYSTEMS")
     print()
 
     input("Press Enter to start...")
     print()
 
-    # Step 1: Explain workflow
-    demonstrate_copy_python_workflow()
+    # APPROACH 1: Code-first
+    print("\n" + "=" * 70)
+    print(" APPROACH 1: CODE-FIRST (Programmatic)")
+    print("=" * 70)
+    print()
+    print("We'll create a behavior tree entirely from Python code,")
+    print("no visual editor needed!")
+    print()
+    input("Press Enter to see programmatic tree creation...")
+    print()
+
+    tree_from_code = create_tree_from_code()
 
     input("Press Enter to continue...")
     print()
 
-    # Step 2: Test scenarios
-    test_scenarios()
-
-    input("Press Enter to run full simulation...")
+    # APPROACH 2: Visual-first
+    print("\n" + "=" * 70)
+    print(" APPROACH 2: VISUAL-FIRST (Recommended for beginners)")
+    print("=" * 70)
+    print()
+    print("This approach uses the visual editor + 'Copy Python' button")
+    print()
+    input("Press Enter to learn about visual workflow...")
     print()
 
-    # Step 3: Run full control simulation
-    control_robot_with_tree()
+    demonstrate_copy_python_workflow()
 
+    input("Press Enter to test scenarios...")
+    print()
+
+    # Test scenarios
+    test_scenarios()
+
+    # Now use the tree we created from code!
+    print("\n" + "=" * 70)
+    print(" USING THE CODE-CREATED TREE TO CONTROL ROBOT")
+    print("=" * 70)
+    print()
+    print("Now let's use the tree we created from code to control the robot!")
+    print()
+    input("Press Enter to run simulation...")
+    print()
+
+    # Use the tree created from code
+    pf = PyForest()
+    execution = pf.create_execution(tree_from_code)
+    print("✓ Created execution from code-created tree")
+    print()
+
+    # Create robot
+    robot = SimpleRobot()
+    print("✓ Created robot simulator")
+    print(f"  Initial battery: {robot.battery}%")
+    print()
+
+    # Control loop
+    print("=" * 70)
+    print("CONTROL LOOP: Tree → Decisions → Robot Actions")
+    print("=" * 70)
+    print()
+
+    max_ticks = 50
+    log_interval = 5
+
+    for tick in range(max_ticks):
+        sensors = robot.get_sensors()
+        result = execution.tick(blackboard_updates=sensors)
+        action = result.blackboard.get("/robot_action", "wait")
+        robot.execute_action(action)
+
+        if tick % log_interval == 0 or robot.battery < 15:
+            print(f"Tick {tick:3d} | "
+                  f"Battery: {robot.battery:5.1f}% | "
+                  f"Action: {action:20s} | "
+                  f"Status: {robot.status:15s}")
+
+        if robot.battery <= 0:
+            print("\n⚠️  BATTERY DEPLETED")
+            break
+
+        if robot.battery > 95 and robot.charging:
+            print("\n✓ FULLY CHARGED")
+            break
+
+    print()
     print("=" * 70)
     print(" Tutorial Complete! 🎉")
     print("=" * 70)
     print()
 
     print("What you learned:")
-    print("  ✓ Complete workflow from visual design to robot control")
-    print("  ✓ How 'Copy Python' button generates ready-to-use code")
-    print("  ✓ The control loop pattern: sensors → tree → actions")
-    print("  ✓ How to test different scenarios")
+    print("  ✓ APPROACH 1: Creating trees from pure Python code (py_trees)")
+    print("  ✓ APPROACH 2: Visual editor workflow + 'Copy Python' button")
+    print("  ✓ Converting between py_trees and PyForest formats")
+    print("  ✓ THE CONTROL LOOP: sensors → tree → actions → execute")
     print("  ✓ How to integrate behavior trees into real systems")
     print()
 
@@ -428,12 +624,18 @@ if __name__ == "__main__":
     print("  1. Get sensors → 2. Tick tree → 3. Get action → 4. Execute")
     print()
 
-    print("Next Steps:")
-    print("  • Design your own tree in Tree Editor Pro")
-    print("  • Export it and use it to control your system")
-    print("  • Use the 'Copy Python' button for quick integration")
+    print("BOTH Approaches Work:")
+    print("  • Code-First: Full control, programmatic, py_trees API")
+    print("  • Visual-First: Rapid prototyping, intuitive, drag-and-drop")
+    print("  • Choose what fits your workflow!")
     print()
 
-    print("📖 See examples/robot_v1.json and robot_v2.json for reference trees")
-    print("🚀 Run: ./run_editor.sh to start designing!")
+    print("Next Steps:")
+    print("  • Try creating your own tree from code (like we did!)")
+    print("  • Or design visually: ./run_editor.sh")
+    print("  • Use the tree to control YOUR system")
+    print()
+
+    print("📖 See tutorials/robot_from_code.json (we just created this!)")
+    print("🚀 Run: ./run_editor.sh to visualize it!")
     print()
