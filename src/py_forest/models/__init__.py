@@ -4,7 +4,6 @@ from py_forest.models.tree import (
     TreeDefinition,
     TreeNodeDefinition,
     TreeMetadata,
-    UIMetadata,
 )
 from py_forest.models.execution import (
     ExecutionSnapshot,
@@ -21,7 +20,6 @@ __all__ = [
     "TreeDefinition",
     "TreeNodeDefinition",
     "TreeMetadata",
-    "UIMetadata",
     "ExecutionSnapshot",
     "ExecutionConfig",
     "NodeState",

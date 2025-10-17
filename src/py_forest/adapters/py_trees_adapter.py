@@ -44,6 +44,51 @@ from py_forest.models.tree import (
 
 
 # =============================================================================
+# Conversion Context (Warnings)
+# =============================================================================
+
+class ConversionContext:
+    """
+    Tracks warnings and issues during py_trees → PyForest conversion.
+
+    Provides visibility into data loss, fallbacks, and other conversion issues.
+    """
+
+    def __init__(self):
+        self.warnings: list[str] = []
+
+    def warn(self, message: str, node_name: Optional[str] = None):
+        """
+        Add a warning message.
+
+        Args:
+            message: Warning description
+            node_name: Optional node name for context
+        """
+        if node_name:
+            full_message = f"[{node_name}] {message}"
+        else:
+            full_message = message
+
+        self.warnings.append(full_message)
+
+    def has_warnings(self) -> bool:
+        """Check if any warnings were recorded."""
+        return len(self.warnings) > 0
+
+    def summary(self) -> str:
+        """Get a formatted summary of all warnings."""
+        if not self.warnings:
+            return "✓ No conversion warnings"
+
+        lines = [f"⚠ {len(self.warnings)} conversion warning(s):"]
+        for i, warning in enumerate(self.warnings, 1):
+            lines.append(f"  {i}. {warning}")
+
+        return "\n".join(lines)
+
+
+# =============================================================================
 # Deterministic UUID Generation
 # =============================================================================
 
@@ -196,7 +241,7 @@ NODE_TYPE_MAP = {
 }
 
 
-def _get_node_type(py_trees_node) -> str:
+def _get_node_type(py_trees_node, context: Optional[ConversionContext] = None) -> str:
     """Determine PyForest node type from py_trees node"""
     class_name = type(py_trees_node).__name__
 
@@ -216,13 +261,23 @@ def _get_node_type(py_trees_node) -> str:
         return "Decorator"
     elif isinstance(py_trees_node, py_trees.behaviour.Behaviour):
         # Default behavior nodes to action
+        if context:
+            context.warn(
+                f"Unknown node type '{class_name}', defaulting to Action",
+                node_name=py_trees_node.name
+            )
         return "Action"
 
     # Default fallback
+    if context:
+        context.warn(
+            f"Unrecognized py_trees class '{class_name}', defaulting to Action",
+            node_name=py_trees_node.name
+        )
     return "Action"
 
 
-def _extract_config(py_trees_node) -> Dict[str, Any]:
+def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) -> Dict[str, Any]:
     """Extract config from py_trees node to PyForest format"""
     config = {}
     class_name = type(py_trees_node).__name__
@@ -280,10 +335,13 @@ def _extract_config(py_trees_node) -> Dict[str, Any]:
 
         if not value_extracted:
             # WARNING: Could not extract value - data will be lost!
-            config['_data_loss_warning'] = (
+            warning_msg = (
                 "SetBlackboardVariable value not accessible. "
                 "Round-trip conversion will lose this value."
             )
+            config['_data_loss_warning'] = warning_msg
+            if context:
+                context.warn(warning_msg, node_name=py_trees_node.name)
 
         if hasattr(py_trees_node, 'overwrite'):
             config['overwrite'] = py_trees_node.overwrite
