@@ -30,7 +30,27 @@ cd py_forest
 pip install -e .
 ```
 
-### Start the API Server
+### 🚀 Visual Tree Editor (Easiest Way)
+
+Launch the visual tree editor with API server:
+
+```bash
+./run_editor.sh
+```
+
+This opens the **PyForest Tree Editor Pro** - a full-featured visual editor for creating and editing behavior trees.
+
+**NEW: Want to see Python code?**
+
+```bash
+./run_code_view.sh
+```
+
+This opens the **Code View** tool showing three synchronized views: Visual Tree, JSON Editor, and Python Code. Edit the JSON directly and see Python code generated automatically!
+
+See [LAUNCHER_GUIDE.md](LAUNCHER_GUIDE.md) for all launcher options.
+
+### Start the API Server (Manual)
 
 ```bash
 python run_server.py
@@ -95,12 +115,14 @@ print(response.json())
 
 ## Documentation
 
+- **[Launcher Guide](LAUNCHER_GUIDE.md)** - 🚀 Launch scripts and visual editor
 - **[Getting Started](docs/GETTING_STARTED.md)** - Installation and first steps
 - **[Architecture](docs/ARCHITECTURE.md)** - System design and components
 - **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
 - **[Behavior Reference](docs/BEHAVIOR_REFERENCE.md)** - Available behaviors
-- **[CLI Guide](CLI_GUIDE.md)** - Command-line tool usage
 - **[Deployment](docs/DEPLOYMENT.md)** - Production deployment guide
+- **[Testing Report](TESTING_COMPLETE_FINAL.md)** - Comprehensive test coverage
+- **SDK Tutorials** - See `tutorials/` directory for 5 complete examples
 
 ## Architecture
 

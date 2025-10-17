@@ -745,6 +745,9 @@
                 <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Save to PyForest API">
                     <span class="toolbar-icon">☁</span> API
                 </button>
+                <button class="toolbar-btn" onclick="openCopyPythonModal()" data-tooltip="Copy Python code to use this tree" style="background: #c586c0;">
+                    <span class="toolbar-icon">🐍</span> Copy Python
+                </button>
             </div>
 
             <!-- Validation & Help -->
@@ -976,6 +979,62 @@
             </div>
             <div class="modal-actions">
                 <button class="modal-btn primary" onclick="closeModal('shortcutsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Copy Python Modal -->
+    <div class="modal-overlay" id="copyPythonModal">
+        <div class="modal" style="max-width: 700px;">
+            <div class="modal-title">🐍 Copy Python Code</div>
+            <div class="modal-body">
+                <p style="color: #d4d4d4; margin-bottom: 15px;">
+                    Choose how you want to use this tree in Python:
+                </p>
+
+                <div style="display: grid; gap: 15px; margin-bottom: 20px;">
+                    <!-- Option 1: From File -->
+                    <div style="background: #2d2d30; border: 2px solid #3e3e42; border-radius: 6px; padding: 15px; cursor: pointer; transition: all 0.2s;"
+                         onclick="selectPythonOption('file', this)"
+                         onmouseenter="this.style.borderColor='#4fc1ff'"
+                         onmouseleave="if(!this.classList.contains('selected')) this.style.borderColor='#3e3e42'">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">📄</span>
+                            <strong style="color: #4fc1ff; font-size: 15px;">Load from JSON File</strong>
+                        </div>
+                        <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
+                            Export tree as JSON file, then load it in Python. Best for local development and version control.
+                        </p>
+                    </div>
+
+                    <!-- Option 2: From API -->
+                    <div style="background: #2d2d30; border: 2px solid #3e3e42; border-radius: 6px; padding: 15px; cursor: pointer; transition: all 0.2s;"
+                         onclick="selectPythonOption('api', this)"
+                         onmouseenter="this.style.borderColor='#4fc1ff'"
+                         onmouseleave="if(!this.classList.contains('selected')) this.style.borderColor='#3e3e42'">
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                            <span style="font-size: 24px;">☁️</span>
+                            <strong style="color: #4fc1ff; font-size: 15px;">Save to API & Load from Server</strong>
+                        </div>
+                        <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
+                            Save tree to PyForest API, then load it from the server. Best for shared/production environments.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Generated Code Display -->
+                <div id="pythonCodeDisplay" style="display: none; background: #1e1e1e; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; margin-top: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <strong style="color: #4fc1ff;">Python Code:</strong>
+                        <button onclick="copyGeneratedPythonCode()" style="background: #16825d; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                            📋 Copy to Clipboard
+                        </button>
+                    </div>
+                    <pre id="generatedPythonCode" style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border: 1px solid #3e3e42; border-radius: 4px; font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0;"></pre>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn secondary" onclick="closeModal('copyPythonModal')">Close</button>
             </div>
         </div>
     </div>
@@ -2784,6 +2843,188 @@
             } catch (error) {
                 alert('Error connecting to API: ' + error.message);
             }
+        }
+
+        // Copy Python Code
+        let selectedPythonOption = null;
+        let generatedPythonCode = '';
+
+        function openCopyPythonModal() {
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) {
+                alert('No root node to export');
+                return;
+            }
+
+            // Reset state
+            selectedPythonOption = null;
+            document.getElementById('pythonCodeDisplay').style.display = 'none';
+            document.querySelectorAll('#copyPythonModal [onclick^="selectPythonOption"]').forEach(el => {
+                el.classList.remove('selected');
+                el.style.borderColor = '#3e3e42';
+            });
+
+            // Open modal
+            document.getElementById('copyPythonModal').classList.add('active');
+        }
+
+        async function selectPythonOption(option, element) {
+            // Visual feedback
+            document.querySelectorAll('#copyPythonModal [onclick^="selectPythonOption"]').forEach(el => {
+                el.classList.remove('selected');
+                el.style.borderColor = '#3e3e42';
+            });
+            element.classList.add('selected');
+            element.style.borderColor = '#4fc1ff';
+
+            selectedPythonOption = option;
+
+            const roots = nodes.filter(n => !n.parent);
+            const tree = {
+                "$schema": "1.0.0",
+                "tree_id": currentTreeId || crypto.randomUUID(),
+                "metadata": {
+                    "name": currentTreeName,
+                    "version": "1.0.0",
+                    "description": "Created with PyForest Professional Editor",
+                    "tags": ["editor-pro"],
+                    "status": "draft"
+                },
+                "root": nodeToJSON(roots[0])
+            };
+
+            if (option === 'file') {
+                // Generate code to load from file
+                const filename = `${currentTreeName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+
+                generatedPythonCode = `"""
+${currentTreeName} - PyForest Behavior Tree
+Generated by PyForest Tree Editor Pro
+"""
+
+from py_forest.sdk import PyForest
+
+# Initialize PyForest SDK
+pf = PyForest()
+
+# Load tree from JSON file
+# (First, export the tree using the 'Export' button to save ${filename})
+tree = pf.load_tree("${filename}")
+
+# Option 1: Create and run execution
+execution = pf.create_execution(tree)
+
+# Run with optional blackboard updates
+result = execution.tick(blackboard_updates={
+    # Add your variables here, e.g.:
+    # "battery_level": 50,
+    # "target_position": [10, 20]
+})
+
+print(f"Execution result: {result.status}")
+print(f"Blackboard: {result.blackboard}")
+
+# Option 2: Use with py_trees (convert back)
+from py_forest.adapters import to_py_trees
+
+pt_root = to_py_trees(tree)
+pt_root.setup_with_descendants()
+pt_root.tick_once()
+print(f"py_trees result: {pt_root.status}")
+`;
+
+                document.getElementById('pythonCodeDisplay').style.display = 'block';
+                document.getElementById('generatedPythonCode').textContent = generatedPythonCode;
+
+            } else if (option === 'api') {
+                // Save to API first
+                updateStatus('Saving to API...');
+
+                try {
+                    const response = await fetch(`${API_BASE}/trees/`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tree)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        currentTreeId = result.tree_id;
+
+                        // Generate code to load from API
+                        generatedPythonCode = `"""
+${currentTreeName} - PyForest Behavior Tree
+Generated by PyForest Tree Editor Pro
+Saved to API with ID: ${result.tree_id}
+"""
+
+from py_forest.sdk import PyForest
+
+# Initialize PyForest SDK with API connection
+pf = PyForest(api_url="http://localhost:8000")
+
+# Load tree from API
+tree = pf.get_tree("${result.tree_id}")
+
+print(f"Loaded tree: {tree.metadata.name} v{tree.metadata.version}")
+
+# Create execution
+execution = pf.create_execution(tree)
+
+# Run with optional blackboard updates
+result = execution.tick(blackboard_updates={
+    # Add your variables here, e.g.:
+    # "battery_level": 50,
+    # "target_position": [10, 20]
+})
+
+print(f"Execution result: {result.status}")
+print(f"Blackboard: {result.blackboard}")
+
+# Option: Use with py_trees (convert back)
+from py_forest.adapters import to_py_trees
+
+pt_root = to_py_trees(tree)
+pt_root.setup_with_descendants()
+pt_root.tick_once()
+print(f"py_trees result: {pt_root.status}")
+`;
+
+                        document.getElementById('pythonCodeDisplay').style.display = 'block';
+                        document.getElementById('generatedPythonCode').textContent = generatedPythonCode;
+                        updateStatus(`Tree saved! ID: ${result.tree_id}`);
+                    } else {
+                        const error = await response.text();
+                        alert('Failed to save tree to API: ' + error);
+                        element.classList.remove('selected');
+                        element.style.borderColor = '#3e3e42';
+                    }
+                } catch (error) {
+                    alert('Error connecting to API: ' + error.message + '\n\nMake sure the API server is running (python run_server.py)');
+                    element.classList.remove('selected');
+                    element.style.borderColor = '#3e3e42';
+                }
+            }
+        }
+
+        function copyGeneratedPythonCode() {
+            if (!generatedPythonCode) return;
+
+            navigator.clipboard.writeText(generatedPythonCode).then(() => {
+                updateStatus('Python code copied to clipboard!');
+
+                // Visual feedback
+                const btn = event.target;
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '✓ Copied!';
+                btn.style.background = '#1a9870';
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.style.background = '#16825d';
+                }, 2000);
+            }).catch(err => {
+                alert('Failed to copy to clipboard: ' + err);
+            });
         }
 
         // Library Management
