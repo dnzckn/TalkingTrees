@@ -50,6 +50,14 @@ This opens the **Code View** tool showing three synchronized views: Visual Tree,
 
 See [LAUNCHER_GUIDE.md](LAUNCHER_GUIDE.md) for all launcher options.
 
+### Visual Tree Editor
+
+<p align="center">
+  <img src="images/visualizer_screenshot.png" alt="PyForest Visual Tree Editor" width="800"/>
+</p>
+
+The PyForest Tree Editor Pro provides a professional drag-and-drop interface for creating and editing behavior trees with real-time visualization, node property editing, and automatic layout.
+
 ### Start the API Server (Manual)
 
 ```bash

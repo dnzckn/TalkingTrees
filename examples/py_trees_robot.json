@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "969f5fdf-7d96-4ed0-ad12-6fea169e5b1b",
+  "tree_id": "f61a36eb-4685-40bd-a40a-948b2d30fa55",
   "metadata": {
     "name": "Robot Controller",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-10-17 04:08:27.358004",
-    "modified_at": "2025-10-17 04:08:27.358178",
+    "created_at": "2025-10-17 05:32:23.047883",
+    "modified_at": "2025-10-17 05:32:23.048093",
     "description": "Simple robot controller created with py_trees",
     "tags": [],
     "changelog": null,
@@ -14,89 +14,54 @@
   },
   "root": {
     "node_type": "Selector",
-    "node_id": "d129397a-c8ab-4159-82c4-e4ef9827367d",
+    "node_id": "4eb21a0c-34e4-c194-362c-7b9301816431",
     "name": "Robot Controller",
     "config": {
       "memory": false,
       "_py_trees_class": "Selector"
     },
-    "ui_metadata": {
-      "position": null,
-      "collapsed": false,
-      "color": null,
-      "icon": null,
-      "notes": null,
-      "breakpoint": false
-    },
+    "description": null,
     "children": [
       {
         "node_type": "Sequence",
-        "node_id": "b9051981-ab08-4a69-a34b-444fcb73d98e",
+        "node_id": "b8ade768-9124-9733-7b03-966c6c058872",
         "name": "Emergency Handler",
         "config": {
           "memory": false,
           "_py_trees_class": "Sequence"
         },
-        "ui_metadata": {
-          "position": null,
-          "collapsed": false,
-          "color": null,
-          "icon": null,
-          "notes": null,
-          "breakpoint": false
-        },
+        "description": null,
         "children": [
           {
             "node_type": "Success",
-            "node_id": "4ec54f57-6467-41a7-8d0e-b9b1df0fd1e6",
+            "node_id": "5a7ecbf9-7470-cc51-f360-e60e20aa2fd9",
             "name": "Detect Emergency",
             "config": {
               "_py_trees_class": "Success"
             },
-            "ui_metadata": {
-              "position": null,
-              "collapsed": false,
-              "color": null,
-              "icon": null,
-              "notes": null,
-              "breakpoint": false
-            },
+            "description": null,
             "children": [],
             "$ref": null
           },
           {
             "node_type": "Success",
-            "node_id": "e4d191f7-b240-4236-9f15-3a9922b17d19",
+            "node_id": "73bb599f-a896-8d48-6ad6-5915f47bb849",
             "name": "Stop Robot",
             "config": {
               "_py_trees_class": "Success"
             },
-            "ui_metadata": {
-              "position": null,
-              "collapsed": false,
-              "color": null,
-              "icon": null,
-              "notes": null,
-              "breakpoint": false
-            },
+            "description": null,
             "children": [],
             "$ref": null
           },
           {
             "node_type": "Success",
-            "node_id": "e5e2bf2d-baf1-44bd-ada6-162b245e10e5",
+            "node_id": "cb5966d0-a6dc-d2ec-35da-e625f66d6af3",
             "name": "Alert Operator",
             "config": {
               "_py_trees_class": "Success"
             },
-            "ui_metadata": {
-              "position": null,
-              "collapsed": false,
-              "color": null,
-              "icon": null,
-              "notes": null,
-              "breakpoint": false
-            },
+            "description": null,
             "children": [],
             "$ref": null
           }
@@ -105,72 +70,44 @@
       },
       {
         "node_type": "Sequence",
-        "node_id": "44e35138-a6a2-4148-b670-b3937eb62428",
+        "node_id": "b11344ae-8804-fb4c-309c-55bfc0f72b21",
         "name": "Normal Operation",
         "config": {
           "memory": false,
           "_py_trees_class": "Sequence"
         },
-        "ui_metadata": {
-          "position": null,
-          "collapsed": false,
-          "color": null,
-          "icon": null,
-          "notes": null,
-          "breakpoint": false
-        },
+        "description": null,
         "children": [
           {
             "node_type": "Success",
-            "node_id": "202c79b2-263b-4f2d-884a-e39ac2d8ba0c",
+            "node_id": "848f152c-bebd-1c45-901c-ca4d4df53d18",
             "name": "Check Systems",
             "config": {
               "_py_trees_class": "Success"
             },
-            "ui_metadata": {
-              "position": null,
-              "collapsed": false,
-              "color": null,
-              "icon": null,
-              "notes": null,
-              "breakpoint": false
-            },
+            "description": null,
             "children": [],
             "$ref": null
           },
           {
             "node_type": "Success",
-            "node_id": "6bd174bc-f20c-41e3-a1bc-b970b9e012f0",
+            "node_id": "5d5d093f-e313-4a28-2a92-30393f40ea0f",
             "name": "Execute Task",
             "config": {
               "_py_trees_class": "Success"
             },
-            "ui_metadata": {
-              "position": null,
-              "collapsed": false,
-              "color": null,
-              "icon": null,
-              "notes": null,
-              "breakpoint": false
-            },
+            "description": null,
             "children": [],
             "$ref": null
           },
           {
             "node_type": "Success",
-            "node_id": "c801b0c9-16c0-42e8-97ba-4baaa62791ab",
+            "node_id": "f621c6a9-973a-ba4c-d419-28a001dee449",
             "name": "Report Status",
             "config": {
               "_py_trees_class": "Success"
             },
-            "ui_metadata": {
-              "position": null,
-              "collapsed": false,
-              "color": null,
-              "icon": null,
-              "notes": null,
-              "breakpoint": false
-            },
+            "description": null,
             "children": [],
             "$ref": null
           }
@@ -179,19 +116,12 @@
       },
       {
         "node_type": "Success",
-        "node_id": "a923938b-aee4-428b-94e3-b91c33203023",
+        "node_id": "24b67412-8aa9-c7ff-28d4-1d59259fc7e8",
         "name": "Idle Mode",
         "config": {
           "_py_trees_class": "Success"
         },
-        "ui_metadata": {
-          "position": null,
-          "collapsed": false,
-          "color": null,
-          "icon": null,
-          "notes": null,
-          "breakpoint": false
-        },
+        "description": null,
         "children": [],
         "$ref": null
       }
@@ -199,7 +129,6 @@
     "$ref": null
   },
   "subtrees": {},
-  "blackboard_schema": {},
   "dependencies": {
     "behaviors": [],
     "subtrees": [],

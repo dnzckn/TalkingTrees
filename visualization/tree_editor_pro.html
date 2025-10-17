@@ -1026,7 +1026,7 @@
                 <div id="pythonCodeDisplay" style="display: none; background: #1e1e1e; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; margin-top: 15px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong style="color: #4fc1ff;">Python Code:</strong>
-                        <button onclick="copyGeneratedPythonCode()" style="background: #16825d; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        <button onclick="copyGeneratedPythonCode(event)" style="background: #16825d; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
                             📋 Copy to Clipboard
                         </button>
                     </div>
@@ -3088,7 +3088,7 @@ print(f"py_trees result: {pt_root.status}")
             }
         }
 
-        function copyGeneratedPythonCode() {
+        function copyGeneratedPythonCode(event) {
             if (!generatedPythonCode) return;
 
             navigator.clipboard.writeText(generatedPythonCode).then(() => {

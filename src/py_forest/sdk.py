@@ -211,7 +211,8 @@ class PyForest:
         if from_py_trees is None:
             raise ImportError("py_trees adapter not available. Install py_forest.adapters")
 
-        return from_py_trees(root, name=name, version=version, description=description)
+        tree_def, context = from_py_trees(root, name=name, version=version, description=description)
+        return tree_def
 
 
 class Execution:
