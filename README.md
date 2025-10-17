@@ -4,9 +4,11 @@
 
 # PyForest
 
-**Serializable behavior tree management system with REST API and CLI**
+**Production-ready behavior tree management system with serialization, REST API, and visual editing**
 
-Built on [py_trees](https://github.com/splintered-reality/py_trees), PyForest provides a complete solution for creating, managing, and executing behavior trees.
+PyForest is built on [py_trees](https://github.com/splintered-reality/py_trees) and provides a complete solution for creating, managing, and executing behavior trees. Store trees as JSON, execute them with real-time monitoring, debug with breakpoints and watches, and visualize execution flow - all through a REST API, CLI, or visual editor.
+
+**Use Cases**: Robot control systems, game AI, workflow automation, autonomous agents, decision-making systems.
 
 ## Features
 
@@ -30,7 +32,7 @@ cd py_forest
 pip install -e .
 ```
 
-### 🚀 Visual Tree Editor (Easiest Way)
+### Visual Tree Editor
 
 Launch the visual tree editor with API server:
 
@@ -40,13 +42,13 @@ Launch the visual tree editor with API server:
 
 This opens the **PyForest Tree Editor Pro** - a full-featured visual editor for creating and editing behavior trees.
 
-**NEW: Want to see Python code?**
+For Python code generation:
 
 ```bash
 ./run_code_view.sh
 ```
 
-This opens the **Code View** tool showing three synchronized views: Visual Tree, JSON Editor, and Python Code. Edit the JSON directly and see Python code generated automatically!
+This opens the **Code View** tool showing three synchronized views: Visual Tree, JSON Editor, and Python Code. Edit the JSON directly and see Python code generated automatically.
 
 See [LAUNCHER_GUIDE.md](LAUNCHER_GUIDE.md) for all launcher options.
 
@@ -381,33 +383,43 @@ mypy src/
 
 ## Capabilities
 
-PyForest provides:
+PyForest is a comprehensive behavior tree management system that provides:
 
-1. Store trees as JSON with semantic versioning
-2. Search trees by name/description/tags
-3. Serialize JSON to/from py_trees with UUID mapping
-4. Execute multiple instances simultaneously
-5. Manual/AUTO/INTERVAL execution modes
-6. Real-time WebSocket monitoring
-7. Execution history (time-travel debugging)
-8. Hot-reload trees without losing context
-9. Autonomous execution with scheduler control
-10. Event streaming to multiple clients
-11. Debugging: Breakpoints, watches, step execution
-12. Conditional breakpoints (Python expressions)
-13. Watch expressions (7 conditions on blackboard keys)
-14. Step modes (over/into/out/continue)
-15. Tree visualization (DOT, SVG, PNG, py_trees_js)
-16. Execution statistics (timing, success rates)
-17. Per-node metrics tracking
-18. Graphviz export for documentation
-19. Tree validation (structural, type, config)
-20. Template system with parameter substitution
-21. Command-line interface (pyforest CLI)
-22. Import/export (JSON, YAML, DOT)
-23. Performance profiling with per-node breakdown
-24. Interactive template instantiation
-25. Batch operations for backup/restore
+**Tree Management**
+- Store trees as JSON with semantic versioning
+- Search and filter trees by name, description, and tags
+- Bidirectional JSON to py_trees serialization with UUID mapping
+- Template system with parameter substitution
+- Tree validation (structural, type checking, config validation)
+- Import/export in multiple formats (JSON, YAML, DOT)
+- Batch operations for backup and restore
+
+**Execution Engine**
+- Execute multiple tree instances simultaneously
+- Three execution modes: Manual, AUTO (continuous), and INTERVAL (fixed-rate)
+- Autonomous execution with scheduler control
+- Hot-reload trees without losing runtime context
+- Per-execution isolated blackboard state
+
+**Monitoring and Debugging**
+- Real-time WebSocket event streaming
+- Execution history with time-travel debugging capabilities
+- Breakpoints (unconditional and conditional with Python expressions)
+- Watch expressions with multiple conditions (CHANGE, EQUALS, GREATER, etc.)
+- Step execution modes (over, into, out, continue)
+- Per-node performance metrics and timing statistics
+
+**Visualization and Analysis**
+- Tree visualization in DOT, SVG, PNG, and py_trees_js formats
+- Execution statistics including timing and success rates
+- Performance profiling with per-node breakdown
+- Graphviz export for documentation
+
+**Developer Tools**
+- Command-line interface (pyforest CLI) with comprehensive commands
+- REST API with 47 endpoints across 7 routers
+- Interactive API documentation at /docs
+- Python SDK for programmatic usage
 
 ## Performance
 
