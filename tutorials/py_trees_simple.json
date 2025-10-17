@@ -1,0 +1,100 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "6400a5c0-09ff-4284-89da-1980dd154664",
+  "metadata": {
+    "name": "Simple Robot Controller",
+    "version": "1.0.0",
+    "author": null,
+    "created_at": "2025-10-17 02:21:45.500752",
+    "modified_at": "2025-10-17 02:21:45.501184",
+    "description": "Basic sequence converted from py_trees",
+    "tags": [],
+    "changelog": null,
+    "status": "draft"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "node_id": "2a43c00b-e86a-4b77-8fab-c81ca612640b",
+    "name": "Robot Controller",
+    "config": {
+      "memory": false,
+      "_py_trees_class": "Sequence"
+    },
+    "ui_metadata": {
+      "position": null,
+      "collapsed": false,
+      "color": null,
+      "icon": null,
+      "notes": null,
+      "breakpoint": false
+    },
+    "children": [
+      {
+        "node_type": "Success",
+        "node_id": "84875d4a-096b-4a71-8c1f-bb57dffd9820",
+        "name": "Initialize",
+        "config": {
+          "_py_trees_class": "Success"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      },
+      {
+        "node_type": "Success",
+        "node_id": "978dfcb8-f006-47a2-b97e-2277db2215ac",
+        "name": "Execute Mission",
+        "config": {
+          "_py_trees_class": "Success"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      },
+      {
+        "node_type": "Success",
+        "node_id": "5b28594b-97e5-4612-8d0d-16a4df242a13",
+        "name": "Shutdown",
+        "config": {
+          "_py_trees_class": "Success"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "blackboard_schema": {},
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}

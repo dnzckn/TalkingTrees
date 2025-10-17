@@ -1,0 +1,212 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "4bed2132-6554-4e31-b06c-94f6883f8ec2",
+  "metadata": {
+    "name": "Robot Controller",
+    "version": "1.0.0",
+    "author": null,
+    "created_at": "2025-10-17 02:05:02.193421",
+    "modified_at": "2025-10-17 02:05:02.193843",
+    "description": "Simple robot controller created with py_trees",
+    "tags": [],
+    "changelog": null,
+    "status": "draft"
+  },
+  "root": {
+    "node_type": "Selector",
+    "node_id": "ca6a5c5e-9bd8-4a9f-ac3f-89304108cde9",
+    "name": "Robot Controller",
+    "config": {
+      "memory": false,
+      "_py_trees_class": "Selector"
+    },
+    "ui_metadata": {
+      "position": null,
+      "collapsed": false,
+      "color": null,
+      "icon": null,
+      "notes": null,
+      "breakpoint": false
+    },
+    "children": [
+      {
+        "node_type": "Sequence",
+        "node_id": "cf0fa0bf-72b1-40fe-a628-8b722889fc04",
+        "name": "Emergency Handler",
+        "config": {
+          "memory": false,
+          "_py_trees_class": "Sequence"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "Success",
+            "node_id": "1c9614e3-a7d2-42ae-8e38-e82c097f065c",
+            "name": "Detect Emergency",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "Success",
+            "node_id": "605168c5-93bc-44f6-ae5b-a286b0035ae1",
+            "name": "Stop Robot",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "Success",
+            "node_id": "480602a1-b297-4395-a659-3a3394b3e346",
+            "name": "Alert Operator",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Sequence",
+        "node_id": "17f82faf-ed49-4c3d-b1ab-48147c51b12a",
+        "name": "Normal Operation",
+        "config": {
+          "memory": false,
+          "_py_trees_class": "Sequence"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "Success",
+            "node_id": "42a932a1-866b-4c8b-8153-d3b03cec0963",
+            "name": "Check Systems",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "Success",
+            "node_id": "f9eb2261-0d0a-4c6a-9b46-d726395b9dc4",
+            "name": "Execute Task",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "Success",
+            "node_id": "e3fb390f-d8d8-458a-a87f-bdabd17e9a18",
+            "name": "Report Status",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Success",
+        "node_id": "c3ca5c12-1c92-47a5-beea-e8269f941277",
+        "name": "Idle Mode",
+        "config": {
+          "_py_trees_class": "Success"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "blackboard_schema": {},
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}

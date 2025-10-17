@@ -1139,6 +1139,15 @@
             // Mouse wheel for zoom
             canvas.addEventListener('wheel', (e) => {
                 e.preventDefault();
+
+                // Shift+Wheel for horizontal scrolling
+                if (e.shiftKey) {
+                    viewportX -= e.deltaY * 0.5; // Scroll horizontally
+                    render();
+                    return;
+                }
+
+                // Normal wheel for zoom
                 const rect = canvas.getBoundingClientRect();
                 const mouseX = e.clientX - rect.left;
                 const mouseY = e.clientY - rect.top;
@@ -1146,6 +1155,7 @@
                 const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
                 const newScale = Math.max(0.1, Math.min(5.0, viewportScale * zoomFactor));
 
+                // Zoom toward cursor position
                 const worldX = (mouseX - viewportX) / viewportScale;
                 const worldY = (mouseY - viewportY) / viewportScale;
 
@@ -1601,6 +1611,14 @@
                     activeElement.isContentEditable
                 );
 
+                // Space key for pan mode (hold Space + drag to pan)
+                if (e.key === ' ' && !isInputField && !isSpacePressed) {
+                    isSpacePressed = true;
+                    canvas.style.cursor = 'grab';
+                    // Don't prevent default yet - we'll handle collapse on keyup if not panning
+                    return;
+                }
+
                 // Allow Escape to work even in input fields
                 if (e.key === 'Escape' && isInputField) {
                     activeElement.blur();
@@ -1772,8 +1790,8 @@
                     }
                 }
 
-                // Enter/Space to toggle collapse
-                if (selectedNode && (e.key === 'Enter' || e.key === ' ')) {
+                // Enter to toggle collapse (Space is handled in keyup for pan mode compatibility)
+                if (selectedNode && e.key === 'Enter') {
                     if (selectedNode.children.length > 0) {
                         e.preventDefault();
                         selectedNode.collapsed = !selectedNode.collapsed;
@@ -1880,6 +1898,22 @@
                             updateStatus(`Deepest: ${deepest.name}`);
                         }
                     }
+                }
+            });
+
+            // Space key release - restore cursor and handle collapse if not panning
+            document.addEventListener('keyup', (e) => {
+                if (e.key === ' ' && isSpacePressed) {
+                    isSpacePressed = false;
+                    // If we weren't panning, this was a quick Space press for collapse
+                    if (!isPanning && selectedNode && selectedNode.children.length > 0) {
+                        selectedNode.collapsed = !selectedNode.collapsed;
+                        saveHistory();
+                        render();
+                        updateStatus(`${selectedNode.collapsed ? 'Collapsed' : 'Expanded'} ${selectedNode.name}`);
+                    }
+                    // Restore cursor
+                    canvas.style.cursor = connectMode ? 'crosshair' : 'default';
                 }
             });
         }

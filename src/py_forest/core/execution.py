@@ -6,9 +6,11 @@ from uuid import UUID, uuid4
 
 import py_trees
 
+from py_forest.core.blackboard_validator import BlackboardValidator, ValidationError
 from py_forest.core.debug import DebugContext
 from py_forest.core.events import EventEmitter
 from py_forest.core.history import ExecutionHistory, InMemoryHistoryStore
+from py_forest.core.profiler import ProfilingLevel, TreeProfiler, get_profiler
 from py_forest.core.scheduler import ExecutionScheduler
 from py_forest.core.serializer import TreeSerializer
 from py_forest.core.snapshot import capture_snapshot
@@ -52,6 +54,7 @@ class ExecutionInstance:
         config: ExecutionConfig,
         event_emitter: Optional[EventEmitter] = None,
         history: Optional[ExecutionHistory] = None,
+        profiling_level: ProfilingLevel = ProfilingLevel.OFF,
     ):
         """Initialize execution instance.
 
@@ -63,6 +66,7 @@ class ExecutionInstance:
             config: Execution configuration
             event_emitter: Optional event emitter for real-time updates
             history: Optional history manager for snapshot storage
+            profiling_level: Profiling detail level
         """
         self.execution_id = execution_id
         self.tree_def = tree_def
@@ -82,6 +86,15 @@ class ExecutionInstance:
 
         # Statistics tracking
         self.statistics = StatisticsTracker(execution_id)
+
+        # Profiling support
+        self.profiling_level = profiling_level
+        self.profiler = get_profiler(profiling_level) if profiling_level != ProfilingLevel.OFF else None
+        if self.profiler:
+            self.profiler.start_profiling(str(execution_id), tree_def.tree_id)
+
+        # Blackboard validation
+        self.validator = BlackboardValidator(tree_def.blackboard_schema) if tree_def.blackboard_schema else None
 
     def tick(self, count: int = 1) -> TickResponse:
         """Tick the tree.
@@ -119,9 +132,23 @@ class ExecutionInstance:
                 self.event_emitter.emit(watch_event)
                 break
 
+            # Profiler: Start tick profiling
+            if self.profiler:
+                # Profile root node before tick
+                root_uuid = self.serializer.get_node_uuid(self.tree.root)
+                if root_uuid:
+                    self.profiler.before_tick(self.tree.root, root_uuid)
+
             # Execute tick
             self.tree.tick()
             self.last_tick_at = datetime.utcnow()
+
+            # Profiler: End tick profiling
+            if self.profiler:
+                root_status_value = self.tree.root.status
+                if root_uuid:
+                    self.profiler.after_tick(self.tree.root, root_uuid, root_status_value)
+                self.profiler.on_tick_complete()
 
             # Statistics: End tick timing
             root_status = Status(self.tree.root.status.value)
@@ -321,6 +348,7 @@ class ExecutionService:
         tree_library: TreeLibrary,
         enable_history: bool = True,
         max_history_snapshots: int = 1000,
+        default_profiling_level: ProfilingLevel = ProfilingLevel.OFF,
     ):
         """Initialize execution service.
 
@@ -328,6 +356,7 @@ class ExecutionService:
             tree_library: Tree library for loading definitions
             enable_history: Whether to enable execution history
             max_history_snapshots: Maximum snapshots per execution
+            default_profiling_level: Default profiling level for new executions
         """
         self.library = tree_library
         self.instances: Dict[UUID, ExecutionInstance] = {}
@@ -342,6 +371,9 @@ class ExecutionService:
 
         # Scheduler for auto/interval modes
         self.scheduler = ExecutionScheduler()
+
+        # Profiling support
+        self.default_profiling_level = default_profiling_level
 
     def create_execution(self, config: ExecutionConfig) -> UUID:
         """Create a new execution instance.
@@ -382,6 +414,7 @@ class ExecutionService:
             config=config,
             event_emitter=EventEmitter(),
             history=self.history,
+            profiling_level=self.default_profiling_level,
         )
 
         # Store instance
@@ -438,6 +471,14 @@ class ExecutionService:
 
         # Apply blackboard updates (sensor inputs) before ticking
         if blackboard_updates:
+            # Validate updates if validator is enabled
+            if instance.validator:
+                for key, value in blackboard_updates.items():
+                    try:
+                        instance.validator.validate(key, value, strict=True)
+                    except ValidationError as e:
+                        raise ValueError(f"Blackboard validation failed: {e}")
+
             bb = py_trees.blackboard.Client(name="ExternalSensor")
             for key, value in blackboard_updates.items():
                 # Register and set key
@@ -926,3 +967,48 @@ class ExecutionService:
         """
         instance = self.get_execution(execution_id)
         return instance.statistics.get_statistics()
+
+    # Profiling methods
+
+    def get_profiling_report(self, execution_id: UUID) -> Optional[Dict[str, Any]]:
+        """Get profiling report for an execution.
+
+        Args:
+            execution_id: Execution identifier
+
+        Returns:
+            Profiling report dict or None if profiling disabled
+
+        Raises:
+            ValueError: If execution not found
+        """
+        instance = self.get_execution(execution_id)
+
+        if not instance.profiler:
+            return None
+
+        report = instance.profiler.get_report(str(execution_id))
+        if report:
+            return report.to_dict()
+
+        return None
+
+    def stop_profiling(self, execution_id: UUID) -> Optional[Dict[str, Any]]:
+        """Stop profiling and get final report.
+
+        Args:
+            execution_id: Execution identifier
+
+        Returns:
+            Final profiling report dict or None if profiling disabled
+
+        Raises:
+            ValueError: If execution not found
+        """
+        instance = self.get_execution(execution_id)
+
+        if not instance.profiler:
+            return None
+
+        report = instance.profiler.stop_profiling(str(execution_id))
+        return report.to_dict()

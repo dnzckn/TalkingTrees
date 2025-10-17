@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PyForest Tree Diff Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e1e;
+            color: #d4d4d4;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: #2d2d30;
+            padding: 12px 20px;
+            border-bottom: 1px solid #3e3e42;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4fc1ff;
+        }
+
+        .file-selector {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .file-input {
+            padding: 8px 12px;
+            background: #3c3c3c;
+            border: 1px solid #3e3e42;
+            border-radius: 4px;
+            color: #d4d4d4;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .file-input:hover {
+            background: #404040;
+        }
+
+        button {
+            padding: 8px 16px;
+            background: #0e639c;
+            border: none;
+            border-radius: 4px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #1177bb;
+        }
+
+        button:disabled {
+            background: #3c3c3c;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .diff-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid #3e3e42;
+        }
+
+        .diff-panel:last-child {
+            border-right: none;
+        }
+
+        .panel-header {
+            background: #252526;
+            padding: 12px 16px;
+            border-bottom: 1px solid #3e3e42;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .version-label {
+            color: #4fc1ff;
+        }
+
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .tree-view {
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .tree-node {
+            padding: 4px 8px;
+            margin: 2px 0;
+            border-radius: 3px;
+        }
+
+        .tree-node.added {
+            background: rgba(72, 186, 88, 0.2);
+            border-left: 3px solid #48ba58;
+        }
+
+        .tree-node.removed {
+            background: rgba(242, 67, 67, 0.2);
+            border-left: 3px solid #f24343;
+        }
+
+        .tree-node.modified {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 3px solid #ffc107;
+        }
+
+        .tree-node.moved {
+            background: rgba(79, 193, 255, 0.2);
+            border-left: 3px solid #4fc1ff;
+        }
+
+        .tree-node.unchanged {
+            background: transparent;
+        }
+
+        .node-name {
+            font-weight: 600;
+            color: #dcdcaa;
+        }
+
+        .node-type {
+            color: #4ec9b0;
+        }
+
+        .node-path {
+            color: #808080;
+            font-size: 11px;
+        }
+
+        .property-diff {
+            margin: 4px 0 4px 20px;
+            font-size: 12px;
+            color: #ce9178;
+        }
+
+        .summary-panel {
+            width: 300px;
+            background: #252526;
+            border-left: 1px solid #3e3e42;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .summary-section {
+            margin-bottom: 20px;
+        }
+
+        .summary-title {
+            font-weight: 600;
+            color: #4fc1ff;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #3e3e42;
+        }
+
+        .stat-label {
+            color: #d4d4d4;
+        }
+
+        .stat-value {
+            font-weight: 600;
+        }
+
+        .stat-value.added { color: #48ba58; }
+        .stat-value.removed { color: #f24343; }
+        .stat-value.modified { color: #ffc107; }
+        .stat-value.moved { color: #4fc1ff; }
+
+        .metadata-change {
+            padding: 6px 10px;
+            margin: 4px 0;
+            background: #2d2d30;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .legend-box {
+            width: 16px;
+            height: 16px;
+            border-radius: 2px;
+        }
+
+        .legend-box.added { background: #48ba58; }
+        .legend-box.removed { background: #f24343; }
+        .legend-box.modified { background: #ffc107; }
+        .legend-box.moved { background: #4fc1ff; }
+
+        .no-changes {
+            text-align: center;
+            color: #48ba58;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 40px;
+        }
+
+        .error {
+            color: #f24343;
+            background: rgba(242, 67, 67, 0.1);
+            padding: 12px 16px;
+            border-radius: 4px;
+            margin: 16px;
+        }
+
+        #fileInput1, #fileInput2 {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 PyForest Tree Diff Viewer</h1>
+
+        <div class="file-selector">
+            <label for="fileInput1" class="file-input">Choose Version 1...</label>
+            <input type="file" id="fileInput1" accept=".json">
+            <span id="file1Name" style="color: #808080;">No file selected</span>
+        </div>
+
+        <div class="file-selector">
+            <label for="fileInput2" class="file-input">Choose Version 2...</label>
+            <input type="file" id="fileInput2" accept=".json">
+            <span id="file2Name" style="color: #808080;">No file selected</span>
+        </div>
+
+        <button id="compareBtn" onclick="compareTrees()" disabled>Compare</button>
+        <button onclick="exportDiff()">Export Diff</button>
+    </div>
+
+    <div class="main-content">
+        <div class="diff-panel">
+            <div class="panel-header">
+                <span class="version-label" id="v1Label">Version 1</span>
+                <span id="v1Stats" style="font-size: 12px; color: #808080;"></span>
+            </div>
+            <div class="panel-content">
+                <div id="tree1View" class="tree-view"></div>
+            </div>
+        </div>
+
+        <div class="diff-panel">
+            <div class="panel-header">
+                <span class="version-label" id="v2Label">Version 2</span>
+                <span id="v2Stats" style="font-size: 12px; color: #808080;"></span>
+            </div>
+            <div class="panel-content">
+                <div id="tree2View" class="tree-view"></div>
+            </div>
+        </div>
+
+        <div class="summary-panel">
+            <div class="summary-section">
+                <div class="summary-title">Diff Summary</div>
+                <div id="summaryStats"></div>
+            </div>
+
+            <div class="summary-section">
+                <div class="summary-title">Legend</div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-box added"></div>
+                        <span>Added</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box removed"></div>
+                        <span>Removed</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box modified"></div>
+                        <span>Modified</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box moved"></div>
+                        <span>Moved</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="summary-section" id="metadataSection" style="display: none;">
+                <div class="summary-title">Metadata Changes</div>
+                <div id="metadataChanges"></div>
+            </div>
+
+            <div class="summary-section" id="blackboardSection" style="display: none;">
+                <div class="summary-title">Blackboard Changes</div>
+                <div id="blackboardChanges"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tree1 = null;
+        let tree2 = null;
+        let diffResult = null;
+
+        // File input handlers
+        document.getElementById('fileInput1').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('file1Name').textContent = file.name;
+                loadTreeFile(file, 1);
+            }
+        });
+
+        document.getElementById('fileInput2').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('file2Name').textContent = file.name;
+                loadTreeFile(file, 2);
+            }
+        });
+
+        function loadTreeFile(file, version) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const tree = JSON.parse(e.target.result);
+                    if (version === 1) {
+                        tree1 = tree;
+                    } else {
+                        tree2 = tree;
+                    }
+
+                    // Enable compare button if both files loaded
+                    if (tree1 && tree2) {
+                        document.getElementById('compareBtn').disabled = false;
+                    }
+
+                    showStatus(`Loaded ${file.name}`, 'success');
+                } catch (err) {
+                    showStatus(`Error loading ${file.name}: ${err.message}`, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        async function compareTrees() {
+            if (!tree1 || !tree2) {
+                showStatus('Please load both tree files', 'error');
+                return;
+            }
+
+            try {
+                // Compute diff
+                diffResult = computeTreeDiff(tree1, tree2);
+
+                // Update labels
+                document.getElementById('v1Label').textContent =
+                    `${tree1.metadata?.name || 'Version 1'} (${tree1.metadata?.version || 'unknown'})`;
+                document.getElementById('v2Label').textContent =
+                    `${tree2.metadata?.name || 'Version 2'} (${tree2.metadata?.version || 'unknown'})`;
+
+                // Render diff views
+                renderTreeWithDiff(tree1, 'tree1View', diffResult, 'old');
+                renderTreeWithDiff(tree2, 'tree2View', diffResult, 'new');
+
+                // Render summary
+                renderSummary(diffResult);
+
+                showStatus('Diff computed successfully!', 'success');
+            } catch (err) {
+                showStatus(`Error computing diff: ${err.message}`, 'error');
+            }
+        }
+
+        function computeTreeDiff(oldTree, newTree) {
+            // Build node maps with parent tracking
+            const oldNodes = new Map();
+            const newNodes = new Map();
+            const oldParents = new Map();
+            const newParents = new Map();
+
+            function buildNodeMap(node, map, parentMap, path = '', parentId = null) {
+                const nodePath = path ? `${path} → ${node.name}` : node.name;
+                map.set(node.node_id, { node, path: nodePath });
+                if (parentId) {
+                    parentMap.set(node.node_id, parentId);
+                }
+
+                if (node.children) {
+                    for (const child of node.children) {
+                        buildNodeMap(child, map, parentMap, nodePath, node.node_id);
+                    }
+                }
+            }
+
+            buildNodeMap(oldTree.root, oldNodes, oldParents);
+            buildNodeMap(newTree.root, newNodes, newParents);
+
+            // Match nodes - FIRST by exact UUID, THEN by semantic signature
+            const oldIds = new Set(oldNodes.keys());
+            const newIds = new Set(newNodes.keys());
+
+            // Phase 1: Exact UUID matches
+            let commonIds = new Set([...oldIds].filter(id => newIds.has(id)));
+            let remainingOld = new Set([...oldIds].filter(id => !newIds.has(id)));
+            let remainingNew = new Set([...newIds].filter(id => !oldIds.has(id)));
+
+            // Phase 2: SEMANTIC MATCHING - match by (name, type, parent_path)
+            const matched = new Map(); // old_id -> new_id mapping
+
+            // Build signature maps for remaining nodes
+            const oldSignatures = new Map();
+            for (const oldId of remainingOld) {
+                const oldData = oldNodes.get(oldId);
+                const parentId = oldParents.get(oldId);
+                const parentPath = parentId ? oldNodes.get(parentId)?.path || '' : '';
+                const sig = `${oldData.node.name}|${oldData.node.node_type}|${parentPath}`;
+                oldSignatures.set(sig, oldId);
+            }
+
+            const newSignatures = new Map();
+            for (const newId of remainingNew) {
+                const newData = newNodes.get(newId);
+                const parentId = newParents.get(newId);
+                const parentPath = parentId ? newNodes.get(parentId)?.path || '' : '';
+                const sig = `${newData.node.name}|${newData.node.node_type}|${parentPath}`;
+                newSignatures.set(sig, newId);
+            }
+
+            // Match by signature
+            for (const [sig, oldId] of oldSignatures.entries()) {
+                if (newSignatures.has(sig)) {
+                    const newId = newSignatures.get(sig);
+                    matched.set(oldId, newId);
+                    remainingOld.delete(oldId);
+                    remainingNew.delete(newId);
+                }
+            }
+
+            // Compute node diffs
+            const nodeDiffs = new Map();
+
+            // Removed nodes (no match found)
+            for (const id of remainingOld) {
+                nodeDiffs.set(id, { type: 'removed', ...oldNodes.get(id) });
+            }
+
+            // Added nodes (no match found)
+            for (const id of remainingNew) {
+                nodeDiffs.set(id, { type: 'added', ...newNodes.get(id) });
+            }
+
+            // Modified/Matched nodes - check both exact UUID matches AND semantic matches
+            for (const id of commonIds) {
+                const oldData = oldNodes.get(id);
+                const newData = newNodes.get(id);
+                const propDiffs = computePropertyDiffs(oldData.node, newData.node);
+
+                if (propDiffs.length > 0) {
+                    nodeDiffs.set(id, {
+                        type: 'modified',
+                        ...newData,
+                        propertyDiffs: propDiffs
+                    });
+                }
+            }
+
+            // Check semantically matched nodes for modifications
+            for (const [oldId, newId] of matched.entries()) {
+                const oldData = oldNodes.get(oldId);
+                const newData = newNodes.get(newId);
+                const propDiffs = computePropertyDiffs(oldData.node, newData.node);
+
+                if (propDiffs.length > 0) {
+                    // Store under NEW id for rendering on new tree side
+                    nodeDiffs.set(newId, {
+                        type: 'modified',
+                        ...newData,
+                        propertyDiffs: propDiffs
+                    });
+                    // Also mark old id as matched (not removed)
+                    nodeDiffs.delete(oldId);
+                }
+            }
+
+            // Compute metadata diffs
+            const metadataChanges = [];
+            if (oldTree.metadata && newTree.metadata) {
+                const oldMeta = oldTree.metadata;
+                const newMeta = newTree.metadata;
+
+                if (oldMeta.version !== newMeta.version) {
+                    metadataChanges.push({
+                        property: 'version',
+                        old: oldMeta.version,
+                        new: newMeta.version
+                    });
+                }
+
+                if (oldMeta.description !== newMeta.description) {
+                    metadataChanges.push({
+                        property: 'description',
+                        old: oldMeta.description,
+                        new: newMeta.description
+                    });
+                }
+
+                if (JSON.stringify(oldMeta.tags) !== JSON.stringify(newMeta.tags)) {
+                    metadataChanges.push({
+                        property: 'tags',
+                        old: oldMeta.tags,
+                        new: newMeta.tags
+                    });
+                }
+            }
+
+            return {
+                nodeDiffs,
+                semanticMatches: matched, // Store semantic matches for rendering
+                summary: {
+                    added: remainingNew.size,
+                    removed: remainingOld.size,
+                    modified: [...nodeDiffs.values()].filter(d => d.type === 'modified').length,
+                    total: oldIds.size
+                },
+                metadataChanges,
+                blackboardChanges: computeBlackboardDiff(oldTree, newTree)
+            };
+        }
+
+        function computePropertyDiffs(oldNode, newNode) {
+            const diffs = [];
+
+            if (oldNode.name !== newNode.name) {
+                diffs.push({
+                    property: 'name',
+                    old: oldNode.name,
+                    new: newNode.name
+                });
+            }
+
+            if (oldNode.node_type !== newNode.node_type) {
+                diffs.push({
+                    property: 'node_type',
+                    old: oldNode.node_type,
+                    new: newNode.node_type
+                });
+            }
+
+            // Config diffs
+            const oldConfig = oldNode.config || {};
+            const newConfig = newNode.config || {};
+
+            for (const key in oldConfig) {
+                if (oldConfig[key] !== newConfig[key]) {
+                    diffs.push({
+                        property: `config.${key}`,
+                        old: oldConfig[key],
+                        new: newConfig[key]
+                    });
+                }
+            }
+
+            for (const key in newConfig) {
+                if (!(key in oldConfig)) {
+                    diffs.push({
+                        property: `config.${key}`,
+                        old: undefined,
+                        new: newConfig[key]
+                    });
+                }
+            }
+
+            return diffs;
+        }
+
+        function computeBlackboardDiff(oldTree, newTree) {
+            const changes = [];
+            const oldBB = oldTree.blackboard_schema || {};
+            const newBB = newTree.blackboard_schema || {};
+
+            const allKeys = new Set([...Object.keys(oldBB), ...Object.keys(newBB)]);
+
+            for (const key of allKeys) {
+                if (!(key in oldBB)) {
+                    changes.push({ variable: key, type: 'added', value: newBB[key] });
+                } else if (!(key in newBB)) {
+                    changes.push({ variable: key, type: 'removed', value: oldBB[key] });
+                } else if (JSON.stringify(oldBB[key]) !== JSON.stringify(newBB[key])) {
+                    changes.push({ variable: key, type: 'modified', old: oldBB[key], new: newBB[key] });
+                }
+            }
+
+            return changes;
+        }
+
+        function renderTreeWithDiff(tree, containerId, diff, side) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            // Check if trees are identical (no diffs)
+            const hasChanges = diff.nodeDiffs.size > 0 ||
+                               diff.metadataChanges.length > 0 ||
+                               diff.blackboardChanges.length > 0;
+
+            if (!hasChanges) {
+                container.innerHTML = '<div class="no-changes">✓ Trees are identical</div>';
+                return;
+            }
+
+            // Build reverse semantic match map (new_id -> old_id) for old side rendering
+            const reverseMatches = new Map();
+            for (const [oldId, newId] of diff.semanticMatches.entries()) {
+                reverseMatches.set(newId, oldId);
+            }
+
+            function renderNode(node, indent = 0) {
+                const nodeId = node.node_id;
+                const diffData = diff.nodeDiffs.get(nodeId);
+                let diffType = 'unchanged';
+
+                // Check if this node is semantically matched
+                let isSemanticMatch = false;
+                if (side === 'old') {
+                    isSemanticMatch = diff.semanticMatches.has(nodeId);
+                } else {
+                    isSemanticMatch = reverseMatches.has(nodeId);
+                }
+
+                // Determine diff type
+                if (diffData) {
+                    if (side === 'old' && diffData.type === 'removed') {
+                        diffType = 'removed';
+                    } else if (side === 'new' && diffData.type === 'added') {
+                        diffType = 'added';
+                    } else if (diffData.type === 'modified') {
+                        diffType = 'modified';
+                    } else if (diffData.type === 'moved') {
+                        diffType = 'moved';
+                    }
+                } else if (isSemanticMatch) {
+                    // Node is semantically matched but has no property diffs
+                    diffType = 'unchanged';
+                }
+
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = `tree-node ${diffType}`;
+                nodeDiv.style.marginLeft = `${indent * 20}px`;
+
+                let html = `
+                    <span class="node-name">${node.name}</span>
+                    <span class="node-type"> (${node.node_type})</span>
+                `;
+
+                if (diffData && diffData.propertyDiffs && diffData.propertyDiffs.length > 0) {
+                    for (const propDiff of diffData.propertyDiffs) {
+                        html += `<div class="property-diff">
+                            ${propDiff.property}: ${JSON.stringify(propDiff.old)} → ${JSON.stringify(propDiff.new)}
+                        </div>`;
+                    }
+                }
+
+                nodeDiv.innerHTML = html;
+                container.appendChild(nodeDiv);
+
+                if (node.children) {
+                    for (const child of node.children) {
+                        renderNode(child, indent + 1);
+                    }
+                }
+            }
+
+            renderNode(tree.root);
+        }
+
+        function renderSummary(diff) {
+            const summaryStats = document.getElementById('summaryStats');
+            summaryStats.innerHTML = `
+                <div class="stat-row">
+                    <span class="stat-label">Added</span>
+                    <span class="stat-value added">${diff.summary.added}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Removed</span>
+                    <span class="stat-value removed">${diff.summary.removed}</span>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label">Modified</span>
+                    <span class="stat-value modified">${diff.summary.modified}</span>
+                </div>
+            `;
+
+            // Metadata changes
+            if (diff.metadataChanges && diff.metadataChanges.length > 0) {
+                document.getElementById('metadataSection').style.display = 'block';
+                const metadataDiv = document.getElementById('metadataChanges');
+                metadataDiv.innerHTML = '';
+
+                for (const change of diff.metadataChanges) {
+                    const changeDiv = document.createElement('div');
+                    changeDiv.className = 'metadata-change';
+                    changeDiv.innerHTML = `
+                        <strong>${change.property}:</strong><br>
+                        ${JSON.stringify(change.old)} → ${JSON.stringify(change.new)}
+                    `;
+                    metadataDiv.appendChild(changeDiv);
+                }
+            }
+
+            // Blackboard changes
+            if (diff.blackboardChanges && diff.blackboardChanges.length > 0) {
+                document.getElementById('blackboardSection').style.display = 'block';
+                const blackboardDiv = document.getElementById('blackboardChanges');
+                blackboardDiv.innerHTML = '';
+
+                for (const change of diff.blackboardChanges) {
+                    const changeDiv = document.createElement('div');
+                    changeDiv.className = `metadata-change`;
+                    let text = '';
+
+                    if (change.type === 'added') {
+                        text = `<strong>${change.variable}:</strong> ADDED (${change.value.type})`;
+                    } else if (change.type === 'removed') {
+                        text = `<strong>${change.variable}:</strong> REMOVED`;
+                    } else {
+                        text = `<strong>${change.variable}:</strong> MODIFIED`;
+                    }
+
+                    changeDiv.innerHTML = text;
+                    blackboardDiv.appendChild(changeDiv);
+                }
+            }
+        }
+
+        function exportDiff() {
+            if (!diffResult) {
+                showStatus('No diff to export', 'error');
+                return;
+            }
+
+            const exportData = {
+                version1: tree1.metadata?.version || 'unknown',
+                version2: tree2.metadata?.version || 'unknown',
+                summary: diffResult.summary,
+                metadataChanges: diffResult.metadataChanges,
+                blackboardChanges: diffResult.blackboardChanges,
+                nodeDiffs: Array.from(diffResult.nodeDiffs.entries()).map(([id, data]) => ({
+                    node_id: id,
+                    type: data.type,
+                    name: data.node.name,
+                    node_type: data.node.node_type,
+                    path: data.path,
+                    propertyDiffs: data.propertyDiffs || []
+                }))
+            };
+
+            const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `diff_${tree1.metadata?.version}_to_${tree2.metadata?.version}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+
+            showStatus('Diff exported successfully!', 'success');
+        }
+
+        function showStatus(message, type) {
+            // For now, just console.log
+            console.log(`[${type}] ${message}`);
+        }
+    </script>
+</body>
+</html>

@@ -8,6 +8,7 @@ from py_forest.api.routers import (
     debug,
     executions,
     history,
+    profiling,
     trees,
     validation,
     visualization,
@@ -41,6 +42,7 @@ app.include_router(websocket.router)
 app.include_router(debug.router)
 app.include_router(visualization.router)
 app.include_router(validation.router)
+app.include_router(profiling.router)
 
 
 @app.get("/")

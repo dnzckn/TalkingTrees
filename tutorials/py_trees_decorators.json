@@ -1,0 +1,197 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "8d160600-1fbc-44db-b60a-64269d061bd0",
+  "metadata": {
+    "name": "Decorator Demo",
+    "version": "1.0.0",
+    "author": null,
+    "created_at": "2025-10-17 02:21:45.510521",
+    "modified_at": "2025-10-17 02:21:45.510525",
+    "description": "Converted from py_trees",
+    "tags": [],
+    "changelog": null,
+    "status": "draft"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "node_id": "4332a537-26cd-4e5a-8047-999376b175b9",
+    "name": "Decorator Demo",
+    "config": {
+      "memory": false,
+      "_py_trees_class": "Sequence"
+    },
+    "ui_metadata": {
+      "position": null,
+      "collapsed": false,
+      "color": null,
+      "icon": null,
+      "notes": null,
+      "breakpoint": false
+    },
+    "children": [
+      {
+        "node_type": "Inverter",
+        "node_id": "78e32fb6-3587-4173-9de9-e49d0a219dfc",
+        "name": "Invert Result",
+        "config": {
+          "_py_trees_class": "Inverter"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "Success",
+            "node_id": "206d71ec-8d29-4f2d-b809-86e859c0466c",
+            "name": "Always Success",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Repeat",
+        "node_id": "25a5459e-9a71-4130-a5f9-cab8f6a31fe9",
+        "name": "Repeat 3 Times",
+        "config": {
+          "num_success": 3,
+          "_py_trees_class": "Repeat"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "Success",
+            "node_id": "123e18e2-3a63-494c-bd03-d34bb469c634",
+            "name": "Task",
+            "config": {
+              "_py_trees_class": "Success"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Retry",
+        "node_id": "6fdf3370-8b1b-40b5-84ed-84d4d23a7801",
+        "name": "Retry 2 Times",
+        "config": {
+          "num_failures": 2,
+          "_py_trees_class": "Retry"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "Failure",
+            "node_id": "faae5679-ce64-4dc9-b1e3-94fda090ba48",
+            "name": "Flaky Task",
+            "config": {
+              "_py_trees_class": "Failure"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Timeout",
+        "node_id": "211b931b-f8d7-402c-9019-93dd63bae85f",
+        "name": "5 Second Timeout",
+        "config": {
+          "duration": 5.0,
+          "_py_trees_class": "Timeout"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [
+          {
+            "node_type": "Running",
+            "node_id": "2d2334c6-edd0-4a60-87ae-d6557feb15f5",
+            "name": "Long Task",
+            "config": {
+              "_py_trees_class": "Running"
+            },
+            "ui_metadata": {
+              "position": null,
+              "collapsed": false,
+              "color": null,
+              "icon": null,
+              "notes": null,
+              "breakpoint": false
+            },
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "blackboard_schema": {},
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}

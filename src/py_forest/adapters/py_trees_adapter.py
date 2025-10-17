@@ -1,0 +1,570 @@
+"""
+py_trees Adapter
+================
+
+Converts between py_trees behavior trees and PyForest format.
+
+This allows you to:
+1. Create trees using py_trees (programmatic Python)
+2. Convert to PyForest format
+3. Visualize in PyForest editor
+4. Save/load as JSON
+5. Run via PyForest SDK or REST API
+
+Example:
+    import py_trees
+    from py_forest.adapters import from_py_trees
+
+    # Create tree with py_trees
+    root = py_trees.composites.Sequence("MySequence", memory=False)
+    root.add_child(py_trees.behaviours.Success("Step1"))
+    root.add_child(py_trees.behaviours.Success("Step2"))
+
+    # Convert to PyForest
+    pf_tree = from_py_trees(root, name="My Tree", version="1.0.0")
+
+    # Now use with PyForest SDK
+    from py_forest.sdk import PyForest
+    pf = PyForest()
+    pf.save_tree(pf_tree, "my_tree.json")
+"""
+
+from typing import Optional, Dict, Any
+from datetime import datetime
+from uuid import UUID, uuid4
+
+from py_forest.models.tree import (
+    TreeDefinition,
+    TreeNodeDefinition,
+    TreeMetadata,
+    BlackboardVariableSchema,
+    TreeDependencies,
+    TreeStatus
+)
+
+
+# =============================================================================
+# Node Type Mapping
+# =============================================================================
+
+# Maps py_trees node types to PyForest node types
+NODE_TYPE_MAP = {
+    # Composites
+    "Sequence": "Sequence",
+    "Selector": "Selector",
+    "Parallel": "Parallel",
+
+    # Decorators
+    "Inverter": "Inverter",
+    "SuccessIsFailure": "Inverter",
+    "FailureIsSuccess": "Inverter",
+    "Repeat": "Repeat",
+    "Retry": "Retry",
+    "Timeout": "Timeout",
+
+    # Behaviors (map to generic types)
+    "Success": "Success",
+    "Failure": "Failure",
+    "Running": "Running",
+    "CheckBlackboardVariable": "CheckBlackboardCondition",
+    "CheckBlackboardVariableExists": "CheckBlackboardCondition",
+    "CheckBlackboardVariableValue": "CheckBlackboardCondition",
+    "SetBlackboardVariable": "SetBlackboardVariable",
+    "UnsetBlackboardVariable": "UnsetBlackboardVariable",
+}
+
+
+def _get_node_type(py_trees_node) -> str:
+    """Determine PyForest node type from py_trees node"""
+    class_name = type(py_trees_node).__name__
+
+    # Check direct mapping
+    if class_name in NODE_TYPE_MAP:
+        return NODE_TYPE_MAP[class_name]
+
+    # Check base classes
+    import py_trees
+    if isinstance(py_trees_node, py_trees.composites.Sequence):
+        return "Sequence"
+    elif isinstance(py_trees_node, py_trees.composites.Selector):
+        return "Selector"
+    elif isinstance(py_trees_node, py_trees.composites.Parallel):
+        return "Parallel"
+    elif isinstance(py_trees_node, py_trees.decorators.Decorator):
+        return "Decorator"
+    elif isinstance(py_trees_node, py_trees.behaviour.Behaviour):
+        # Default behavior nodes to action
+        return "Action"
+
+    # Default fallback
+    return "Action"
+
+
+def _extract_config(py_trees_node) -> Dict[str, Any]:
+    """Extract config from py_trees node to PyForest format"""
+    config = {}
+    class_name = type(py_trees_node).__name__
+    import operator as op_module
+
+    # Blackboard-related behaviors
+    if class_name == "CheckBlackboardVariableValue":
+        # py_trees uses ComparisonExpression via .check attribute
+        if hasattr(py_trees_node, 'check'):
+            check = py_trees_node.check
+            if hasattr(check, 'variable'):
+                config['variable'] = check.variable
+
+            # NOTE: py_trees has .operator and .value swapped!
+            # .operator contains the comparison VALUE
+            # .value contains the operator FUNCTION
+            if hasattr(check, 'operator'):
+                config['value'] = check.operator  # This is actually the comparison value
+
+            if hasattr(check, 'value'):
+                # Convert operator function to string
+                op_func = check.value  # This is actually the operator
+                op_map = {
+                    op_module.gt: ">",
+                    op_module.ge: ">=",
+                    op_module.lt: "<",
+                    op_module.le: "<=",
+                    op_module.eq: "==",
+                    op_module.ne: "!=",
+                }
+                config['operator'] = op_map.get(op_func, "==")
+
+    elif class_name == "CheckBlackboardVariableExists":
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
+
+    elif class_name == "SetBlackboardVariable":
+        # Extract variable name (exposed as both .variable_name and .key)
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
+        elif hasattr(py_trees_node, 'key'):
+            config['variable'] = py_trees_node.key
+
+        # Note: variable_value is NOT exposed by py_trees SetBlackboardVariable
+        # It's stored internally but not accessible. This is intentional encapsulation.
+        # For reverse conversion (PyForest → py_trees), we'll need the value in PyForest config.
+        if hasattr(py_trees_node, 'overwrite'):
+            config['overwrite'] = py_trees_node.overwrite
+
+    elif class_name == "UnsetBlackboardVariable":
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
+
+    # Decorators
+    elif class_name == "Repeat":
+        if hasattr(py_trees_node, 'num_success'):
+            config['num_success'] = py_trees_node.num_success
+
+    elif class_name == "Retry":
+        if hasattr(py_trees_node, 'num_failures'):
+            config['num_failures'] = py_trees_node.num_failures
+
+    elif class_name == "Timeout":
+        if hasattr(py_trees_node, 'duration'):
+            config['duration'] = py_trees_node.duration
+
+    # Composites - check for memory parameter
+    if hasattr(py_trees_node, 'memory'):
+        config['memory'] = py_trees_node.memory
+
+    # Store original class name for reference
+    config['_py_trees_class'] = class_name
+
+    return config
+
+
+def _convert_node(py_trees_node) -> TreeNodeDefinition:
+    """
+    Convert a py_trees node to PyForest TreeNodeDefinition.
+    Recursively processes children.
+    """
+    # Convert children first
+    children = []
+    if hasattr(py_trees_node, 'children'):
+        # Composite nodes have 'children' (list)
+        for child in py_trees_node.children:
+            children.append(_convert_node(child))
+    elif hasattr(py_trees_node, 'child'):
+        # Decorator nodes have 'child' (single node)
+        children.append(_convert_node(py_trees_node.child))
+
+    # Create PyForest node
+    return TreeNodeDefinition(
+        node_type=_get_node_type(py_trees_node),
+        node_id=str(uuid4()),  # Generate new UUID
+        name=py_trees_node.name,
+        config=_extract_config(py_trees_node),
+        children=children
+    )
+
+
+def _collect_blackboard_variables(py_trees_root) -> Dict[str, BlackboardVariableSchema]:
+    """
+    Scan tree for blackboard variable usage and create definitions.
+
+    This is best-effort - we look for common patterns but can't guarantee
+    we'll find all variables.
+    """
+    variables = {}
+
+    def scan_node(node):
+        """Recursively scan for blackboard references"""
+        class_name = type(node).__name__
+
+        # CheckBlackboardVariableValue uses ComparisonExpression
+        if class_name == "CheckBlackboardVariableValue" and hasattr(node, 'check'):
+            check = node.check
+            if hasattr(check, 'variable'):
+                var_name = check.variable
+                if var_name not in variables:
+                    var_type = "string"
+                    default_value = None
+
+                    # Infer type from comparison value (stored in .operator due to py_trees quirk)
+                    if hasattr(check, 'operator'):
+                        val = check.operator  # This is actually the value!
+                        if isinstance(val, bool):
+                            var_type = "bool"
+                        elif isinstance(val, int):
+                            var_type = "int"
+                        elif isinstance(val, float):
+                            var_type = "float"
+                        else:
+                            var_type = "string"
+
+                    variables[var_name] = BlackboardVariableSchema(
+                        type=var_type,
+                        default=default_value
+                    )
+
+        # SetBlackboardVariable - can extract variable name but not value
+        elif class_name == "SetBlackboardVariable":
+            var_name = None
+            if hasattr(node, 'variable_name'):
+                var_name = node.variable_name
+            elif hasattr(node, 'key'):
+                var_name = node.key
+
+            if var_name and var_name not in variables:
+                # Can't determine type without access to value
+                variables[var_name] = BlackboardVariableSchema(
+                    type="string",  # Default assumption
+                    default=None
+                )
+
+        # Legacy: Old py_trees API (for compatibility)
+        elif hasattr(node, 'variable_name'):
+            var_name = node.variable_name
+            if var_name not in variables:
+                var_type = "string"
+                default_value = None
+
+                if hasattr(node, 'variable_value'):
+                    val = node.variable_value
+                    if isinstance(val, bool):
+                        var_type = "bool"
+                        default_value = val
+                    elif isinstance(val, int):
+                        var_type = "int"
+                        default_value = val
+                    elif isinstance(val, float):
+                        var_type = "float"
+                        default_value = val
+                    else:
+                        var_type = "string"
+                        default_value = str(val) if val is not None else None
+
+                if hasattr(node, 'expected_value'):
+                    val = node.expected_value
+                    if isinstance(val, bool):
+                        var_type = "bool"
+                    elif isinstance(val, int):
+                        var_type = "int"
+                    elif isinstance(val, float):
+                        var_type = "float"
+
+                variables[var_name] = BlackboardVariableSchema(
+                    type=var_type,
+                    default=default_value
+                )
+
+        # Recurse to children
+        if hasattr(node, 'children'):
+            # Composite nodes
+            for child in node.children:
+                scan_node(child)
+        elif hasattr(node, 'child'):
+            # Decorator nodes
+            scan_node(node.child)
+
+    scan_node(py_trees_root)
+    return variables
+
+
+def from_py_trees(
+    root,
+    name: str = "Converted Tree",
+    version: str = "1.0.0",
+    description: str = "Converted from py_trees",
+    tree_id: Optional[UUID] = None,
+    auto_detect_blackboard: bool = True
+) -> TreeDefinition:
+    """
+    Convert a py_trees tree to PyForest format.
+
+    Args:
+        root: Root node of py_trees tree
+        name: Name for the PyForest tree
+        version: Version string
+        description: Description of the tree
+        tree_id: Optional tree ID (generated if not provided)
+        auto_detect_blackboard: Automatically scan for blackboard variables
+
+    Returns:
+        TreeDefinition that can be used with PyForest SDK
+
+    Example:
+        >>> import py_trees
+        >>> from py_forest.adapters import from_py_trees
+        >>>
+        >>> # Create py_trees tree
+        >>> root = py_trees.composites.Sequence("Root", memory=False)
+        >>> root.add_child(py_trees.behaviours.Success("Step1"))
+        >>>
+        >>> # Convert to PyForest
+        >>> pf_tree = from_py_trees(root, name="My Tree")
+        >>>
+        >>> # Use with PyForest
+        >>> from py_forest.sdk import PyForest
+        >>> pf = PyForest()
+        >>> pf.save_tree(pf_tree, "tree.json")
+    """
+    # Convert root node recursively
+    pf_root = _convert_node(root)
+
+    # Collect blackboard variables
+    blackboard_schema = {}
+    if auto_detect_blackboard:
+        blackboard_schema = _collect_blackboard_variables(root)
+
+    # Create metadata
+    metadata = TreeMetadata(
+        name=name,
+        version=version,
+        description=description,
+        created_at=datetime.utcnow(),
+        modified_at=datetime.utcnow(),
+        status=TreeStatus.DRAFT
+    )
+
+    # Create tree definition
+    tree = TreeDefinition(
+        tree_id=tree_id or uuid4(),
+        metadata=metadata,
+        root=pf_root,
+        blackboard_schema=blackboard_schema,
+        dependencies=TreeDependencies()
+    )
+
+    return tree
+
+
+def to_py_trees(tree: TreeDefinition):
+    """
+    Convert PyForest tree to py_trees format.
+
+    Args:
+        tree: PyForest TreeDefinition
+
+    Returns:
+        Root node of py_trees tree
+
+    Note:
+        This is a basic implementation that handles common node types.
+        Custom PyForest behaviors may need manual mapping.
+
+    Example:
+        >>> from py_forest.sdk import PyForest
+        >>> from py_forest.adapters import to_py_trees
+        >>>
+        >>> # Load PyForest tree
+        >>> pf = PyForest()
+        >>> tree = pf.load_tree("tree.json")
+        >>>
+        >>> # Convert to py_trees
+        >>> root = to_py_trees(tree)
+        >>>
+        >>> # Use with py_trees
+        >>> import py_trees
+        >>> py_trees.display.print_ascii_tree(root)
+    """
+    import py_trees
+    import operator as op_module
+
+    def create_py_trees_node(pf_node: TreeNodeDefinition):
+        """Create py_trees node from PyForest node"""
+        node_type = pf_node.node_type
+        name = pf_node.name
+        config = pf_node.config or {}
+
+        # Create appropriate py_trees node
+        if node_type == "Sequence":
+            memory = config.get('memory', False)
+            node = py_trees.composites.Sequence(name=name, memory=memory)
+
+        elif node_type == "Selector":
+            memory = config.get('memory', False)
+            node = py_trees.composites.Selector(name=name, memory=memory)
+
+        elif node_type == "Parallel":
+            node = py_trees.composites.Parallel(
+                name=name,
+                policy=py_trees.common.ParallelPolicy.SuccessOnAll()
+            )
+
+        elif node_type == "CheckBlackboardCondition":
+            variable = config.get('variable', 'condition')
+            value = config.get('value', True)
+            op_str = config.get('operator', '==')
+
+            # Map operator string to operator function
+            op_map = {
+                ">": op_module.gt,
+                ">=": op_module.ge,
+                "<": op_module.lt,
+                "<=": op_module.le,
+                "==": op_module.eq,
+                "!=": op_module.ne,
+            }
+            comparison_op = op_map.get(op_str, op_module.eq)
+
+            # Use ComparisonExpression (current py_trees API)
+            from py_trees.common import ComparisonExpression
+            check = ComparisonExpression(variable, comparison_op, value)
+            node = py_trees.behaviours.CheckBlackboardVariableValue(
+                name=name,
+                check=check
+            )
+
+        elif node_type == "SetBlackboardVariable":
+            variable = config.get('variable', 'output')
+            value = config.get('value', None)
+            overwrite = config.get('overwrite', True)  # Default to True for safety
+            node = py_trees.behaviours.SetBlackboardVariable(
+                name=name,
+                variable_name=variable,
+                variable_value=value,
+                overwrite=overwrite
+            )
+
+        elif node_type == "Success":
+            node = py_trees.behaviours.Success(name=name)
+
+        elif node_type == "Failure":
+            node = py_trees.behaviours.Failure(name=name)
+
+        elif node_type == "Running":
+            node = py_trees.behaviours.Running(name=name)
+
+        elif node_type == "Inverter":
+            # Will be wrapped as decorator
+            node = py_trees.decorators.Inverter(
+                name=name,
+                child=py_trees.behaviours.Success("placeholder")
+            )
+
+        else:
+            # Default to success behavior
+            node = py_trees.behaviours.Success(name=name)
+
+        return node
+
+    def build_tree(pf_node: TreeNodeDefinition):
+        """Recursively build py_trees tree"""
+        node_type = pf_node.node_type
+
+        # Handle decorators specially - they need their child at construction time
+        if node_type in ["Inverter", "Repeat", "Retry", "Timeout"]:
+            # Build the child first
+            if pf_node.children:
+                child_pt_node = build_tree(pf_node.children[0])
+            else:
+                # Fallback if no child specified
+                child_pt_node = py_trees.behaviours.Success("placeholder")
+
+            # Now create the decorator with the actual child
+            name = pf_node.name
+            config = pf_node.config or {}
+
+            if node_type == "Inverter":
+                pt_node = py_trees.decorators.Inverter(name=name, child=child_pt_node)
+            elif node_type == "Repeat":
+                num_success = config.get('num_success', 1)
+                pt_node = py_trees.decorators.Repeat(name=name, child=child_pt_node, num_success=num_success)
+            elif node_type == "Retry":
+                num_failures = config.get('num_failures', 1)
+                pt_node = py_trees.decorators.Retry(name=name, child=child_pt_node, num_failures=num_failures)
+            elif node_type == "Timeout":
+                duration = config.get('duration', 1.0)
+                pt_node = py_trees.decorators.Timeout(name=name, child=child_pt_node, duration=duration)
+
+            return pt_node
+
+        # For non-decorators, use normal creation
+        pt_node = create_py_trees_node(pf_node)
+
+        # Add children for composites
+        if hasattr(pt_node, 'children') and pf_node.children:
+            # Composite node - add children
+            for child in pf_node.children:
+                child_pt_node = build_tree(child)
+                pt_node.add_child(child_pt_node)
+
+        return pt_node
+
+    # Build from root
+    root = build_tree(tree.root)
+    return root
+
+
+def print_comparison(py_trees_root, pf_tree: TreeDefinition):
+    """
+    Print side-by-side comparison of py_trees and PyForest trees.
+
+    Useful for debugging conversions.
+    """
+    import py_trees
+
+    print("=" * 70)
+    print("py_trees Tree:")
+    print("=" * 70)
+    print(py_trees.display.ascii_tree(py_trees_root, show_status=True))
+
+    print("\n" + "=" * 70)
+    print("PyForest Tree:")
+    print("=" * 70)
+    print(f"Name: {pf_tree.metadata.name}")
+    print(f"Version: {pf_tree.metadata.version}")
+
+    def count_nodes(node):
+        count = 1
+        for child in node.children:
+            count += count_nodes(child)
+        return count
+
+    total_nodes = count_nodes(pf_tree.root)
+    print(f"Nodes: {total_nodes}")
+    print(f"Blackboard vars: {len(pf_tree.blackboard_schema)}")
+    print()
+
+    def print_tree(node, indent=0):
+        print("  " * indent + f"- {node.name} ({node.node_type})")
+        for child in node.children:
+            print_tree(child, indent + 1)
+
+    print_tree(pf_tree.root)
+    print()

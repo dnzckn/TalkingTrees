@@ -1,0 +1,93 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "1c0fff32-985c-451d-b0eb-bbd70496852b",
+  "metadata": {
+    "name": "Sensor Monitor",
+    "version": "1.0.0",
+    "author": null,
+    "created_at": "2025-10-17 02:21:45.513229",
+    "modified_at": "2025-10-17 02:21:45.513231",
+    "description": "Converted from py_trees",
+    "tags": [],
+    "changelog": null,
+    "status": "draft"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "node_id": "216b614d-83bf-4889-bb15-77ed3aa9517d",
+    "name": "Sensor Monitor",
+    "config": {
+      "memory": false,
+      "_py_trees_class": "Sequence"
+    },
+    "ui_metadata": {
+      "position": null,
+      "collapsed": false,
+      "color": null,
+      "icon": null,
+      "notes": null,
+      "breakpoint": false
+    },
+    "children": [
+      {
+        "node_type": "Action",
+        "node_id": "1b82f0fd-9ffe-47ab-b4c8-f435c724a266",
+        "name": "Temp Check",
+        "config": {
+          "_py_trees_class": "CheckSensorThreshold"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      },
+      {
+        "node_type": "SetBlackboardVariable",
+        "node_id": "dbedc313-cc57-4925-bf37-82b1907886bd",
+        "name": "Activate Cooling",
+        "config": {
+          "variable": "cooling_active",
+          "overwrite": true,
+          "_py_trees_class": "SetBlackboardVariable"
+        },
+        "ui_metadata": {
+          "position": null,
+          "collapsed": false,
+          "color": null,
+          "icon": null,
+          "notes": null,
+          "breakpoint": false
+        },
+        "children": [],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "blackboard_schema": {
+    "cooling_active": {
+      "type": "string",
+      "default": null,
+      "description": null,
+      "min": null,
+      "max": null,
+      "items": null
+    }
+  },
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}
