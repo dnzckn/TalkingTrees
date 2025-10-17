@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "4bed2132-6554-4e31-b06c-94f6883f8ec2",
+  "tree_id": "eae58fc6-1cde-45e7-b466-415aa251b9f8",
   "metadata": {
     "name": "Robot Controller",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-10-17 02:05:02.193421",
-    "modified_at": "2025-10-17 02:05:02.193843",
+    "created_at": "2025-10-17 03:36:12.767938",
+    "modified_at": "2025-10-17 03:36:12.768184",
     "description": "Simple robot controller created with py_trees",
     "tags": [],
     "changelog": null,
@@ -14,7 +14,7 @@
   },
   "root": {
     "node_type": "Selector",
-    "node_id": "ca6a5c5e-9bd8-4a9f-ac3f-89304108cde9",
+    "node_id": "e6007de4-7380-45a1-927a-d0e7cdb466d2",
     "name": "Robot Controller",
     "config": {
       "memory": false,
@@ -31,7 +31,7 @@
     "children": [
       {
         "node_type": "Sequence",
-        "node_id": "cf0fa0bf-72b1-40fe-a628-8b722889fc04",
+        "node_id": "894edfc1-a5cd-422b-8d01-c34e4dd05e89",
         "name": "Emergency Handler",
         "config": {
           "memory": false,
@@ -48,7 +48,7 @@
         "children": [
           {
             "node_type": "Success",
-            "node_id": "1c9614e3-a7d2-42ae-8e38-e82c097f065c",
+            "node_id": "283f9738-557e-4daf-9aff-3fc6deea28b2",
             "name": "Detect Emergency",
             "config": {
               "_py_trees_class": "Success"
@@ -66,7 +66,7 @@
           },
           {
             "node_type": "Success",
-            "node_id": "605168c5-93bc-44f6-ae5b-a286b0035ae1",
+            "node_id": "d28ff2ed-b70f-446f-a10a-862f8787e8cb",
             "name": "Stop Robot",
             "config": {
               "_py_trees_class": "Success"
@@ -84,7 +84,7 @@
           },
           {
             "node_type": "Success",
-            "node_id": "480602a1-b297-4395-a659-3a3394b3e346",
+            "node_id": "308734e5-97a3-4f36-abce-753df89c3d76",
             "name": "Alert Operator",
             "config": {
               "_py_trees_class": "Success"
@@ -105,7 +105,7 @@
       },
       {
         "node_type": "Sequence",
-        "node_id": "17f82faf-ed49-4c3d-b1ab-48147c51b12a",
+        "node_id": "fe0878d3-6d62-4106-a700-d3313490763d",
         "name": "Normal Operation",
         "config": {
           "memory": false,
@@ -122,7 +122,7 @@
         "children": [
           {
             "node_type": "Success",
-            "node_id": "42a932a1-866b-4c8b-8153-d3b03cec0963",
+            "node_id": "384a6ed4-9fcf-4970-93f9-5bda519754a2",
             "name": "Check Systems",
             "config": {
               "_py_trees_class": "Success"
@@ -140,7 +140,7 @@
           },
           {
             "node_type": "Success",
-            "node_id": "f9eb2261-0d0a-4c6a-9b46-d726395b9dc4",
+            "node_id": "120eca77-b427-4c06-82bc-6062950acd87",
             "name": "Execute Task",
             "config": {
               "_py_trees_class": "Success"
@@ -158,7 +158,7 @@
           },
           {
             "node_type": "Success",
-            "node_id": "e3fb390f-d8d8-458a-a87f-bdabd17e9a18",
+            "node_id": "2f4112f4-8311-490b-8bec-c1c70c0a88cb",
             "name": "Report Status",
             "config": {
               "_py_trees_class": "Success"
@@ -179,7 +179,7 @@
       },
       {
         "node_type": "Success",
-        "node_id": "c3ca5c12-1c92-47a5-beea-e8269f941277",
+        "node_id": "d436a16f-3025-4670-b266-11d3dec28e98",
         "name": "Idle Mode",
         "config": {
           "_py_trees_class": "Success"
