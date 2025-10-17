@@ -84,7 +84,7 @@ class TreeSerializer:
                 node_id=node.node_id,
                 name=node.name or subtree.name,
                 config=subtree.config,
-                ui_metadata=node.ui_metadata or subtree.ui_metadata,
+                description=node.description or subtree.description,
                 children=subtree.children,
             )
             node = resolved
@@ -99,7 +99,7 @@ class TreeSerializer:
                 node_id=node.node_id,
                 name=node.name,
                 config=node.config,
-                ui_metadata=node.ui_metadata,
+                description=node.description,
                 children=resolved_children,
             )
 

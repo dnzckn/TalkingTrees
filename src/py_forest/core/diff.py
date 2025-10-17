@@ -376,10 +376,14 @@ class TreeDiffer:
         # Compare config
         diffs.extend(self._diff_dict(old_node.config, new_node.config, "config"))
 
-        # Compare UI metadata
-        old_ui = old_node.ui_metadata.model_dump()
-        new_ui = new_node.ui_metadata.model_dump()
-        diffs.extend(self._diff_dict(old_ui, new_ui, "ui_metadata"))
+        # Compare description if present
+        if old_node.description != new_node.description:
+            diffs.append(PropertyDiff(
+                property_name="description",
+                diff_type=PropertyDiffType.VALUE_CHANGED,
+                old_value=old_node.description,
+                new_value=new_node.description
+            ))
 
         return diffs
 

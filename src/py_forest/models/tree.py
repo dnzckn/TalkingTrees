@@ -17,35 +17,6 @@ class TreeStatus(str, Enum):
     ARCHIVED = "archived"
 
 
-class UIMetadata(BaseModel):
-    """Visual metadata for tree editor support."""
-
-    position: Optional[Dict[str, float]] = Field(
-        default=None,
-        description="Node position in visual editor {x, y}",
-    )
-    collapsed: bool = Field(
-        default=False,
-        description="Whether node is collapsed in editor",
-    )
-    color: Optional[str] = Field(
-        default=None,
-        description="Node color in hex format",
-    )
-    icon: Optional[str] = Field(
-        default=None,
-        description="Icon identifier for visual representation",
-    )
-    notes: Optional[str] = Field(
-        default=None,
-        description="Developer notes visible in editor",
-    )
-    breakpoint: bool = Field(
-        default=False,
-        description="Debug breakpoint flag",
-    )
-
-
 class TreeNodeDefinition(BaseModel):
     """Definition of a single node in a behavior tree.
 
@@ -67,9 +38,9 @@ class TreeNodeDefinition(BaseModel):
         default_factory=dict,
         description="Node-specific configuration parameters",
     )
-    ui_metadata: UIMetadata = Field(
-        default_factory=UIMetadata,
-        description="Visual editor metadata",
+    description: Optional[str] = Field(
+        default=None,
+        description="Optional semantic description/notes for this node",
     )
     children: List["TreeNodeDefinition"] = Field(
         default_factory=list,

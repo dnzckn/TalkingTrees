@@ -44,6 +44,128 @@ from py_forest.models.tree import (
 
 
 # =============================================================================
+# Deterministic UUID Generation
+# =============================================================================
+
+def _generate_deterministic_uuid(
+    node,
+    parent_path: str = "",
+    config_keys: Optional[list] = None
+) -> UUID:
+    """
+    Generate deterministic UUID based on node structure.
+
+    Uses SHA-256 hash of node's identifying characteristics to ensure
+    the same node always gets the same UUID across conversions.
+
+    Args:
+        node: py_trees node
+        parent_path: Path from root (e.g., "Root/Selector/Sequence")
+        config_keys: Optional list of config keys to include in hash
+
+    Returns:
+        Deterministic UUID
+
+    Example:
+        >>> node = py_trees.behaviours.Success("Step1")
+        >>> uuid1 = _generate_deterministic_uuid(node, "Root/Sequence")
+        >>> uuid2 = _generate_deterministic_uuid(node, "Root/Sequence")
+        >>> assert uuid1 == uuid2  # Same UUID!
+    """
+    import hashlib
+
+    # Build path including this node
+    path = f"{parent_path}/{node.name}" if parent_path else node.name
+
+    # Collect identifying characteristics
+    parts = [
+        type(node).__name__,  # Node class
+        node.name,            # Node name
+        path,                 # Full path in tree
+    ]
+
+    # Add memory parameter if present (important for composites)
+    if hasattr(node, 'memory'):
+        parts.append(f"memory={node.memory}")
+
+    # Add key config values for blackboard nodes
+    if hasattr(node, 'variable_name'):
+        parts.append(f"var={node.variable_name}")
+
+    # Add decorator-specific config
+    if hasattr(node, 'duration'):
+        parts.append(f"duration={node.duration}")
+    if hasattr(node, 'num_failures'):
+        parts.append(f"num_failures={node.num_failures}")
+    if hasattr(node, 'num_success'):
+        parts.append(f"num_success={node.num_success}")
+
+    # Add custom config keys if specified
+    if config_keys:
+        for key in config_keys:
+            if hasattr(node, key):
+                parts.append(f"{key}={getattr(node, key)}")
+
+    # Create deterministic string
+    content = '|'.join(str(p) for p in parts)
+
+    # Hash to bytes
+    hash_bytes = hashlib.sha256(content.encode('utf-8')).digest()
+
+    # Use first 16 bytes as UUID
+    return UUID(bytes=hash_bytes[:16])
+
+
+# =============================================================================
+# ComparisonExpression Abstraction
+# =============================================================================
+
+class ComparisonExpressionExtractor:
+    """
+    Safely extract comparison data from py_trees ComparisonExpression.
+
+    Handles py_trees' non-intuitive attribute naming where:
+    - .operator actually contains the comparison VALUE
+    - .value actually contains the operator FUNCTION
+
+    This abstraction layer makes the code clearer and less error-prone.
+    """
+
+    @staticmethod
+    def extract(check) -> dict:
+        """
+        Extract comparison data from py_trees ComparisonExpression.
+
+        Args:
+            check: py_trees ComparisonExpression instance
+
+        Returns:
+            Dict with 'variable', 'comparison_value', 'operator_function'
+        """
+        return {
+            'variable': check.variable,
+            'comparison_value': check.operator,  # Yes, py_trees swaps these!
+            'operator_function': check.value,    # Yes, py_trees swaps these!
+        }
+
+    @staticmethod
+    def create(variable: str, operator_func, value: Any):
+        """
+        Create ComparisonExpression with clear parameter names.
+
+        Args:
+            variable: Blackboard variable name
+            operator_func: Comparison operator (from operator module)
+            value: Value to compare against
+
+        Returns:
+            ComparisonExpression instance
+        """
+        from py_trees.common import ComparisonExpression
+        return ComparisonExpression(variable, operator_func, value)
+
+
+# =============================================================================
 # Node Type Mapping
 # =============================================================================
 
@@ -110,28 +232,23 @@ def _extract_config(py_trees_node) -> Dict[str, Any]:
     if class_name == "CheckBlackboardVariableValue":
         # py_trees uses ComparisonExpression via .check attribute
         if hasattr(py_trees_node, 'check'):
-            check = py_trees_node.check
-            if hasattr(check, 'variable'):
-                config['variable'] = check.variable
+            # Use abstraction layer to safely extract comparison data
+            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
 
-            # NOTE: py_trees has .operator and .value swapped!
-            # .operator contains the comparison VALUE
-            # .value contains the operator FUNCTION
-            if hasattr(check, 'operator'):
-                config['value'] = check.operator  # This is actually the comparison value
+            config['variable'] = extracted['variable']
+            config['value'] = extracted['comparison_value']
 
-            if hasattr(check, 'value'):
-                # Convert operator function to string
-                op_func = check.value  # This is actually the operator
-                op_map = {
-                    op_module.gt: ">",
-                    op_module.ge: ">=",
-                    op_module.lt: "<",
-                    op_module.le: "<=",
-                    op_module.eq: "==",
-                    op_module.ne: "!=",
-                }
-                config['operator'] = op_map.get(op_func, "==")
+            # Convert operator function to string
+            op_func = extracted['operator_function']
+            op_map = {
+                op_module.gt: ">",
+                op_module.ge: ">=",
+                op_module.lt: "<",
+                op_module.le: "<=",
+                op_module.eq: "==",
+                op_module.ne: "!=",
+            }
+            config['operator'] = op_map.get(op_func, "==")
 
     elif class_name == "CheckBlackboardVariableExists":
         if hasattr(py_trees_node, 'variable_name'):
@@ -144,9 +261,30 @@ def _extract_config(py_trees_node) -> Dict[str, Any]:
         elif hasattr(py_trees_node, 'key'):
             config['variable'] = py_trees_node.key
 
-        # Note: variable_value is NOT exposed by py_trees SetBlackboardVariable
-        # It's stored internally but not accessible. This is intentional encapsulation.
-        # For reverse conversion (PyForest → py_trees), we'll need the value in PyForest config.
+        # Extract value using reflection (py_trees stores this privately)
+        # Try multiple approaches to get the value
+        value_extracted = False
+
+        # Approach 1: Try _value attribute (private)
+        if hasattr(py_trees_node, '_value'):
+            config['value'] = py_trees_node._value
+            value_extracted = True
+        # Approach 2: Try variable_value (older API)
+        elif hasattr(py_trees_node, 'variable_value'):
+            config['value'] = py_trees_node.variable_value
+            value_extracted = True
+        # Approach 3: Try to access via __dict__
+        elif '_value' in py_trees_node.__dict__:
+            config['value'] = py_trees_node.__dict__['_value']
+            value_extracted = True
+
+        if not value_extracted:
+            # WARNING: Could not extract value - data will be lost!
+            config['_data_loss_warning'] = (
+                "SetBlackboardVariable value not accessible. "
+                "Round-trip conversion will lose this value."
+            )
+
         if hasattr(py_trees_node, 'overwrite'):
             config['overwrite'] = py_trees_node.overwrite
 
@@ -177,25 +315,46 @@ def _extract_config(py_trees_node) -> Dict[str, Any]:
     return config
 
 
-def _convert_node(py_trees_node) -> TreeNodeDefinition:
+def _convert_node(
+    py_trees_node,
+    parent_path: str = "",
+    use_deterministic_uuids: bool = True
+) -> TreeNodeDefinition:
     """
     Convert a py_trees node to PyForest TreeNodeDefinition.
     Recursively processes children.
+
+    Args:
+        py_trees_node: Node to convert
+        parent_path: Path from root (for deterministic UUIDs)
+        use_deterministic_uuids: If True, generate deterministic UUIDs
+
+    Returns:
+        TreeNodeDefinition with all children converted
     """
+    # Build path for this node
+    current_path = f"{parent_path}/{py_trees_node.name}" if parent_path else py_trees_node.name
+
     # Convert children first
     children = []
     if hasattr(py_trees_node, 'children'):
         # Composite nodes have 'children' (list)
         for child in py_trees_node.children:
-            children.append(_convert_node(child))
+            children.append(_convert_node(child, current_path, use_deterministic_uuids))
     elif hasattr(py_trees_node, 'child'):
         # Decorator nodes have 'child' (single node)
-        children.append(_convert_node(py_trees_node.child))
+        children.append(_convert_node(py_trees_node.child, current_path, use_deterministic_uuids))
+
+    # Generate UUID
+    if use_deterministic_uuids:
+        node_id = _generate_deterministic_uuid(py_trees_node, parent_path)
+    else:
+        node_id = uuid4()
 
     # Create PyForest node
     return TreeNodeDefinition(
         node_type=_get_node_type(py_trees_node),
-        node_id=str(uuid4()),  # Generate new UUID
+        node_id=node_id,
         name=py_trees_node.name,
         config=_extract_config(py_trees_node),
         children=children
@@ -217,29 +376,29 @@ def _collect_blackboard_variables(py_trees_root) -> Dict[str, BlackboardVariable
 
         # CheckBlackboardVariableValue uses ComparisonExpression
         if class_name == "CheckBlackboardVariableValue" and hasattr(node, 'check'):
-            check = node.check
-            if hasattr(check, 'variable'):
-                var_name = check.variable
-                if var_name not in variables:
+            # Use abstraction layer to safely extract comparison data
+            extracted = ComparisonExpressionExtractor.extract(node.check)
+            var_name = extracted['variable']
+
+            if var_name not in variables:
+                var_type = "string"
+                default_value = None
+
+                # Infer type from comparison value
+                val = extracted['comparison_value']
+                if isinstance(val, bool):
+                    var_type = "bool"
+                elif isinstance(val, int):
+                    var_type = "int"
+                elif isinstance(val, float):
+                    var_type = "float"
+                else:
                     var_type = "string"
-                    default_value = None
 
-                    # Infer type from comparison value (stored in .operator due to py_trees quirk)
-                    if hasattr(check, 'operator'):
-                        val = check.operator  # This is actually the value!
-                        if isinstance(val, bool):
-                            var_type = "bool"
-                        elif isinstance(val, int):
-                            var_type = "int"
-                        elif isinstance(val, float):
-                            var_type = "float"
-                        else:
-                            var_type = "string"
-
-                    variables[var_name] = BlackboardVariableSchema(
-                        type=var_type,
-                        default=default_value
-                    )
+                variables[var_name] = BlackboardVariableSchema(
+                    type=var_type,
+                    default=default_value
+                )
 
         # SetBlackboardVariable - can extract variable name but not value
         elif class_name == "SetBlackboardVariable":
@@ -311,7 +470,8 @@ def from_py_trees(
     version: str = "1.0.0",
     description: str = "Converted from py_trees",
     tree_id: Optional[UUID] = None,
-    auto_detect_blackboard: bool = True
+    auto_detect_blackboard: bool = True,
+    use_deterministic_uuids: bool = True
 ) -> TreeDefinition:
     """
     Convert a py_trees tree to PyForest format.
@@ -323,6 +483,8 @@ def from_py_trees(
         description: Description of the tree
         tree_id: Optional tree ID (generated if not provided)
         auto_detect_blackboard: Automatically scan for blackboard variables
+        use_deterministic_uuids: Generate deterministic UUIDs based on node structure
+            (recommended for version control - same tree gets same UUIDs)
 
     Returns:
         TreeDefinition that can be used with PyForest SDK
@@ -335,16 +497,20 @@ def from_py_trees(
         >>> root = py_trees.composites.Sequence("Root", memory=False)
         >>> root.add_child(py_trees.behaviours.Success("Step1"))
         >>>
-        >>> # Convert to PyForest
+        >>> # Convert to PyForest with deterministic UUIDs
         >>> pf_tree = from_py_trees(root, name="My Tree")
         >>>
         >>> # Use with PyForest
         >>> from py_forest.sdk import PyForest
         >>> pf = PyForest()
         >>> pf.save_tree(pf_tree, "tree.json")
+        >>>
+        >>> # Convert again - UUIDs will be the same!
+        >>> pf_tree2 = from_py_trees(root, name="My Tree")
+        >>> assert pf_tree.root.node_id == pf_tree2.root.node_id
     """
     # Convert root node recursively
-    pf_root = _convert_node(root)
+    pf_root = _convert_node(root, parent_path="", use_deterministic_uuids=use_deterministic_uuids)
 
     # Collect blackboard variables
     blackboard_schema = {}

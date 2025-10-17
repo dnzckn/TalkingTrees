@@ -32,6 +32,7 @@ from py_forest.sdk import PyForest
 # STEP 1: Simple Robot Simulator
 # =============================================================================
 
+
 class SimpleRobot:
     """
     A simple robot simulator to demonstrate using behavior trees
@@ -56,7 +57,7 @@ class SimpleRobot:
             "battery_level": self.battery,
             "position_x": self.x,
             "position_y": self.y,
-            "is_charging": 1.0 if self.charging else 0.0
+            "is_charging": 1.0 if self.charging else 0.0,
         }
 
     def execute_action(self, action):
@@ -72,7 +73,7 @@ class SimpleRobot:
 
         elif action == "charge":
             # Charge battery (only at base 0,0)
-            distance_to_base = (self.x**2 + self.y**2)**0.5
+            distance_to_base = (self.x**2 + self.y**2) ** 0.5
             if distance_to_base < 2.0:
                 self.battery = min(100.0, self.battery + 5.0)
                 self.charging = True
@@ -84,7 +85,7 @@ class SimpleRobot:
             # Move towards base
             dx = 0.0 - self.x
             dy = 0.0 - self.y
-            distance = (dx**2 + dy**2)**0.5
+            distance = (dx**2 + dy**2) ** 0.5
             if distance > 0.1:
                 self.x += (dx / distance) * 1.5
                 self.y += (dy / distance) * 1.5
@@ -110,6 +111,7 @@ class SimpleRobot:
 # STEP 2: Create Tree from Pure Python Code (py_trees)
 # =============================================================================
 
+
 def create_tree_from_code():
     """
     APPROACH 1: Create behavior tree entirely from Python code (no visual editor)
@@ -131,20 +133,16 @@ def create_tree_from_code():
     print()
 
     # Root: Selector (try each branch in order)
-    root = py_trees.composites.Selector(
-        name="Robot Controller",
-        memory=False
-    )
+    root = py_trees.composites.Selector(name="Robot Controller", memory=False)
 
     # Branch 1: Emergency Handler (battery critical)
     emergency = py_trees.composites.Sequence("Emergency Handler", memory=False)
 
     # Check if battery is critical (< 5%)
-    critical_check = ComparisonExpression('battery_level', operator.lt, 5.0)
+    critical_check = ComparisonExpression("battery_level", operator.lt, 5.0)
     emergency.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Battery Critical?",
-            check=critical_check
+            name="Battery Critical?", check=critical_check
         )
     )
 
@@ -154,7 +152,7 @@ def create_tree_from_code():
             name="Emergency Stop",
             variable_name="robot_action",
             variable_value="emergency_stop",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -164,11 +162,10 @@ def create_tree_from_code():
     low_battery = py_trees.composites.Sequence("Low Battery Handler", memory=False)
 
     # Check if battery is low (< 20%)
-    low_check = ComparisonExpression('battery_level', operator.lt, 20.0)
+    low_check = ComparisonExpression("battery_level", operator.lt, 20.0)
     low_battery.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Battery Low?",
-            check=low_check
+            name="Battery Low?", check=low_check
         )
     )
 
@@ -178,7 +175,7 @@ def create_tree_from_code():
             name="Command: Charge",
             variable_name="robot_action",
             variable_value="charge",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -189,7 +186,7 @@ def create_tree_from_code():
         name="Command: Patrol",
         variable_name="robot_action",
         variable_value="patrol",
-        overwrite=True
+        overwrite=True,
     )
 
     root.add_child(patrol)
@@ -208,7 +205,7 @@ def create_tree_from_code():
         root,
         name="Robot Controller (Code-Created)",
         version="1.0.0",
-        description="Created entirely from py_trees code"
+        description="Created entirely from py_trees code",
     )
 
     print(f"✓ Converted to PyForest")
@@ -230,6 +227,7 @@ def create_tree_from_code():
 # =============================================================================
 # STEP 3: Load Tree from Visual Editor
 # =============================================================================
+
 
 def load_tree_from_editor():
     """
@@ -289,6 +287,7 @@ def load_tree_from_editor():
 # =============================================================================
 # STEP 3: Use Tree to Control Robot
 # =============================================================================
+
 
 def control_robot_with_tree():
     """
@@ -359,11 +358,13 @@ def control_robot_with_tree():
 
         # 5. Log state
         if tick % log_interval == 0 or robot.battery < 15:
-            print(f"Tick {tick:3d} | "
-                  f"Battery: {robot.battery:5.1f}% | "
-                  f"Pos: ({robot.x:5.1f}, {robot.y:5.1f}) | "
-                  f"Action: {action:20s} | "
-                  f"Status: {robot.status:15s}")
+            print(
+                f"Tick {tick:3d} | "
+                f"Battery: {robot.battery:5.1f}% | "
+                f"Pos: ({robot.x:5.1f}, {robot.y:5.1f}) | "
+                f"Action: {action:20s} | "
+                f"Status: {robot.status:15s}"
+            )
 
         # Check termination
         if robot.battery <= 0:
@@ -392,6 +393,7 @@ def control_robot_with_tree():
 # =============================================================================
 # STEP 4: Understanding the Code from "Copy Python" Button
 # =============================================================================
+
 
 def demonstrate_copy_python_workflow():
     """
@@ -446,6 +448,7 @@ print(f"Action: {result.blackboard.get('/robot_action')}")
 # =============================================================================
 # STEP 5: Complete Example with Different Scenarios
 # =============================================================================
+
 
 def test_scenarios():
     """
@@ -592,10 +595,12 @@ if __name__ == "__main__":
         robot.execute_action(action)
 
         if tick % log_interval == 0 or robot.battery < 15:
-            print(f"Tick {tick:3d} | "
-                  f"Battery: {robot.battery:5.1f}% | "
-                  f"Action: {action:20s} | "
-                  f"Status: {robot.status:15s}")
+            print(
+                f"Tick {tick:3d} | "
+                f"Battery: {robot.battery:5.1f}% | "
+                f"Action: {action:20s} | "
+                f"Status: {robot.status:15s}"
+            )
 
         if robot.battery <= 0:
             print("\n⚠️  BATTERY DEPLETED")
