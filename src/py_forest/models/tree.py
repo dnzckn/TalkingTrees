@@ -69,34 +69,6 @@ class TreeNodeDefinition(BaseModel):
         return v.strip()
 
 
-class BlackboardVariableSchema(BaseModel):
-    """Schema for a blackboard variable."""
-
-    type: str = Field(
-        description="Variable type (float, int, string, array, object)"
-    )
-    default: Any = Field(
-        default=None,
-        description="Default value",
-    )
-    description: Optional[str] = Field(
-        default=None,
-        description="Human-readable description",
-    )
-    min: Optional[float] = Field(
-        default=None,
-        description="Minimum value (for numeric types)",
-    )
-    max: Optional[float] = Field(
-        default=None,
-        description="Maximum value (for numeric types)",
-    )
-    items: Optional[Dict[str, Any]] = Field(
-        default=None,
-        description="Array item schema (for array types)",
-    )
-
-
 class TreeDependencies(BaseModel):
     """Dependencies required by a tree definition."""
 
@@ -196,10 +168,6 @@ class TreeDefinition(BaseModel):
     subtrees: Dict[str, TreeNodeDefinition] = Field(
         default_factory=dict,
         description="Named subtree definitions for reuse",
-    )
-    blackboard_schema: Dict[str, BlackboardVariableSchema] = Field(
-        default_factory=dict,
-        description="Schema for blackboard variables",
     )
     dependencies: TreeDependencies = Field(
         default_factory=TreeDependencies,

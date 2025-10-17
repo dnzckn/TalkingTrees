@@ -68,13 +68,8 @@ def test_blackboard_condition():
     assert condition_node.config['operator'] == '<'
     assert condition_node.config['value'] == 20
 
-    # Check blackboard detection
-    assert 'battery_level' in pf_tree.blackboard_schema
-    assert pf_tree.blackboard_schema['battery_level'].type == 'int'
-
     print(f"✓ Condition config: variable={condition_node.config['variable']}, "
           f"op={condition_node.config['operator']}, value={condition_node.config['value']}")
-    print(f"✓ Blackboard detected: battery_level ({pf_tree.blackboard_schema['battery_level'].type})")
     print("✓ TEST 2 PASSED")
     return pf_tree
 
@@ -160,11 +155,8 @@ def test_complex_tree():
     assert len(pf_tree.root.children) == 2
     assert pf_tree.root.children[0].node_type == "Sequence"
     assert len(pf_tree.root.children[0].children) == 2
-    assert 'error_level' in pf_tree.blackboard_schema
-    assert 'action' in pf_tree.blackboard_schema
 
     print(f"✓ Root: {pf_tree.root.node_type} with {len(pf_tree.root.children)} children")
-    print(f"✓ Blackboard vars: {list(pf_tree.blackboard_schema.keys())}")
     print("✓ TEST 4 PASSED")
     return pf_tree
 

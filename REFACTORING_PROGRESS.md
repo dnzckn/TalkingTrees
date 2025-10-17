@@ -2,7 +2,7 @@
 
 **Date:** 2025-10-17
 **Session:** Major Serializer Refactoring
-**Status:** 91% Complete (10/11 tasks done)
+**Status:** 100% Complete (11/11 tasks done) ✅
 
 ---
 
@@ -305,6 +305,64 @@ applyAbsolutePositions(root, rootX, config.startY, config);
 - ✓ TEST 1: Simple tree - parents centered over children
 - ✓ TEST 2: Nested unbalanced tree - no overlaps
 - ✓ TEST 3: Deep tree - correct vertical spacing
+
+---
+
+### 11. Blackboard Architecture - DEPRECATED ⚠️
+
+**Goal:** Separate tree logic from runtime data (architectural improvement).
+
+**Why:** Trees should describe logic (if/then/else), not embed runtime data schemas. Data should come from external sources (blackboard, database, API).
+
+**Solution:**
+- ✅ Analyzed current usage and architectural issues
+- ✅ Created comprehensive architecture document (BLACKBOARD_ARCHITECTURE.md)
+- ✅ Added deprecation warnings to `blackboard_schema` field
+- ✅ Added deprecation warnings to `auto_detect_blackboard` parameter
+- ✅ Documented migration path and future API design
+- ⏳ Full removal deferred to v2.0 (breaking change)
+
+**Impact:**
+```python
+# CURRENT (Deprecated but still works):
+pf_tree, context = from_py_trees(root, auto_detect_blackboard=True)  # ⚠️  Deprecated
+# → Tree contains blackboard_schema embedded in JSON
+
+# RECOMMENDED (v1.x forward-compatible):
+pf_tree, context = from_py_trees(root, auto_detect_blackboard=False)  # ✅ Preferred
+# → Tree contains only logic, no data schema
+
+# FUTURE (v2.0):
+# blackboard_schema field removed entirely
+# execution = pf.create_execution(tree, data_source=my_blackboard)
+```
+
+**Deprecation Warnings Added:**
+1. `TreeDefinition.blackboard_schema` field marked as deprecated in Pydantic model
+2. `from_py_trees(auto_detect_blackboard=True)` triggers DeprecationWarning
+3. `TreeSerializer._initialize_blackboard()` warns when blackboard_schema is used
+
+**Documentation:**
+- `BLACKBOARD_ARCHITECTURE.md` - Complete architectural analysis
+  - Current problem explanation
+  - Proposed v2.0 design
+  - Migration strategy (3 phases)
+  - Code examples for all approaches
+  - Impact analysis
+
+**Future Work (v2.0):**
+- Remove `blackboard_schema` field from TreeDefinition
+- Remove `auto_detect_blackboard` parameter
+- Add `data_source` parameter to execution API
+- Create data source adapters (DB, API, Redis, etc.)
+
+**Files Changed:**
+- `BLACKBOARD_ARCHITECTURE.md` - New comprehensive architecture document
+- `src/py_forest/models/tree.py` - Added deprecated=True to blackboard_schema field
+- `src/py_forest/core/serializer.py` - Added deprecation warning in _initialize_blackboard()
+- `src/py_forest/adapters/py_trees_adapter.py` - Added deprecation warning to auto_detect_blackboard
+
+**Status:** ✅ Deprecation complete, v2.0 removal planned
 
 ---
 

@@ -235,15 +235,6 @@ def diff_tree_versions(
                     }
                     for pd in diff.metadata_changes
                 ],
-                "blackboard_schema_changes": [
-                    {
-                        "property_name": pd.property_name,
-                        "diff_type": pd.diff_type.value,
-                        "old_value": pd.old_value,
-                        "new_value": pd.new_value,
-                    }
-                    for pd in diff.blackboard_schema_changes
-                ],
             }
 
     except ValueError as e:

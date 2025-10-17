@@ -57,9 +57,6 @@ class TreeSerializer:
         # Create BehaviourTree wrapper
         tree = py_trees.trees.BehaviourTree(root=root_node)
 
-        # Initialize blackboard with schema defaults
-        self._initialize_blackboard(tree_def)
-
         return tree
 
     def _resolve_subtrees(
@@ -324,22 +321,6 @@ class TreeSerializer:
 
         # Also store UUID as attribute on the node for later retrieval
         setattr(node, "_pyforest_uuid", uuid)
-
-    def _initialize_blackboard(self, tree_def: TreeDefinition) -> None:
-        """Initialize blackboard with default values from schema.
-
-        Args:
-            tree_def: Tree definition with blackboard schema
-        """
-        bb = blackboard.Client(name="TreeInitializer")
-
-        for key, schema in tree_def.blackboard_schema.items():
-            # Register key for writing
-            bb.register_key(key=key, access=py_trees.common.Access.WRITE)
-
-            # Set default value if specified
-            if schema.default is not None:
-                bb.set(key, schema.default, overwrite=False)
 
     def get_node_uuid(self, node: behaviour.Behaviour) -> Optional[UUID]:
         """Get the UUID for a py_trees node.

@@ -74,8 +74,7 @@ def test_cycle_detection():
         subtrees={
             "subtree_a": subtree_a,
             "subtree_b": subtree_b
-        },
-        blackboard_schema={}
+        }
     )
 
     # Try to deserialize (should detect cycle)

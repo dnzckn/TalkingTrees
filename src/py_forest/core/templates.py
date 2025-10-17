@@ -68,7 +68,6 @@ class TemplateEngine:
             ),
             root=tree_structure["root"],
             subtrees=tree_structure.get("subtrees", {}),
-            blackboard_schema=tree_structure.get("blackboard_schema", {}),
         )
 
         return tree_def

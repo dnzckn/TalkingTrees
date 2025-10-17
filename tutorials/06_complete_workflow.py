@@ -211,7 +211,6 @@ def create_tree_from_code():
     print(f"✓ Converted to PyForest")
     print(f"  Tree: {tree.metadata.name}")
     print(f"  Version: {tree.metadata.version}")
-    print(f"  Blackboard variables detected: {len(tree.blackboard_schema)}")
     print()
 
     # Optionally save

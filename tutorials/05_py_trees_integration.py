@@ -161,12 +161,6 @@ def example_2_complex_tree():
 
     print(f"\n✓ Converted to PyForest")
     print(f"  Root: {pf_tree.root.node_type}")
-    print(f"  Blackboard vars detected: {len(pf_tree.blackboard_schema)}")
-
-    if pf_tree.blackboard_schema:
-        print("\nAuto-detected Blackboard Variables:")
-        for var_name, var_schema in pf_tree.blackboard_schema.items():
-            print(f"  - {var_name}: {var_schema.type}")
 
     # Save
     pf.save_tree(pf_tree, "tutorials/py_trees_complex.json")
@@ -242,7 +236,6 @@ def example_3_complete_workflow():
 
     print(f"✓ Converted to PyForest TreeDefinition")
     print(f"  Root: {pf_tree.root.name}")
-    print(f"  Blackboard variables: {len(pf_tree.blackboard_schema)}")
 
     # -------------------------------------------------------------------------
     # Step 3: Save to JSON for visualization

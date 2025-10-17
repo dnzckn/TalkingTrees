@@ -37,7 +37,6 @@ from py_forest.models.tree import (
     TreeDefinition,
     TreeNodeDefinition,
     TreeMetadata,
-    BlackboardVariableSchema,
     TreeDependencies,
     TreeStatus
 )
@@ -421,116 +420,12 @@ def _convert_node(
     )
 
 
-def _collect_blackboard_variables(py_trees_root) -> Dict[str, BlackboardVariableSchema]:
-    """
-    Scan tree for blackboard variable usage and create definitions.
-
-    This is best-effort - we look for common patterns but can't guarantee
-    we'll find all variables.
-    """
-    variables = {}
-
-    def scan_node(node):
-        """Recursively scan for blackboard references"""
-        class_name = type(node).__name__
-
-        # CheckBlackboardVariableValue uses ComparisonExpression
-        if class_name == "CheckBlackboardVariableValue" and hasattr(node, 'check'):
-            # Use abstraction layer to safely extract comparison data
-            extracted = ComparisonExpressionExtractor.extract(node.check)
-            var_name = extracted['variable']
-
-            if var_name not in variables:
-                var_type = "string"
-                default_value = None
-
-                # Infer type from comparison value
-                val = extracted['comparison_value']
-                if isinstance(val, bool):
-                    var_type = "bool"
-                elif isinstance(val, int):
-                    var_type = "int"
-                elif isinstance(val, float):
-                    var_type = "float"
-                else:
-                    var_type = "string"
-
-                variables[var_name] = BlackboardVariableSchema(
-                    type=var_type,
-                    default=default_value
-                )
-
-        # SetBlackboardVariable - can extract variable name but not value
-        elif class_name == "SetBlackboardVariable":
-            var_name = None
-            if hasattr(node, 'variable_name'):
-                var_name = node.variable_name
-            elif hasattr(node, 'key'):
-                var_name = node.key
-
-            if var_name and var_name not in variables:
-                # Can't determine type without access to value
-                variables[var_name] = BlackboardVariableSchema(
-                    type="string",  # Default assumption
-                    default=None
-                )
-
-        # Legacy: Old py_trees API (for compatibility)
-        elif hasattr(node, 'variable_name'):
-            var_name = node.variable_name
-            if var_name not in variables:
-                var_type = "string"
-                default_value = None
-
-                if hasattr(node, 'variable_value'):
-                    val = node.variable_value
-                    if isinstance(val, bool):
-                        var_type = "bool"
-                        default_value = val
-                    elif isinstance(val, int):
-                        var_type = "int"
-                        default_value = val
-                    elif isinstance(val, float):
-                        var_type = "float"
-                        default_value = val
-                    else:
-                        var_type = "string"
-                        default_value = str(val) if val is not None else None
-
-                if hasattr(node, 'expected_value'):
-                    val = node.expected_value
-                    if isinstance(val, bool):
-                        var_type = "bool"
-                    elif isinstance(val, int):
-                        var_type = "int"
-                    elif isinstance(val, float):
-                        var_type = "float"
-
-                variables[var_name] = BlackboardVariableSchema(
-                    type=var_type,
-                    default=default_value
-                )
-
-        # Recurse to children
-        if hasattr(node, 'children'):
-            # Composite nodes
-            for child in node.children:
-                scan_node(child)
-        elif hasattr(node, 'child'):
-            # Decorator nodes
-            scan_node(node.child)
-
-    scan_node(py_trees_root)
-    return variables
-
-
 def from_py_trees(
     root,
     name: str = "Converted Tree",
     version: str = "1.0.0",
     description: str = "Converted from py_trees",
     tree_id: Optional[UUID] = None,
-    auto_detect_blackboard: bool = True,
     use_deterministic_uuids: bool = True
 ) -> tuple[TreeDefinition, ConversionContext]:
     """
@@ -542,7 +437,6 @@ def from_py_trees(
         version: Version string
         description: Description of the tree
         tree_id: Optional tree ID (generated if not provided)
-        auto_detect_blackboard: Automatically scan for blackboard variables
         use_deterministic_uuids: Generate deterministic UUIDs based on node structure
             (recommended for version control - same tree gets same UUIDs)
 
@@ -550,6 +444,11 @@ def from_py_trees(
         Tuple of (TreeDefinition, ConversionContext)
         - TreeDefinition: The converted tree
         - ConversionContext: Warnings and issues encountered during conversion
+
+    Note:
+        Trees now contain only logic, not blackboard data schemas.
+        Blackboard variables should be managed separately at execution time.
+        See BLACKBOARD_ARCHITECTURE.md for details.
 
     Example:
         >>> import py_trees
@@ -582,11 +481,6 @@ def from_py_trees(
         context=context
     )
 
-    # Collect blackboard variables
-    blackboard_schema = {}
-    if auto_detect_blackboard:
-        blackboard_schema = _collect_blackboard_variables(root)
-
     # Create metadata
     metadata = TreeMetadata(
         name=name,
@@ -602,7 +496,6 @@ def from_py_trees(
         tree_id=tree_id or uuid4(),
         metadata=metadata,
         root=pf_root,
-        blackboard_schema=blackboard_schema,
         dependencies=TreeDependencies()
     )
 
@@ -794,7 +687,6 @@ def print_comparison(py_trees_root, pf_tree: TreeDefinition):
 
     total_nodes = count_nodes(pf_tree.root)
     print(f"Nodes: {total_nodes}")
-    print(f"Blackboard vars: {len(pf_tree.blackboard_schema)}")
     print()
 
     def print_tree(node, indent=0):

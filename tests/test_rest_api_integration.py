@@ -97,7 +97,6 @@ class TestRESTAPIIntegration:
 
         print(f"✓ Converted to PyForest TreeDefinition")
         print(f"  Name: {tree_def.metadata.name}")
-        print(f"  Blackboard vars: {len(tree_def.blackboard_schema)}")
 
         # IMPORTANT: py_trees doesn't expose variable_value after construction
         # This is a known limitation. We need to add the values manually for testing.

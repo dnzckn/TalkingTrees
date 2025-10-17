@@ -92,7 +92,6 @@ class TreeDiff:
     new_tree_id: UUID
     node_diffs: List[NodeDiff]
     metadata_changes: List[PropertyDiff]
-    blackboard_schema_changes: List[PropertyDiff]
 
     @property
     def has_changes(self) -> bool:
@@ -100,7 +99,6 @@ class TreeDiff:
         return (
             len(self.node_diffs) > 0
             or len(self.metadata_changes) > 0
-            or len(self.blackboard_schema_changes) > 0
         )
 
     @property
@@ -113,7 +111,6 @@ class TreeDiff:
             "moved": 0,
             "unchanged": 0,
             "metadata_changes": len(self.metadata_changes),
-            "blackboard_changes": len(self.blackboard_schema_changes),
         }
 
         for node_diff in self.node_diffs:
@@ -131,7 +128,6 @@ class TreeDiff:
             f"  Modified: {summary['modified']}",
             f"  Moved: {summary['moved']}",
             f"  Metadata changes: {summary['metadata_changes']}",
-            f"  Blackboard changes: {summary['blackboard_changes']}",
         ]
 
         if self.node_diffs:
@@ -257,9 +253,6 @@ class TreeDiffer:
         # Diff metadata
         metadata_changes = self._diff_metadata(old_tree, new_tree)
 
-        # Diff blackboard schema
-        blackboard_changes = self._diff_blackboard_schema(old_tree, new_tree)
-
         return TreeDiff(
             old_version=old_tree.metadata.version,
             new_version=new_tree.metadata.version,
@@ -267,7 +260,6 @@ class TreeDiffer:
             new_tree_id=new_tree.tree_id,
             node_diffs=node_diffs,
             metadata_changes=metadata_changes,
-            blackboard_schema_changes=blackboard_changes,
         )
 
     def _build_node_map(
@@ -449,45 +441,6 @@ class TreeDiffer:
         new_meta = new_tree.metadata.model_dump(exclude={"created_at", "modified_at"})
         return self._diff_dict(old_meta, new_meta, "metadata")
 
-    def _diff_blackboard_schema(
-        self,
-        old_tree: TreeDefinition,
-        new_tree: TreeDefinition,
-    ) -> List[PropertyDiff]:
-        """Compare blackboard schemas."""
-        diffs = []
-
-        old_keys = set(old_tree.blackboard_schema.keys())
-        new_keys = set(new_tree.blackboard_schema.keys())
-
-        # Added variables
-        for key in new_keys - old_keys:
-            schema = new_tree.blackboard_schema[key]
-            diffs.append(PropertyDiff(
-                property_name=f"blackboard.{key}",
-                diff_type=PropertyDiffType.ADDED,
-                new_value=schema.model_dump(),
-            ))
-
-        # Removed variables
-        for key in old_keys - new_keys:
-            schema = old_tree.blackboard_schema[key]
-            diffs.append(PropertyDiff(
-                property_name=f"blackboard.{key}",
-                diff_type=PropertyDiffType.REMOVED,
-                old_value=schema.model_dump(),
-            ))
-
-        # Modified variables
-        for key in old_keys & new_keys:
-            old_schema = old_tree.blackboard_schema[key].model_dump()
-            new_schema = new_tree.blackboard_schema[key].model_dump()
-
-            if old_schema != new_schema:
-                diffs.extend(self._diff_dict(old_schema, new_schema, f"blackboard.{key}"))
-
-        return diffs
-
 
 class TreeMerger:
     """Merges changes from different tree versions."""
@@ -631,19 +584,12 @@ def format_diff_as_text(diff: TreeDiff, verbose: bool = False) -> str:
         f"  Modified:  {summary['modified']:3d} nodes",
         f"  Moved:     {summary['moved']:3d} nodes",
         f"  Metadata:  {summary['metadata_changes']:3d} changes",
-        f"  Blackboard:{summary['blackboard_changes']:3d} changes",
         "",
     ])
 
     if diff.metadata_changes:
         lines.append("METADATA CHANGES:")
         for change in diff.metadata_changes:
-            lines.append(f"  {change}")
-        lines.append("")
-
-    if diff.blackboard_schema_changes:
-        lines.append("BLACKBOARD SCHEMA CHANGES:")
-        for change in diff.blackboard_schema_changes:
             lines.append(f"  {change}")
         lines.append("")
 

@@ -88,7 +88,6 @@ def approach_1_py_trees_roundtrip():
     )
     print(f"✓ Converted to PyForest")
     print(f"  Version: {updated_tree.metadata.version}")
-    print(f"  Blackboard vars: {len(updated_tree.blackboard_schema)}")
 
     # Step 5: Save
     print("\nStep 5: Save to JSON...")
@@ -219,9 +218,6 @@ def approach_3_hybrid():
     print("\nStep 5: Update and save...")
     tree_def.metadata.version = "2.1.0"
     tree_def.metadata.description = "Hybrid edit: maintenance branch + system check"
-
-    # Merge blackboard schemas
-    tree_def.blackboard_schema.update(maintenance_branch.blackboard_schema)
 
     pf.save_tree(tree_def, "examples/robot_hybrid_edit.json")
     print(f"✓ Saved to examples/robot_hybrid_edit.json")

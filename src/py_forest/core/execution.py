@@ -6,7 +6,6 @@ from uuid import UUID, uuid4
 
 import py_trees
 
-from py_forest.core.blackboard_validator import BlackboardValidator, ValidationError
 from py_forest.core.debug import DebugContext
 from py_forest.core.events import EventEmitter
 from py_forest.core.history import ExecutionHistory, InMemoryHistoryStore
@@ -92,9 +91,6 @@ class ExecutionInstance:
         self.profiler = get_profiler(profiling_level) if profiling_level != ProfilingLevel.OFF else None
         if self.profiler:
             self.profiler.start_profiling(str(execution_id), tree_def.tree_id)
-
-        # Blackboard validation
-        self.validator = BlackboardValidator(tree_def.blackboard_schema) if tree_def.blackboard_schema else None
 
     def tick(self, count: int = 1) -> TickResponse:
         """Tick the tree.
@@ -471,14 +467,6 @@ class ExecutionService:
 
         # Apply blackboard updates (sensor inputs) before ticking
         if blackboard_updates:
-            # Validate updates if validator is enabled
-            if instance.validator:
-                for key, value in blackboard_updates.items():
-                    try:
-                        instance.validator.validate(key, value, strict=True)
-                    except ValidationError as e:
-                        raise ValueError(f"Blackboard validation failed: {e}")
-
             bb = py_trees.blackboard.Client(name="ExternalSensor")
             for key, value in blackboard_updates.items():
                 # Register and set key
