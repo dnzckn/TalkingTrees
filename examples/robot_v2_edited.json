@@ -1,21 +1,21 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "063cd1e2-8dba-429d-9f3b-9ae49e15d464",
+  "tree_id": "88a79385-a9e2-4471-b1a7-adc18eaee46a",
   "metadata": {
-    "name": "Advanced Robot Controller",
-    "version": "1.0.0",
+    "name": "Robot Controller (Updated)",
+    "version": "2.0.0",
     "author": null,
-    "created_at": "2025-10-17 05:45:11.704125",
-    "modified_at": "2025-10-17 05:45:11.704129",
-    "description": "Converted from py_trees",
+    "created_at": "2025-10-17 05:45:06.423244",
+    "modified_at": "2025-10-17 05:45:06.423511",
+    "description": "Added emergency stop branch",
     "tags": [],
     "changelog": null,
     "status": "draft"
   },
   "root": {
     "node_type": "Selector",
-    "node_id": "5787eff0-58fe-b820-23f3-69cd123074da",
-    "name": "Main Selector",
+    "node_id": "4eb21a0c-34e4-c194-362c-7b9301816431",
+    "name": "Robot Controller",
     "config": {
       "memory": false,
       "_py_trees_class": "Selector"
@@ -24,8 +24,8 @@
     "children": [
       {
         "node_type": "Sequence",
-        "node_id": "a990f158-ec9f-fe74-cf04-7878a5ac70ef",
-        "name": "Low Battery",
+        "node_id": "a6f9a92e-2632-9dff-57a0-7b00cda9e4df",
+        "name": "Emergency Stop",
         "config": {
           "memory": false,
           "_py_trees_class": "Sequence"
@@ -34,11 +34,52 @@
         "children": [
           {
             "node_type": "CheckBlackboardCondition",
-            "node_id": "38258088-cdf0-28d0-7ce5-8eecb79450ff",
-            "name": "Battery Low?",
+            "node_id": "ff501102-585c-9716-4ba7-4ebf1746de3d",
+            "name": "Critical Error?",
+            "config": {
+              "variable": "critical_error",
+              "value": true,
+              "operator": "==",
+              "_py_trees_class": "CheckBlackboardVariableValue"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "node_id": "f8a03b60-df7d-3ef5-1746-92ec0a253230",
+            "name": "Command: Emergency Stop",
+            "config": {
+              "variable": "robot_action",
+              "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
+              "overwrite": true,
+              "_py_trees_class": "SetBlackboardVariable"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Sequence",
+        "node_id": "e6382366-6534-15ca-8170-6458ccc23b48",
+        "name": "Low Battery Handler",
+        "config": {
+          "memory": true,
+          "_py_trees_class": "Sequence"
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "fd54eb2b-2c53-89dd-ea5f-0b4262993ba5",
+            "name": "Battery Check",
             "config": {
               "variable": "battery_level",
-              "value": 20.0,
+              "value": 20,
               "operator": "<",
               "_py_trees_class": "CheckBlackboardVariableValue"
             },
@@ -48,8 +89,8 @@
           },
           {
             "node_type": "SetBlackboardVariable",
-            "node_id": "c4f48ee5-394b-73d8-2bd6-f703d9b36dfe",
-            "name": "Return to Base",
+            "node_id": "d402648c-a024-1e85-7711-053c540951b6",
+            "name": "Command: Charge",
             "config": {
               "variable": "robot_action",
               "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
@@ -65,22 +106,22 @@
       },
       {
         "node_type": "Sequence",
-        "node_id": "d2b4139d-c988-dc83-70dd-b953b814a026",
-        "name": "Patrol Mode",
+        "node_id": "370fac29-b5ea-d880-9bde-a8c921a429aa",
+        "name": "Object Detection",
         "config": {
-          "memory": false,
+          "memory": true,
           "_py_trees_class": "Sequence"
         },
         "description": null,
         "children": [
           {
             "node_type": "CheckBlackboardCondition",
-            "node_id": "cae77b13-50ee-1fcd-cfb9-99a16a32301e",
-            "name": "Battery OK?",
+            "node_id": "2c9810e4-9bdb-29c8-0aec-7e12e25e6859",
+            "name": "Distance Check",
             "config": {
-              "variable": "battery_level",
-              "value": 50.0,
-              "operator": ">",
+              "variable": "object_distance",
+              "value": 5,
+              "operator": "<",
               "_py_trees_class": "CheckBlackboardVariableValue"
             },
             "description": null,
@@ -89,8 +130,8 @@
           },
           {
             "node_type": "SetBlackboardVariable",
-            "node_id": "7ef5ade2-ef12-868e-a3be-6c6a39b5d6cf",
-            "name": "Set Action",
+            "node_id": "d4f6090c-8f4f-18c8-9721-af4e19068ee1",
+            "name": "Command: Grasp",
             "config": {
               "variable": "robot_action",
               "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
@@ -105,37 +146,17 @@
         "$ref": null
       },
       {
-        "node_type": "Parallel",
-        "node_id": "53d3ef87-d568-1251-e266-79bef61933cc",
-        "name": "Monitor Systems",
+        "node_type": "SetBlackboardVariable",
+        "node_id": "200e3f4c-aa7c-3be7-e7a9-f8fa904dfab4",
+        "name": "Command: Patrol",
         "config": {
-          "_py_trees_class": "Parallel"
+          "variable": "robot_action",
+          "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
+          "overwrite": true,
+          "_py_trees_class": "SetBlackboardVariable"
         },
         "description": null,
-        "children": [
-          {
-            "node_type": "Success",
-            "node_id": "57abb3dd-047a-a18b-4d6d-b3ce6bced138",
-            "name": "Monitor Sensors",
-            "config": {
-              "_py_trees_class": "Success"
-            },
-            "description": null,
-            "children": [],
-            "$ref": null
-          },
-          {
-            "node_type": "Success",
-            "node_id": "ac8671b5-2984-6d33-ccbd-da560aaf06e5",
-            "name": "Monitor Communications",
-            "config": {
-              "_py_trees_class": "Success"
-            },
-            "description": null,
-            "children": [],
-            "$ref": null
-          }
-        ],
+        "children": [],
         "$ref": null
       }
     ],

@@ -1,0 +1,135 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "0f4120b0-7a05-47b2-bae4-9b0efa6a65a7",
+  "metadata": {
+    "name": "Robot Controller",
+    "version": "1.0.0",
+    "author": null,
+    "created_at": "2025-10-17 02:11:15.209681",
+    "modified_at": "2025-10-17 02:11:15.210010",
+    "description": "Basic robot automation",
+    "tags": [
+      "robot",
+      "automation"
+    ],
+    "changelog": null,
+    "status": "active"
+  },
+  "root": {
+    "node_type": "Selector",
+    "node_id": "269544d9-aea3-428b-ab98-eb3e6d1c4345",
+    "name": "Robot Controller",
+    "config": {
+      "memory": false
+    },
+    "description": null,
+    "children": [
+      {
+        "node_type": "Sequence",
+        "node_id": "7d09409e-1bdf-4f3d-8f41-1c1c3fb70f0f",
+        "name": "Low Battery Handler",
+        "config": {
+          "memory": true
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "54350870-0886-4aeb-815b-32c027d9272b",
+            "name": "Battery Check",
+            "config": {
+              "variable": "battery_level",
+              "operator": "<",
+              "value": 20
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "node_id": "47356611-b8d6-4e49-a230-51ec3a4ede0d",
+            "name": "Command: Charge",
+            "config": {
+              "variable": "robot_action",
+              "value": "charge"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "Success",
+            "node_id": "5b522d96-a7c7-4488-84aa-abcf212604fb",
+            "name": "Log Low Battery Event",
+            "config": {},
+            "description": null,
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Sequence",
+        "node_id": "ee2a1397-f2a9-4639-abe1-3d1894b75bdb",
+        "name": "Object Detection",
+        "config": {
+          "memory": true
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "48fd491f-5077-459a-897e-b027eb258183",
+            "name": "Distance Check",
+            "config": {
+              "variable": "object_distance",
+              "operator": "<",
+              "value": 5
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "node_id": "9b10b0eb-fe36-4391-8289-b44203c3b713",
+            "name": "Command: Grasp",
+            "config": {
+              "variable": "robot_action",
+              "value": "grasp"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "SetBlackboardVariable",
+        "node_id": "3de068f3-a6f9-4ed6-aacc-af045f2e4a63",
+        "name": "Command: Patrol",
+        "config": {
+          "variable": "robot_action",
+          "value": "patrol"
+        },
+        "description": null,
+        "children": [],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}
