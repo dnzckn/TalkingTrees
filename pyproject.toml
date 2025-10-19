@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68.0", "wheel"]
+requires = ["setuptools>=80.9.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -7,8 +7,8 @@ name = "py-forest"
 version = "0.1.0"
 description = "Serializable behavior trees with REST API - built on py_trees"
 readme = "README.md"
-requires-python = ">=3.10"
-license = {text = "BSD-3-Clause"}
+requires-python = ">=3.10,<3.11"
+license = {text = "MIT"}
 authors = [
     {name = "PyForest Contributors"}
 ]
@@ -16,56 +16,54 @@ keywords = ["behavior-trees", "ai", "robotics", "automation", "rest-api"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: BSD License",
+    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
-    "Programming Language :: Python :: 3.12",
 ]
 
 dependencies = [
     "py-trees>=2.3.0",
-    "pydantic>=2.5.0",
-    "fastapi>=0.108.0",
-    "uvicorn[standard]>=0.25.0",
-    "python-multipart>=0.0.6",
-    "websockets>=12.0",
-    "pydantic-settings>=2.1.0",
-    "typer[all]>=0.9.0",
-    "rich>=13.7.0",
-    "requests>=2.31.0",
+    "pydantic>=2.12.3",
+    "fastapi>=0.119.0",
+    "uvicorn[standard]>=0.38.0",
+    "python-multipart>=0.0.20",
+    "websockets>=15.0.1",
+    "pydantic-settings>=2.11.0",
+    "typer[all]>=0.19.2",
+    "rich>=14.2.0",
+    "requests>=2.32.5",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.21.0",
-    "pytest-cov>=4.1.0",
-    "black>=23.12.0",
-    "ruff>=0.1.9",
-    "mypy>=1.8.0",
-    "httpx>=0.25.0",
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.2.0",
+    "pytest-cov>=7.0.0",
+    "black>=25.9.0",
+    "ruff>=0.14.1",
+    "mypy>=1.18.2",
+    "httpx>=0.28.1",
 ]
 viz = [
-    "graphviz>=0.20.0",
-    "pyyaml>=6.0",
+    "graphviz>=0.21",
+    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
 pyforest = "py_forest.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/yourusername/py_forest"
+Homepage = "https://github.com/dnzckn/py_forest"
 Documentation = "https://py-forest.readthedocs.io"
-Repository = "https://github.com/yourusername/py_forest"
-Issues = "https://github.com/yourusername/py_forest/issues"
+Repository = "https://github.com/dnzckn/py_forest"
+Issues = "https://github.com/dnzckn/py_forest/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py310']
 include = '\.pyi?$'
 
 [tool.ruff]
