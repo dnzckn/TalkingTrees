@@ -1,8 +1,8 @@
 #!/bin/bash
-# Launch the PyForest Tree Editor Pro with API server
+# Launch the PyForest Tree Editor with API server
 
 echo "======================================="
-echo "PyForest Tree Editor Pro Launcher"
+echo "PyForest Tree Editor Launcher"
 echo "======================================="
 echo ""
 
@@ -33,12 +33,12 @@ else
 fi
 
 echo ""
-echo "Opening Tree Editor Pro in browser..."
+echo "Opening Tree Editor in browser..."
 echo ""
 
 # Get the full path to the HTML file
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-EDITOR_PATH="$SCRIPT_DIR/visualization/tree_editor_pro.html"
+EDITOR_PATH="$SCRIPT_DIR/../visualization/tree_editor.html"
 
 # Open in default browser
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -53,7 +53,7 @@ else
 fi
 
 echo "======================================="
-echo "Tree Editor Pro is now open!"
+echo "Tree Editor is now open!"
 echo "======================================="
 echo ""
 echo "Features:"

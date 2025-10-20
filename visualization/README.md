@@ -4,7 +4,7 @@ This directory contains visual behavior tree editors for PyForest.
 
 ## Files
 
-### tree_editor_pro.html (RECOMMENDED)
+### tree_editor.html
 The professional-grade behavior tree editor with complete feature set.
 
 **Features:**
@@ -27,11 +27,11 @@ The professional-grade behavior tree editor with complete feature set.
 **Usage:**
 ```bash
 # Open in browser
-open tree_editor_pro.html
+open tree_editor.html
 
 # Or via HTTP server
 python -m http.server 8080
-# Then visit: http://localhost:8080/tree_editor_pro.html
+# Then visit: http://localhost:8080/tree_editor.html
 ```
 
 **Quick Start:**
@@ -52,9 +52,6 @@ python -m http.server 8080
 - `Ctrl+V`: Validate
 - `+/-`: Zoom
 - `Delete`: Delete node
-
-### tree_editor.html (Legacy)
-The original editor - simpler but functional. Use tree_editor_pro.html instead.
 
 ## Documentation
 
@@ -137,7 +134,7 @@ Tested on:
 
 To modify the editor:
 
-1. **Edit tree_editor_pro.html** directly
+1. **Edit tree_editor.html** directly
 2. **Reload browser** to see changes
 3. **Check console** for errors (F12)
 

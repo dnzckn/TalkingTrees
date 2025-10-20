@@ -13,7 +13,7 @@ PyForest provides bidirectional JSON serialization for [py_trees](https://github
 - **Complete Reversibility** - Perfect round-trip: `py_trees ↔ JSON ↔ py_trees`
 - **40 Node Types** - All composites, decorators, and behaviors from py_trees 2.3+
 - **FastAPI Integration** - Optional REST API with 47 endpoints for tree management
-- **Visual Editor** - Browser-based drag-and-drop tree editor
+- **PyForest Tree Editor** - Professional browser-based drag-and-drop tree editor
 - **Zero Data Loss** - All parameters, configurations, and tree structure preserved
 
 ## Quick Start
@@ -92,7 +92,11 @@ requests.post(f"http://localhost:8000/executions/{execution_id}/tick", json={"co
 ./scripts/run_editor.sh
 ```
 
-Opens a browser-based visual editor at `http://localhost:8000`
+<p align="center">
+  <img src="images/visualizer_screenshot.png" alt="PyForest Tree Editor" width="800"/>
+</p>
+
+Opens the **PyForest Tree Editor** at `http://localhost:8000` - a professional drag-and-drop interface for creating and editing behavior trees with real-time visualization, node property editing, and automatic layout.
 
 ## Supported Node Types (40)
 
