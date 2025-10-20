@@ -1240,6 +1240,7 @@
                     e.preventDefault();
                     isPanning = true;
                     isDragging = false; // Ensure dragging is off
+                    minimap.style.pointerEvents = 'auto'; // Re-enable minimap
                     panStart = { x: e.clientX - viewportX, y: e.clientY - viewportY };
                     canvas.style.cursor = 'grabbing';
                     return;
@@ -1262,6 +1263,7 @@
                         mouseDownPos = { x: 0, y: 0 };
                         hasMovedMouse = false;
                         canvas.style.cursor = 'default';
+                        minimap.style.pointerEvents = 'auto'; // Re-enable minimap
                         saveHistory();
                         render();
                         updateStatus(`${clickedNode.collapsed ? 'Collapsed' : 'Expanded'} ${clickedNode.name}`);
@@ -1359,6 +1361,8 @@
                         hasMovedMouse = true;
                         isDragging = true;
                         canvas.style.cursor = 'grabbing';
+                        // Disable minimap pointer events during drag
+                        minimap.style.pointerEvents = 'none';
                     }
                 }
 
@@ -1418,6 +1422,8 @@
                 mouseDownPos = {x: 0, y: 0};
                 dragTargetNode = null;
                 canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+                // Re-enable minimap pointer events
+                minimap.style.pointerEvents = 'auto';
                 render();
             });
 
@@ -1438,6 +1444,8 @@
                     mouseDownPos = {x: 0, y: 0};
                     dragTargetNode = null;
                     canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+                    // Re-enable minimap pointer events
+                    minimap.style.pointerEvents = 'auto';
                     render();
                 }
             });
@@ -1452,6 +1460,8 @@
                 mouseDownPos = {x: 0, y: 0};
                 dragTargetNode = null;
                 canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+                // Re-enable minimap pointer events
+                minimap.style.pointerEvents = 'auto';
 
                 showContextMenu(e.clientX, e.clientY);
             });

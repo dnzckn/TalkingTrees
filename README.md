@@ -235,7 +235,9 @@ py_forest/
 
 ## License
 
-BSD-3-Clause (same as py_trees)
+MIT License - Copyright (c) 2025 Deniz N. Cakan
+
+See [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
