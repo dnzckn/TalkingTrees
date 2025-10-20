@@ -235,7 +235,7 @@ See [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-Built on [py_trees](https://github.com/splintered-reality/py_trees) by Daniel Stonier.
+Built on [py_trees](https://github.com/splintered-reality/py_trees) 
 
 ## Links
 
