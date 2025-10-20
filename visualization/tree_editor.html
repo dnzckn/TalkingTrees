@@ -1299,6 +1299,18 @@
 
                 // Regular node interaction (not in connect mode)
                 if (clickedNode && !connectMode) {
+                    // If already dragging, clicking should STOP the drag, not start a new one
+                    if (isDragging) {
+                        isDragging = false;
+                        hasMovedMouse = false;
+                        mouseDownPos = { x: 0, y: 0 };
+                        dragTargetNode = null;
+                        canvas.style.cursor = 'default';
+                        minimap.style.pointerEvents = 'auto';
+                        render();
+                        return;
+                    }
+
                     // Support multi-select with Shift+Click
                     selectNode(clickedNode, e.shiftKey);
 
@@ -1310,6 +1322,18 @@
                         dragOffset = { x: x - clickedNode.x, y: y - clickedNode.y };
                     }
                 } else if (!connectMode) {
+                    // If already dragging, clicking empty space should STOP the drag
+                    if (isDragging) {
+                        isDragging = false;
+                        hasMovedMouse = false;
+                        mouseDownPos = { x: 0, y: 0 };
+                        dragTargetNode = null;
+                        canvas.style.cursor = 'default';
+                        minimap.style.pointerEvents = 'auto';
+                        render();
+                        return;
+                    }
+
                     // Clicked empty space - clear all selections
                     selectedNode = null;
                     selectedNodes.clear();
