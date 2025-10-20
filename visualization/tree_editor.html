@@ -1429,23 +1429,32 @@
 
             // Global mouseup to catch releases outside canvas
             document.addEventListener('mouseup', (e) => {
-                if (isDragging || isPanning || hasMovedMouse) {
-                    if (isDragging && selectedNode) {
-                        // Check if dropping on a valid connection target
-                        if (dragTargetNode) {
-                            connectNodes(dragTargetNode, selectedNode);
-                            updateStatus(`✓ Connected ${selectedNode.name} to ${dragTargetNode.name}`);
-                        }
-                        saveHistory();
+                // Check if we need to render (before clearing states)
+                const needsRender = isDragging || isPanning || hasMovedMouse || dragTargetNode;
+
+                // Handle drag completion if we were dragging
+                if (isDragging && selectedNode) {
+                    // Check if dropping on a valid connection target
+                    if (dragTargetNode) {
+                        connectNodes(dragTargetNode, selectedNode);
+                        updateStatus(`✓ Connected ${selectedNode.name} to ${dragTargetNode.name}`);
                     }
-                    isDragging = false;
-                    isPanning = false;
-                    hasMovedMouse = false;
-                    mouseDownPos = {x: 0, y: 0};
-                    dragTargetNode = null;
-                    canvas.style.cursor = connectMode ? 'crosshair' : 'default';
-                    // Re-enable minimap pointer events
-                    minimap.style.pointerEvents = 'auto';
+                    saveHistory();
+                }
+
+                // ALWAYS clear all dragging/panning states on any mouseup
+                // This prevents stuck drag states when clicking without moving
+                isDragging = false;
+                isPanning = false;
+                hasMovedMouse = false;
+                mouseDownPos = {x: 0, y: 0};
+                dragTargetNode = null;
+                canvas.style.cursor = connectMode ? 'crosshair' : 'default';
+                // Re-enable minimap pointer events
+                minimap.style.pointerEvents = 'auto';
+
+                // Only render if we were actually in a drag/pan state
+                if (needsRender) {
                     render();
                 }
             });
