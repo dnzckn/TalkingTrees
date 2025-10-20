@@ -220,23 +220,57 @@ NODE_TYPE_MAP = {
     "Selector": "Selector",
     "Parallel": "Parallel",
 
-    # Decorators
+    # Decorators - Status Converters
     "Inverter": "Inverter",
-    "SuccessIsFailure": "Inverter",
-    "FailureIsSuccess": "Inverter",
+    "SuccessIsFailure": "SuccessIsFailure",
+    "FailureIsSuccess": "FailureIsSuccess",
+    "FailureIsRunning": "FailureIsRunning",
+    "RunningIsFailure": "RunningIsFailure",
+    "RunningIsSuccess": "RunningIsSuccess",
+    "SuccessIsRunning": "SuccessIsRunning",
+
+    # Decorators - Repetition
     "Repeat": "Repeat",
     "Retry": "Retry",
+    "OneShot": "OneShot",
+
+    # Decorators - Time-based
     "Timeout": "Timeout",
 
-    # Behaviors (map to generic types)
+    # Decorators - Advanced
+    "EternalGuard": "EternalGuard",
+    "Condition": "Condition",
+    "Count": "Count",
+    "StatusToBlackboard": "StatusToBlackboard",
+    "PassThrough": "PassThrough",
+
+    # Basic Behaviors
     "Success": "Success",
     "Failure": "Failure",
     "Running": "Running",
+    "Dummy": "Dummy",
+
+    # Time-based Behaviors
+    "TickCounter": "TickCounter",
+    "Periodic": "Periodic",
+    "SuccessEveryN": "SuccessEveryN",
+    "StatusQueue": "StatusQueue",
+
+    # Blackboard Behaviors - Non-blocking
     "CheckBlackboardVariable": "CheckBlackboardCondition",
-    "CheckBlackboardVariableExists": "CheckBlackboardCondition",
+    "CheckBlackboardVariableExists": "CheckBlackboardVariableExists",
     "CheckBlackboardVariableValue": "CheckBlackboardCondition",
+    "CheckBlackboardVariableValues": "CheckBlackboardVariableValues",
     "SetBlackboardVariable": "SetBlackboardVariable",
     "UnsetBlackboardVariable": "UnsetBlackboardVariable",
+    "BlackboardToStatus": "BlackboardToStatus",
+
+    # Blackboard Behaviors - Blocking
+    "WaitForBlackboardVariable": "WaitForBlackboardVariable",
+    "WaitForBlackboardVariableValue": "WaitForBlackboardVariableValue",
+
+    # Probabilistic
+    "ProbabilisticBehaviour": "ProbabilisticBehaviour",
 }
 
 
@@ -319,16 +353,32 @@ def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) 
         # Try multiple approaches to get the value
         value_extracted = False
 
-        # Approach 1: Try _value attribute (private)
-        if hasattr(py_trees_node, '_value'):
+        # Approach 1 (NEW): Try variable_value_generator (py_trees 2.3+)
+        # This is the primary storage mechanism in modern py_trees
+        if hasattr(py_trees_node, 'variable_value_generator') and callable(py_trees_node.variable_value_generator):
+            try:
+                config['value'] = py_trees_node.variable_value_generator()
+                value_extracted = True
+            except Exception:
+                # Fallback: Try to extract from lambda closure
+                try:
+                    closure = py_trees_node.variable_value_generator.__closure__
+                    if closure and len(closure) > 0:
+                        config['value'] = closure[0].cell_contents
+                        value_extracted = True
+                except Exception:
+                    pass
+
+        # Approach 2: Try _value attribute (private, older versions)
+        if not value_extracted and hasattr(py_trees_node, '_value'):
             config['value'] = py_trees_node._value
             value_extracted = True
-        # Approach 2: Try variable_value (older API)
-        elif hasattr(py_trees_node, 'variable_value'):
+        # Approach 3: Try variable_value (older API)
+        elif not value_extracted and hasattr(py_trees_node, 'variable_value'):
             config['value'] = py_trees_node.variable_value
             value_extracted = True
-        # Approach 3: Try to access via __dict__
-        elif '_value' in py_trees_node.__dict__:
+        # Approach 4: Try to access via __dict__
+        elif not value_extracted and '_value' in py_trees_node.__dict__:
             config['value'] = py_trees_node.__dict__['_value']
             value_extracted = True
 
@@ -348,8 +398,86 @@ def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) 
     elif class_name == "UnsetBlackboardVariable":
         if hasattr(py_trees_node, 'variable_name'):
             config['variable'] = py_trees_node.variable_name
+        elif hasattr(py_trees_node, 'key'):
+            config['variable'] = py_trees_node.key
 
-    # Decorators
+    # Blackboard - Wait behaviors (blocking)
+    elif class_name == "WaitForBlackboardVariable":
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
+
+    elif class_name == "WaitForBlackboardVariableValue":
+        if hasattr(py_trees_node, 'check'):
+            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
+            config['variable'] = extracted['variable']
+            config['value'] = extracted['comparison_value']
+            op_func = extracted['operator_function']
+            op_map = {
+                op_module.gt: ">",
+                op_module.ge: ">=",
+                op_module.lt: "<",
+                op_module.le: "<=",
+                op_module.eq: "==",
+                op_module.ne: "!=",
+            }
+            config['operator'] = op_map.get(op_func, "==")
+
+    # Blackboard - Multiple conditions
+    elif class_name == "CheckBlackboardVariableValues":
+        # This node takes multiple ComparisonExpression checks
+        if hasattr(py_trees_node, 'checks'):
+            checks_list = []
+            for check in py_trees_node.checks:
+                extracted = ComparisonExpressionExtractor.extract(check)
+                op_func = extracted['operator_function']
+                op_map = {
+                    op_module.gt: ">",
+                    op_module.ge: ">=",
+                    op_module.lt: "<",
+                    op_module.le: "<=",
+                    op_module.eq: "==",
+                    op_module.ne: "!=",
+                }
+                checks_list.append({
+                    'variable': extracted['variable'],
+                    'operator': op_map.get(op_func, "=="),
+                    'value': extracted['comparison_value']
+                })
+            config['checks'] = checks_list
+        if hasattr(py_trees_node, 'logical_operator'):
+            config['logical_operator'] = str(py_trees_node.logical_operator)
+
+    elif class_name == "BlackboardToStatus":
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
+
+    # Time-based Behaviors
+    elif class_name == "TickCounter":
+        if hasattr(py_trees_node, 'num_ticks'):
+            config['num_ticks'] = py_trees_node.num_ticks
+        if hasattr(py_trees_node, 'final_status'):
+            config['final_status'] = str(py_trees_node.final_status)
+
+    elif class_name == "SuccessEveryN":
+        if hasattr(py_trees_node, 'n'):
+            config['n'] = py_trees_node.n
+
+    elif class_name == "Periodic":
+        if hasattr(py_trees_node, 'n'):
+            config['n'] = py_trees_node.n
+
+    elif class_name == "StatusQueue":
+        if hasattr(py_trees_node, 'queue'):
+            config['queue'] = [str(status) for status in py_trees_node.queue]
+        if hasattr(py_trees_node, 'eventually'):
+            config['eventually'] = str(py_trees_node.eventually)
+
+    # Probabilistic
+    elif class_name == "ProbabilisticBehaviour":
+        if hasattr(py_trees_node, 'weights'):
+            config['weights'] = py_trees_node.weights
+
+    # Decorators - Repetition
     elif class_name == "Repeat":
         if hasattr(py_trees_node, 'num_success'):
             config['num_success'] = py_trees_node.num_success
@@ -358,9 +486,55 @@ def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) 
         if hasattr(py_trees_node, 'num_failures'):
             config['num_failures'] = py_trees_node.num_failures
 
+    elif class_name == "OneShot":
+        if hasattr(py_trees_node, 'policy'):
+            config['policy'] = str(py_trees_node.policy)
+
+    # Decorators - Time-based
     elif class_name == "Timeout":
         if hasattr(py_trees_node, 'duration'):
             config['duration'] = py_trees_node.duration
+
+    # Decorators - Advanced
+    elif class_name == "EternalGuard":
+        if hasattr(py_trees_node, 'check'):
+            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
+            config['variable'] = extracted['variable']
+            config['value'] = extracted['comparison_value']
+            op_func = extracted['operator_function']
+            op_map = {
+                op_module.gt: ">",
+                op_module.ge: ">=",
+                op_module.lt: "<",
+                op_module.le: "<=",
+                op_module.eq: "==",
+                op_module.ne: "!=",
+            }
+            config['operator'] = op_map.get(op_func, "==")
+
+    elif class_name == "Condition":
+        if hasattr(py_trees_node, 'check'):
+            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
+            config['variable'] = extracted['variable']
+            config['value'] = extracted['comparison_value']
+            op_func = extracted['operator_function']
+            op_map = {
+                op_module.gt: ">",
+                op_module.ge: ">=",
+                op_module.lt: "<",
+                op_module.le: "<=",
+                op_module.eq: "==",
+                op_module.ne: "!=",
+            }
+            config['operator'] = op_map.get(op_func, "==")
+
+    elif class_name == "ForEach":
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
+
+    elif class_name == "StatusToBlackboard":
+        if hasattr(py_trees_node, 'variable_name'):
+            config['variable'] = py_trees_node.variable_name
 
     # Composites - check for memory parameter
     if hasattr(py_trees_node, 'memory'):
@@ -599,9 +773,152 @@ def to_py_trees(tree: TreeDefinition):
         elif node_type == "Running":
             node = py_trees.behaviours.Running(name=name)
 
+        elif node_type == "Dummy":
+            node = py_trees.behaviours.Dummy(name=name)
+
+        # Blackboard operations - non-blocking
+        elif node_type == "CheckBlackboardVariableExists":
+            variable = config.get('variable', 'var')
+            node = py_trees.behaviours.CheckBlackboardVariableExists(
+                name=name,
+                variable_name=variable
+            )
+
+        elif node_type == "UnsetBlackboardVariable":
+            variable = config.get('variable', 'var')
+            node = py_trees.behaviours.UnsetBlackboardVariable(
+                name=name,
+                key=variable
+            )
+
+        elif node_type == "CheckBlackboardVariableValues":
+            checks_list = config.get('checks', [])
+            logical_op_str = config.get('logical_operator', 'and')
+            # Convert back to ComparisonExpression objects
+            checks = []
+            for check_config in checks_list:
+                op_str = check_config.get('operator', '==')
+                op_map = {
+                    ">": op_module.gt,
+                    ">=": op_module.ge,
+                    "<": op_module.lt,
+                    "<=": op_module.le,
+                    "==": op_module.eq,
+                    "!=": op_module.ne,
+                }
+                comparison_op = op_map.get(op_str, op_module.eq)
+                from py_trees.common import ComparisonExpression
+                checks.append(ComparisonExpression(
+                    check_config['variable'],
+                    comparison_op,
+                    check_config['value']
+                ))
+            # Map logical operator string to actual operator
+            import operator
+            logical_op = operator.and_ if 'and' in logical_op_str.lower() else operator.or_
+            node = py_trees.behaviours.CheckBlackboardVariableValues(
+                name=name,
+                checks=checks,
+                logical_operator=logical_op
+            )
+
+        elif node_type == "BlackboardToStatus":
+            variable = config.get('variable', 'status')
+            node = py_trees.behaviours.BlackboardToStatus(
+                name=name,
+                variable_name=variable
+            )
+
+        # Blackboard operations - blocking
+        elif node_type == "WaitForBlackboardVariable":
+            variable = config.get('variable', 'var')
+            node = py_trees.behaviours.WaitForBlackboardVariable(
+                name=name,
+                variable_name=variable
+            )
+
+        elif node_type == "WaitForBlackboardVariableValue":
+            variable = config.get('variable', 'var')
+            value = config.get('value', True)
+            op_str = config.get('operator', '==')
+            op_map = {
+                ">": op_module.gt,
+                ">=": op_module.ge,
+                "<": op_module.lt,
+                "<=": op_module.le,
+                "==": op_module.eq,
+                "!=": op_module.ne,
+            }
+            comparison_op = op_map.get(op_str, op_module.eq)
+            from py_trees.common import ComparisonExpression
+            check = ComparisonExpression(variable, comparison_op, value)
+            node = py_trees.behaviours.WaitForBlackboardVariableValue(
+                name=name,
+                check=check
+            )
+
+        # Time-based behaviors
+        elif node_type == "TickCounter":
+            num_ticks = config.get('num_ticks', 1)
+            final_status_str = config.get('final_status', 'SUCCESS')
+            # Convert string to Status
+            from py_trees.common import Status
+            final_status = getattr(Status, final_status_str, Status.SUCCESS)
+            node = py_trees.behaviours.TickCounter(
+                name=name,
+                num_ticks=num_ticks,
+                final_status=final_status
+            )
+
+        elif node_type == "SuccessEveryN":
+            n = config.get('n', 2)
+            node = py_trees.behaviours.SuccessEveryN(
+                name=name,
+                n=n
+            )
+
+        elif node_type == "Periodic":
+            n = config.get('n', 3)
+            node = py_trees.behaviours.Periodic(
+                name=name,
+                n=n
+            )
+
+        elif node_type == "StatusQueue":
+            queue_strs = config.get('queue', ['SUCCESS'])
+            from py_trees.common import Status
+            queue = [getattr(Status, s, Status.SUCCESS) for s in queue_strs]
+            eventually_str = config.get('eventually', None)
+            eventually = getattr(Status, eventually_str, None) if eventually_str else None
+            node = py_trees.behaviours.StatusQueue(
+                name=name,
+                queue=queue,
+                eventually=eventually
+            )
+
+        # Probabilistic
+        elif node_type == "ProbabilisticBehaviour":
+            weights = config.get('weights', [1.0, 1.0, 1.0])
+            # Ensure weights is a 3-element list
+            if not isinstance(weights, list) or len(weights) != 3:
+                weights = [1.0, 1.0, 1.0]
+            node = py_trees.behaviours.ProbabilisticBehaviour(
+                name=name,
+                weights=weights
+            )
+
+        # Decorators (placeholders - will be built properly in build_tree)
         elif node_type == "Inverter":
-            # Will be wrapped as decorator
             node = py_trees.decorators.Inverter(
+                name=name,
+                child=py_trees.behaviours.Success("placeholder")
+            )
+
+        elif node_type in ["SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
+                            "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning"]:
+            # Status converter decorators
+            decorator_class = getattr(py_trees.decorators, node_type)
+            node = decorator_class(
                 name=name,
                 child=py_trees.behaviours.Success("placeholder")
             )
@@ -616,8 +933,24 @@ def to_py_trees(tree: TreeDefinition):
         """Recursively build py_trees tree"""
         node_type = pf_node.node_type
 
+        # All decorator types that need their child at construction time
+        decorator_types = [
+            # Basic
+            "Inverter",
+            # Status converters
+            "SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
+            "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning",
+            # Repetition
+            "Repeat", "Retry", "OneShot",
+            # Time-based
+            "Timeout",
+            # Advanced
+            "EternalGuard", "Condition", "Count",
+            "StatusToBlackboard", "PassThrough"
+        ]
+
         # Handle decorators specially - they need their child at construction time
-        if node_type in ["Inverter", "Repeat", "Retry", "Timeout"]:
+        if node_type in decorator_types:
             # Build the child first
             if pf_node.children:
                 child_pt_node = build_tree(pf_node.children[0])
@@ -629,17 +962,94 @@ def to_py_trees(tree: TreeDefinition):
             name = pf_node.name
             config = pf_node.config or {}
 
+            # Status converters (simple - just take child)
             if node_type == "Inverter":
                 pt_node = py_trees.decorators.Inverter(name=name, child=child_pt_node)
+            elif node_type in ["SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
+                               "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning"]:
+                decorator_class = getattr(py_trees.decorators, node_type)
+                pt_node = decorator_class(name=name, child=child_pt_node)
+
+            # Repetition decorators
             elif node_type == "Repeat":
                 num_success = config.get('num_success', 1)
                 pt_node = py_trees.decorators.Repeat(name=name, child=child_pt_node, num_success=num_success)
             elif node_type == "Retry":
                 num_failures = config.get('num_failures', 1)
                 pt_node = py_trees.decorators.Retry(name=name, child=child_pt_node, num_failures=num_failures)
+            elif node_type == "OneShot":
+                policy_str = config.get('policy', 'ON_COMPLETION')
+                # Parse policy string
+                from py_trees.common import OneShotPolicy
+                if 'ON_SUCCESSFUL_COMPLETION' in policy_str:
+                    policy = OneShotPolicy.ON_SUCCESSFUL_COMPLETION
+                else:
+                    policy = OneShotPolicy.ON_COMPLETION
+                pt_node = py_trees.decorators.OneShot(name=name, child=child_pt_node, policy=policy)
+
+            # Time-based
             elif node_type == "Timeout":
                 duration = config.get('duration', 1.0)
                 pt_node = py_trees.decorators.Timeout(name=name, child=child_pt_node, duration=duration)
+
+            # Advanced decorators
+            elif node_type == "EternalGuard":
+                variable = config.get('variable', 'condition')
+                value = config.get('value', True)
+                op_str = config.get('operator', '==')
+                op_map = {
+                    ">": op_module.gt,
+                    ">=": op_module.ge,
+                    "<": op_module.lt,
+                    "<=": op_module.le,
+                    "==": op_module.eq,
+                    "!=": op_module.ne,
+                }
+                comparison_op = op_map.get(op_str, op_module.eq)
+                from py_trees.common import ComparisonExpression
+                check = ComparisonExpression(variable, comparison_op, value)
+                pt_node = py_trees.decorators.EternalGuard(
+                    name=name,
+                    child=child_pt_node,
+                    blackboard_keys=[variable],
+                    condition=check
+                )
+
+            elif node_type == "Condition":
+                variable = config.get('variable', 'condition')
+                value = config.get('value', True)
+                op_str = config.get('operator', '==')
+                op_map = {
+                    ">": op_module.gt,
+                    ">=": op_module.ge,
+                    "<": op_module.lt,
+                    "<=": op_module.le,
+                    "==": op_module.eq,
+                    "!=": op_module.ne,
+                }
+                comparison_op = op_map.get(op_str, op_module.eq)
+                from py_trees.common import ComparisonExpression
+                check = ComparisonExpression(variable, comparison_op, value)
+                pt_node = py_trees.decorators.Condition(
+                    name=name,
+                    child=child_pt_node,
+                    blackboard_keys=[variable],
+                    status=check
+                )
+
+            elif node_type == "Count":
+                pt_node = py_trees.decorators.Count(name=name, child=child_pt_node)
+
+            elif node_type == "StatusToBlackboard":
+                variable = config.get('variable', 'status')
+                pt_node = py_trees.decorators.StatusToBlackboard(
+                    name=name,
+                    child=child_pt_node,
+                    variable_name=variable
+                )
+
+            elif node_type == "PassThrough":
+                pt_node = py_trees.decorators.PassThrough(name=name, child=child_pt_node)
 
             return pt_node
 

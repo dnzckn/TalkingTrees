@@ -153,7 +153,20 @@ class TreeSerializer:
             return self._build_composite(node_def, depth)
         elif node_def.node_type == "Parallel":
             return self._build_parallel(node_def, depth)
-        elif node_def.node_type in ["Inverter", "Timeout", "Retry", "OneShot"]:
+        elif node_def.node_type in [
+            # Basic
+            "Inverter",
+            # Status converters
+            "SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
+            "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning",
+            # Repetition
+            "Repeat", "Retry", "OneShot",
+            # Time-based
+            "Timeout",
+            # Advanced
+            "EternalGuard", "Condition", "Count",
+            "StatusToBlackboard", "PassThrough"
+        ]:
             # Decorators: need child in constructor
             return self._build_decorator(node_def, depth)
         else:
@@ -260,13 +273,34 @@ class TreeSerializer:
         child = self._build_node(node_def.children[0], depth + 1)
 
         # Create decorator based on type
+        # Basic decorators
         if node_def.node_type == "Inverter":
             decorator = py_trees.decorators.Inverter(name=node_def.name, child=child)
 
-        elif node_def.node_type == "Timeout":
-            duration = node_def.config.get("duration", 5.0)
-            decorator = py_trees.decorators.Timeout(
-                name=node_def.name, child=child, duration=duration
+        # Status converter decorators
+        elif node_def.node_type == "SuccessIsFailure":
+            decorator = py_trees.decorators.SuccessIsFailure(name=node_def.name, child=child)
+
+        elif node_def.node_type == "FailureIsSuccess":
+            decorator = py_trees.decorators.FailureIsSuccess(name=node_def.name, child=child)
+
+        elif node_def.node_type == "FailureIsRunning":
+            decorator = py_trees.decorators.FailureIsRunning(name=node_def.name, child=child)
+
+        elif node_def.node_type == "RunningIsFailure":
+            decorator = py_trees.decorators.RunningIsFailure(name=node_def.name, child=child)
+
+        elif node_def.node_type == "RunningIsSuccess":
+            decorator = py_trees.decorators.RunningIsSuccess(name=node_def.name, child=child)
+
+        elif node_def.node_type == "SuccessIsRunning":
+            decorator = py_trees.decorators.SuccessIsRunning(name=node_def.name, child=child)
+
+        # Repetition decorators
+        elif node_def.node_type == "Repeat":
+            num_success = node_def.config.get("num_success", 1)
+            decorator = py_trees.decorators.Repeat(
+                name=node_def.name, child=child, num_success=num_success
             )
 
         elif node_def.node_type == "Retry":
@@ -277,10 +311,78 @@ class TreeSerializer:
 
         elif node_def.node_type == "OneShot":
             policy_str = node_def.config.get("policy", "ON_COMPLETION")
-            policy = getattr(py_trees.common.OneShotPolicy, policy_str)
+            policy = getattr(py_trees.common.OneShotPolicy, policy_str, py_trees.common.OneShotPolicy.ON_COMPLETION)
             decorator = py_trees.decorators.OneShot(
                 name=node_def.name, child=child, policy=policy
             )
+
+        # Time-based decorators
+        elif node_def.node_type == "Timeout":
+            duration = node_def.config.get("duration", 5.0)
+            decorator = py_trees.decorators.Timeout(
+                name=node_def.name, child=child, duration=duration
+            )
+
+        # Advanced decorators
+        elif node_def.node_type == "EternalGuard":
+            variable = node_def.config.get("variable", "condition")
+            value = node_def.config.get("value", True)
+            op_str = node_def.config.get("operator", "==")
+            import operator as op_module
+            op_map = {
+                ">": op_module.gt,
+                ">=": op_module.ge,
+                "<": op_module.lt,
+                "<=": op_module.le,
+                "==": op_module.eq,
+                "!=": op_module.ne,
+            }
+            comparison_op = op_map.get(op_str, op_module.eq)
+            from py_trees.common import ComparisonExpression
+            check = ComparisonExpression(variable, comparison_op, value)
+            decorator = py_trees.decorators.EternalGuard(
+                name=node_def.name,
+                child=child,
+                blackboard_keys=[variable],
+                condition=check
+            )
+
+        elif node_def.node_type == "Condition":
+            variable = node_def.config.get("variable", "condition")
+            value = node_def.config.get("value", True)
+            op_str = node_def.config.get("operator", "==")
+            import operator as op_module
+            op_map = {
+                ">": op_module.gt,
+                ">=": op_module.ge,
+                "<": op_module.lt,
+                "<=": op_module.le,
+                "==": op_module.eq,
+                "!=": op_module.ne,
+            }
+            comparison_op = op_map.get(op_str, op_module.eq)
+            from py_trees.common import ComparisonExpression
+            check = ComparisonExpression(variable, comparison_op, value)
+            decorator = py_trees.decorators.Condition(
+                name=node_def.name,
+                child=child,
+                blackboard_keys=[variable],
+                status=check
+            )
+
+        elif node_def.node_type == "Count":
+            decorator = py_trees.decorators.Count(name=node_def.name, child=child)
+
+        elif node_def.node_type == "StatusToBlackboard":
+            variable = node_def.config.get("variable", "status")
+            decorator = py_trees.decorators.StatusToBlackboard(
+                name=node_def.name,
+                child=child,
+                variable_name=variable
+            )
+
+        elif node_def.node_type == "PassThrough":
+            decorator = py_trees.decorators.PassThrough(name=node_def.name, child=child)
 
         else:
             raise ValueError(f"Unknown decorator type: {node_def.node_type}")

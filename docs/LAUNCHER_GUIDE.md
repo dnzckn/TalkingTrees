@@ -9,7 +9,7 @@ Quick reference for launching PyForest tools.
 ### 1. Tree Editor Pro (Main Editor)
 
 ```bash
-./run_editor.sh
+./scripts/run_editor.sh
 ```
 
 **What it does:**
@@ -35,7 +35,7 @@ Quick reference for launching PyForest tools.
 ### 2. Day in Life Simulation
 
 ```bash
-./run_visualization.sh
+./scripts/run_visualization.sh
 ```
 
 **What it does:**
@@ -52,7 +52,7 @@ Quick reference for launching PyForest tools.
 ### 3. Visualization with HTTP Server
 
 ```bash
-./run_visualization_server.sh
+./scripts/run_visualization_server.sh
 ```
 
 **What it does:**
@@ -72,12 +72,12 @@ Quick reference for launching PyForest tools.
 ### API Server Only
 
 ```bash
-python run_server.py
+python scripts/run_server.py
 ```
 
 **Options:**
 ```bash
-python run_server.py --host 0.0.0.0 --port 8000 --reload
+python scripts/run_server.py --host 0.0.0.0 --port 8000 --reload
 ```
 
 **URLs:**
@@ -91,7 +91,7 @@ python run_server.py --host 0.0.0.0 --port 8000 --reload
 
 ### Tree Editor Pro (Recommended)
 **File:** `visualization/tree_editor_pro.html`
-**Launch:** `./run_editor.sh`
+**Launch:** `./scripts/run_editor.sh`
 **Use for:** Visual tree creation/editing, Python code generation (via "Copy Python Code" button)
 
 ### Other Visualizations
@@ -114,7 +114,7 @@ python run_server.py --host 0.0.0.0 --port 8000 --reload
 **Day in Life:**
 - File: `visualization/day_in_life.html`
 - Use for: Simulation demo
-- Launch: `./run_visualization.sh`
+- Launch: `./scripts/run_visualization.sh`
 
 ---
 
@@ -178,7 +178,7 @@ Example trees are in:
 ## Recommended Workflow
 
 ### For New Users
-1. Run `./run_editor.sh`
+1. Run `./scripts/run_editor.sh`
 2. Load `examples/robot_v1.json`
 3. Explore the visual editor
 4. Try executing the tree
@@ -186,13 +186,13 @@ Example trees are in:
 
 ### For py_trees Users
 1. Run tutorials: `python tutorials/05_py_trees_integration.py`
-2. Launch editor: `./run_editor.sh`
+2. Launch editor: `./scripts/run_editor.sh`
 3. Load generated files: `tutorials/py_trees_decorators.json`
 4. Visualize and modify trees
 5. Save back to JSON or API
 
 ### For Development
-1. Start server: `python run_server.py`
+1. Start server: `python scripts/run_server.py`
 2. Run tests: `python tests/test_py_trees_adapter.py`
 3. Open editor for visual testing
 4. Use API docs at http://localhost:8000/docs
@@ -203,10 +203,10 @@ Example trees are in:
 
 | Script | API Server | HTTP Server | Opens | Best For |
 |--------|------------|-------------|-------|----------|
-| `run_editor.sh` | Yes | No | Tree Editor Pro | Visual editing + Python code |
-| `run_visualization.sh` | Yes | No | Day in Life | Quick demo |
-| `run_visualization_server.sh` | Yes | Yes | Day in Life (HTTP) | CORS-free |
-| `run_server.py` | Yes | No | Nothing | Manual control |
+| `scripts/run_editor.sh` | Yes | No | Tree Editor Pro | Visual editing + Python code |
+| `scripts/run_visualization.sh` | Yes | No | Day in Life | Quick demo |
+| `scripts/run_visualization_server.sh` | Yes | Yes | Day in Life (HTTP) | CORS-free |
+| `scripts/run_server.py` | Yes | No | Nothing | Manual control |
 
 ---
 
@@ -214,18 +214,18 @@ Example trees are in:
 
 **Just want to edit trees visually?**
 ```bash
-./run_editor.sh
+./scripts/run_editor.sh
 ```
 Includes "Copy Python Code" button for instant code generation.
 
 **Want to see a demo?**
 ```bash
-./run_visualization.sh
+./scripts/run_visualization.sh
 ```
 
 **Need the API for testing?**
 ```bash
-python run_server.py
+python scripts/run_server.py
 ```
 
 All scripts are **up to date** and handle server management automatically!
