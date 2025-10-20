@@ -120,8 +120,6 @@ Opens the **PyForest Tree Editor** at `http://localhost:8000` - a professional d
 - **Blackboard** - CheckBlackboardVariableExists, SetBlackboardVariable, UnsetBlackboardVariable, WaitForBlackboardVariable, WaitForBlackboardVariableValue
 - **Other** - BlackboardToStatus, ProbabilisticBehaviour
 
-[See complete list](docs/analysis/IMPLEMENTATION_SUMMARY.md)
-
 ## Architecture
 
 ```
@@ -191,11 +189,7 @@ pytest tests/test_complete_coverage.py -v   # Comprehensive coverage
 
 ## Documentation
 
-- **[Implementation Summary](docs/analysis/IMPLEMENTATION_SUMMARY.md)** - Complete implementation details
-- **[Reversibility Analysis](docs/analysis/REVERSIBILITY_ANALYSIS_REPORT.md)** - Full reversibility report
-- **[Launcher Guide](docs/LAUNCHER_GUIDE.md)** - Visual editor and scripts
 - **[API Reference](docs/API_REFERENCE.md)** - REST API documentation
-- **[Architecture](docs/ARCHITECTURE.md)** - System design
 
 ## Development
 

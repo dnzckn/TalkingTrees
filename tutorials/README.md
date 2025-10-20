@@ -6,7 +6,7 @@ Welcome to PyForest SDK tutorials! These hands-on examples teach you how to use 
 
 PyForest provides the complete workflow for behavior trees:
 
-- **Visual Design** - Tree Editor Pro for rapid prototyping
+- **Visual Design** - Tree Editor for rapid prototyping
 - **One-Click Export** - "Copy Python" button generates ready-to-use code
 - **Python Integration** - Load trees and control your systems
 - **py_trees Compatible** - Bridge between py_trees and PyForest
@@ -80,7 +80,7 @@ python 05_py_trees_integration.py
 **THIS IS THE TUTORIAL TO START WITH!**
 
 Shows the complete recommended PyForest workflow:
-- Design trees visually in Tree Editor Pro
+- Design trees visually in Tree Editor
 - Use "Copy Python" button to get ready-to-use code
 - Load tree in Python
 - **USE the tree to actually CONTROL a robot simulator**
@@ -175,7 +175,7 @@ while True:
 
 ### Copy Python Button Output
 
-When you click "Copy Python" in Tree Editor Pro, you get:
+When you click "Copy Python" in Tree Editor, you get:
 
 ```python
 from py_forest.sdk import PyForest
@@ -394,7 +394,7 @@ After completing these tutorials:
 
 1. **Visual-First (Recommended):**
    ```
-   Tree Editor Pro → Export JSON → "Copy Python" → Control System
+   Tree Editor → Export JSON → "Copy Python" → Control System
    ```
 
 2. **py_trees-First (For py_trees users):**
