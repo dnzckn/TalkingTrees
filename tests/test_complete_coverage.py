@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 """
-Comprehensive Coverage Test for py_trees ↔ pyforest Reversibility
+Comprehensive Coverage Test for py_trees ↔ talkingtrees Reversibility
 ==================================================================
 
 This script systematically tests ALL supported node types through the full pipeline:
-py_trees → pyforest → flat file → pyforest → py_trees
+py_trees → talkingtrees → flat file → talkingtrees → py_trees
 
 Tests complete reversibility and identifies any gaps or data loss.
 """
@@ -20,9 +20,9 @@ from py_trees.common import ComparisonExpression, ParallelPolicy
 from py_trees.composites import Parallel, Selector, Sequence
 from py_trees.decorators import Inverter, Retry, Timeout
 
-from py_forest.adapters.py_trees_adapter import from_py_trees, to_py_trees
-from py_forest.core.round_trip_validator import RoundTripValidator
-from py_forest.sdk import PyForest
+from talking_trees.adapters.py_trees_adapter import from_py_trees, to_py_trees
+from talking_trees.core.round_trip_validator import RoundTripValidator
+from talking_trees.sdk import TalkingTrees
 
 
 class ComprehensiveCoverageTest:
@@ -30,14 +30,14 @@ class ComprehensiveCoverageTest:
 
     def __init__(self):
         self.results: list[tuple[str, bool, str]] = []
-        self.pf = PyForest()
+        self.pf = TalkingTrees()
         self.temp_dir = tempfile.mkdtemp()
 
     def run_all_tests(self):
         """Run all coverage tests."""
         print("=" * 80)
         print("COMPREHENSIVE REVERSIBILITY TEST")
-        print("Testing: py_trees → pyforest → JSON → pyforest → py_trees")
+        print("Testing: py_trees → talkingtrees → JSON → talkingtrees → py_trees")
         print("=" * 80)
         print()
 
@@ -64,7 +64,7 @@ class ComprehensiveCoverageTest:
             True if test passed, False otherwise
         """
         try:
-            # Step 1: py_trees → pyforest
+            # Step 1: py_trees → talkingtrees
             pf_tree, context = from_py_trees(root_node, name=name, version="1.0.0")
 
             if context.has_warnings():
@@ -72,7 +72,7 @@ class ComprehensiveCoverageTest:
                 for warning in context.warnings:
                     print(f"    - {warning}")
 
-            # Step 2: pyforest → JSON file
+            # Step 2: talkingtrees → JSON file
             json_path = Path(self.temp_dir) / f"{name.replace(' ', '_')}.json"
             self.pf.save_tree(pf_tree, str(json_path))
 
@@ -81,10 +81,10 @@ class ComprehensiveCoverageTest:
                 json_data = json.load(f)
             assert json_data["$schema"] == "1.0.0", "Invalid schema version"
 
-            # Step 3: JSON → pyforest
+            # Step 3: JSON → talkingtrees
             loaded_tree = self.pf.load_tree(str(json_path))
 
-            # Step 4: pyforest → py_trees
+            # Step 4: talkingtrees → py_trees
             round_trip = to_py_trees(loaded_tree)
 
             # Step 5: Validate equivalence
@@ -100,7 +100,7 @@ class ComprehensiveCoverageTest:
 
             # Optional: Test execution
             if check_execution:
-                from py_forest.core.serializer import TreeSerializer
+                from talking_trees.core.serializer import TreeSerializer
 
                 serializer = TreeSerializer()
                 bt = serializer.deserialize(loaded_tree)

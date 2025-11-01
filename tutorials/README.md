@@ -1,21 +1,21 @@
-# PyForest SDK Tutorials
+# TalkingTrees SDK Tutorials
 
-Welcome to PyForest SDK tutorials! These hands-on examples teach you how to use PyForest to design, export, and USE behavior trees to control real systems.
+Welcome to TalkingTrees SDK tutorials! These hands-on examples teach you how to use TalkingTrees to design, export, and USE behavior trees to control real systems.
 
-## Why Use PyForest?
+## Why Use TalkingTrees?
 
-PyForest provides the complete workflow for behavior trees:
+TalkingTrees provides the complete workflow for behavior trees:
 
 - **Visual Design** - Tree Editor for rapid prototyping
 - **One-Click Export** - "Copy Python" button generates ready-to-use code
 - **Python Integration** - Load trees and control your systems
-- **py_trees Compatible** - Bridge between py_trees and PyForest
+- **py_trees Compatible** - Bridge between py_trees and TalkingTrees
 
 ## Prerequisites
 
 ```bash
-# Install PyForest
-cd /path/to/py_forest
+# Install TalkingTrees
+cd /path/to/talking_trees
 pip install -e .
 ```
 
@@ -38,12 +38,12 @@ This shows you everything you need: design, export, and control.
 
 **For existing py_trees users:**
 
-Bridge between py_trees and PyForest:
+Bridge between py_trees and TalkingTrees:
 - Create trees using py_trees programmatic API
-- Convert to PyForest format for visualization
+- Convert to TalkingTrees format for visualization
 - Save/load JSON files
-- Run via PyForest SDK
-- Reverse conversion (PyForest → py_trees)
+- Run via TalkingTrees SDK
+- Reverse conversion (TalkingTrees → py_trees)
 
 **Run it:**
 ```bash
@@ -52,14 +52,14 @@ python 01_py_trees_integration.py
 
 **What You'll Learn:**
 - Use py_trees mature Python API for tree creation
-- Convert py_trees → PyForest for visualization
+- Convert py_trees → TalkingTrees for visualization
 - Handle custom behaviors and node types
 - Round-trip workflow (code → visualize → run)
 - Integration with both ecosystems
 
 **Key Concepts:**
-- `pf.from_py_trees()` - Convert py_trees to PyForest
-- `to_py_trees()` - Convert PyForest to py_trees
+- `pf.from_py_trees()` - Convert py_trees to TalkingTrees
+- `to_py_trees()` - Convert TalkingTrees to py_trees
 - Automatic blackboard variable detection
 - All decorator support (Inverter, Repeat, Retry, Timeout)
 - ComparisonExpression for conditions
@@ -67,7 +67,7 @@ python 01_py_trees_integration.py
 **Why This Matters:**
 - py_trees is the standard Python behavior tree library
 - Leverage existing py_trees knowledge and code
-- Get PyForest's visualization and profiling tools
+- Get TalkingTrees's visualization and profiling tools
 - Best of both worlds approach
 
 ---
@@ -79,7 +79,7 @@ python 01_py_trees_integration.py
 
 **THIS IS THE TUTORIAL TO START WITH!**
 
-Shows the complete recommended PyForest workflow:
+Shows the complete recommended TalkingTrees workflow:
 - Design trees visually in Tree Editor
 - Use "Copy Python" button to get ready-to-use code
 - Load tree in Python
@@ -147,10 +147,10 @@ python 02_complete_workflow.py
 ### Basic Usage Pattern
 
 ```python
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
 # Initialize
-pf = PyForest()
+pf = TalkingTrees()
 
 # Load tree (exported from visual editor)
 tree = pf.load_tree("my_tree.json")
@@ -178,15 +178,15 @@ while True:
 When you click "Copy Python" in Tree Editor, you get:
 
 ```python
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
-pf = PyForest()
+pf = TalkingTrees()
 
 # Option 1: From File
 tree = pf.load_tree("robot_controller.json")
 
 # Option 2: From API
-pf = PyForest(api_url="http://localhost:8000")
+pf = TalkingTrees(api_url="http://localhost:8000")
 tree = pf.get_tree("tree-id-here")
 
 # Create and run
@@ -201,7 +201,7 @@ print(result.status)
 import py_trees
 import operator
 from py_trees.common import ComparisonExpression
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
 # Create tree with py_trees
 root = py_trees.composites.Sequence("MySequence", memory=False)
@@ -215,8 +215,8 @@ root.add_child(
     )
 )
 
-# Convert to PyForest
-pf = PyForest()
+# Convert to TalkingTrees
+pf = TalkingTrees()
 pf_tree = pf.from_py_trees(root, name="My Tree", version="1.0.0")
 
 # Save for visualization
@@ -248,7 +248,7 @@ root = py_trees.composites.Selector("Root")
 root.add_child(...)
 
 # Convert and visualize
-pf = PyForest()
+pf = TalkingTrees()
 tree = pf.from_py_trees(root, "Tree", "1.0")
 pf.save_tree(tree, "tree.json")
 
@@ -324,8 +324,8 @@ tutorials/
 ### Import Errors
 
 ```python
-# If you get: ModuleNotFoundError: No module named 'py_forest'
-cd /path/to/py_forest
+# If you get: ModuleNotFoundError: No module named 'talking_trees'
+cd /path/to/talking_trees
 pip install -e .
 ```
 
@@ -344,7 +344,7 @@ pf.load_tree("/absolute/path/to/tree.json")
 
 ```bash
 # Make sure you're in repo root
-cd /path/to/py_forest
+cd /path/to/talking_trees
 ./run_editor.sh
 
 # If API server won't start
@@ -384,13 +384,13 @@ After completing these tutorials:
 
 - **Documentation:** See `docs/` directory and root `.md` files
 - **Examples:** Check `examples/` directory for sample trees
-- **Source Code:** Explore `src/py_forest/` for implementation
+- **Source Code:** Explore `src/talking_trees/` for implementation
 
 ---
 
 ## Summary
 
-**PyForest provides two complete workflows:**
+**TalkingTrees provides two complete workflows:**
 
 1. **Visual-First (Recommended):**
    ```
@@ -399,7 +399,7 @@ After completing these tutorials:
 
 2. **py_trees-First (For py_trees users):**
    ```
-   py_trees Code → PyForest Adapter → Visualize → Control System
+   py_trees Code → TalkingTrees Adapter → Visualize → Control System
    ```
 
 **Both workflows lead to the same goal:** Using behavior trees to control real systems!

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the PyForest API server.
+"""Run the TalkingTrees API server.
 
 This script starts the FastAPI development server.
 
@@ -20,7 +20,7 @@ except ImportError:
 
 def main():
     """Run the server."""
-    parser = argparse.ArgumentParser(description="Run PyForest API server")
+    parser = argparse.ArgumentParser(description="Run TalkingTrees API server")
     parser.add_argument(
         "--host",
         default="127.0.0.1",
@@ -41,7 +41,7 @@ def main():
     args = parser.parse_args()
 
     print("=" * 60)
-    print("  PyForest API Server")
+    print("  TalkingTrees API Server")
     print("=" * 60)
     print(f"\nStarting server on http://{args.host}:{args.port}")
     print(f"API docs: http://{args.host}:{args.port}/docs")
@@ -49,7 +49,7 @@ def main():
     print("\nPress Ctrl+C to stop\n")
 
     uvicorn.run(
-        "py_forest.api.main:app",
+        "talking_trees.api.main:app",
         host=args.host,
         port=args.port,
         reload=args.reload,

@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="images/PyForest_logo.png" alt="PyForest Logo" width="400"/>
+  <img src="images/TalkingTrees_logo.png" alt="TalkingTrees Logo" width="400"/>
 </p>
 
-# PyForest
+# TalkingTrees
 
 **Complete py_trees serialization library with REST API support**
 
-PyForest provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via REST API, and deserialize back to executable py_trees with zero data loss.
+TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via REST API, and deserialize back to executable py_trees with zero data loss.
 
 ## Core Features
 
@@ -29,8 +29,8 @@ pip install -e .
 ### Python SDK
 
 ```python
-from py_forest.sdk import PyForest
-from py_forest.adapters import from_py_trees, to_py_trees, compare_py_trees
+from talking_trees.sdk import TalkingTrees
+from talking_trees.adapters import from_py_trees, to_py_trees, compare_py_trees
 import py_trees
 
 # Serialize py_trees to JSON
@@ -42,7 +42,7 @@ root = py_trees.composites.Sequence(name="Main", memory=True, children=[
 pf_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
 # Save to file
-pf = PyForest()
+pf = TalkingTrees()
 pf.save_tree(pf_tree, "my_tree.json")
 
 # Load from file
@@ -104,10 +104,10 @@ requests.post(
 ```
 
 <p align="center">
-  <img src="images/visualizer_screenshot.png" alt="PyForest Tree Editor" width="800"/>
+  <img src="images/visualizer_screenshot.png" alt="TalkingTrees Tree Editor" width="800"/>
 </p>
 
-Opens the PyForest Tree Editor at `http://localhost:8000` - a professional drag-and-drop interface for creating and editing behavior trees with real-time visualization, node property editing, and automatic layout.
+Opens the TalkingTrees Tree Editor at `http://localhost:8000` - a professional drag-and-drop interface for creating and editing behavior trees with real-time visualization, node property editing, and automatic layout.
 
 ## Supported Node Types (40+)
 
@@ -137,7 +137,7 @@ Opens the PyForest Tree Editor at `http://localhost:8000` - a professional drag-
 └────────────┬─────────────────────────────────────────────┘
              │ from_py_trees() / to_py_trees()
 ┌────────────▼─────────────────────────────────────────────┐
-│  PyForest Core                                           │
+│  TalkingTrees Core                                           │
 │  • Constants (type-safe config keys)                     │
 │  • Utilities (comparison, parallel policy, UUID)         │
 │  • Registry (extensible node type system)                │
@@ -184,17 +184,17 @@ Opens the PyForest Tree Editor at `http://localhost:8000` - a professional drag-
 
 ```bash
 # Tree management
-pyforest tree list
-pyforest tree create my_tree.json
-pyforest tree get <TREE_ID>
+talkingtrees tree list
+talkingtrees tree create my_tree.json
+talkingtrees tree get <TREE_ID>
 
 # Execution
-pyforest exec run <TREE_ID> --ticks 10
-pyforest exec stats <EXECUTION_ID>
+talkingtrees exec run <TREE_ID> --ticks 10
+talkingtrees exec stats <EXECUTION_ID>
 
 # Import/Export
-pyforest export import examples/trees/01_simple_sequence.json
-pyforest export tree <TREE_ID> -o output.json
+talkingtrees export import examples/trees/01_simple_sequence.json
+talkingtrees export tree <TREE_ID> -o output.json
 ```
 
 ## Examples
@@ -208,8 +208,8 @@ See `examples/trees/` for complete examples:
 
 ```bash
 # Import and run an example
-pyforest export import examples/trees/01_simple_sequence.json
-pyforest exec run <TREE_ID> --ticks 5
+talkingtrees export import examples/trees/01_simple_sequence.json
+talkingtrees exec run <TREE_ID> --ticks 5
 ```
 
 ## Testing
@@ -253,15 +253,15 @@ ruff check src/ tests/
 mypy src/
 
 # Run tests with coverage
-pytest tests/ --cov=py_forest --cov-report=html
+pytest tests/ --cov=talking_trees --cov-report=html
 ```
 
 ## Project Structure
 
 ```
-py_forest/
-├── src/py_forest/
-│   ├── adapters/         # py_trees ↔ PyForest conversion
+talking_trees/
+├── src/talking_trees/
+│   ├── adapters/         # py_trees ↔ TalkingTrees conversion
 │   ├── core/
 │   │   ├── constants.py  # Type-safe configuration constants
 │   │   ├── exceptions.py # Enhanced error classes

@@ -17,8 +17,8 @@ import operator
 import py_trees
 from py_trees.common import ComparisonExpression, ParallelPolicy
 
-from py_forest.adapters import compare_py_trees, from_py_trees, to_py_trees
-from py_forest.sdk import PyForest
+from talking_trees.adapters import compare_py_trees, from_py_trees, to_py_trees
+from talking_trees.sdk import TalkingTrees
 
 
 def create_ultra_complex_tree():
@@ -270,8 +270,8 @@ def main():
     original_root = create_ultra_complex_tree()
     print_tree_stats(original_root, "Original Tree")
 
-    # Step 2: Convert to PyForest
-    print("STEP 2: Converting to PyForest format...")
+    # Step 2: Convert to TalkingTrees
+    print("STEP 2: Converting to TalkingTrees format...")
     pf_tree, context = from_py_trees(
         original_root, name="UltraComplex Robot", version="2.0.0"
     )
@@ -285,7 +285,7 @@ def main():
 
     # Step 3: Save to JSON
     print("\nSTEP 3: Saving to JSON file...")
-    pf = PyForest()
+    pf = TalkingTrees()
     pf.save_tree(pf_tree, "tests/fixtures/ultra_complex_tree.json")
     print("✓ Saved to tests/fixtures/ultra_complex_tree.json")
 

@@ -10,7 +10,7 @@ import operator
 import py_trees
 from py_trees.common import ComparisonExpression, ParallelPolicy
 
-from py_forest.adapters import compare_py_trees, from_py_trees, to_py_trees
+from talking_trees.adapters import compare_py_trees, from_py_trees, to_py_trees
 
 
 def test_compare_identical_trees():

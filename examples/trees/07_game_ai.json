@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Game AI - NPC Behavior",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Game AI decision tree for NPC behavior with combat and exploration",
     "tags": ["example", "game", "ai", "npc"]
   },

@@ -2,15 +2,15 @@
 Round-Trip Comparison Example
 ==============================
 
-Demonstrates how to verify that py_trees -> PyForest -> py_trees conversion
+Demonstrates how to verify that py_trees -> TalkingTrees -> py_trees conversion
 preserves tree structure and behavior using compare_py_trees().
 
 This answers the question: "Are these two trees functionally identical?"
 """
 
 import py_trees
-from py_forest.adapters import compare_py_trees, from_py_trees, to_py_trees
-from py_forest.sdk import PyForest
+from talking_trees.adapters import compare_py_trees, from_py_trees, to_py_trees
+from talking_trees.sdk import TalkingTrees
 
 
 def example_basic_comparison():
@@ -29,11 +29,11 @@ def example_basic_comparison():
         ],
     )
 
-    # Convert to PyForest
+    # Convert to TalkingTrees
     pf_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
     # Save and load (optional - demonstrates full round-trip)
-    pf = PyForest()
+    pf = TalkingTrees()
     pf.save_tree(pf_tree, "my_tree.json")
     loaded = pf.load_tree("my_tree.json")
 
@@ -186,7 +186,7 @@ def main():
     print("  • Use raise_on_difference=True for assertions in tests")
     print()
     print("Usage:")
-    print("  from py_forest.adapters import compare_py_trees")
+    print("  from talking_trees.adapters import compare_py_trees")
     print("  is_same = compare_py_trees(root1, root2)")
     print()
 

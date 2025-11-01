@@ -1,6 +1,6 @@
-# PyForest API Reference
+# TalkingTrees API Reference
 
-Complete reference for PyForest REST API. The API provides 47 endpoints across 7 routers.
+Complete reference for TalkingTrees REST API. The API provides 47 endpoints across 7 routers.
 
 ## Base URL
 
@@ -1411,7 +1411,7 @@ curl -X POST http://localhost:8000/debug/executions/$EXEC_ID/continue
 
 ## Summary
 
-The PyForest API provides comprehensive control over:
+The TalkingTrees API provides comprehensive control over:
 - Tree library management
 - Execution lifecycle
 - Real-time monitoring

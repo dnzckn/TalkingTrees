@@ -1,6 +1,6 @@
-# PyForest Example Trees
+# TalkingTrees Example Trees
 
-This directory contains example behavior trees demonstrating various patterns and features of PyForest.
+This directory contains example behavior trees demonstrating various patterns and features of TalkingTrees.
 
 ## Examples
 

@@ -1,5 +1,5 @@
 """
-PyForest Tutorial 2: Complete Workflow - Design, Export, Control
+TalkingTrees Tutorial 2: Complete Workflow - Design, Export, Control
 ===================================================================
 
 This is THE DEFINITIVE TUTORIAL showing BOTH approaches to behavior trees:
@@ -7,7 +7,7 @@ This is THE DEFINITIVE TUTORIAL showing BOTH approaches to behavior trees:
 APPROACH 1: CODE-FIRST (Programmatic)
 --------------------------------------
 1. Create tree using py_trees Python code (from scratch!)
-2. Convert to PyForest format
+2. Convert to TalkingTrees format
 3. Use tree to control robot
 
 APPROACH 2: VISUAL-FIRST (Recommended for beginners)
@@ -26,7 +26,7 @@ This tutorial demonstrates:
 
 import random
 
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
 # =============================================================================
 # STEP 1: Simple Robot Simulator
@@ -116,7 +116,7 @@ def create_tree_from_code():
     """
     APPROACH 1: Create behavior tree entirely from Python code (no visual editor)
 
-    This shows creating a tree using py_trees, then converting to PyForest.
+    This shows creating a tree using py_trees, then converting to TalkingTrees.
     This is the CODE-FIRST approach.
     """
 
@@ -199,9 +199,9 @@ def create_tree_from_code():
         print(f"    {i}. {child.name}")
     print()
 
-    # Convert to PyForest format
-    print("Converting to PyForest format...")
-    pf = PyForest()
+    # Convert to TalkingTrees format
+    print("Converting to TalkingTrees format...")
+    pf = TalkingTrees()
     tree = pf.from_py_trees(
         root,
         name="Robot Controller (Code-Created)",
@@ -209,7 +209,7 @@ def create_tree_from_code():
         description="Created entirely from py_trees code",
     )
 
-    print("✓ Converted to PyForest")
+    print("✓ Converted to TalkingTrees")
     print(f"  Tree: {tree.metadata.name}")
     print(f"  Version: {tree.metadata.version}")
     print()
@@ -255,7 +255,7 @@ def load_tree_from_editor():
     print("=" * 70)
     print()
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     # Try to load tree exported from visual editor
     try:
@@ -312,7 +312,7 @@ def control_robot_with_tree():
     print()
 
     # Load tree
-    pf = PyForest()
+    pf = TalkingTrees()
     tree = load_tree_from_editor()
 
     # Create execution
@@ -410,10 +410,10 @@ def demonstrate_copy_python_workflow():
     print()
     print("=" * 70)
     print("""
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
-# Initialize PyForest SDK
-pf = PyForest()
+# Initialize TalkingTrees SDK
+pf = TalkingTrees()
 
 # Load tree from JSON file
 tree = pf.load_tree("robot_controller.json")
@@ -460,7 +460,7 @@ def test_scenarios():
     print("=" * 70)
     print()
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     try:
         tree = pf.load_tree("robot_controller.json")
@@ -510,7 +510,7 @@ def test_scenarios():
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
-    print(" PyForest Tutorial 2: Complete Workflow")
+    print(" TalkingTrees Tutorial 2: Complete Workflow")
     print(" BOTH Approaches: Code-First + Visual-First")
     print("=" * 70 + "\n")
 
@@ -568,7 +568,7 @@ if __name__ == "__main__":
     print()
 
     # Use the tree created from code
-    pf = PyForest()
+    pf = TalkingTrees()
     execution = pf.create_execution(tree_from_code)
     print("✓ Created execution from code-created tree")
     print()
@@ -619,7 +619,7 @@ if __name__ == "__main__":
     print("What you learned:")
     print("  ✓ APPROACH 1: Creating trees from pure Python code (py_trees)")
     print("  ✓ APPROACH 2: Visual editor workflow + 'Copy Python' button")
-    print("  ✓ Converting between py_trees and PyForest formats")
+    print("  ✓ Converting between py_trees and TalkingTrees formats")
     print("  ✓ THE CONTROL LOOP: sensors → tree → actions → execute")
     print("  ✓ How to integrate behavior trees into real systems")
     print()

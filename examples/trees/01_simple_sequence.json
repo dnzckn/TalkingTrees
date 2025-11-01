@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Simple Sequence",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Demonstrates a basic sequence that executes actions in order",
     "tags": ["tutorial", "basic", "sequence"]
   },

@@ -5,8 +5,8 @@ import py_trees
 from py_trees.behaviours import Failure, SetBlackboardVariable, Success
 from py_trees.composites import Selector, Sequence
 
-from py_forest.adapters.py_trees_adapter import from_py_trees, to_py_trees
-from py_forest.core.round_trip_validator import RoundTripValidator
+from talking_trees.adapters.py_trees_adapter import from_py_trees, to_py_trees
+from talking_trees.core.round_trip_validator import RoundTripValidator
 
 
 def test_simple_round_trip():

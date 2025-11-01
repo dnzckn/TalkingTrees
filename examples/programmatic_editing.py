@@ -6,7 +6,7 @@ This demonstrates multiple ways to edit trees programmatically (in code),
 without using the visual editor.
 
 Workflow:
-  py_trees code → PyForest → JSON → **back to editable code** → PyForest → JSON
+  py_trees code → TalkingTrees → JSON → **back to editable code** → TalkingTrees → JSON
 
 You have THREE approaches:
 1. Round-trip via py_trees (recommended for complex edits)
@@ -20,9 +20,9 @@ from uuid import uuid4
 import py_trees
 from py_trees.common import ComparisonExpression
 
-from py_forest.adapters import to_py_trees
-from py_forest.models.tree import TreeNodeDefinition
-from py_forest.sdk import PyForest
+from talking_trees.adapters import to_py_trees
+from talking_trees.models.tree import TreeNodeDefinition
+from talking_trees.sdk import TalkingTrees
 
 # =============================================================================
 # Approach 1: Round-trip via py_trees (Recommended for Complex Edits)
@@ -30,14 +30,14 @@ from py_forest.sdk import PyForest
 
 
 def approach_1_py_trees_roundtrip():
-    """Load JSON → py_trees → edit → PyForest → save"""
+    """Load JSON → py_trees → edit → TalkingTrees → save"""
     print("=" * 70)
     print("APPROACH 1: Round-trip via py_trees")
     print("=" * 70)
 
     # Step 1: Load existing tree from JSON
     print("\nStep 1: Load existing tree from JSON...")
-    pf = PyForest()
+    pf = TalkingTrees()
     tree_def = pf.load_tree("examples/robot_v1.json")
     print(f"✓ Loaded: {tree_def.metadata.name}")
     print(f"  Children: {len(tree_def.root.children)}")
@@ -79,15 +79,15 @@ def approach_1_py_trees_roundtrip():
     print("✓ Added emergency stop branch")
     print(f"  New children count: {len(pt_root.children)}")
 
-    # Step 4: Convert back to PyForest
-    print("\nStep 4: Convert back to PyForest...")
+    # Step 4: Convert back to TalkingTrees
+    print("\nStep 4: Convert back to TalkingTrees...")
     updated_tree = pf.from_py_trees(
         pt_root,
         name=tree_def.metadata.name + " (Updated)",
         version="2.0.0",
         description="Added emergency stop branch",
     )
-    print("✓ Converted to PyForest")
+    print("✓ Converted to TalkingTrees")
     print(f"  Version: {updated_tree.metadata.version}")
 
     # Step 5: Save
@@ -113,7 +113,7 @@ def approach_2_direct_manipulation():
 
     # Step 1: Load existing tree
     print("\nStep 1: Load existing tree from JSON...")
-    pf = PyForest()
+    pf = TalkingTrees()
     tree_def = pf.load_tree("examples/robot_v1.json")
     print(f"✓ Loaded: {tree_def.metadata.name}")
 
@@ -163,7 +163,7 @@ def approach_3_hybrid():
     print("APPROACH 3: Hybrid Approach")
     print("=" * 70)
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     # Step 1: Create a complex branch with py_trees
     print("\nStep 1: Create complex branch with py_trees...")
@@ -188,7 +188,7 @@ def approach_3_hybrid():
         )
     )
 
-    # Convert just this branch to PyForest
+    # Convert just this branch to TalkingTrees
     maintenance_branch = pf.from_py_trees(
         maintenance_seq, name="Maintenance Branch", version="1.0.0"
     )
@@ -290,7 +290,7 @@ def demonstration_with_helpers():
     print("BONUS: Using Helper Functions")
     print("=" * 70)
 
-    pf = PyForest()
+    pf = TalkingTrees()
     tree_def = pf.load_tree("examples/robot_v1.json")
 
     # Find a specific node

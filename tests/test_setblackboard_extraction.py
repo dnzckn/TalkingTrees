@@ -9,7 +9,7 @@ This investigates whether values are actually being preserved correctly.
 import py_trees
 from py_trees.behaviours import SetBlackboardVariable
 
-from py_forest.adapters.py_trees_adapter import from_py_trees, to_py_trees
+from talking_trees.adapters.py_trees_adapter import from_py_trees, to_py_trees
 
 
 def test_value_extraction():
@@ -73,7 +73,7 @@ def test_value_extraction():
         print("\n  Testing through conversion pipeline:")
         root = py_trees.composites.Sequence(name="Root", memory=True, children=[node])
 
-        # Convert to PyForest
+        # Convert to TalkingTrees
         pf_tree, context = from_py_trees(root, name="Test", version="1.0.0")
 
         # Check if warning was issued

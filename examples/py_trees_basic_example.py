@@ -1,5 +1,5 @@
 """
-Minimal Working Example: py_trees → PyForest Integration
+Minimal Working Example: py_trees → TalkingTrees Integration
 =========================================================
 
 This example demonstrates the TESTED and WORKING functionality
@@ -7,10 +7,10 @@ of the py_trees adapter.
 
 What works:
 - Creating trees with py_trees API
-- Converting to PyForest format
+- Converting to TalkingTrees format
 - Saving to JSON
 - Loading from JSON
-- Visualizing in PyForest editor
+- Visualizing in TalkingTrees editor
 
 What's NOT in this example (needs more work):
 - Blackboard conditions (py_trees API changed)
@@ -22,7 +22,7 @@ For advanced features, see TESTING_STATUS.md
 
 import py_trees
 
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
 
 def create_simple_tree():
@@ -56,11 +56,11 @@ def create_simple_tree():
     return root
 
 
-def convert_to_pyforest(py_trees_root):
-    """Convert py_trees tree to PyForest format"""
-    print("\nConverting to PyForest format...")
+def convert_to_talkingtrees(py_trees_root):
+    """Convert py_trees tree to TalkingTrees format"""
+    print("\nConverting to TalkingTrees format...")
 
-    pf = PyForest()
+    pf = TalkingTrees()
     pf_tree = pf.from_py_trees(
         py_trees_root,
         name="Robot Controller",
@@ -68,7 +68,7 @@ def convert_to_pyforest(py_trees_root):
         description="Simple robot controller created with py_trees",
     )
 
-    print("✓ Converted to PyForest")
+    print("✓ Converted to TalkingTrees")
     print(f"  Tree: {pf_tree.metadata.name} v{pf_tree.metadata.version}")
     print(f"  Root type: {pf_tree.root.node_type}")
     print(f"  Root children: {len(pf_tree.root.children)}")
@@ -80,7 +80,7 @@ def save_and_load(pf_tree):
     """Save tree to JSON and load it back"""
     print("\nSaving to JSON...")
 
-    pf = PyForest()
+    pf = TalkingTrees()
     output_path = "examples/py_trees_robot.json"
 
     pf.save_tree(pf_tree, output_path)
@@ -109,14 +109,14 @@ def visualize_structure(pf_tree):
 
 def main():
     print("=" * 60)
-    print(" Minimal Working Example: py_trees → PyForest")
+    print(" Minimal Working Example: py_trees → TalkingTrees")
     print("=" * 60)
 
     # Step 1: Create tree with py_trees
     py_trees_root = create_simple_tree()
 
-    # Step 2: Convert to PyForest
-    pf_tree = convert_to_pyforest(py_trees_root)
+    # Step 2: Convert to TalkingTrees
+    pf_tree = convert_to_talkingtrees(py_trees_root)
 
     # Step 3: Save and load
     loaded_tree = save_and_load(pf_tree)

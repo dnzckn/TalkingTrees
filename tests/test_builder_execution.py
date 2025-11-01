@@ -1,6 +1,6 @@
 """Builder execution tests.
 
-Verifies that PyForest builders create executable py_trees nodes.
+Verifies that TalkingTrees builders create executable py_trees nodes.
 These are lightweight tests that don't require the API server.
 
 Focus: Test the builder contract, not comprehensive execution testing.
@@ -13,8 +13,8 @@ from uuid import uuid4
 import py_trees
 import pytest
 
-from py_forest.adapters import to_py_trees
-from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+from talking_trees.adapters import to_py_trees
+from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 
 
 def test_comparison_expression_builder_creates_executable_node():

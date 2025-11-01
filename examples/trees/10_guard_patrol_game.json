@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "description": "Interactive 2D grid game with guard NPCs patrolling, investigating, and chasing intruders",
     "tags": ["game", "demo", "visual", "interactive"],
-    "author": "PyForest Demo",
+    "author": "TalkingTrees Demo",
     "status": "draft"
   },
   "blackboard_schema": {

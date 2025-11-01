@@ -3,7 +3,7 @@ requires = ["setuptools>=80.9.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "py-forest"
+name = "talking-trees"
 version = "0.1.0"
 description = "Serializable behavior trees with REST API - built on py_trees"
 readme = "README.md"
@@ -12,7 +12,7 @@ license = {text = "MIT"}
 authors = [
     {name = "Deniz N. Cakan"}
 ]
-keywords = ["behavior-trees", "ai", "robotics", "automation", "rest-api"]
+keywords = ["behavior-trees", "ai", "robotics", "automation", "rest-api", "talking-trees"]
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
@@ -29,7 +29,7 @@ dependencies = [
     "python-multipart>=0.0.20",
     "websockets>=15.0.1",
     "pydantic-settings>=2.11.0",
-    "typer[all]>=0.19.2",
+    "typer>=0.19.2",
     "rich>=14.2.0",
     "requests>=2.32.5",
 ]
@@ -50,13 +50,13 @@ viz = [
 ]
 
 [project.scripts]
-pyforest = "py_forest.cli.main:main"
+talkingtrees = "talking_trees.cli.main:main"
 
 [project.urls]
-Homepage = "https://github.com/dnzckn/py_forest"
-Documentation = "https://py-forest.readthedocs.io"
-Repository = "https://github.com/dnzckn/py_forest"
-Issues = "https://github.com/dnzckn/py_forest/issues"
+Homepage = "https://github.com/dnzckn/talking_trees"
+Documentation = "https://talking-trees.readthedocs.io"
+Repository = "https://github.com/dnzckn/talking_trees"
+Issues = "https://github.com/dnzckn/talking_trees/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]

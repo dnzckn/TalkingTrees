@@ -1,4 +1,4 @@
-"""Comprehensive integration tests for PyForest API."""
+"""Comprehensive integration tests for TalkingTrees API."""
 
 import json
 import time

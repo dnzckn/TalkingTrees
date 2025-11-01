@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "description": "Complex simulation of a person's day with hunger, thirst, energy, stress, and time management across morning, work, and evening phases",
     "tags": ["simulation", "demo", "complex"],
-    "author": "PyForest Demo"
+    "author": "TalkingTrees Demo"
   },
   "root": {
     "node_type": "Sequence",

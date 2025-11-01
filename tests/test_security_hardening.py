@@ -4,8 +4,8 @@
 from datetime import datetime
 from uuid import uuid4
 
-from py_forest.core.serializer import TreeSerializer
-from py_forest.models.tree import (
+from talking_trees.core.serializer import TreeSerializer
+from talking_trees.models.tree import (
     TreeDefinition,
     TreeMetadata,
     TreeNodeDefinition,

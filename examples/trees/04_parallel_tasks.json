@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Parallel Tasks",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Demonstrates parallel execution of multiple tasks",
     "tags": ["tutorial", "parallel", "concurrent"]
   },

@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Retry Pattern",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Demonstrates retry decorator for handling failures",
     "tags": ["tutorial", "decorator", "retry", "pattern"]
   },

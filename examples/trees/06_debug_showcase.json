@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Debug Showcase",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Demonstrates debugging features: breakpoints, watches, and step execution",
     "tags": ["tutorial", "debug", "breakpoint", "watch"]
   },

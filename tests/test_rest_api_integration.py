@@ -4,7 +4,7 @@ REST API Integration Test
 
 Tests the full workflow:
 1. Create tree with py_trees
-2. Convert to PyForest
+2. Convert to TalkingTrees
 3. Upload via REST API
 4. Create execution via REST API
 5. Tick via REST API
@@ -24,8 +24,8 @@ import py_trees
 import requests
 from py_trees.common import ComparisonExpression
 
-from py_forest.adapters import from_py_trees
-from py_forest.sdk import PyForest
+from talking_trees.adapters import from_py_trees
+from talking_trees.sdk import TalkingTrees
 
 HAS_PYTEST = importlib.util.find_spec("pytest") is not None
 
@@ -34,7 +34,7 @@ class TestRESTAPIIntegration:
     """Test REST API integration with py_trees workflow"""
 
     def test_full_workflow_with_rest_api(self, api_server=None):
-        """Test complete workflow: py_trees -> PyForest -> REST API -> Execute"""
+        """Test complete workflow: py_trees -> TalkingTrees -> REST API -> Execute"""
         if api_server is None:
             api_server = "http://127.0.0.1:8000"
 
@@ -82,11 +82,11 @@ class TestRESTAPIIntegration:
         print("✓ Created py_trees tree with 2 branches")
 
         # =====================================================================
-        # Step 2: Convert to PyForest format
+        # Step 2: Convert to TalkingTrees format
         # =====================================================================
-        print("\nStep 2: Convert to PyForest format...")
+        print("\nStep 2: Convert to TalkingTrees format...")
 
-        pf = PyForest()
+        pf = TalkingTrees()
         tree_def, _ = from_py_trees(
             root,
             name="REST API Test Tree",
@@ -94,13 +94,13 @@ class TestRESTAPIIntegration:
             description="Test tree for REST API integration",
         )
 
-        print("✓ Converted to PyForest TreeDefinition")
+        print("✓ Converted to TalkingTrees TreeDefinition")
         print(f"  Name: {tree_def.metadata.name}")
 
         # IMPORTANT: py_trees doesn't expose variable_value after construction
         # This is a known limitation. We need to add the values manually for testing.
         # In real usage, users would either:
-        # 1. Create trees directly with PyForest models, or
+        # 1. Create trees directly with TalkingTrees models, or
         # 2. Add values in the visual editor
         print("\n  Note: Adding SetBlackboardVariable values (py_trees limitation)")
         tree_def.root.children[0].children[1].config["value"] = (
@@ -178,7 +178,7 @@ class TestRESTAPIIntegration:
             snapshot.get("blackboard", {}) if isinstance(snapshot, dict) else {}
         )
 
-        # PyForest uses namespaced blackboard keys with leading slash
+        # TalkingTrees uses namespaced blackboard keys with leading slash
         robot_action = blackboard.get("/robot_action") or blackboard.get("robot_action")
 
         print(f"  Status: {status}")
@@ -215,7 +215,7 @@ class TestRESTAPIIntegration:
             snapshot.get("blackboard", {}) if isinstance(snapshot, dict) else {}
         )
 
-        # PyForest uses namespaced blackboard keys with leading slash
+        # TalkingTrees uses namespaced blackboard keys with leading slash
         robot_action = blackboard.get("/robot_action") or blackboard.get("robot_action")
 
         print(f"  Status: {status}")
@@ -272,7 +272,7 @@ class TestRESTAPIIntegration:
         print("=" * 70)
         print("\nVerified:")
         print("  ✓ py_trees tree creation")
-        print("  ✓ Conversion to PyForest format")
+        print("  ✓ Conversion to TalkingTrees format")
         print("  ✓ Tree upload via REST API")
         print("  ✓ Execution creation via REST API")
         print("  ✓ Tick execution via REST API with blackboard updates")
@@ -300,7 +300,7 @@ def run_standalone():
             sys.executable,
             "-m",
             "uvicorn",
-            "py_forest.api.main:app",
+            "talking_trees.api.main:app",
             "--host",
             "127.0.0.1",
             "--port",

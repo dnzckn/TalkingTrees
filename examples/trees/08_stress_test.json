@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Stress Test - Large Tree",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Large tree for performance and stress testing",
     "tags": ["test", "performance", "stress", "large"]
   },

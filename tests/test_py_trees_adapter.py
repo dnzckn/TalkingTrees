@@ -2,7 +2,7 @@
 Comprehensive Test Suite for py_trees Adapter
 ==============================================
 
-Tests all functionality of the py_trees <-> PyForest adapter.
+Tests all functionality of the py_trees <-> TalkingTrees adapter.
 
 Run with: python tests/test_py_trees_adapter.py
 """
@@ -12,8 +12,8 @@ import operator
 import py_trees
 from py_trees.common import ComparisonExpression
 
-from py_forest.adapters import from_py_trees, to_py_trees
-from py_forest.sdk import PyForest
+from talking_trees.adapters import from_py_trees, to_py_trees
+from talking_trees.sdk import TalkingTrees
 
 
 def test_basic_conversion():
@@ -28,7 +28,7 @@ def test_basic_conversion():
     root.add_child(py_trees.behaviours.Success(name="Step 2"))
     root.add_child(py_trees.behaviours.Failure(name="Step 3"))
 
-    # Convert to PyForest
+    # Convert to TalkingTrees
     pf_tree, _ = from_py_trees(root, name="Basic Test", version="1.0.0")
 
     # Verify structure
@@ -179,7 +179,7 @@ def test_save_load_roundtrip():
     root.add_child(py_trees.behaviours.Success(name="B"))
 
     # Convert and save
-    pf = PyForest()
+    pf = TalkingTrees()
     pf_tree, _ = from_py_trees(root, name="Roundtrip Test", version="1.0.0")
     pf.save_tree(pf_tree, "/tmp/test_roundtrip.json")
 
@@ -197,12 +197,12 @@ def test_save_load_roundtrip():
 
 
 def test_reverse_conversion():
-    """Test 6: Reverse conversion (PyForest → py_trees)"""
+    """Test 6: Reverse conversion (TalkingTrees → py_trees)"""
     print("\n" + "=" * 70)
-    print("TEST 6: Reverse Conversion (PyForest → py_trees)")
+    print("TEST 6: Reverse Conversion (TalkingTrees → py_trees)")
     print("=" * 70)
 
-    # Create PyForest tree
+    # Create TalkingTrees tree
     root = py_trees.composites.Sequence(name="Original", memory=False)
     check = ComparisonExpression("value", 42, operator.eq)
     root.add_child(
@@ -219,8 +219,8 @@ def test_reverse_conversion():
         )
     )
 
-    # Convert to PyForest
-    pf = PyForest()
+    # Convert to TalkingTrees
+    pf = TalkingTrees()
     pf_tree, _ = from_py_trees(root, name="Reverse Test", version="1.0.0")
 
     # Save
@@ -247,7 +247,7 @@ def test_reverse_conversion():
     assert condition.check.value == 42  # Correct: .value contains the comparison value
     assert condition.check.operator == operator.eq  # Correct: .operator contains the operator function
 
-    print("✓ Converted PyForest → py_trees")
+    print("✓ Converted TalkingTrees → py_trees")
     print("✓ Structure validated")
     print("✓ Condition parameters preserved")
     print("✓ TEST 6 PASSED")
@@ -449,7 +449,7 @@ def test_timeout_decorator():
 
 
 def test_decorator_reverse_conversion():
-    """Test 14: Decorator reverse conversion (PyForest → py_trees)"""
+    """Test 14: Decorator reverse conversion (TalkingTrees → py_trees)"""
     print("\n" + "=" * 70)
     print("TEST 14: Decorator Reverse Conversion")
     print("=" * 70)
@@ -460,8 +460,8 @@ def test_decorator_reverse_conversion():
     root = py_trees.composites.Sequence(name="With Decorator", memory=False)
     root.add_child(inverter)
 
-    # Convert to PyForest
-    pf = PyForest()
+    # Convert to TalkingTrees
+    pf = TalkingTrees()
     pf_tree, _ = from_py_trees(root, name="Decorator Test", version="1.0.0")
 
     # Save and load

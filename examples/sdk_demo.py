@@ -1,7 +1,7 @@
 """
-Demonstration of PyForest SDK Features
+Demonstration of TalkingTrees SDK Features
 
-This example shows how to use the PyForest SDK for:
+This example shows how to use the TalkingTrees SDK for:
 - Tree validation
 - Node search and query
 - Statistics and analysis
@@ -12,7 +12,7 @@ Usage:
     python examples/sdk_enhanced_demo.py
 """
 
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
 
 def demo_validation():
@@ -21,12 +21,12 @@ def demo_validation():
     print("DEMO 1: Tree Validation")
     print("=" * 70)
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     # Create a simple tree (in practice, you'd load from file)
     from uuid import uuid4
 
-    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 
     metadata = TreeMetadata(
         name="Demo Tree", version="1.0.0", description="Example for validation demo"
@@ -66,12 +66,12 @@ def demo_search():
     print("DEMO 2: Node Search & Query")
     print("=" * 70)
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     # Create a more complex tree
     from uuid import uuid4
 
-    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 
     metadata = TreeMetadata(name="Search Demo Tree", version="1.0.0")
 
@@ -144,12 +144,12 @@ def demo_statistics():
     print("DEMO 3: Tree Statistics & Analysis")
     print("=" * 70)
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     # Create a tree with variety of nodes
     from uuid import uuid4
 
-    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 
     metadata = TreeMetadata(name="Statistics Demo", version="1.0.0")
 
@@ -251,12 +251,12 @@ def demo_tree_manipulation():
     print("DEMO 5: Tree Manipulation")
     print("=" * 70)
 
-    pf = PyForest()
+    pf = TalkingTrees()
 
     # Create original tree
     from uuid import uuid4
 
-    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 
     metadata = TreeMetadata(name="Original", version="1.0.0")
     root = TreeNodeDefinition(
@@ -323,7 +323,7 @@ def demo_convenience_functions():
 
     print("\nQuick validation (requires actual file):")
     print("""
-    from py_forest.sdk_enhanced import quick_validate
+    from talking_trees.sdk_enhanced import quick_validate
 
     result = quick_validate("my_tree.json")
     # Automatically loads, validates, and prints results
@@ -331,7 +331,7 @@ def demo_convenience_functions():
 
     print("\nQuick tree comparison (requires actual files):")
     print("""
-    from py_forest.sdk_enhanced import compare_tree_structures
+    from talking_trees.sdk_enhanced import compare_tree_structures
 
     if compare_tree_structures("v1.json", "v2.json"):
         print("No structural changes")
@@ -341,7 +341,7 @@ def demo_convenience_functions():
 
     print("\nComplete analysis (requires actual file):")
     print("""
-    from py_forest.sdk_enhanced import analyze_tree
+    from talking_trees.sdk_enhanced import analyze_tree
 
     report = analyze_tree("complex_tree.json")
     print(report)
@@ -355,7 +355,7 @@ def main():
     """Run all demonstrations."""
     print("\n")
     print("╔" + "=" * 68 + "╗")
-    print("║" + " " * 15 + "PyForest Enhanced SDK Demonstration" + " " * 18 + "║")
+    print("║" + " " * 15 + "TalkingTrees Enhanced SDK Demonstration" + " " * 18 + "║")
     print("╚" + "=" * 68 + "╝")
     print()
 

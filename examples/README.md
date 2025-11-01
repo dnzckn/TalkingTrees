@@ -1,4 +1,4 @@
-# PyForest Examples
+# TalkingTrees Examples
 
 This directory contains example tree definitions and usage demonstrations.
 
@@ -31,7 +31,7 @@ Logic:
 ## Running Examples
 
 ```python
-from py_forest.storage import FileSystemTreeLibrary
+from talking_trees.storage import FileSystemTreeLibrary
 from pathlib import Path
 
 # Load tree library

@@ -3,7 +3,7 @@
   "metadata": {
     "name": "Robot Patrol",
     "version": "1.0.0",
-    "author": "PyForest Examples",
+    "author": "TalkingTrees Examples",
     "description": "Autonomous robot patrol behavior with battery management",
     "tags": ["example", "robot", "patrol", "realistic"]
   },

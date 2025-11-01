@@ -1,6 +1,6 @@
-# PyForest Visual Editors
+# TalkingTrees Visual Editors
 
-This directory contains visual behavior tree editors for PyForest.
+This directory contains visual behavior tree editors for TalkingTrees.
 
 ## Files
 
@@ -18,7 +18,7 @@ The professional-grade behavior tree editor with complete feature set.
 - Pan, zoom, minimap
 - Collapse/expand subtrees
 - Export to JSON
-- Save to PyForest API
+- Save to TalkingTrees API
 - Keyboard shortcuts
 - Professional VSCode-style theme
 - Properties panel with type-aware inputs
@@ -84,7 +84,7 @@ python test_complete_flow.py
 
 ## Integration
 
-### With PyForest API
+### With TalkingTrees API
 1. Click "API" button to save directly to backend
 2. Or export JSON and POST to `/trees/` endpoint
 
@@ -168,10 +168,10 @@ Key sections:
 
 ## Support
 
-- **Issues**: https://github.com/anthropics/pyforest/issues
+- **Issues**: https://github.com/anthropics/talkingtrees/issues
 - **Docs**: See MEMORY_AND_STATE.md, PRODUCTION_SYSTEM.md
 - **API**: http://localhost:8000/docs
 
 ## License
 
-Same as PyForest main project.
+Same as TalkingTrees main project.

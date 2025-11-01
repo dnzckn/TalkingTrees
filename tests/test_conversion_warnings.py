@@ -5,7 +5,7 @@ import py_trees
 from py_trees.behaviours import Success
 from py_trees.composites import Sequence
 
-from py_forest.adapters.py_trees_adapter import ConversionContext, from_py_trees
+from talking_trees.adapters.py_trees_adapter import ConversionContext, from_py_trees
 
 
 def test_no_warnings():
@@ -97,7 +97,7 @@ def test_unknown_node_type():
 
     # Create a custom behavior class
     class CustomBehavior(py_trees.behaviour.Behaviour):
-        """Custom behavior not in PyForest registry."""
+        """Custom behavior not in TalkingTrees registry."""
 
         def __init__(self, name):
             super().__init__(name)

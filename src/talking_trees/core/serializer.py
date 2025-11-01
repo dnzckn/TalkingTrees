@@ -1,0 +1,340 @@
+"""Tree serialization between JSON and py_trees objects."""
+
+from uuid import UUID
+
+import py_trees
+from py_trees import behaviour
+
+from talking_trees.core.constants import ConfigKeys, DefaultValues, NodeTypes
+from talking_trees.core.registry import get_registry
+from talking_trees.models.tree import TreeDefinition, TreeNodeDefinition
+
+
+class TreeSerializer:
+    """Converts between TreeDefinition (JSON) and py_trees.BehaviourTree.
+
+    Maintains bidirectional mapping between:
+    - TreeNodeDefinition UUID ↔ py_trees Behaviour instance
+
+    Security Features:
+    - Cycle detection in subtree resolution (prevents infinite loops)
+    - Depth limits (prevents stack overflow from deeply nested trees)
+    """
+
+    def __init__(self, max_depth: int = 100):
+        """Initialize the serializer.
+
+        Args:
+            max_depth: Maximum tree depth allowed (default: 100)
+        """
+        self.registry = get_registry()
+        self.node_map: dict[UUID, behaviour.Behaviour] = {}
+        self.reverse_map: dict[behaviour.Behaviour, UUID] = {}
+        self.max_depth = max_depth
+
+        # Cache decorator types from registry for efficient lookup
+        from talking_trees.models.schema import NodeCategory
+
+        self.decorator_types = self.registry.get_node_types_by_category(
+            NodeCategory.DECORATOR
+        )
+
+    def deserialize(self, tree_def: TreeDefinition) -> py_trees.trees.BehaviourTree:
+        """Convert TreeDefinition to executable py_trees.BehaviourTree.
+
+        Args:
+            tree_def: Tree definition from JSON
+
+        Returns:
+            Executable behaviour tree
+
+        Raises:
+            ValueError: If tree definition is invalid
+        """
+        self.node_map = {}
+        self.reverse_map = {}
+
+        # Resolve subtree references first (with cycle detection)
+        visited_refs = set()
+        resolved_root = self._resolve_subtrees(
+            tree_def.root, tree_def.subtrees, visited_refs
+        )
+
+        # Build the tree recursively (with depth limits)
+        root_node = self._build_node(resolved_root, depth=0)
+
+        # Create BehaviourTree wrapper
+        tree = py_trees.trees.BehaviourTree(root=root_node)
+
+        return tree
+
+    def _resolve_subtrees(
+        self,
+        node: TreeNodeDefinition,
+        subtrees: dict[str, TreeNodeDefinition],
+        visited_refs: set[str],
+    ) -> TreeNodeDefinition:
+        """Resolve $ref pointers to subtrees with cycle detection.
+
+        Args:
+            node: Node definition (may have $ref)
+            subtrees: Available subtree definitions
+            visited_refs: Set of already visited refs (for cycle detection)
+
+        Returns:
+            Resolved node definition
+
+        Raises:
+            ValueError: If referenced subtree not found or circular reference detected
+        """
+        # If this node has a $ref, replace it with the subtree
+        if node.ref:
+            ref_name = node.ref.lstrip("#/subtrees/")
+
+            # Cycle detection: check if we've already visited this ref
+            if ref_name in visited_refs:
+                raise ValueError(
+                    f"Circular subtree reference detected: {node.ref} (path: {visited_refs})"
+                )
+
+            if ref_name not in subtrees:
+                raise ValueError(f"Subtree reference not found: {node.ref}")
+
+            # Mark this ref as visited
+            visited_refs.add(ref_name)
+
+            # Get the subtree definition
+            subtree = subtrees[ref_name]
+
+            # Create a new node with subtree content but keep original node_id and name
+            resolved = TreeNodeDefinition(
+                node_type=subtree.node_type,
+                node_id=node.node_id,
+                name=node.name or subtree.name,
+                config=subtree.config,
+                description=node.description or subtree.description,
+                children=subtree.children,
+            )
+            node = resolved
+
+        # Recursively resolve children (share visited_refs to detect cycles)
+        if node.children:
+            resolved_children = [
+                self._resolve_subtrees(child, subtrees, visited_refs)
+                for child in node.children
+            ]
+            node = TreeNodeDefinition(
+                node_type=node.node_type,
+                node_id=node.node_id,
+                name=node.name,
+                config=node.config,
+                description=node.description,
+                children=resolved_children,
+            )
+
+        return node
+
+    def _build_node(
+        self, node_def: TreeNodeDefinition, depth: int = 0
+    ) -> behaviour.Behaviour:
+        """Recursively build a py_trees node from definition with depth limits.
+
+        Args:
+            node_def: Node definition
+            depth: Current depth in the tree
+
+        Returns:
+            Instantiated py_trees Behaviour
+
+        Raises:
+            ValueError: If node type is unknown, construction fails, or max depth exceeded
+        """
+        # Depth limit check
+        if depth > self.max_depth:
+            raise ValueError(
+                f"Tree depth exceeded maximum ({self.max_depth}). "
+                f"This may indicate a circular reference or excessively deep nesting."
+            )
+
+        # Get implementation from registry
+        implementation = self.registry.get_implementation(node_def.node_type)
+        if implementation is None:
+            raise ValueError(f"Unknown node type: {node_def.node_type}")
+
+        # Handle different node categories differently
+        if node_def.node_type in [NodeTypes.SEQUENCE, NodeTypes.SELECTOR]:
+            # Composites: build children first, then composite
+            return self._build_composite(node_def, depth)
+        elif node_def.node_type == NodeTypes.PARALLEL:
+            return self._build_parallel(node_def, depth)
+        elif node_def.node_type in self.decorator_types:
+            # Decorators: need child in constructor
+            # Uses cached set from registry for efficient lookup
+            return self._build_decorator(node_def, depth)
+        else:
+            # Simple behaviors (leaf nodes)
+            return self._build_behavior(node_def)
+
+    def _build_composite(
+        self, node_def: TreeNodeDefinition, depth: int
+    ) -> behaviour.Behaviour:
+        """Build a composite node (Sequence, Selector).
+
+        Args:
+            node_def: Node definition
+            depth: Current depth in tree
+
+        Returns:
+            Composite behaviour with children attached
+        """
+        # Build children first (increment depth)
+        children = [self._build_node(child, depth + 1) for child in node_def.children]
+
+        # Create composite with correct memory defaults
+        # Sequence defaults to memory=True (committed - completes steps in order)
+        # Selector defaults to memory=False (reactive - re-evaluates priorities each tick)
+        if node_def.node_type == NodeTypes.SEQUENCE:
+            memory = node_def.config.get(ConfigKeys.MEMORY, True)
+            composite = py_trees.composites.Sequence(
+                name=node_def.name, memory=memory, children=children
+            )
+        elif node_def.node_type == NodeTypes.SELECTOR:
+            memory = node_def.config.get(ConfigKeys.MEMORY, False)
+            composite = py_trees.composites.Selector(
+                name=node_def.name, memory=memory, children=children
+            )
+        else:
+            raise ValueError(f"Unknown composite type: {node_def.node_type}")
+
+        # Store UUID mapping
+        self._store_node_mapping(node_def.node_id, composite)
+
+        return composite
+
+    def _build_parallel(
+        self, node_def: TreeNodeDefinition, depth: int
+    ) -> behaviour.Behaviour:
+        """Build a parallel node.
+
+        Args:
+            node_def: Node definition
+            depth: Current depth in tree
+
+        Returns:
+            Parallel behaviour
+        """
+        # Build children first (increment depth)
+        children = [self._build_node(child, depth + 1) for child in node_def.children]
+
+        # Create policy using factory
+        from talking_trees.core.utils import ParallelPolicyFactory
+
+        policy_name = node_def.config.get(ConfigKeys.POLICY, DefaultValues.POLICY)
+        synchronise = node_def.config.get(ConfigKeys.SYNCHRONISE, DefaultValues.SYNCHRONISE)
+        policy = ParallelPolicyFactory.create(policy_name, synchronise)
+
+        # Create parallel
+        parallel = py_trees.composites.Parallel(
+            name=node_def.name, policy=policy, children=children
+        )
+
+        # Store UUID mapping
+        self._store_node_mapping(node_def.node_id, parallel)
+
+        return parallel
+
+    def _build_decorator(
+        self, node_def: TreeNodeDefinition, depth: int
+    ) -> behaviour.Behaviour:
+        """Build a decorator node using the builder registry.
+
+        Args:
+            node_def: Node definition
+            depth: Current depth in tree
+
+        Returns:
+            Decorator behaviour
+
+        Raises:
+            ValueError: If decorator has wrong number of children
+        """
+        # Decorators must have exactly one child
+        if len(node_def.children) != 1:
+            raise ValueError(
+                f"Decorator {node_def.name} must have exactly 1 child, "
+                f"got {len(node_def.children)}"
+            )
+
+        # Build child first (increment depth)
+        child = self._build_node(node_def.children[0], depth + 1)
+
+        # Use builder registry to create decorator
+        from talking_trees.core.builders import build_decorator
+
+        decorator = build_decorator(
+            node_def.node_type, node_def.name, node_def.config or {}, child
+        )
+
+        # Store UUID mapping
+        self._store_node_mapping(node_def.node_id, decorator)
+
+        return decorator
+
+    def _build_behavior(self, node_def: TreeNodeDefinition) -> behaviour.Behaviour:
+        """Build a leaf behavior node using the builder registry.
+
+        Args:
+            node_def: Node definition
+
+        Returns:
+            Behavior instance
+        """
+        # Use builder registry to create the behavior
+        from talking_trees.core.builders import build_behavior
+
+        node = build_behavior(node_def.node_type, node_def.name, node_def.config or {})
+
+        # Store UUID mapping
+        self._store_node_mapping(node_def.node_id, node)
+
+        return node
+
+    def _store_node_mapping(self, uuid: UUID, node: behaviour.Behaviour) -> None:
+        """Store bidirectional mapping between UUID and node.
+
+        Args:
+            uuid: Our tree definition UUID
+            node: py_trees Behaviour instance
+        """
+        self.node_map[uuid] = node
+        self.reverse_map[node] = uuid
+
+        # Also store UUID as attribute on the node for later retrieval
+        node._talkingtrees_uuid = uuid
+
+    def get_node_uuid(self, node: behaviour.Behaviour) -> UUID | None:
+        """Get the UUID for a py_trees node.
+
+        Args:
+            node: py_trees Behaviour instance
+
+        Returns:
+            UUID if found, None otherwise
+        """
+        # Try reverse map first
+        if node in self.reverse_map:
+            return self.reverse_map[node]
+
+        # Try attribute
+        return getattr(node, "_talkingtrees_uuid", None)
+
+    def get_node_by_uuid(self, uuid: UUID) -> behaviour.Behaviour | None:
+        """Get a py_trees node by UUID.
+
+        Args:
+            uuid: Tree definition UUID
+
+        Returns:
+            Behaviour instance if found, None otherwise
+        """
+        return self.node_map.get(uuid)
