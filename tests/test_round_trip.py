@@ -27,8 +27,8 @@ def test_simple_round_trip():
     )
 
     # Round-trip conversion
-    pf_tree, context = from_py_trees(original, name="Test")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, context = from_py_trees(original, name="Test")
+    round_trip = to_py_trees(tt_tree)
 
     # Validate
     validator = RoundTripValidator()
@@ -78,8 +78,8 @@ def test_complex_round_trip():
     )
 
     # Round-trip conversion
-    pf_tree, context = from_py_trees(original, name="Test")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, context = from_py_trees(original, name="Test")
+    round_trip = to_py_trees(tt_tree)
 
     # Validate
     validator = RoundTripValidator()
@@ -124,7 +124,7 @@ def test_setblackboard_round_trip():
     )
 
     # Round-trip conversion
-    pf_tree, context = from_py_trees(original, name="Test")
+    tt_tree, context = from_py_trees(original, name="Test")
 
     # Check for conversion warnings
     if context.has_warnings():
@@ -132,7 +132,7 @@ def test_setblackboard_round_trip():
         print(context.summary())
         print()
 
-    round_trip = to_py_trees(pf_tree)
+    round_trip = to_py_trees(tt_tree)
 
     # Validate
     validator = RoundTripValidator()
@@ -173,8 +173,8 @@ def test_decorator_round_trip():
     )
 
     # Round-trip conversion
-    pf_tree, context = from_py_trees(original, name="Test")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, context = from_py_trees(original, name="Test")
+    round_trip = to_py_trees(tt_tree)
 
     # Validate
     validator = RoundTripValidator()
@@ -214,8 +214,8 @@ def test_memory_parameter():
     )
 
     # Round-trip conversion
-    pf_tree, context = from_py_trees(original, name="Test")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, context = from_py_trees(original, name="Test")
+    round_trip = to_py_trees(tt_tree)
 
     # Validate
     validator = RoundTripValidator()

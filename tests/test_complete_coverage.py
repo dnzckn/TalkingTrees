@@ -65,7 +65,7 @@ class ComprehensiveCoverageTest:
         """
         try:
             # Step 1: py_trees → talkingtrees
-            pf_tree, context = from_py_trees(root_node, name=name, version="1.0.0")
+            tt_tree, context = from_py_trees(root_node, name=name, version="1.0.0")
 
             if context.has_warnings():
                 print(f"  ⚠ Conversion warnings: {len(context.warnings)}")
@@ -74,7 +74,7 @@ class ComprehensiveCoverageTest:
 
             # Step 2: talkingtrees → JSON file
             json_path = Path(self.temp_dir) / f"{name.replace(' ', '_')}.json"
-            self.pf.save_tree(pf_tree, str(json_path))
+            self.pf.save_tree(tt_tree, str(json_path))
 
             # Verify JSON is valid
             with open(json_path) as f:

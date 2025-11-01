@@ -21,12 +21,12 @@ Example:
     root.add_child(py_trees.behaviours.Success("Step2"))
 
     # Convert to TalkingTrees
-    pf_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
+    tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
     # Now use with TalkingTrees SDK
     from talking_trees.sdk import TalkingTrees
     pf = TalkingTrees()
-    pf.save_tree(pf_tree, "my_tree.json")
+    pf.save_tree(tt_tree, "my_tree.json")
 """
 
 from datetime import datetime
@@ -351,7 +351,7 @@ def from_py_trees(
         >>> root.add_child(py_trees.behaviours.Success("Step1"))
         >>>
         >>> # Convert to TalkingTrees
-        >>> pf_tree, context = from_py_trees(root, name="My Tree")
+        >>> tt_tree, context = from_py_trees(root, name="My Tree")
         >>>
         >>> # Check for warnings
         >>> if context.has_warnings():
@@ -360,13 +360,13 @@ def from_py_trees(
         >>> # Use with TalkingTrees
         >>> from talking_trees.sdk import TalkingTrees
         >>> pf = TalkingTrees()
-        >>> pf.save_tree(pf_tree, "tree.json")
+        >>> pf.save_tree(tt_tree, "tree.json")
     """
     # Create conversion context for tracking warnings
     context = ConversionContext()
 
     # Convert root node recursively
-    pf_root = _convert_node(
+    tt_root = _convert_node(
         root,
         parent_path="",
         use_deterministic_uuids=use_deterministic_uuids,
@@ -387,7 +387,7 @@ def from_py_trees(
     tree = TreeDefinition(
         tree_id=tree_id or uuid4(),
         metadata=metadata,
-        root=pf_root,
+        root=tt_root,
         dependencies=TreeDependencies(),
     )
 
@@ -426,7 +426,7 @@ def to_py_trees(tree: TreeDefinition):
     return behaviour_tree.root
 
 
-def print_comparison(py_trees_root, pf_tree: TreeDefinition):
+def print_comparison(py_trees_root, tt_tree: TreeDefinition):
     """
     Print side-by-side comparison of py_trees and TalkingTrees trees.
 
@@ -442,8 +442,8 @@ def print_comparison(py_trees_root, pf_tree: TreeDefinition):
     print("\n" + "=" * 70)
     print("TalkingTrees Tree:")
     print("=" * 70)
-    print(f"Name: {pf_tree.metadata.name}")
-    print(f"Version: {pf_tree.metadata.version}")
+    print(f"Name: {tt_tree.metadata.name}")
+    print(f"Version: {tt_tree.metadata.version}")
 
     def count_nodes(node):
         count = 1
@@ -451,7 +451,7 @@ def print_comparison(py_trees_root, pf_tree: TreeDefinition):
             count += count_nodes(child)
         return count
 
-    total_nodes = count_nodes(pf_tree.root)
+    total_nodes = count_nodes(tt_tree.root)
     print(f"Nodes: {total_nodes}")
     print()
 
@@ -460,7 +460,7 @@ def print_comparison(py_trees_root, pf_tree: TreeDefinition):
         for child in node.children:
             print_tree(child, indent + 1)
 
-    print_tree(pf_tree.root)
+    print_tree(tt_tree.root)
     print()
 
 
@@ -500,8 +500,8 @@ def compare_py_trees(
         ... ])
         >>>
         >>> # Round-trip conversion
-        >>> pf_tree, _ = from_py_trees(root, name="Test", version="1.0")
-        >>> py_trees_root = to_py_trees(pf_tree)
+        >>> tt_tree, _ = from_py_trees(root, name="Test", version="1.0")
+        >>> py_trees_root = to_py_trees(tt_tree)
         >>>
         >>> # Verify they're equivalent
         >>> if compare_py_trees(root, py_trees_root):

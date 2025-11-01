@@ -74,7 +74,7 @@ def test_value_extraction():
         root = py_trees.composites.Sequence(name="Root", memory=True, children=[node])
 
         # Convert to TalkingTrees
-        pf_tree, context = from_py_trees(root, name="Test", version="1.0.0")
+        tt_tree, context = from_py_trees(root, name="Test", version="1.0.0")
 
         # Check if warning was issued
         if context.has_warnings():
@@ -85,7 +85,7 @@ def test_value_extraction():
             print("  ✅ No conversion warnings")
 
         # Check if value is in config
-        setter_node = pf_tree.root.children[0]
+        setter_node = tt_tree.root.children[0]
         if "value" in setter_node.config:
             config_value = setter_node.config["value"]
             print(f"  ✅ Value in config: {config_value}")
@@ -95,7 +95,7 @@ def test_value_extraction():
             print(f"     Config keys: {list(setter_node.config.keys())}")
 
         # Convert back to py_trees
-        round_trip_root = to_py_trees(pf_tree)
+        round_trip_root = to_py_trees(tt_tree)
         round_trip_node = round_trip_root.children[0]
 
         # Try to extract from round-trip

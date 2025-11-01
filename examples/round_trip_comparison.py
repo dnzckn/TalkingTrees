@@ -30,11 +30,11 @@ def example_basic_comparison():
     )
 
     # Convert to TalkingTrees
-    pf_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
+    tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
     # Save and load (optional - demonstrates full round-trip)
     pf = TalkingTrees()
-    pf.save_tree(pf_tree, "my_tree.json")
+    pf.save_tree(tt_tree, "my_tree.json")
     loaded = pf.load_tree("my_tree.json")
 
     # Convert back to py_trees
@@ -118,8 +118,8 @@ def example_complex_tree():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Complex", version="1.0")
-    py_trees_root = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Complex", version="1.0")
+    py_trees_root = to_py_trees(tt_tree)
 
     # Compare
     print("\nComparing complex tree with decorators:")
@@ -145,8 +145,8 @@ def example_assertion_mode():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Test", version="1.0")
-    py_trees_root = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Test", version="1.0")
+    py_trees_root = to_py_trees(tt_tree)
 
     # Assert equivalence (raises ValueError if different)
     print("\nTrying assertion mode:")

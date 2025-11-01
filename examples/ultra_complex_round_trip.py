@@ -272,7 +272,7 @@ def main():
 
     # Step 2: Convert to TalkingTrees
     print("STEP 2: Converting to TalkingTrees format...")
-    pf_tree, context = from_py_trees(
+    tt_tree, context = from_py_trees(
         original_root, name="UltraComplex Robot", version="2.0.0"
     )
 
@@ -286,7 +286,7 @@ def main():
     # Step 3: Save to JSON
     print("\nSTEP 3: Saving to JSON file...")
     pf = TalkingTrees()
-    pf.save_tree(pf_tree, "tests/fixtures/ultra_complex_tree.json")
+    pf.save_tree(tt_tree, "tests/fixtures/ultra_complex_tree.json")
     print("✓ Saved to tests/fixtures/ultra_complex_tree.json")
 
     # Step 4: Load from JSON

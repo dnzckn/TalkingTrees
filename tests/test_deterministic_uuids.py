@@ -32,16 +32,16 @@ def test_uuid_stability():
     )
 
     # Convert twice with deterministic UUIDs
-    pf_tree1, _ = from_py_trees(root, name="Test Tree", use_deterministic_uuids=True)
-    pf_tree2, _ = from_py_trees(root, name="Test Tree", use_deterministic_uuids=True)
+    tt_tree1, _ = from_py_trees(root, name="Test Tree", use_deterministic_uuids=True)
+    tt_tree2, _ = from_py_trees(root, name="Test Tree", use_deterministic_uuids=True)
 
     # Check root UUIDs match
-    if pf_tree1.root.node_id == pf_tree2.root.node_id:
-        print("✓ Root UUID is stable:", pf_tree1.root.node_id)
+    if tt_tree1.root.node_id == tt_tree2.root.node_id:
+        print("✓ Root UUID is stable:", tt_tree1.root.node_id)
     else:
         print("✗ Root UUID changed!")
-        print("  First:", pf_tree1.root.node_id)
-        print("  Second:", pf_tree2.root.node_id)
+        print("  First:", tt_tree1.root.node_id)
+        print("  Second:", tt_tree2.root.node_id)
         return False
 
     # Check all child UUIDs match
@@ -62,7 +62,7 @@ def test_uuid_stability():
 
         return True
 
-    if compare_nodes(pf_tree1.root, pf_tree2.root):
+    if compare_nodes(tt_tree1.root, tt_tree2.root):
         print("✓ All node UUIDs are stable across conversions")
     else:
         return False
@@ -83,13 +83,13 @@ def test_uuid_determinism():
     # Tree 2 (different structure)
     root2 = Selector(name="Root", memory=False, children=[Success(name="Task1")])
 
-    pf_tree1, _ = from_py_trees(root1, name="Tree1", use_deterministic_uuids=True)
-    pf_tree2, _ = from_py_trees(root2, name="Tree2", use_deterministic_uuids=True)
+    tt_tree1, _ = from_py_trees(root1, name="Tree1", use_deterministic_uuids=True)
+    tt_tree2, _ = from_py_trees(root2, name="Tree2", use_deterministic_uuids=True)
 
-    if pf_tree1.root.node_id != pf_tree2.root.node_id:
+    if tt_tree1.root.node_id != tt_tree2.root.node_id:
         print("✓ Different structures produce different UUIDs")
-        print("  Sequence UUID:", pf_tree1.root.node_id)
-        print("  Selector UUID:", pf_tree2.root.node_id)
+        print("  Sequence UUID:", tt_tree1.root.node_id)
+        print("  Selector UUID:", tt_tree2.root.node_id)
     else:
         print("✗ Same UUID for different structures!")
         return False
@@ -106,13 +106,13 @@ def test_random_uuids():
 
     root = Sequence(name="Root", memory=True, children=[Success(name="Task1")])
 
-    pf_tree1, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
-    pf_tree2, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
+    tt_tree1, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
+    tt_tree2, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
 
-    if pf_tree1.root.node_id != pf_tree2.root.node_id:
+    if tt_tree1.root.node_id != tt_tree2.root.node_id:
         print("✓ Random UUIDs are different each time")
-        print("  First:", pf_tree1.root.node_id)
-        print("  Second:", pf_tree2.root.node_id)
+        print("  First:", tt_tree1.root.node_id)
+        print("  Second:", tt_tree2.root.node_id)
     else:
         print("✗ Random UUIDs are the same (unlikely but possible)")
 
@@ -142,10 +142,10 @@ def test_path_sensitivity():
         ],
     )
 
-    pf_tree, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=True)
+    tt_tree, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=True)
 
-    task1_uuid = pf_tree.root.children[0].node_id
-    task2_uuid = pf_tree.root.children[1].children[0].node_id
+    task1_uuid = tt_tree.root.children[0].node_id
+    task2_uuid = tt_tree.root.children[1].children[0].node_id
 
     if task1_uuid != task2_uuid:
         print("✓ Same name at different paths → different UUIDs")

@@ -25,7 +25,7 @@ def test_no_warnings():
     )
 
     # Convert and check context
-    pf_tree, context = from_py_trees(root, name="Test Tree")
+    tt_tree, context = from_py_trees(root, name="Test Tree")
 
     print(context.summary())
 
@@ -63,7 +63,7 @@ def test_setblackboard_warning():
     )
 
     # Convert and check context
-    pf_tree, context = from_py_trees(root, name="Test Tree")
+    tt_tree, context = from_py_trees(root, name="Test Tree")
 
     print(context.summary())
 
@@ -72,7 +72,7 @@ def test_setblackboard_warning():
         print("✓ PASSED: Value extracted successfully, no warning needed")
 
         # Verify value was actually extracted
-        set_node = pf_tree.root.children[0]
+        set_node = tt_tree.root.children[0]
         if set_node.config.get("value") == 42.5:
             print("✓ Value preserved:", set_node.config["value"])
         else:
@@ -116,7 +116,7 @@ def test_unknown_node_type():
     )
 
     # Convert and check context
-    pf_tree, context = from_py_trees(root, name="Test Tree")
+    tt_tree, context = from_py_trees(root, name="Test Tree")
 
     print(context.summary())
 

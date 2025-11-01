@@ -29,19 +29,19 @@ def test_basic_conversion():
     root.add_child(py_trees.behaviours.Failure(name="Step 3"))
 
     # Convert to TalkingTrees
-    pf_tree, _ = from_py_trees(root, name="Basic Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Basic Test", version="1.0.0")
 
     # Verify structure
-    assert pf_tree.metadata.name == "Basic Test"
-    assert pf_tree.metadata.version == "1.0.0"
-    assert pf_tree.root.node_type == "Sequence"
-    assert len(pf_tree.root.children) == 3
-    assert pf_tree.root.children[0].node_type == "Success"
-    assert pf_tree.root.children[2].node_type == "Failure"
+    assert tt_tree.metadata.name == "Basic Test"
+    assert tt_tree.metadata.version == "1.0.0"
+    assert tt_tree.root.node_type == "Sequence"
+    assert len(tt_tree.root.children) == 3
+    assert tt_tree.root.children[0].node_type == "Success"
+    assert tt_tree.root.children[2].node_type == "Failure"
 
     print("✓ Structure validated")
     print("✓ TEST 1 PASSED")
-    return pf_tree
+    return tt_tree
 
 
 def test_blackboard_condition():
@@ -61,10 +61,10 @@ def test_blackboard_condition():
     root.add_child(condition)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Condition Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Condition Test", version="1.0.0")
 
     # Verify
-    condition_node = pf_tree.root.children[0]
+    condition_node = tt_tree.root.children[0]
     assert condition_node.config["variable"] == "battery_level"
     assert condition_node.config["operator"] == "<"
     assert condition_node.config["value"] == 20
@@ -74,7 +74,7 @@ def test_blackboard_condition():
         f"op={condition_node.config['operator']}, value={condition_node.config['value']}"
     )
     print("✓ TEST 2 PASSED")
-    return pf_tree
+    return tt_tree
 
 
 def test_blackboard_setter():
@@ -94,10 +94,10 @@ def test_blackboard_setter():
     root.add_child(setter)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Setter Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Setter Test", version="1.0.0")
 
     # Verify
-    setter_node = pf_tree.root.children[0]
+    setter_node = tt_tree.root.children[0]
     assert setter_node.config["variable"] == "robot_action"
     assert setter_node.config["overwrite"] is True
 
@@ -107,7 +107,7 @@ def test_blackboard_setter():
         f"overwrite={setter_node.config['overwrite']}"
     )
     print("✓ TEST 3 PASSED")
-    return pf_tree
+    return tt_tree
 
 
 def test_complex_tree():
@@ -152,19 +152,19 @@ def test_complex_tree():
     root.add_child(normal)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Complex Robot AI", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Complex Robot AI", version="1.0.0")
 
     # Verify
-    assert pf_tree.root.node_type == "Selector"
-    assert len(pf_tree.root.children) == 2
-    assert pf_tree.root.children[0].node_type == "Sequence"
-    assert len(pf_tree.root.children[0].children) == 2
+    assert tt_tree.root.node_type == "Selector"
+    assert len(tt_tree.root.children) == 2
+    assert tt_tree.root.children[0].node_type == "Sequence"
+    assert len(tt_tree.root.children[0].children) == 2
 
     print(
-        f"✓ Root: {pf_tree.root.node_type} with {len(pf_tree.root.children)} children"
+        f"✓ Root: {tt_tree.root.node_type} with {len(tt_tree.root.children)} children"
     )
     print("✓ TEST 4 PASSED")
-    return pf_tree
+    return tt_tree
 
 
 def test_save_load_roundtrip():
@@ -180,8 +180,8 @@ def test_save_load_roundtrip():
 
     # Convert and save
     pf = TalkingTrees()
-    pf_tree, _ = from_py_trees(root, name="Roundtrip Test", version="1.0.0")
-    pf.save_tree(pf_tree, "/tmp/test_roundtrip.json")
+    tt_tree, _ = from_py_trees(root, name="Roundtrip Test", version="1.0.0")
+    pf.save_tree(tt_tree, "/tmp/test_roundtrip.json")
 
     # Load back
     loaded = pf.load_tree("/tmp/test_roundtrip.json")
@@ -221,10 +221,10 @@ def test_reverse_conversion():
 
     # Convert to TalkingTrees
     pf = TalkingTrees()
-    pf_tree, _ = from_py_trees(root, name="Reverse Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Reverse Test", version="1.0.0")
 
     # Save
-    pf.save_tree(pf_tree, "/tmp/test_reverse.json")
+    pf.save_tree(tt_tree, "/tmp/test_reverse.json")
 
     # Load
     loaded = pf.load_tree("/tmp/test_reverse.json")
@@ -280,10 +280,10 @@ def test_multiple_operators():
         root.add_child(condition)
 
         # Convert
-        pf_tree, _ = from_py_trees(root, name="Op Test", version="1.0.0")
+        tt_tree, _ = from_py_trees(root, name="Op Test", version="1.0.0")
 
         # Verify
-        cond_node = pf_tree.root.children[0]
+        cond_node = tt_tree.root.children[0]
         assert cond_node.config["operator"] == op_str, f"Failed for {op_str}"
         assert cond_node.config["value"] == value
 
@@ -311,15 +311,15 @@ def test_nested_composites():
     root.add_child(l2)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Nested Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Nested Test", version="1.0.0")
 
     # Verify depth
-    assert pf_tree.root.node_type == "Selector"
-    assert pf_tree.root.children[0].node_type == "Sequence"
-    assert pf_tree.root.children[0].children[0].node_type == "Selector"
-    assert pf_tree.root.children[0].children[0].children[0].node_type == "Sequence"
+    assert tt_tree.root.node_type == "Selector"
+    assert tt_tree.root.children[0].node_type == "Sequence"
+    assert tt_tree.root.children[0].children[0].node_type == "Selector"
+    assert tt_tree.root.children[0].children[0].children[0].node_type == "Sequence"
     assert (
-        pf_tree.root.children[0].children[0].children[0].children[0].node_type
+        tt_tree.root.children[0].children[0].children[0].children[0].node_type
         == "Success"
     )
 
@@ -341,11 +341,11 @@ def test_parallel_composite():
     root.add_child(py_trees.behaviours.Success(name="Monitor Comms"))
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Parallel Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Parallel Test", version="1.0.0")
 
     # Verify
-    assert pf_tree.root.node_type == "Parallel"
-    assert len(pf_tree.root.children) == 2
+    assert tt_tree.root.node_type == "Parallel"
+    assert len(tt_tree.root.children) == 2
 
     print("✓ Parallel node converted")
     print("✓ TEST 9 PASSED")
@@ -362,12 +362,12 @@ def test_inverter_decorator():
     root = py_trees.decorators.Inverter(name="Invert It", child=child)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Inverter Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Inverter Test", version="1.0.0")
 
     # Verify
-    assert pf_tree.root.node_type == "Inverter"
-    assert len(pf_tree.root.children) == 1
-    assert pf_tree.root.children[0].node_type == "Success"
+    assert tt_tree.root.node_type == "Inverter"
+    assert len(tt_tree.root.children) == 1
+    assert tt_tree.root.children[0].node_type == "Success"
 
     print("✓ Inverter decorator converted")
     print("✓ Child preserved")
@@ -385,15 +385,15 @@ def test_repeat_decorator():
     root = py_trees.decorators.Repeat(name="Repeat 5 times", child=child, num_success=5)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Repeat Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Repeat Test", version="1.0.0")
 
     # Verify
-    assert pf_tree.root.node_type == "Repeat"
-    assert pf_tree.root.config.get("num_success") == 5
-    assert len(pf_tree.root.children) == 1
+    assert tt_tree.root.node_type == "Repeat"
+    assert tt_tree.root.config.get("num_success") == 5
+    assert len(tt_tree.root.children) == 1
 
     print(
-        f"✓ Repeat decorator converted with num_success={pf_tree.root.config.get('num_success')}"
+        f"✓ Repeat decorator converted with num_success={tt_tree.root.config.get('num_success')}"
     )
     print("✓ TEST 11 PASSED")
 
@@ -409,15 +409,15 @@ def test_retry_decorator():
     root = py_trees.decorators.Retry(name="Retry 3 times", child=child, num_failures=3)
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Retry Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Retry Test", version="1.0.0")
 
     # Verify
-    assert pf_tree.root.node_type == "Retry"
-    assert pf_tree.root.config.get("num_failures") == 3
-    assert len(pf_tree.root.children) == 1
+    assert tt_tree.root.node_type == "Retry"
+    assert tt_tree.root.config.get("num_failures") == 3
+    assert len(tt_tree.root.children) == 1
 
     print(
-        f"✓ Retry decorator converted with num_failures={pf_tree.root.config.get('num_failures')}"
+        f"✓ Retry decorator converted with num_failures={tt_tree.root.config.get('num_failures')}"
     )
     print("✓ TEST 12 PASSED")
 
@@ -435,15 +435,15 @@ def test_timeout_decorator():
     )
 
     # Convert
-    pf_tree, _ = from_py_trees(root, name="Timeout Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Timeout Test", version="1.0.0")
 
     # Verify
-    assert pf_tree.root.node_type == "Timeout"
-    assert pf_tree.root.config.get("duration") == 5.0
-    assert len(pf_tree.root.children) == 1
+    assert tt_tree.root.node_type == "Timeout"
+    assert tt_tree.root.config.get("duration") == 5.0
+    assert len(tt_tree.root.children) == 1
 
     print(
-        f"✓ Timeout decorator converted with duration={pf_tree.root.config.get('duration')}s"
+        f"✓ Timeout decorator converted with duration={tt_tree.root.config.get('duration')}s"
     )
     print("✓ TEST 13 PASSED")
 
@@ -462,10 +462,10 @@ def test_decorator_reverse_conversion():
 
     # Convert to TalkingTrees
     pf = TalkingTrees()
-    pf_tree, _ = from_py_trees(root, name="Decorator Test", version="1.0.0")
+    tt_tree, _ = from_py_trees(root, name="Decorator Test", version="1.0.0")
 
     # Save and load
-    pf.save_tree(pf_tree, "/tmp/test_decorator.json")
+    pf.save_tree(tt_tree, "/tmp/test_decorator.json")
     loaded = pf.load_tree("/tmp/test_decorator.json")
 
     # Convert back to py_trees

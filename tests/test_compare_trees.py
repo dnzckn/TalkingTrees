@@ -105,8 +105,8 @@ def test_compare_round_trip_simple():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Test", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Test", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     assert compare_py_trees(root, round_trip) is True
 
@@ -131,8 +131,8 @@ def test_compare_round_trip_with_decorators():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Test", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Test", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     assert compare_py_trees(root, round_trip) is True
 
@@ -157,8 +157,8 @@ def test_compare_round_trip_with_blackboard():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Test", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Test", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     assert compare_py_trees(root, round_trip) is True
 
@@ -261,8 +261,8 @@ def test_ultra_complex_round_trip():
     )
 
     # Round-trip conversion
-    pf_tree, _ = from_py_trees(root, name="UltraComplex", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="UltraComplex", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     # Verify equivalence
     assert compare_py_trees(root, round_trip) is True
@@ -285,8 +285,8 @@ def test_complex_nested_decorators():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Nested", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Nested", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     assert compare_py_trees(root, round_trip) is True
 
@@ -319,8 +319,8 @@ def test_multiple_blackboard_operations():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="Blackboard", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="Blackboard", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     assert compare_py_trees(root, round_trip) is True
 
@@ -353,7 +353,7 @@ def test_all_status_converters():
     )
 
     # Round-trip
-    pf_tree, _ = from_py_trees(root, name="StatusConverters", version="1.0")
-    round_trip = to_py_trees(pf_tree)
+    tt_tree, _ = from_py_trees(root, name="StatusConverters", version="1.0")
+    round_trip = to_py_trees(tt_tree)
 
     assert compare_py_trees(root, round_trip) is True

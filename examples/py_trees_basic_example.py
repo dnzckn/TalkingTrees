@@ -61,7 +61,7 @@ def convert_to_talkingtrees(py_trees_root):
     print("\nConverting to TalkingTrees format...")
 
     pf = TalkingTrees()
-    pf_tree = pf.from_py_trees(
+    tt_tree = pf.from_py_trees(
         py_trees_root,
         name="Robot Controller",
         version="1.0.0",
@@ -69,21 +69,21 @@ def convert_to_talkingtrees(py_trees_root):
     )
 
     print("✓ Converted to TalkingTrees")
-    print(f"  Tree: {pf_tree.metadata.name} v{pf_tree.metadata.version}")
-    print(f"  Root type: {pf_tree.root.node_type}")
-    print(f"  Root children: {len(pf_tree.root.children)}")
+    print(f"  Tree: {tt_tree.metadata.name} v{tt_tree.metadata.version}")
+    print(f"  Root type: {tt_tree.root.node_type}")
+    print(f"  Root children: {len(tt_tree.root.children)}")
 
-    return pf_tree
+    return tt_tree
 
 
-def save_and_load(pf_tree):
+def save_and_load(tt_tree):
     """Save tree to JSON and load it back"""
     print("\nSaving to JSON...")
 
     pf = TalkingTrees()
     output_path = "examples/py_trees_robot.json"
 
-    pf.save_tree(pf_tree, output_path)
+    pf.save_tree(tt_tree, output_path)
     print(f"✓ Saved to {output_path}")
 
     # Load it back
@@ -93,7 +93,7 @@ def save_and_load(pf_tree):
     return loaded
 
 
-def visualize_structure(pf_tree):
+def visualize_structure(tt_tree):
     """Print the tree structure"""
     print("\nTree Structure:")
     print("=" * 60)
@@ -103,7 +103,7 @@ def visualize_structure(pf_tree):
         for child in node.children:
             print_node(child, indent + 1)
 
-    print_node(pf_tree.root)
+    print_node(tt_tree.root)
     print("=" * 60)
 
 
@@ -116,10 +116,10 @@ def main():
     py_trees_root = create_simple_tree()
 
     # Step 2: Convert to TalkingTrees
-    pf_tree = convert_to_talkingtrees(py_trees_root)
+    tt_tree = convert_to_talkingtrees(py_trees_root)
 
     # Step 3: Save and load
-    loaded_tree = save_and_load(pf_tree)
+    loaded_tree = save_and_load(tt_tree)
 
     # Step 4: Show structure
     visualize_structure(loaded_tree)
