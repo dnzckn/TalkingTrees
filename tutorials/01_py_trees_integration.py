@@ -1,5 +1,5 @@
 """
-PyForest SDK Tutorial 5: py_trees Integration
+PyForest SDK Tutorial 1: py_trees Integration
 ==============================================
 
 This tutorial shows how to bridge between py_trees and PyForest:
@@ -503,7 +503,7 @@ def example_8_profiling():
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
-    print(" PyForest SDK Tutorial 5: py_trees Integration")
+    print(" PyForest SDK Tutorial 1: py_trees Integration")
     print("=" * 70 + "\n")
 
     example_1_basic_conversion()

@@ -1,5 +1,5 @@
 """
-PyForest Tutorial 6: Complete Workflow - Design, Export, Control
+PyForest Tutorial 2: Complete Workflow - Design, Export, Control
 ===================================================================
 
 This is THE DEFINITIVE TUTORIAL showing BOTH approaches to behavior trees:
@@ -510,7 +510,7 @@ def test_scenarios():
 
 if __name__ == "__main__":
     print("\n" + "=" * 70)
-    print(" PyForest Tutorial 6: Complete Workflow")
+    print(" PyForest Tutorial 2: Complete Workflow")
     print(" BOTH Approaches: Code-First + Visual-First")
     print("=" * 70 + "\n")
 

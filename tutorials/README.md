@@ -23,7 +23,7 @@ pip install -e .
 
 ## Tutorial Overview
 
-**START HERE: Tutorial 6 - Complete Workflow**
+**START HERE: Tutorial 2 - Complete Workflow**
 
 This shows you everything you need: design, export, and control.
 
@@ -31,8 +31,8 @@ This shows you everything you need: design, export, and control.
 
 ## Tutorials
 
-### Tutorial 5: py_trees Integration
-**File:** `05_py_trees_integration.py`
+### Tutorial 1: py_trees Integration
+**File:** `01_py_trees_integration.py`
 **Duration:** 25 minutes
 **Level:** Intermediate
 
@@ -47,7 +47,7 @@ Bridge between py_trees and PyForest:
 
 **Run it:**
 ```bash
-python 05_py_trees_integration.py
+python 01_py_trees_integration.py
 ```
 
 **What You'll Learn:**
@@ -72,8 +72,8 @@ python 05_py_trees_integration.py
 
 ---
 
-### Tutorial 6: Complete Workflow (RECOMMENDED)
-**File:** `06_complete_workflow.py`
+### Tutorial 2: Complete Workflow (RECOMMENDED)
+**File:** `02_complete_workflow.py`
 **Duration:** 20 minutes
 **Level:** Beginner
 
@@ -87,7 +87,7 @@ Shows the complete recommended PyForest workflow:
 
 **Run it:**
 ```bash
-python 06_complete_workflow.py
+python 02_complete_workflow.py
 ```
 
 **What You'll Learn:**
@@ -260,7 +260,7 @@ pf.save_tree(tree, "tree.json")
 
 ```bash
 # Run tutorial to see example
-python 06_complete_workflow.py
+python 02_complete_workflow.py
 
 # Modify and test
 # Edit the tutorial file
@@ -308,13 +308,13 @@ After running tutorials:
 ```
 tutorials/
 ├── README.md                      # This file
-├── 05_py_trees_integration.py     # py_trees integration
-├── 06_complete_workflow.py        # Complete workflow (START HERE!)
+├── 01_py_trees_integration.py     # py_trees integration
+├── 02_complete_workflow.py        # Complete workflow (START HERE!)
 │
-├── py_trees_simple.json           # Created by tutorial 5
-├── py_trees_complex.json          # Created by tutorial 5
-├── py_trees_decorators.json       # Created by tutorial 5
-└── py_trees_custom.json           # Created by tutorial 5
+├── py_trees_simple.json           # Created by tutorial 1
+├── py_trees_complex.json          # Created by tutorial 1
+├── py_trees_decorators.json       # Created by tutorial 1
+└── py_trees_custom.json           # Created by tutorial 1
 ```
 
 ---
@@ -334,7 +334,7 @@ pip install -e .
 ```python
 # Make sure you're in the right directory
 cd tutorials
-python 06_complete_workflow.py
+python 02_complete_workflow.py
 
 # Or use absolute paths
 pf.load_tree("/absolute/path/to/tree.json")
@@ -374,7 +374,7 @@ After completing these tutorials:
    - `README.md` - Main documentation
 
 4. **Build Your Project**
-   - Start with Tutorial 6 pattern
+   - Start with Tutorial 2 pattern
    - Adapt control loop to your system
    - Use visual editor for iterations
 
@@ -406,7 +406,7 @@ After completing these tutorials:
 
 ---
 
-**Start with Tutorial 6 to see the complete picture!**
+**Start with Tutorial 2 to see the complete picture!**
 
 **The key insight:** Behavior trees make decisions. Your code provides sensors and executes actions. The tree connects them.
 
