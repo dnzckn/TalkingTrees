@@ -60,7 +60,7 @@
           },
           {
             "node_type": "Success",
-            "node_id": "5b522d96-a7c7-4488-84aa-abcf212604fb",
+            "node_id": "f817a433-3495-40cb-bd75-c01ccddac28b",
             "name": "Log Low Battery Event",
             "config": {},
             "description": null,

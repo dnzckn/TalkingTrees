@@ -40,6 +40,7 @@ from py_forest.models.tree import (
     TreeDependencies,
     TreeStatus
 )
+from py_forest.core.utils import operator_to_string, string_to_operator
 
 
 # =============================================================================
@@ -311,239 +312,14 @@ def _get_node_type(py_trees_node, context: Optional[ConversionContext] = None) -
 
 
 def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) -> Dict[str, Any]:
-    """Extract config from py_trees node to PyForest format"""
-    config = {}
-    class_name = type(py_trees_node).__name__
-    import operator as op_module
+    """Extract config from py_trees node to PyForest format.
 
-    # Blackboard-related behaviors
-    if class_name == "CheckBlackboardVariableValue":
-        # py_trees uses ComparisonExpression via .check attribute
-        if hasattr(py_trees_node, 'check'):
-            # Use abstraction layer to safely extract comparison data
-            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
-
-            config['variable'] = extracted['variable']
-            config['value'] = extracted['comparison_value']
-
-            # Convert operator function to string
-            op_func = extracted['operator_function']
-            op_map = {
-                op_module.gt: ">",
-                op_module.ge: ">=",
-                op_module.lt: "<",
-                op_module.le: "<=",
-                op_module.eq: "==",
-                op_module.ne: "!=",
-            }
-            config['operator'] = op_map.get(op_func, "==")
-
-    elif class_name == "CheckBlackboardVariableExists":
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-
-    elif class_name == "SetBlackboardVariable":
-        # Extract variable name (exposed as both .variable_name and .key)
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-        elif hasattr(py_trees_node, 'key'):
-            config['variable'] = py_trees_node.key
-
-        # Extract value using reflection (py_trees stores this privately)
-        # Try multiple approaches to get the value
-        value_extracted = False
-
-        # Approach 1 (NEW): Try variable_value_generator (py_trees 2.3+)
-        # This is the primary storage mechanism in modern py_trees
-        if hasattr(py_trees_node, 'variable_value_generator') and callable(py_trees_node.variable_value_generator):
-            try:
-                config['value'] = py_trees_node.variable_value_generator()
-                value_extracted = True
-            except Exception:
-                # Fallback: Try to extract from lambda closure
-                try:
-                    closure = py_trees_node.variable_value_generator.__closure__
-                    if closure and len(closure) > 0:
-                        config['value'] = closure[0].cell_contents
-                        value_extracted = True
-                except Exception:
-                    pass
-
-        # Approach 2: Try _value attribute (private, older versions)
-        if not value_extracted and hasattr(py_trees_node, '_value'):
-            config['value'] = py_trees_node._value
-            value_extracted = True
-        # Approach 3: Try variable_value (older API)
-        elif not value_extracted and hasattr(py_trees_node, 'variable_value'):
-            config['value'] = py_trees_node.variable_value
-            value_extracted = True
-        # Approach 4: Try to access via __dict__
-        elif not value_extracted and '_value' in py_trees_node.__dict__:
-            config['value'] = py_trees_node.__dict__['_value']
-            value_extracted = True
-
-        if not value_extracted:
-            # WARNING: Could not extract value - data will be lost!
-            warning_msg = (
-                "SetBlackboardVariable value not accessible. "
-                "Round-trip conversion will lose this value."
-            )
-            config['_data_loss_warning'] = warning_msg
-            if context:
-                context.warn(warning_msg, node_name=py_trees_node.name)
-
-        if hasattr(py_trees_node, 'overwrite'):
-            config['overwrite'] = py_trees_node.overwrite
-
-    elif class_name == "UnsetBlackboardVariable":
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-        elif hasattr(py_trees_node, 'key'):
-            config['variable'] = py_trees_node.key
-
-    # Blackboard - Wait behaviors (blocking)
-    elif class_name == "WaitForBlackboardVariable":
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-
-    elif class_name == "WaitForBlackboardVariableValue":
-        if hasattr(py_trees_node, 'check'):
-            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
-            config['variable'] = extracted['variable']
-            config['value'] = extracted['comparison_value']
-            op_func = extracted['operator_function']
-            op_map = {
-                op_module.gt: ">",
-                op_module.ge: ">=",
-                op_module.lt: "<",
-                op_module.le: "<=",
-                op_module.eq: "==",
-                op_module.ne: "!=",
-            }
-            config['operator'] = op_map.get(op_func, "==")
-
-    # Blackboard - Multiple conditions
-    elif class_name == "CheckBlackboardVariableValues":
-        # This node takes multiple ComparisonExpression checks
-        if hasattr(py_trees_node, 'checks'):
-            checks_list = []
-            for check in py_trees_node.checks:
-                extracted = ComparisonExpressionExtractor.extract(check)
-                op_func = extracted['operator_function']
-                op_map = {
-                    op_module.gt: ">",
-                    op_module.ge: ">=",
-                    op_module.lt: "<",
-                    op_module.le: "<=",
-                    op_module.eq: "==",
-                    op_module.ne: "!=",
-                }
-                checks_list.append({
-                    'variable': extracted['variable'],
-                    'operator': op_map.get(op_func, "=="),
-                    'value': extracted['comparison_value']
-                })
-            config['checks'] = checks_list
-        if hasattr(py_trees_node, 'logical_operator'):
-            config['logical_operator'] = str(py_trees_node.logical_operator)
-
-    elif class_name == "BlackboardToStatus":
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-
-    # Time-based Behaviors
-    elif class_name == "TickCounter":
-        if hasattr(py_trees_node, 'num_ticks'):
-            config['num_ticks'] = py_trees_node.num_ticks
-        if hasattr(py_trees_node, 'final_status'):
-            config['final_status'] = str(py_trees_node.final_status)
-
-    elif class_name == "SuccessEveryN":
-        if hasattr(py_trees_node, 'n'):
-            config['n'] = py_trees_node.n
-
-    elif class_name == "Periodic":
-        if hasattr(py_trees_node, 'n'):
-            config['n'] = py_trees_node.n
-
-    elif class_name == "StatusQueue":
-        if hasattr(py_trees_node, 'queue'):
-            config['queue'] = [str(status) for status in py_trees_node.queue]
-        if hasattr(py_trees_node, 'eventually'):
-            config['eventually'] = str(py_trees_node.eventually)
-
-    # Probabilistic
-    elif class_name == "ProbabilisticBehaviour":
-        if hasattr(py_trees_node, 'weights'):
-            config['weights'] = py_trees_node.weights
-
-    # Decorators - Repetition
-    elif class_name == "Repeat":
-        if hasattr(py_trees_node, 'num_success'):
-            config['num_success'] = py_trees_node.num_success
-
-    elif class_name == "Retry":
-        if hasattr(py_trees_node, 'num_failures'):
-            config['num_failures'] = py_trees_node.num_failures
-
-    elif class_name == "OneShot":
-        if hasattr(py_trees_node, 'policy'):
-            config['policy'] = str(py_trees_node.policy)
-
-    # Decorators - Time-based
-    elif class_name == "Timeout":
-        if hasattr(py_trees_node, 'duration'):
-            config['duration'] = py_trees_node.duration
-
-    # Decorators - Advanced
-    elif class_name == "EternalGuard":
-        if hasattr(py_trees_node, 'check'):
-            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
-            config['variable'] = extracted['variable']
-            config['value'] = extracted['comparison_value']
-            op_func = extracted['operator_function']
-            op_map = {
-                op_module.gt: ">",
-                op_module.ge: ">=",
-                op_module.lt: "<",
-                op_module.le: "<=",
-                op_module.eq: "==",
-                op_module.ne: "!=",
-            }
-            config['operator'] = op_map.get(op_func, "==")
-
-    elif class_name == "Condition":
-        if hasattr(py_trees_node, 'check'):
-            extracted = ComparisonExpressionExtractor.extract(py_trees_node.check)
-            config['variable'] = extracted['variable']
-            config['value'] = extracted['comparison_value']
-            op_func = extracted['operator_function']
-            op_map = {
-                op_module.gt: ">",
-                op_module.ge: ">=",
-                op_module.lt: "<",
-                op_module.le: "<=",
-                op_module.eq: "==",
-                op_module.ne: "!=",
-            }
-            config['operator'] = op_map.get(op_func, "==")
-
-    elif class_name == "ForEach":
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-
-    elif class_name == "StatusToBlackboard":
-        if hasattr(py_trees_node, 'variable_name'):
-            config['variable'] = py_trees_node.variable_name
-
-    # Composites - check for memory parameter
-    if hasattr(py_trees_node, 'memory'):
-        config['memory'] = py_trees_node.memory
-
-    # Store original class name for reference
-    config['_py_trees_class'] = class_name
-
-    return config
+    This function now uses the extractor registry pattern instead of
+    a large if/elif chain. Each node type has a dedicated extractor
+    in core/extractors.py that knows how to extract its configuration.
+    """
+    from py_forest.core.extractors import extract_config
+    return extract_config(py_trees_node, context)
 
 
 def _convert_node(
@@ -706,7 +482,6 @@ def to_py_trees(tree: TreeDefinition):
         >>> py_trees.display.print_ascii_tree(root)
     """
     import py_trees
-    import operator as op_module
 
     def create_py_trees_node(pf_node: TreeNodeDefinition):
         """Create py_trees node from PyForest node"""
@@ -735,15 +510,7 @@ def to_py_trees(tree: TreeDefinition):
             op_str = config.get('operator', '==')
 
             # Map operator string to operator function
-            op_map = {
-                ">": op_module.gt,
-                ">=": op_module.ge,
-                "<": op_module.lt,
-                "<=": op_module.le,
-                "==": op_module.eq,
-                "!=": op_module.ne,
-            }
-            comparison_op = op_map.get(op_str, op_module.eq)
+            comparison_op = string_to_operator(op_str)
 
             # Use ComparisonExpression (current py_trees API)
             from py_trees.common import ComparisonExpression
@@ -798,15 +565,7 @@ def to_py_trees(tree: TreeDefinition):
             checks = []
             for check_config in checks_list:
                 op_str = check_config.get('operator', '==')
-                op_map = {
-                    ">": op_module.gt,
-                    ">=": op_module.ge,
-                    "<": op_module.lt,
-                    "<=": op_module.le,
-                    "==": op_module.eq,
-                    "!=": op_module.ne,
-                }
-                comparison_op = op_map.get(op_str, op_module.eq)
+                comparison_op = string_to_operator(op_str)
                 from py_trees.common import ComparisonExpression
                 checks.append(ComparisonExpression(
                     check_config['variable'],
@@ -841,15 +600,7 @@ def to_py_trees(tree: TreeDefinition):
             variable = config.get('variable', 'var')
             value = config.get('value', True)
             op_str = config.get('operator', '==')
-            op_map = {
-                ">": op_module.gt,
-                ">=": op_module.ge,
-                "<": op_module.lt,
-                "<=": op_module.le,
-                "==": op_module.eq,
-                "!=": op_module.ne,
-            }
-            comparison_op = op_map.get(op_str, op_module.eq)
+            comparison_op = string_to_operator(op_str)
             from py_trees.common import ComparisonExpression
             check = ComparisonExpression(variable, comparison_op, value)
             node = py_trees.behaviours.WaitForBlackboardVariableValue(
@@ -997,15 +748,7 @@ def to_py_trees(tree: TreeDefinition):
                 variable = config.get('variable', 'condition')
                 value = config.get('value', True)
                 op_str = config.get('operator', '==')
-                op_map = {
-                    ">": op_module.gt,
-                    ">=": op_module.ge,
-                    "<": op_module.lt,
-                    "<=": op_module.le,
-                    "==": op_module.eq,
-                    "!=": op_module.ne,
-                }
-                comparison_op = op_map.get(op_str, op_module.eq)
+                comparison_op = string_to_operator(op_str)
                 from py_trees.common import ComparisonExpression
                 check = ComparisonExpression(variable, comparison_op, value)
                 pt_node = py_trees.decorators.EternalGuard(
@@ -1019,15 +762,7 @@ def to_py_trees(tree: TreeDefinition):
                 variable = config.get('variable', 'condition')
                 value = config.get('value', True)
                 op_str = config.get('operator', '==')
-                op_map = {
-                    ">": op_module.gt,
-                    ">=": op_module.ge,
-                    "<": op_module.lt,
-                    "<=": op_module.le,
-                    "==": op_module.eq,
-                    "!=": op_module.ne,
-                }
-                comparison_op = op_map.get(op_str, op_module.eq)
+                comparison_op = string_to_operator(op_str)
                 from py_trees.common import ComparisonExpression
                 check = ComparisonExpression(variable, comparison_op, value)
                 pt_node = py_trees.decorators.Condition(

@@ -91,7 +91,7 @@
             "name": "Schedule Maintenance",
             "config": {
               "variable": "maintenance_scheduled",
-              "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
+              "value": true,
               "overwrite": true,
               "_py_trees_class": "SetBlackboardVariable"
             },
@@ -153,7 +153,7 @@
       },
       {
         "node_type": "Success",
-        "node_id": "d5924ead-ba6d-4af3-9ad7-dec65cc2081f",
+        "node_id": "917c58cc-a087-4322-8e55-08f033da24f7",
         "name": "All Systems Normal",
         "config": {},
         "description": null,

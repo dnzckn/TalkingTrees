@@ -1212,6 +1212,17 @@ class BehaviorRegistry:
         """
         return self._schemas.get(node_type)
 
+    def is_registered(self, node_type: str) -> bool:
+        """Check if a behavior type is registered.
+
+        Args:
+            node_type: Behavior type identifier
+
+        Returns:
+            True if registered, False otherwise
+        """
+        return node_type in self._implementations
+
     def list_all(self) -> List[str]:
         """List all registered behavior types.
 
