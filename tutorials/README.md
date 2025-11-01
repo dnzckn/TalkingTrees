@@ -311,10 +311,12 @@ tutorials/
 ├── 01_py_trees_integration.py     # py_trees integration
 ├── 02_complete_workflow.py        # Complete workflow (START HERE!)
 │
-├── py_trees_simple.json           # Created by tutorial 1
-├── py_trees_complex.json          # Created by tutorial 1
-├── py_trees_decorators.json       # Created by tutorial 1
-└── py_trees_custom.json           # Created by tutorial 1
+└── assets/                        # Created JSON files
+    ├── py_trees_simple.json       # Created by tutorial 1
+    ├── py_trees_complex.json      # Created by tutorial 1
+    ├── py_trees_decorators.json   # Created by tutorial 1
+    ├── py_trees_custom.json       # Created by tutorial 1
+    └── robot_from_code.json       # Created by tutorial 2
 ```
 
 ---

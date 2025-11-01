@@ -216,8 +216,8 @@ def create_tree_from_code():
 
     # Optionally save
     print("Saving to JSON...")
-    tt.save_tree(tree, "tutorials/robot_from_code.json")
-    print("✓ Saved to tutorials/robot_from_code.json")
+    tt.save_tree(tree, "tutorials/assets/robot_from_code.json")
+    print("✓ Saved to tutorials/assets/robot_from_code.json")
     print("  (You can now load this in Tree Editor Pro to see visual representation!)")
     print()
 
@@ -641,6 +641,6 @@ if __name__ == "__main__":
     print("  • Use the tree to control YOUR system")
     print()
 
-    print("📖 See tutorials/robot_from_code.json (we just created this!)")
+    print("📖 See tutorials/assets/robot_from_code.json (we just created this!)")
     print("🚀 Run: ./run_editor.sh to visualize it!")
     print()

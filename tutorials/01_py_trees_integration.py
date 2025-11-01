@@ -69,8 +69,8 @@ def example_1_basic_conversion():
 
     # Step 3: Save to JSON (can be opened in editor)
     print("\nStep 3: Save to JSON...")
-    tt.save_tree(tt_tree, "tutorials/py_trees_simple.json")
-    print("✓ Saved to tutorials/py_trees_simple.json")
+    tt.save_tree(tt_tree, "tutorials/assets/py_trees_simple.json")
+    print("✓ Saved to tutorials/assets/py_trees_simple.json")
     print("  Open in visualization/tree_editor_pro.html to view!")
 
     # Step 4: Run with TalkingTrees SDK
@@ -159,8 +159,8 @@ def example_2_complex_tree():
     print(f"  Root: {tt_tree.root.node_type}")
 
     # Save
-    tt.save_tree(tt_tree, "tutorials/py_trees_complex.json")
-    print("\n✓ Saved to tutorials/py_trees_complex.json")
+    tt.save_tree(tt_tree, "tutorials/assets/py_trees_complex.json")
+    print("\n✓ Saved to tutorials/assets/py_trees_complex.json")
     print()
 
 
@@ -238,7 +238,7 @@ def example_3_complete_workflow():
     # -------------------------------------------------------------------------
     print("\nStep 3: Save to JSON for visualization...")
 
-    output_path = "tutorials/py_trees_task_manager.json"
+    output_path = "tutorials/assets/py_trees_task_manager.json"
     tt.save_tree(tt_tree, output_path)
 
     print(f"✓ Saved to {output_path}")
@@ -331,8 +331,8 @@ def example_4_decorators():
     print("  All decorator parameters preserved in config")
 
     # Save
-    tt.save_tree(tt_tree, "tutorials/py_trees_decorators.json")
-    print("\n✓ Saved to tutorials/py_trees_decorators.json")
+    tt.save_tree(tt_tree, "tutorials/assets/py_trees_decorators.json")
+    print("\n✓ Saved to tutorials/assets/py_trees_decorators.json")
     print()
 
 
@@ -456,8 +456,8 @@ def example_7_custom_behaviors():
     print("  Original class stored in config['_py_trees_class']")
 
     # Save
-    tt.save_tree(tt_tree, "tutorials/py_trees_custom.json")
-    print("\n✓ Saved to tutorials/py_trees_custom.json")
+    tt.save_tree(tt_tree, "tutorials/assets/py_trees_custom.json")
+    print("\n✓ Saved to tutorials/assets/py_trees_custom.json")
     print()
 
 
@@ -527,10 +527,10 @@ if __name__ == "__main__":
     print("  ✓ Reverse conversion supported (to_py_trees)")
     print("  ✓ Decorators fully supported (Inverter, Repeat, Retry, Timeout)")
     print("\nFiles created:")
-    print("  • tutorials/py_trees_simple.json")
-    print("  • tutorials/py_trees_complex.json")
-    print("  • tutorials/py_trees_task_manager.json")
-    print("  • tutorials/py_trees_decorators.json")
-    print("  • tutorials/py_trees_custom.json")
+    print("  • tutorials/assets/py_trees_simple.json")
+    print("  • tutorials/assets/py_trees_complex.json")
+    print("  • tutorials/assets/py_trees_task_manager.json")
+    print("  • tutorials/assets/py_trees_decorators.json")
+    print("  • tutorials/assets/py_trees_custom.json")
     print("\n👉 Open these in visualization/tree_editor_pro.html to view!")
     print()
