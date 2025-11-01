@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "3fcee769-8aa2-484e-b508-a5c679d96d49",
+  "tree_id": "bd61a6e8-d2a9-4279-abae-d0abda2f2263",
   "metadata": {
     "name": "UltraComplex Robot",
     "version": "2.0.0",
     "author": null,
-    "created_at": "2025-11-01 05:00:53.656052",
-    "modified_at": "2025-11-01 05:00:53.656305",
+    "created_at": "2025-11-01 14:12:08.891079",
+    "modified_at": "2025-11-01 14:12:08.891303",
     "description": "Converted from py_trees",
     "tags": [],
     "changelog": null,
@@ -57,8 +57,8 @@
                     "name": "CheckBatteryLow",
                     "config": {
                       "variable": "battery",
-                      "value": 20,
                       "operator": "<",
+                      "value": 20,
                       "_py_trees_class": "CheckBlackboardVariableValue"
                     },
                     "description": null,
@@ -115,8 +115,8 @@
             "name": "CheckBatteryOK",
             "config": {
               "variable": "battery",
-              "value": 50,
               "operator": ">=",
+              "value": 50,
               "_py_trees_class": "CheckBlackboardVariableValue"
             },
             "description": null,
@@ -300,8 +300,8 @@
             "name": "CheckMaintenanceTime",
             "config": {
               "variable": "hours_since_maintenance",
-              "value": 100,
               "operator": ">",
+              "value": 100,
               "_py_trees_class": "CheckBlackboardVariableValue"
             },
             "description": null,
@@ -471,8 +471,8 @@
                     "name": "CheckNoMission",
                     "config": {
                       "variable": "mission",
-                      "value": null,
                       "operator": "==",
+                      "value": null,
                       "_py_trees_class": "CheckBlackboardVariableValue"
                     },
                     "description": null,

@@ -286,13 +286,13 @@ def main():
     # Step 3: Save to JSON
     print("\nSTEP 3: Saving to JSON file...")
     pf = PyForest()
-    pf.save_tree(pf_tree, "ultra_complex_tree.json")
-    print("✓ Saved to ultra_complex_tree.json")
+    pf.save_tree(pf_tree, "tests/fixtures/ultra_complex_tree.json")
+    print("✓ Saved to tests/fixtures/ultra_complex_tree.json")
 
     # Step 4: Load from JSON
     print("\nSTEP 4: Loading from JSON file...")
-    loaded_tree = pf.load_tree("ultra_complex_tree.json")
-    print("✓ Loaded from ultra_complex_tree.json")
+    loaded_tree = pf.load_tree("tests/fixtures/ultra_complex_tree.json")
+    print("✓ Loaded from tests/fixtures/ultra_complex_tree.json")
 
     # Step 5: Convert back to py_trees
     print("\nSTEP 5: Converting back to py_trees...")
