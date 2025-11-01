@@ -2,10 +2,8 @@
 
 import asyncio
 from datetime import datetime
-from typing import Dict, Optional
 from uuid import UUID
 
-from py_forest.models.events import EventType, ExecutionErrorEvent
 from py_forest.models.execution import (
     ExecutionMode,
     SchedulerState,
@@ -21,8 +19,8 @@ class SchedulerContext:
         self,
         execution_id: UUID,
         mode: ExecutionMode,
-        interval_ms: Optional[int] = None,
-        max_ticks: Optional[int] = None,
+        interval_ms: int | None = None,
+        max_ticks: int | None = None,
         stop_on_terminal: bool = True,
     ):
         """Initialize scheduler context.
@@ -43,12 +41,12 @@ class SchedulerContext:
         # State tracking
         self.state = SchedulerState.IDLE
         self.ticks_executed = 0
-        self.started_at: Optional[datetime] = None
-        self.stopped_at: Optional[datetime] = None
-        self.error_message: Optional[str] = None
+        self.started_at: datetime | None = None
+        self.stopped_at: datetime | None = None
+        self.error_message: str | None = None
 
         # Task management
-        self.task: Optional[asyncio.Task] = None
+        self.task: asyncio.Task | None = None
         self.should_pause = False
         self.should_stop = False
 
@@ -83,7 +81,7 @@ class ExecutionScheduler:
 
     def __init__(self):
         """Initialize execution scheduler."""
-        self._contexts: Dict[UUID, SchedulerContext] = {}
+        self._contexts: dict[UUID, SchedulerContext] = {}
         self._lock = asyncio.Lock()
 
     async def start(
@@ -91,8 +89,8 @@ class ExecutionScheduler:
         execution_id: UUID,
         mode: ExecutionMode,
         tick_callback,
-        interval_ms: Optional[int] = None,
-        max_ticks: Optional[int] = None,
+        interval_ms: int | None = None,
+        max_ticks: int | None = None,
         stop_on_terminal: bool = True,
     ) -> SchedulerStatus:
         """Start scheduled execution.
@@ -136,13 +134,9 @@ class ExecutionScheduler:
 
             # Create background task
             if mode == ExecutionMode.AUTO:
-                task = asyncio.create_task(
-                    self._run_auto(context, tick_callback)
-                )
+                task = asyncio.create_task(self._run_auto(context, tick_callback))
             else:  # INTERVAL
-                task = asyncio.create_task(
-                    self._run_interval(context, tick_callback)
-                )
+                task = asyncio.create_task(self._run_interval(context, tick_callback))
 
             context.task = task
             self._contexts[execution_id] = context
@@ -289,7 +283,10 @@ class ExecutionScheduler:
                     context.ticks_executed += response.ticks_executed
 
                     # Check stop conditions
-                    if context.max_ticks and context.ticks_executed >= context.max_ticks:
+                    if (
+                        context.max_ticks
+                        and context.ticks_executed >= context.max_ticks
+                    ):
                         break
 
                     if context.stop_on_terminal:
@@ -336,7 +333,10 @@ class ExecutionScheduler:
                     context.ticks_executed += response.ticks_executed
 
                     # Check stop conditions
-                    if context.max_ticks and context.ticks_executed >= context.max_ticks:
+                    if (
+                        context.max_ticks
+                        and context.ticks_executed >= context.max_ticks
+                    ):
                         break
 
                     if context.stop_on_terminal:

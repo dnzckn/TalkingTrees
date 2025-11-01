@@ -1,10 +1,9 @@
 """Execution profiler for performance analysis of behavior trees."""
 
 import time
-from collections import defaultdict
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 import py_trees
@@ -30,7 +29,7 @@ class NodeProfile:
     # Execution metrics
     tick_count: int = 0
     total_time_ms: float = 0.0
-    min_time_ms: float = float('inf')
+    min_time_ms: float = float("inf")
     max_time_ms: float = 0.0
     avg_time_ms: float = 0.0
 
@@ -41,20 +40,22 @@ class NodeProfile:
     invalid_count: int = 0
 
     # Timing distribution (microseconds)
-    time_buckets: Dict[str, int] = field(default_factory=lambda: {
-        "<1ms": 0,
-        "1-10ms": 0,
-        "10-100ms": 0,
-        "100-1000ms": 0,
-        ">1000ms": 0
-    })
+    time_buckets: dict[str, int] = field(
+        default_factory=lambda: {
+            "<1ms": 0,
+            "1-10ms": 0,
+            "10-100ms": 0,
+            "100-1000ms": 0,
+            ">1000ms": 0,
+        }
+    )
 
     # Blackboard access (detailed mode)
-    blackboard_reads: List[str] = field(default_factory=list)
-    blackboard_writes: List[str] = field(default_factory=list)
+    blackboard_reads: list[str] = field(default_factory=list)
+    blackboard_writes: list[str] = field(default_factory=list)
 
     # Parent/child info
-    parent_name: Optional[str] = None
+    parent_name: str | None = None
     child_count: int = 0
 
     def update_timing(self, duration_ms: float):
@@ -88,7 +89,7 @@ class NodeProfile:
         else:
             self.invalid_count += 1
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "node_id": str(self.node_id),
@@ -96,7 +97,9 @@ class NodeProfile:
             "node_type": self.node_type,
             "tick_count": self.tick_count,
             "total_time_ms": round(self.total_time_ms, 3),
-            "min_time_ms": round(self.min_time_ms, 3) if self.min_time_ms != float('inf') else 0,
+            "min_time_ms": round(self.min_time_ms, 3)
+            if self.min_time_ms != float("inf")
+            else 0,
             "max_time_ms": round(self.max_time_ms, 3),
             "avg_time_ms": round(self.avg_time_ms, 3),
             "success_count": self.success_count,
@@ -118,16 +121,18 @@ class ProfileReport:
     total_ticks: int
     total_time_ms: float
     start_time: float
-    end_time: Optional[float]
+    end_time: float | None
 
     # Per-node profiles
-    node_profiles: Dict[UUID, NodeProfile] = field(default_factory=dict)
+    node_profiles: dict[UUID, NodeProfile] = field(default_factory=dict)
 
     # Aggregate statistics
     total_nodes: int = 0
-    slowest_nodes: List[tuple] = field(default_factory=list)  # (node_name, avg_time_ms)
-    most_ticked_nodes: List[tuple] = field(default_factory=list)  # (node_name, tick_count)
-    bottlenecks: List[str] = field(default_factory=list)  # Nodes with >100ms avg
+    slowest_nodes: list[tuple] = field(default_factory=list)  # (node_name, avg_time_ms)
+    most_ticked_nodes: list[tuple] = field(
+        default_factory=list
+    )  # (node_name, tick_count)
+    bottlenecks: list[str] = field(default_factory=list)  # Nodes with >100ms avg
 
     def finalize(self):
         """Compute aggregate statistics."""
@@ -137,7 +142,7 @@ class ProfileReport:
         sorted_by_time = sorted(
             [(p.node_name, p.avg_time_ms) for p in self.node_profiles.values()],
             key=lambda x: x[1],
-            reverse=True
+            reverse=True,
         )
         self.slowest_nodes = sorted_by_time[:10]
 
@@ -145,7 +150,7 @@ class ProfileReport:
         sorted_by_ticks = sorted(
             [(p.node_name, p.tick_count) for p in self.node_profiles.values()],
             key=lambda x: x[1],
-            reverse=True
+            reverse=True,
         )
         self.most_ticked_nodes = sorted_by_ticks[:10]
 
@@ -159,7 +164,7 @@ class ProfileReport:
         if self.end_time:
             self.total_time_ms = (self.end_time - self.start_time) * 1000
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary."""
         return {
             "execution_id": self.execution_id,
@@ -193,32 +198,44 @@ class ProfileReport:
             f"  Total ticks:        {self.total_ticks}",
             f"  Total time:         {self.total_time_ms:.2f}ms",
             f"  Total nodes:        {self.total_nodes}",
-            f"  Avg time per tick:  {self.total_time_ms / self.total_ticks:.2f}ms" if self.total_ticks > 0 else "  Avg time per tick:  N/A",
+            f"  Avg time per tick:  {self.total_time_ms / self.total_ticks:.2f}ms"
+            if self.total_ticks > 0
+            else "  Avg time per tick:  N/A",
             "",
         ]
 
         if self.bottlenecks:
-            lines.extend([
-                "BOTTLENECKS (>100ms avg):",
-                *[f"  ⚠️  {b}" for b in self.bottlenecks],
-                "",
-            ])
+            lines.extend(
+                [
+                    "BOTTLENECKS (>100ms avg):",
+                    *[f"  ⚠️  {b}" for b in self.bottlenecks],
+                    "",
+                ]
+            )
 
         if self.slowest_nodes:
-            lines.extend([
-                "SLOWEST NODES (top 10):",
-                *[f"  {i+1}. {name}: {time_ms:.2f}ms avg"
-                  for i, (name, time_ms) in enumerate(self.slowest_nodes[:10])],
-                "",
-            ])
+            lines.extend(
+                [
+                    "SLOWEST NODES (top 10):",
+                    *[
+                        f"  {i + 1}. {name}: {time_ms:.2f}ms avg"
+                        for i, (name, time_ms) in enumerate(self.slowest_nodes[:10])
+                    ],
+                    "",
+                ]
+            )
 
         if self.most_ticked_nodes:
-            lines.extend([
-                "MOST TICKED NODES (top 10):",
-                *[f"  {i+1}. {name}: {count} ticks"
-                  for i, (name, count) in enumerate(self.most_ticked_nodes[:10])],
-                "",
-            ])
+            lines.extend(
+                [
+                    "MOST TICKED NODES (top 10):",
+                    *[
+                        f"  {i + 1}. {name}: {count} ticks"
+                        for i, (name, count) in enumerate(self.most_ticked_nodes[:10])
+                    ],
+                    "",
+                ]
+            )
 
         lines.append("=" * 80)
         return "\n".join(lines)
@@ -234,9 +251,9 @@ class TreeProfiler:
             level: Profiling detail level
         """
         self.level = level
-        self.reports: Dict[str, ProfileReport] = {}
-        self.active_report: Optional[ProfileReport] = None
-        self.node_start_times: Dict[UUID, float] = {}
+        self.reports: dict[str, ProfileReport] = {}
+        self.active_report: ProfileReport | None = None
+        self.node_start_times: dict[UUID, float] = {}
 
     def start_profiling(
         self,
@@ -287,7 +304,7 @@ class TreeProfiler:
 
         return report
 
-    def get_report(self, execution_id: str) -> Optional[ProfileReport]:
+    def get_report(self, execution_id: str) -> ProfileReport | None:
         """Get profiling report.
 
         Args:
@@ -322,7 +339,7 @@ class TreeProfiler:
                 node_name=node.name,
                 node_type=type(node).__name__,
                 parent_name=node.parent.name if node.parent else None,
-                child_count=len(node.children) if hasattr(node, 'children') else 0,
+                child_count=len(node.children) if hasattr(node, "children") else 0,
             )
             self.active_report.node_profiles[node_id] = profile
 
@@ -369,7 +386,7 @@ class TreeProfiler:
 
 
 # Global profiler instance
-_global_profiler: Optional[TreeProfiler] = None
+_global_profiler: TreeProfiler | None = None
 
 
 def get_profiler(level: ProfilingLevel = ProfilingLevel.BASIC) -> TreeProfiler:
@@ -407,9 +424,7 @@ def format_profile_report(report: ProfileReport, verbose: bool = False) -> str:
 
         # Sort by avg time
         sorted_profiles = sorted(
-            report.node_profiles.values(),
-            key=lambda p: p.avg_time_ms,
-            reverse=True
+            report.node_profiles.values(), key=lambda p: p.avg_time_ms, reverse=True
         )
 
         for profile in sorted_profiles:
@@ -423,7 +438,7 @@ def format_profile_report(report: ProfileReport, verbose: bool = False) -> str:
             lines.append(f"  Running:    {profile.running_count}")
 
             if any(count > 0 for count in profile.time_buckets.values()):
-                lines.append(f"  Distribution:")
+                lines.append("  Distribution:")
                 for bucket, count in profile.time_buckets.items():
                     if count > 0:
                         pct = (count / profile.tick_count) * 100

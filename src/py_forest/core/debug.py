@@ -1,6 +1,6 @@
 """Debug context for breakpoints, watches, and step execution."""
 
-from typing import Any, Dict, Optional, Set
+from typing import Any
 from uuid import UUID
 
 import py_trees
@@ -12,7 +12,7 @@ from py_forest.models.debug import (
     WatchCondition,
     WatchExpression,
 )
-from py_forest.models.events import BreakpointHitEvent, WatchTriggeredEvent
+from py_forest.models.events import WatchTriggeredEvent
 from py_forest.models.execution import Status
 
 
@@ -35,10 +35,10 @@ class DebugContext:
         self.execution_id = execution_id
 
         # Breakpoints
-        self.breakpoints: Dict[UUID, Breakpoint] = {}
+        self.breakpoints: dict[UUID, Breakpoint] = {}
 
         # Watches
-        self.watches: Dict[str, WatchExpression] = {}
+        self.watches: dict[str, WatchExpression] = {}
 
         # Step mode
         self.step_mode = StepMode.NONE
@@ -47,23 +47,21 @@ class DebugContext:
 
         # Pause state
         self.is_paused = False
-        self.paused_at_node: Optional[UUID] = None
+        self.paused_at_node: UUID | None = None
         self.pause_requested = False
 
         # Step tracking
-        self.last_node_statuses: Dict[UUID, Status] = {}
-        self.step_start_node: Optional[UUID] = None
+        self.last_node_statuses: dict[UUID, Status] = {}
+        self.step_start_node: UUID | None = None
 
         # Statistics
         self.breakpoint_hits = 0
         self.watch_hits = 0
 
         # Watch value tracking
-        self.last_watch_values: Dict[str, Any] = {}
+        self.last_watch_values: dict[str, Any] = {}
 
-    def add_breakpoint(
-        self, node_id: UUID, condition: Optional[str] = None
-    ) -> Breakpoint:
+    def add_breakpoint(self, node_id: UUID, condition: str | None = None) -> Breakpoint:
         """Add a breakpoint.
 
         Args:
@@ -123,9 +121,7 @@ class DebugContext:
         Returns:
             WatchExpression instance
         """
-        watch = WatchExpression(
-            key=key, condition=condition, target_value=target_value
-        )
+        watch = WatchExpression(key=key, condition=condition, target_value=target_value)
         self.watches[key] = watch
         return watch
 
@@ -178,7 +174,7 @@ class DebugContext:
             self.pause_requested = False
 
     def should_break_at_node(
-        self, node_id: UUID, node: py_trees.behaviour.Behaviour, blackboard: Dict
+        self, node_id: UUID, node: py_trees.behaviour.Behaviour, blackboard: dict
     ) -> bool:
         """Check if should break at node.
 
@@ -251,7 +247,7 @@ class DebugContext:
 
         return False
 
-    def check_watches(self, blackboard: Dict) -> Optional[WatchTriggeredEvent]:
+    def check_watches(self, blackboard: dict) -> WatchTriggeredEvent | None:
         """Check watch expressions.
 
         Args:
@@ -343,7 +339,7 @@ class DebugContext:
         """
         self.last_node_statuses[node_id] = status
 
-    def pause(self, node_id: Optional[UUID] = None) -> None:
+    def pause(self, node_id: UUID | None = None) -> None:
         """Pause execution.
 
         Args:

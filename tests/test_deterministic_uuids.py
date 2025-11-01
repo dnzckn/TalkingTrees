@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Test deterministic UUID generation in serializer."""
 
-import py_trees
-from py_trees.composites import Sequence, Selector
-from py_trees.behaviours import Success, Failure, Running
+from py_trees.behaviours import Failure, Running, Success
+from py_trees.composites import Selector, Sequence
+
 from py_forest.adapters.py_trees_adapter import from_py_trees
 
 
@@ -25,10 +25,10 @@ def test_uuid_stability():
                 children=[
                     Success(name="Option1"),
                     Failure(name="Option2"),
-                ]
+                ],
             ),
             Running(name="Task2"),
-        ]
+        ],
     )
 
     # Convert twice with deterministic UUIDs
@@ -78,18 +78,10 @@ def test_uuid_determinism():
     print("=" * 70)
 
     # Tree 1
-    root1 = Sequence(
-        name="Root",
-        memory=True,
-        children=[Success(name="Task1")]
-    )
+    root1 = Sequence(name="Root", memory=True, children=[Success(name="Task1")])
 
     # Tree 2 (different structure)
-    root2 = Selector(
-        name="Root",
-        memory=False,
-        children=[Success(name="Task1")]
-    )
+    root2 = Selector(name="Root", memory=False, children=[Success(name="Task1")])
 
     pf_tree1, _ = from_py_trees(root1, name="Tree1", use_deterministic_uuids=True)
     pf_tree2, _ = from_py_trees(root2, name="Tree2", use_deterministic_uuids=True)
@@ -112,11 +104,7 @@ def test_random_uuids():
     print("TEST 3: Random UUIDs (non-deterministic mode)")
     print("=" * 70)
 
-    root = Sequence(
-        name="Root",
-        memory=True,
-        children=[Success(name="Task1")]
-    )
+    root = Sequence(name="Root", memory=True, children=[Success(name="Task1")])
 
     pf_tree1, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
     pf_tree2, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
@@ -149,9 +137,9 @@ def test_path_sensitivity():
                 memory=True,
                 children=[
                     Success(name="Task"),  # Path: Root/SubSeq/Task
-                ]
-            )
-        ]
+                ],
+            ),
+        ],
     )
 
     pf_tree, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=True)

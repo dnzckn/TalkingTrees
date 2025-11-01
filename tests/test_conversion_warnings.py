@@ -2,9 +2,10 @@
 """Test ConversionContext warnings in serializer."""
 
 import py_trees
-from py_trees.composites import Sequence, Selector
-from py_trees.behaviours import Success, Failure
-from py_forest.adapters.py_trees_adapter import from_py_trees, ConversionContext
+from py_trees.behaviours import Success
+from py_trees.composites import Sequence
+
+from py_forest.adapters.py_trees_adapter import ConversionContext, from_py_trees
 
 
 def test_no_warnings():
@@ -20,7 +21,7 @@ def test_no_warnings():
         children=[
             Success(name="Task1"),
             Success(name="Task2"),
-        ]
+        ],
     )
 
     # Convert and check context
@@ -55,10 +56,10 @@ def test_setblackboard_warning():
                 name="Set Speed",
                 variable_name="speed",
                 variable_value=42.5,
-                overwrite=True
+                overwrite=True,
             ),
             Success(name="Task"),
-        ]
+        ],
     )
 
     # Convert and check context
@@ -72,13 +73,15 @@ def test_setblackboard_warning():
 
         # Verify value was actually extracted
         set_node = pf_tree.root.children[0]
-        if set_node.config.get('value') == 42.5:
-            print("✓ Value preserved:", set_node.config['value'])
+        if set_node.config.get("value") == 42.5:
+            print("✓ Value preserved:", set_node.config["value"])
         else:
             print("✗ Value not preserved!")
             return False
     else:
-        print("⚠ WARNING: Value extraction failed (this might be expected on some py_trees versions)")
+        print(
+            "⚠ WARNING: Value extraction failed (this might be expected on some py_trees versions)"
+        )
         for warning in context.warnings:
             print(f"  - {warning}")
 
@@ -109,7 +112,7 @@ def test_unknown_node_type():
         children=[
             CustomBehavior(name="CustomTask"),
             Success(name="Task"),
-        ]
+        ],
     )
 
     # Convert and check context

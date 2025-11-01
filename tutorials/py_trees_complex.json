@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "063cd1e2-8dba-429d-9f3b-9ae49e15d464",
+  "tree_id": "71288f31-626b-4ff4-92fe-fa56a25b34de",
   "metadata": {
     "name": "Advanced Robot Controller",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-10-17 05:45:11.704125",
-    "modified_at": "2025-10-17 05:45:11.704129",
+    "created_at": "2025-11-01 04:28:23.132786",
+    "modified_at": "2025-11-01 04:28:23.132789",
     "description": "Converted from py_trees",
     "tags": [],
     "changelog": null,
@@ -52,7 +52,7 @@
             "name": "Return to Base",
             "config": {
               "variable": "robot_action",
-              "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
+              "value": "return_to_base",
               "overwrite": true,
               "_py_trees_class": "SetBlackboardVariable"
             },
@@ -93,7 +93,7 @@
             "name": "Set Action",
             "config": {
               "variable": "robot_action",
-              "_data_loss_warning": "SetBlackboardVariable value not accessible. Round-trip conversion will lose this value.",
+              "value": "patrol",
               "overwrite": true,
               "_py_trees_class": "SetBlackboardVariable"
             },

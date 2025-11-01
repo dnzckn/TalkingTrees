@@ -14,18 +14,20 @@ You have THREE approaches:
 3. Hybrid approach (combine both)
 """
 
-import py_trees
 import operator
-from py_trees.common import ComparisonExpression
-from py_forest.sdk import PyForest
-from py_forest.adapters import from_py_trees, to_py_trees
-from py_forest.models.tree import TreeNodeDefinition
 from uuid import uuid4
 
+import py_trees
+from py_trees.common import ComparisonExpression
+
+from py_forest.adapters import to_py_trees
+from py_forest.models.tree import TreeNodeDefinition
+from py_forest.sdk import PyForest
 
 # =============================================================================
 # Approach 1: Round-trip via py_trees (Recommended for Complex Edits)
 # =============================================================================
+
 
 def approach_1_py_trees_roundtrip():
     """Load JSON → py_trees → edit → PyForest → save"""
@@ -43,7 +45,7 @@ def approach_1_py_trees_roundtrip():
     # Step 2: Convert to py_trees for editing
     print("\nStep 2: Convert to py_trees...")
     pt_root = to_py_trees(tree_def)
-    print(f"✓ Converted to py_trees")
+    print("✓ Converted to py_trees")
     print(f"  Root: {pt_root.name}")
     print(f"  Children: {len(pt_root.children)}")
 
@@ -54,11 +56,10 @@ def approach_1_py_trees_roundtrip():
     emergency_stop = py_trees.composites.Sequence("Emergency Stop", memory=False)
 
     # Add condition
-    critical_check = ComparisonExpression('critical_error', operator.eq, True)
+    critical_check = ComparisonExpression("critical_error", operator.eq, True)
     emergency_stop.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Critical Error?",
-            check=critical_check
+            name="Critical Error?", check=critical_check
         )
     )
 
@@ -68,14 +69,14 @@ def approach_1_py_trees_roundtrip():
             name="Command: Emergency Stop",
             variable_name="robot_action",
             variable_value="emergency_stop",
-            overwrite=True
+            overwrite=True,
         )
     )
 
     # Insert at beginning (highest priority)
     pt_root.children.insert(0, emergency_stop)
 
-    print(f"✓ Added emergency stop branch")
+    print("✓ Added emergency stop branch")
     print(f"  New children count: {len(pt_root.children)}")
 
     # Step 4: Convert back to PyForest
@@ -84,15 +85,15 @@ def approach_1_py_trees_roundtrip():
         pt_root,
         name=tree_def.metadata.name + " (Updated)",
         version="2.0.0",
-        description="Added emergency stop branch"
+        description="Added emergency stop branch",
     )
-    print(f"✓ Converted to PyForest")
+    print("✓ Converted to PyForest")
     print(f"  Version: {updated_tree.metadata.version}")
 
     # Step 5: Save
     print("\nStep 5: Save to JSON...")
     pf.save_tree(updated_tree, "examples/robot_v2_edited.json")
-    print(f"✓ Saved to examples/robot_v2_edited.json")
+    print("✓ Saved to examples/robot_v2_edited.json")
 
     print("\n✅ Approach 1 complete!")
     print("   You can now load robot_v2_edited.json and see the new branch")
@@ -102,6 +103,7 @@ def approach_1_py_trees_roundtrip():
 # =============================================================================
 # Approach 2: Direct TreeDefinition Manipulation (Simple Edits)
 # =============================================================================
+
 
 def approach_2_direct_manipulation():
     """Load JSON → modify TreeDefinition directly → save"""
@@ -124,7 +126,7 @@ def approach_2_direct_manipulation():
         node_id=str(uuid4()),
         name="System Check Complete",
         config={},
-        children=[]
+        children=[],
     )
 
     print(f"✓ Created node: {new_node.name}")
@@ -132,7 +134,7 @@ def approach_2_direct_manipulation():
     # Step 3: Add to tree
     print("\nStep 3: Add to tree...")
     tree_def.root.children.append(new_node)
-    print(f"✓ Added to root")
+    print("✓ Added to root")
     print(f"  Total children: {len(tree_def.root.children)}")
 
     # Step 4: Update metadata
@@ -143,7 +145,7 @@ def approach_2_direct_manipulation():
     # Step 5: Save
     print("\nStep 5: Save...")
     pf.save_tree(tree_def, "examples/robot_v1_direct_edit.json")
-    print(f"✓ Saved to examples/robot_v1_direct_edit.json")
+    print("✓ Saved to examples/robot_v1_direct_edit.json")
 
     print("\n✅ Approach 2 complete!")
     print("   Direct manipulation is faster for simple additions")
@@ -153,6 +155,7 @@ def approach_2_direct_manipulation():
 # =============================================================================
 # Approach 3: Hybrid - Complex Nodes via py_trees, Simple Edits Direct
 # =============================================================================
+
 
 def approach_3_hybrid():
     """Combine both approaches for optimal workflow"""
@@ -168,11 +171,10 @@ def approach_3_hybrid():
     maintenance_seq = py_trees.composites.Sequence("Maintenance Check", memory=False)
 
     # Battery check
-    battery_check = ComparisonExpression('battery_level', operator.lt, 30)
+    battery_check = ComparisonExpression("battery_level", operator.lt, 30)
     maintenance_seq.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Battery Below 30%?",
-            check=battery_check
+            name="Battery Below 30%?", check=battery_check
         )
     )
 
@@ -182,18 +184,16 @@ def approach_3_hybrid():
             name="Schedule Maintenance",
             variable_name="maintenance_scheduled",
             variable_value=True,
-            overwrite=True
+            overwrite=True,
         )
     )
 
     # Convert just this branch to PyForest
     maintenance_branch = pf.from_py_trees(
-        maintenance_seq,
-        name="Maintenance Branch",
-        version="1.0.0"
+        maintenance_seq, name="Maintenance Branch", version="1.0.0"
     )
 
-    print(f"✓ Created maintenance branch with py_trees")
+    print("✓ Created maintenance branch with py_trees")
 
     # Step 2: Load existing tree
     print("\nStep 2: Load existing tree...")
@@ -210,7 +210,7 @@ def approach_3_hybrid():
         node_id=str(uuid4()),
         name="All Systems Normal",
         config={},
-        children=[]
+        children=[],
     )
     tree_def.root.children.append(simple_node)
 
@@ -220,7 +220,7 @@ def approach_3_hybrid():
     tree_def.metadata.description = "Hybrid edit: maintenance branch + system check"
 
     pf.save_tree(tree_def, "examples/robot_hybrid_edit.json")
-    print(f"✓ Saved to examples/robot_hybrid_edit.json")
+    print("✓ Saved to examples/robot_hybrid_edit.json")
 
     print("\n✅ Approach 3 complete!")
     print("   Use py_trees for complex logic, direct editing for simple nodes")
@@ -230,6 +230,7 @@ def approach_3_hybrid():
 # =============================================================================
 # Bonus: Helper Functions for Common Operations
 # =============================================================================
+
 
 def add_node_to_tree(tree_def, parent_path, new_node):
     """
@@ -270,6 +271,7 @@ def find_node_by_name(tree_def, name):
 
     Returns: (node, path) or (None, None)
     """
+
     def search(node, path):
         if node.name == name:
             return node, path
@@ -303,20 +305,21 @@ def demonstration_with_helpers():
             node_id=str(uuid4()),
             name="Log Low Battery Event",
             config={},
-            children=[]
+            children=[],
         )
         add_node_to_tree(tree_def, path, new_child)
         print(f"✓ Added child to {node.name}")
 
     # Save
     pf.save_tree(tree_def, "examples/robot_helper_demo.json")
-    print(f"\n✓ Saved to examples/robot_helper_demo.json")
+    print("\n✓ Saved to examples/robot_helper_demo.json")
     print()
 
 
 # =============================================================================
 # Comparison of Approaches
 # =============================================================================
+
 
 def print_comparison():
     """Print comparison of all approaches"""

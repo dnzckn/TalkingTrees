@@ -1,10 +1,9 @@
 """Tree serialization between JSON and py_trees objects."""
 
-from typing import Any, Dict, Optional
 from uuid import UUID
 
 import py_trees
-from py_trees import behaviour, blackboard
+from py_trees import behaviour
 
 from py_forest.core.registry import get_registry
 from py_forest.models.tree import TreeDefinition, TreeNodeDefinition
@@ -28,8 +27,8 @@ class TreeSerializer:
             max_depth: Maximum tree depth allowed (default: 100)
         """
         self.registry = get_registry()
-        self.node_map: Dict[UUID, behaviour.Behaviour] = {}
-        self.reverse_map: Dict[behaviour.Behaviour, UUID] = {}
+        self.node_map: dict[UUID, behaviour.Behaviour] = {}
+        self.reverse_map: dict[behaviour.Behaviour, UUID] = {}
         self.max_depth = max_depth
 
     def deserialize(self, tree_def: TreeDefinition) -> py_trees.trees.BehaviourTree:
@@ -49,7 +48,9 @@ class TreeSerializer:
 
         # Resolve subtree references first (with cycle detection)
         visited_refs = set()
-        resolved_root = self._resolve_subtrees(tree_def.root, tree_def.subtrees, visited_refs)
+        resolved_root = self._resolve_subtrees(
+            tree_def.root, tree_def.subtrees, visited_refs
+        )
 
         # Build the tree recursively (with depth limits)
         root_node = self._build_node(resolved_root, depth=0)
@@ -62,7 +63,7 @@ class TreeSerializer:
     def _resolve_subtrees(
         self,
         node: TreeNodeDefinition,
-        subtrees: Dict[str, TreeNodeDefinition],
+        subtrees: dict[str, TreeNodeDefinition],
         visited_refs: set[str],
     ) -> TreeNodeDefinition:
         """Resolve $ref pointers to subtrees with cycle detection.
@@ -84,7 +85,9 @@ class TreeSerializer:
 
             # Cycle detection: check if we've already visited this ref
             if ref_name in visited_refs:
-                raise ValueError(f"Circular subtree reference detected: {node.ref} (path: {visited_refs})")
+                raise ValueError(
+                    f"Circular subtree reference detected: {node.ref} (path: {visited_refs})"
+                )
 
             if ref_name not in subtrees:
                 raise ValueError(f"Subtree reference not found: {node.ref}")
@@ -109,7 +112,8 @@ class TreeSerializer:
         # Recursively resolve children (share visited_refs to detect cycles)
         if node.children:
             resolved_children = [
-                self._resolve_subtrees(child, subtrees, visited_refs) for child in node.children
+                self._resolve_subtrees(child, subtrees, visited_refs)
+                for child in node.children
             ]
             node = TreeNodeDefinition(
                 node_type=node.node_type,
@@ -122,7 +126,9 @@ class TreeSerializer:
 
         return node
 
-    def _build_node(self, node_def: TreeNodeDefinition, depth: int = 0) -> behaviour.Behaviour:
+    def _build_node(
+        self, node_def: TreeNodeDefinition, depth: int = 0
+    ) -> behaviour.Behaviour:
         """Recursively build a py_trees node from definition with depth limits.
 
         Args:
@@ -157,15 +163,24 @@ class TreeSerializer:
             # Basic
             "Inverter",
             # Status converters
-            "SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
-            "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning",
+            "SuccessIsFailure",
+            "FailureIsSuccess",
+            "FailureIsRunning",
+            "RunningIsFailure",
+            "RunningIsSuccess",
+            "SuccessIsRunning",
             # Repetition
-            "Repeat", "Retry", "OneShot",
+            "Repeat",
+            "Retry",
+            "OneShot",
             # Time-based
             "Timeout",
             # Advanced
-            "EternalGuard", "Condition", "Count",
-            "StatusToBlackboard", "PassThrough"
+            "EternalGuard",
+            "Condition",
+            "Count",
+            "StatusToBlackboard",
+            "PassThrough",
         ]:
             # Decorators: need child in constructor
             return self._build_decorator(node_def, depth)
@@ -173,7 +188,9 @@ class TreeSerializer:
             # Simple behaviors (leaf nodes)
             return self._build_behavior(node_def)
 
-    def _build_composite(self, node_def: TreeNodeDefinition, depth: int) -> behaviour.Behaviour:
+    def _build_composite(
+        self, node_def: TreeNodeDefinition, depth: int
+    ) -> behaviour.Behaviour:
         """Build a composite node (Sequence, Selector).
 
         Args:
@@ -207,7 +224,9 @@ class TreeSerializer:
 
         return composite
 
-    def _build_parallel(self, node_def: TreeNodeDefinition, depth: int) -> behaviour.Behaviour:
+    def _build_parallel(
+        self, node_def: TreeNodeDefinition, depth: int
+    ) -> behaviour.Behaviour:
         """Build a parallel node.
 
         Args:
@@ -249,7 +268,9 @@ class TreeSerializer:
 
         return parallel
 
-    def _build_decorator(self, node_def: TreeNodeDefinition, depth: int) -> behaviour.Behaviour:
+    def _build_decorator(
+        self, node_def: TreeNodeDefinition, depth: int
+    ) -> behaviour.Behaviour:
         """Build a decorator node using the builder registry.
 
         Args:
@@ -274,11 +295,9 @@ class TreeSerializer:
 
         # Use builder registry to create decorator
         from py_forest.core.builders import build_decorator
+
         decorator = build_decorator(
-            node_def.node_type,
-            node_def.name,
-            node_def.config or {},
-            child
+            node_def.node_type, node_def.name, node_def.config or {}, child
         )
 
         # Store UUID mapping
@@ -297,11 +316,8 @@ class TreeSerializer:
         """
         # Use builder registry to create the behavior
         from py_forest.core.builders import build_behavior
-        node = build_behavior(
-            node_def.node_type,
-            node_def.name,
-            node_def.config or {}
-        )
+
+        node = build_behavior(node_def.node_type, node_def.name, node_def.config or {})
 
         # Store UUID mapping
         self._store_node_mapping(node_def.node_id, node)
@@ -319,9 +335,9 @@ class TreeSerializer:
         self.reverse_map[node] = uuid
 
         # Also store UUID as attribute on the node for later retrieval
-        setattr(node, "_pyforest_uuid", uuid)
+        node._pyforest_uuid = uuid
 
-    def get_node_uuid(self, node: behaviour.Behaviour) -> Optional[UUID]:
+    def get_node_uuid(self, node: behaviour.Behaviour) -> UUID | None:
         """Get the UUID for a py_trees node.
 
         Args:
@@ -337,7 +353,7 @@ class TreeSerializer:
         # Try attribute
         return getattr(node, "_pyforest_uuid", None)
 
-    def get_node_by_uuid(self, uuid: UUID) -> Optional[behaviour.Behaviour]:
+    def get_node_by_uuid(self, uuid: UUID) -> behaviour.Behaviour | None:
         """Get a py_trees node by UUID.
 
         Args:

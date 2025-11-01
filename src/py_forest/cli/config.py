@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from typing import Optional
 
 from pydantic import BaseModel
 
@@ -12,7 +11,7 @@ class CLIConfig(BaseModel):
 
     api_url: str = "http://localhost:8000"
     timeout: int = 30
-    config_path: Optional[Path] = None
+    config_path: Path | None = None
 
 
 def get_config_path() -> Path:

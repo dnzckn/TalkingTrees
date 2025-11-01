@@ -2,7 +2,6 @@
 
 from abc import ABC, abstractmethod
 from datetime import datetime, timedelta
-from typing import Dict, List, Optional
 from uuid import UUID
 
 from py_forest.models.execution import ExecutionSnapshot
@@ -22,7 +21,7 @@ class HistoryStore(ABC):
         pass
 
     @abstractmethod
-    def get_snapshot(self, execution_id: UUID, tick: int) -> Optional[ExecutionSnapshot]:
+    def get_snapshot(self, execution_id: UUID, tick: int) -> ExecutionSnapshot | None:
         """Get snapshot for a specific tick.
 
         Args:
@@ -37,7 +36,7 @@ class HistoryStore(ABC):
     @abstractmethod
     def get_range(
         self, execution_id: UUID, start_tick: int, end_tick: int
-    ) -> List[ExecutionSnapshot]:
+    ) -> list[ExecutionSnapshot]:
         """Get snapshots for a tick range.
 
         Args:
@@ -51,7 +50,7 @@ class HistoryStore(ABC):
         pass
 
     @abstractmethod
-    def get_all(self, execution_id: UUID) -> List[ExecutionSnapshot]:
+    def get_all(self, execution_id: UUID) -> list[ExecutionSnapshot]:
         """Get all snapshots for an execution.
 
         Args:
@@ -63,7 +62,7 @@ class HistoryStore(ABC):
         pass
 
     @abstractmethod
-    def get_latest(self, execution_id: UUID) -> Optional[ExecutionSnapshot]:
+    def get_latest(self, execution_id: UUID) -> ExecutionSnapshot | None:
         """Get the latest snapshot.
 
         Args:
@@ -117,7 +116,7 @@ class InMemoryHistoryStore(HistoryStore):
         """
         self.max_snapshots = max_snapshots_per_execution
         # execution_id -> tick -> snapshot
-        self._history: Dict[UUID, Dict[int, ExecutionSnapshot]] = {}
+        self._history: dict[UUID, dict[int, ExecutionSnapshot]] = {}
 
     def add_snapshot(self, execution_id: UUID, snapshot: ExecutionSnapshot) -> None:
         """Add a snapshot to history."""
@@ -133,14 +132,14 @@ class InMemoryHistoryStore(HistoryStore):
             oldest_tick = min(history.keys())
             del history[oldest_tick]
 
-    def get_snapshot(self, execution_id: UUID, tick: int) -> Optional[ExecutionSnapshot]:
+    def get_snapshot(self, execution_id: UUID, tick: int) -> ExecutionSnapshot | None:
         """Get snapshot for a specific tick."""
         history = self._history.get(execution_id, {})
         return history.get(tick)
 
     def get_range(
         self, execution_id: UUID, start_tick: int, end_tick: int
-    ) -> List[ExecutionSnapshot]:
+    ) -> list[ExecutionSnapshot]:
         """Get snapshots for a tick range."""
         history = self._history.get(execution_id, {})
         snapshots = []
@@ -151,13 +150,13 @@ class InMemoryHistoryStore(HistoryStore):
 
         return snapshots
 
-    def get_all(self, execution_id: UUID) -> List[ExecutionSnapshot]:
+    def get_all(self, execution_id: UUID) -> list[ExecutionSnapshot]:
         """Get all snapshots for an execution."""
         history = self._history.get(execution_id, {})
         # Sort by tick count
         return [history[tick] for tick in sorted(history.keys())]
 
-    def get_latest(self, execution_id: UUID) -> Optional[ExecutionSnapshot]:
+    def get_latest(self, execution_id: UUID) -> ExecutionSnapshot | None:
         """Get the latest snapshot."""
         history = self._history.get(execution_id, {})
         if not history:
@@ -208,7 +207,7 @@ class InMemoryHistoryStore(HistoryStore):
 
         return len(to_delete)
 
-    def get_memory_usage(self) -> Dict[str, int]:
+    def get_memory_usage(self) -> dict[str, int]:
         """Get memory usage statistics.
 
         Returns:
@@ -246,7 +245,7 @@ class ExecutionHistory:
         """
         self.store.add_snapshot(snapshot.execution_id, snapshot)
 
-    def get_tick(self, execution_id: UUID, tick: int) -> Optional[ExecutionSnapshot]:
+    def get_tick(self, execution_id: UUID, tick: int) -> ExecutionSnapshot | None:
         """Get snapshot for specific tick.
 
         Args:
@@ -260,7 +259,7 @@ class ExecutionHistory:
 
     def get_range(
         self, execution_id: UUID, start_tick: int, end_tick: int
-    ) -> List[ExecutionSnapshot]:
+    ) -> list[ExecutionSnapshot]:
         """Get snapshots for tick range.
 
         Args:
@@ -273,7 +272,7 @@ class ExecutionHistory:
         """
         return self.store.get_range(execution_id, start_tick, end_tick)
 
-    def get_all(self, execution_id: UUID) -> List[ExecutionSnapshot]:
+    def get_all(self, execution_id: UUID) -> list[ExecutionSnapshot]:
         """Get all history snapshots.
 
         Args:
@@ -284,7 +283,7 @@ class ExecutionHistory:
         """
         return self.store.get_all(execution_id)
 
-    def get_latest(self, execution_id: UUID) -> Optional[ExecutionSnapshot]:
+    def get_latest(self, execution_id: UUID) -> ExecutionSnapshot | None:
         """Get latest snapshot.
 
         Args:
@@ -297,7 +296,7 @@ class ExecutionHistory:
 
     def get_changes(
         self, execution_id: UUID, from_tick: int, to_tick: int
-    ) -> Dict[str, List[str]]:
+    ) -> dict[str, list[str]]:
         """Get changes between two ticks.
 
         Args:

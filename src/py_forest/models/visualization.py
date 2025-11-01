@@ -1,7 +1,6 @@
 """Models for tree visualization and statistics."""
 
 from datetime import datetime
-from typing import Dict, List, Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -33,8 +32,8 @@ class NodeStatistics(BaseModel):
     failure_rate: float = Field(default=0.0, description="Failure rate (0-1)")
 
     # Last execution
-    last_status: Optional[str] = Field(default=None, description="Last status")
-    last_tick_at: Optional[datetime] = Field(
+    last_status: str | None = Field(default=None, description="Last status")
+    last_tick_at: datetime | None = Field(
         default=None, description="Last tick timestamp"
     )
 
@@ -55,17 +54,15 @@ class ExecutionStatistics(BaseModel):
     running_ticks: int = Field(default=0, description="Ticks ending in RUNNING")
 
     # Per-node statistics
-    node_stats: Dict[str, NodeStatistics] = Field(
+    node_stats: dict[str, NodeStatistics] = Field(
         default_factory=dict, description="Statistics per node (UUID as key)"
     )
 
     # Timeline
-    started_at: Optional[datetime] = Field(
+    started_at: datetime | None = Field(
         default=None, description="Execution start time"
     )
-    last_tick_at: Optional[datetime] = Field(
-        default=None, description="Last tick time"
-    )
+    last_tick_at: datetime | None = Field(default=None, description="Last tick time")
 
 
 class VisualizationNode(BaseModel):
@@ -76,10 +73,10 @@ class VisualizationNode(BaseModel):
     name: str = Field(description="Node name")
     colour: str = Field(description="Node color in hex format")
     details: str = Field(default="", description="Additional details")
-    children: List[str] = Field(
+    children: list[str] = Field(
         default_factory=list, description="Child node UUIDs as strings"
     )
-    data: Dict[str, str] = Field(
+    data: dict[str, str] = Field(
         default_factory=dict, description="Additional node data"
     )
 
@@ -95,17 +92,17 @@ class VisualizationSnapshot(BaseModel):
     changed: str = Field(
         default="true", description="Whether tree changed ('true'/'false')"
     )
-    behaviours: Dict[str, VisualizationNode] = Field(
+    behaviours: dict[str, VisualizationNode] = Field(
         default_factory=dict, description="Node data keyed by UUID"
     )
-    visited_path: List[str] = Field(
+    visited_path: list[str] = Field(
         default_factory=list, description="UUIDs of nodes on visited path"
     )
-    blackboard: Dict[str, Dict] = Field(
+    blackboard: dict[str, dict] = Field(
         default_factory=lambda: {"behaviours": {}, "data": {}},
         description="Blackboard data",
     )
-    activity: List[str] = Field(
+    activity: list[str] = Field(
         default_factory=list, description="Blackboard activity (XHTML)"
     )
 

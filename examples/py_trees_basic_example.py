@@ -21,6 +21,7 @@ For advanced features, see TESTING_STATUS.md
 """
 
 import py_trees
+
 from py_forest.sdk import PyForest
 
 
@@ -64,10 +65,10 @@ def convert_to_pyforest(py_trees_root):
         py_trees_root,
         name="Robot Controller",
         version="1.0.0",
-        description="Simple robot controller created with py_trees"
+        description="Simple robot controller created with py_trees",
     )
 
-    print(f"✓ Converted to PyForest")
+    print("✓ Converted to PyForest")
     print(f"  Tree: {pf_tree.metadata.name} v{pf_tree.metadata.version}")
     print(f"  Root type: {pf_tree.root.node_type}")
     print(f"  Root children: {len(pf_tree.root.children)}")

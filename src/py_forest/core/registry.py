@@ -1,6 +1,6 @@
 """Behavior registry for mapping behavior types to implementations and schemas."""
 
-from typing import Any, Dict, List, Optional, Type
+from typing import Any
 
 import py_trees
 from py_trees import behaviour, composites, decorators
@@ -26,8 +26,8 @@ class BehaviorRegistry:
 
     def __init__(self) -> None:
         """Initialize the registry with built-in py_trees behaviors."""
-        self._implementations: Dict[str, Type[behaviour.Behaviour]] = {}
-        self._schemas: Dict[str, BehaviorSchema] = {}
+        self._implementations: dict[str, type[behaviour.Behaviour]] = {}
+        self._schemas: dict[str, BehaviorSchema] = {}
 
         # Register all built-in py_trees behaviors
         self._register_builtins()
@@ -1177,7 +1177,7 @@ class BehaviorRegistry:
     def register(
         self,
         node_type: str,
-        implementation: Type[behaviour.Behaviour],
+        implementation: type[behaviour.Behaviour],
         schema: BehaviorSchema,
     ) -> None:
         """Register a behavior type.
@@ -1190,7 +1190,7 @@ class BehaviorRegistry:
         self._implementations[node_type] = implementation
         self._schemas[node_type] = schema
 
-    def get_implementation(self, node_type: str) -> Optional[Type[behaviour.Behaviour]]:
+    def get_implementation(self, node_type: str) -> type[behaviour.Behaviour] | None:
         """Get the implementation class for a behavior type.
 
         Args:
@@ -1201,7 +1201,7 @@ class BehaviorRegistry:
         """
         return self._implementations.get(node_type)
 
-    def get_schema(self, node_type: str) -> Optional[BehaviorSchema]:
+    def get_schema(self, node_type: str) -> BehaviorSchema | None:
         """Get the schema for a behavior type.
 
         Args:
@@ -1223,7 +1223,7 @@ class BehaviorRegistry:
         """
         return node_type in self._implementations
 
-    def list_all(self) -> List[str]:
+    def list_all(self) -> list[str]:
         """List all registered behavior types.
 
         Returns:
@@ -1231,7 +1231,7 @@ class BehaviorRegistry:
         """
         return list(self._implementations.keys())
 
-    def list_by_category(self, category: NodeCategory) -> List[str]:
+    def list_by_category(self, category: NodeCategory) -> list[str]:
         """List behaviors by category.
 
         Args:
@@ -1246,7 +1246,7 @@ class BehaviorRegistry:
             if schema.category == category
         ]
 
-    def get_all_schemas(self) -> Dict[str, BehaviorSchema]:
+    def get_all_schemas(self) -> dict[str, BehaviorSchema]:
         """Get all behavior schemas.
 
         Returns:
@@ -1255,7 +1255,7 @@ class BehaviorRegistry:
         return self._schemas.copy()
 
     def create_node(
-        self, node_type: str, name: str, config: Dict[str, Any]
+        self, node_type: str, name: str, config: dict[str, Any]
     ) -> behaviour.Behaviour:
         """Factory method to create a behavior instance.
 
@@ -1289,7 +1289,9 @@ class BehaviorRegistry:
                 dummy_child = py_trees.behaviours.Success(name="dummy")
                 if node_type == "Timeout":
                     duration = config.get("duration", 5.0)
-                    return implementation(name=name, child=dummy_child, duration=duration)
+                    return implementation(
+                        name=name, child=dummy_child, duration=duration
+                    )
                 elif node_type == "Retry":
                     num_failures = config.get("num_failures", 3)
                     return implementation(
@@ -1364,7 +1366,7 @@ class BehaviorRegistry:
 
 
 # Global registry instance
-_global_registry: Optional[BehaviorRegistry] = None
+_global_registry: BehaviorRegistry | None = None
 
 
 def get_registry() -> BehaviorRegistry:

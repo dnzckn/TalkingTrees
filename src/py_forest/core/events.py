@@ -2,8 +2,8 @@
 
 import asyncio
 from collections import defaultdict
-from typing import Any, Callable, Dict, List, Optional
-from uuid import UUID
+from collections.abc import Callable
+from typing import Any
 
 from py_forest.models.events import EventFilter, EventType, ExecutionEvent
 
@@ -17,13 +17,15 @@ class EventEmitter:
 
     def __init__(self):
         """Initialize the event emitter."""
-        self._listeners: Dict[EventType, List[Callable]] = defaultdict(list)
-        self._async_listeners: Dict[EventType, List[Callable]] = defaultdict(list)
-        self._wildcard_listeners: List[Callable] = []
-        self._async_wildcard_listeners: List[Callable] = []
+        self._listeners: dict[EventType, list[Callable]] = defaultdict(list)
+        self._async_listeners: dict[EventType, list[Callable]] = defaultdict(list)
+        self._wildcard_listeners: list[Callable] = []
+        self._async_wildcard_listeners: list[Callable] = []
         self._lock = asyncio.Lock()
 
-    def on(self, event_type: EventType, callback: Callable[[ExecutionEvent], None]) -> None:
+    def on(
+        self, event_type: EventType, callback: Callable[[ExecutionEvent], None]
+    ) -> None:
         """Register a synchronous event listener.
 
         Args:
@@ -144,7 +146,7 @@ class EventEmitter:
         self._wildcard_listeners.clear()
         self._async_wildcard_listeners.clear()
 
-    def listener_count(self, event_type: Optional[EventType] = None) -> int:
+    def listener_count(self, event_type: EventType | None = None) -> int:
         """Get count of registered listeners.
 
         Args:
@@ -214,7 +216,9 @@ class FilteredEventEmitter:
 
         return True
 
-    def on(self, event_type: EventType, callback: Callable[[ExecutionEvent], None]) -> None:
+    def on(
+        self, event_type: EventType, callback: Callable[[ExecutionEvent], None]
+    ) -> None:
         """Register filtered listener."""
 
         def filtered_callback(event: ExecutionEvent) -> None:

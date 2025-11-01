@@ -1,6 +1,5 @@
 """Execution history endpoints."""
 
-from typing import Dict, List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -12,11 +11,11 @@ from py_forest.models.execution import ExecutionSnapshot
 router = APIRouter(prefix="/history", tags=["history"])
 
 
-@router.get("/executions/{execution_id}", response_model=List[ExecutionSnapshot])
+@router.get("/executions/{execution_id}", response_model=list[ExecutionSnapshot])
 def get_execution_history(
     execution_id: UUID,
     service: ExecutionService = Depends(execution_service_dependency),
-) -> List[ExecutionSnapshot]:
+) -> list[ExecutionSnapshot]:
     """Get complete execution history.
 
     Args:
@@ -57,19 +56,21 @@ def get_history_tick(
     try:
         snapshot = service.get_history_snapshot(execution_id, tick)
         if snapshot is None:
-            raise HTTPException(status_code=404, detail=f"Snapshot at tick {tick} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Snapshot at tick {tick} not found"
+            )
         return snapshot
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/executions/{execution_id}/range", response_model=List[ExecutionSnapshot])
+@router.get("/executions/{execution_id}/range", response_model=list[ExecutionSnapshot])
 def get_history_range(
     execution_id: UUID,
     start_tick: int = Query(..., description="Start tick (inclusive)"),
     end_tick: int = Query(..., description="End tick (inclusive)"),
     service: ExecutionService = Depends(execution_service_dependency),
-) -> List[ExecutionSnapshot]:
+) -> list[ExecutionSnapshot]:
     """Get snapshots for tick range.
 
     Args:
@@ -93,13 +94,13 @@ def get_history_range(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/executions/{execution_id}/changes", response_model=Dict)
+@router.get("/executions/{execution_id}/changes", response_model=dict)
 def get_history_changes(
     execution_id: UUID,
     from_tick: int = Query(..., description="From tick"),
     to_tick: int = Query(..., description="To tick"),
     service: ExecutionService = Depends(execution_service_dependency),
-) -> Dict:
+) -> dict:
     """Get changes between two ticks.
 
     Args:

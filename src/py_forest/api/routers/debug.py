@@ -1,6 +1,5 @@
 """Debug control endpoints for breakpoints, watches, and step execution."""
 
-from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -60,9 +59,7 @@ def add_breakpoint(
         HTTPException: If execution not found
     """
     try:
-        return service.add_breakpoint(
-            execution_id, request.node_id, request.condition
-        )
+        return service.add_breakpoint(execution_id, request.node_id, request.condition)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
 

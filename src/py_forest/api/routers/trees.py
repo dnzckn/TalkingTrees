@@ -1,6 +1,6 @@
 """Tree library management endpoints."""
 
-from typing import Any, Dict, List
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -13,10 +13,10 @@ from py_forest.storage.base import TreeLibrary
 router = APIRouter(prefix="/trees", tags=["trees"])
 
 
-@router.get("/", response_model=List[TreeCatalogEntry])
+@router.get("/", response_model=list[TreeCatalogEntry])
 def list_trees(
     library: TreeLibrary = Depends(tree_library_dependency),
-) -> List[TreeCatalogEntry]:
+) -> list[TreeCatalogEntry]:
     """List all trees in the library.
 
     Returns:
@@ -120,11 +120,11 @@ def delete_tree(
         raise HTTPException(status_code=404, detail="Tree not found")
 
 
-@router.get("/{tree_id}/versions", response_model=List[VersionInfo])
+@router.get("/{tree_id}/versions", response_model=list[VersionInfo])
 def list_versions(
     tree_id: UUID,
     library: TreeLibrary = Depends(tree_library_dependency),
-) -> List[VersionInfo]:
+) -> list[VersionInfo]:
     """List all versions of a tree.
 
     Args:
@@ -142,11 +142,11 @@ def list_versions(
     return versions
 
 
-@router.get("/search/", response_model=List[TreeCatalogEntry])
+@router.get("/search/", response_model=list[TreeCatalogEntry])
 def search_trees(
     query: str = Query(..., description="Search query string"),
     library: TreeLibrary = Depends(tree_library_dependency),
-) -> List[TreeCatalogEntry]:
+) -> list[TreeCatalogEntry]:
     """Search trees by name, description, or tags.
 
     Args:
@@ -166,7 +166,7 @@ def diff_tree_versions(
     semantic: bool = Query(True, description="Use semantic matching by name+type"),
     format: str = Query("json", description="Output format: 'json' or 'text'"),
     library: TreeLibrary = Depends(tree_library_dependency),
-) -> Dict[str, Any] | str:
+) -> dict[str, Any] | str:
     """Compare two versions of a tree.
 
     Args:
@@ -219,8 +219,12 @@ def diff_tree_versions(
                             }
                             for pd in nd.property_diffs
                         ],
-                        "old_parent_id": str(nd.old_parent_id) if nd.old_parent_id else None,
-                        "new_parent_id": str(nd.new_parent_id) if nd.new_parent_id else None,
+                        "old_parent_id": str(nd.old_parent_id)
+                        if nd.old_parent_id
+                        else None,
+                        "new_parent_id": str(nd.new_parent_id)
+                        if nd.new_parent_id
+                        else None,
                         "child_index_old": nd.child_index_old,
                         "child_index_new": nd.child_index_new,
                     }

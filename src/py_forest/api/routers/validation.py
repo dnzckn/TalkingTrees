@@ -1,6 +1,6 @@
 """Validation and template endpoints."""
 
-from typing import Any, Dict, List
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -82,7 +82,7 @@ def validate_tree_by_id(
 @router.post("/behaviors", response_model=TreeValidationResult)
 def validate_behavior(
     behavior_type: str,
-    config: Dict[str, Any],
+    config: dict[str, Any],
     registry: BehaviorRegistry = Depends(behavior_registry_dependency),
 ) -> TreeValidationResult:
     """Validate a behavior configuration.
@@ -138,10 +138,11 @@ def validate_behavior(
 
 # Template endpoints
 
-@router.get("/templates", response_model=List[TreeTemplate])
+
+@router.get("/templates", response_model=list[TreeTemplate])
 def list_templates(
     library: TemplateLibrary = Depends(template_library_dependency),
-) -> List[TreeTemplate]:
+) -> list[TreeTemplate]:
     """List all available templates.
 
     Returns:
@@ -177,7 +178,7 @@ def get_template(
 def get_template_info(
     template_id: str,
     library: TemplateLibrary = Depends(template_library_dependency),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get template information.
 
     Args:

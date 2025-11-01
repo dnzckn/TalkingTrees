@@ -13,30 +13,28 @@ This module provides simple interfaces for:
 Perfect for Jupyter notebooks, scripts, and experimentation.
 """
 
-import json
 import hashlib
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
-from uuid import UUID
-from functools import lru_cache
+import json
 from collections import defaultdict
+from collections.abc import Callable
+from pathlib import Path
+from typing import Any
+from uuid import UUID
 
 import py_trees
 
-from py_forest.core.diff import TreeDiffer, TreeMerger, format_diff_as_text
-from py_forest.core.execution import ExecutionInstance
+from py_forest.core.diff import TreeDiffer, format_diff_as_text
 from py_forest.core.profiler import (
     ProfilingLevel,
     TreeProfiler,
     format_profile_report,
     get_profiler,
 )
-from py_forest.core.serializer import TreeSerializer
 from py_forest.core.registry import get_registry
+from py_forest.core.serializer import TreeSerializer
 from py_forest.core.validation import TreeValidator
-from py_forest.models.execution import ExecutionConfig, ExecutionMode
-from py_forest.models.tree import TreeDefinition, TreeNodeDefinition, TreeMetadata
-from py_forest.models.validation import TreeValidationResult, ValidationLevel
+from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+from py_forest.models.validation import TreeValidationResult
 
 # Import adapter functions for py_trees integration
 try:
@@ -49,6 +47,7 @@ except ImportError:
 # Try to import YAML support
 try:
     import yaml
+
     YAML_AVAILABLE = True
 except ImportError:
     YAML_AVAILABLE = False
@@ -62,8 +61,8 @@ class TreeStatistics:
         node_count: int,
         max_depth: int,
         avg_depth: float,
-        type_distribution: Dict[str, int],
-        category_distribution: Dict[str, int],
+        type_distribution: dict[str, int],
+        category_distribution: dict[str, int],
         leaf_count: int,
         composite_count: int,
         decorator_count: int,
@@ -152,7 +151,11 @@ class PyForest:
         print(f"Robot should: {action}")
     """
 
-    def __init__(self, profiling_level: ProfilingLevel = ProfilingLevel.OFF, enable_cache: bool = True):
+    def __init__(
+        self,
+        profiling_level: ProfilingLevel = ProfilingLevel.OFF,
+        enable_cache: bool = True,
+    ):
         """Initialize PyForest SDK.
 
         Args:
@@ -160,11 +163,15 @@ class PyForest:
             enable_cache: Enable caching for repeated operations (e.g., tree hashes)
         """
         self.profiling_level = profiling_level
-        self.profiler = get_profiler(profiling_level) if profiling_level != ProfilingLevel.OFF else None
+        self.profiler = (
+            get_profiler(profiling_level)
+            if profiling_level != ProfilingLevel.OFF
+            else None
+        )
         self.registry = get_registry()
         self.validator = TreeValidator(self.registry)
         self.enable_cache = enable_cache
-        self._tree_hash_cache: Dict[str, str] = {}
+        self._tree_hash_cache: dict[str, str] = {}
 
     def load_tree(self, path: str) -> TreeDefinition:
         """Load a tree from JSON file.
@@ -178,7 +185,7 @@ class PyForest:
         Example:
             tree = pf.load_tree("examples/robot_v1.json")
         """
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = json.load(f)
 
         return TreeDefinition.model_validate(data)
@@ -193,15 +200,15 @@ class PyForest:
         Example:
             pf.save_tree(tree, "my_tree.json")
         """
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             json.dump(tree.model_dump(by_alias=True), f, indent=2, default=str)
 
     def create_execution(
         self,
         tree: TreeDefinition,
-        initial_blackboard: Optional[Dict[str, Any]] = None,
-        profiling_level: Optional[ProfilingLevel] = None,
-    ) -> 'Execution':
+        initial_blackboard: dict[str, Any] | None = None,
+        profiling_level: ProfilingLevel | None = None,
+    ) -> "Execution":
         """Create an execution from a tree definition.
 
         Args:
@@ -233,7 +240,9 @@ class PyForest:
         py_tree.setup()
 
         # Create execution wrapper
-        profiling = profiling_level if profiling_level is not None else self.profiling_level
+        profiling = (
+            profiling_level if profiling_level is not None else self.profiling_level
+        )
 
         return Execution(
             tree_def=tree,
@@ -276,7 +285,7 @@ class PyForest:
         root,
         name: str = "Converted Tree",
         version: str = "1.0.0",
-        description: str = "Converted from py_trees"
+        description: str = "Converted from py_trees",
     ) -> TreeDefinition:
         """Convert a py_trees tree to PyForest format.
 
@@ -308,16 +317,22 @@ class PyForest:
             pf.save_tree(tree, "my_tree.json")
         """
         if from_py_trees is None:
-            raise ImportError("py_trees adapter not available. Install py_forest.adapters")
+            raise ImportError(
+                "py_trees adapter not available. Install py_forest.adapters"
+            )
 
-        tree_def, context = from_py_trees(root, name=name, version=version, description=description)
+        tree_def, context = from_py_trees(
+            root, name=name, version=version, description=description
+        )
         return tree_def
 
     # =============================================================================
     # Validation
     # =============================================================================
 
-    def validate_tree(self, tree: TreeDefinition, verbose: bool = False) -> TreeValidationResult:
+    def validate_tree(
+        self, tree: TreeDefinition, verbose: bool = False
+    ) -> TreeValidationResult:
         """Validate a tree definition.
 
         Checks for:
@@ -343,13 +358,19 @@ class PyForest:
         result = self.validator.validate(tree)
 
         if verbose:
-            print(f"\nValidation Result: {'✓ VALID' if result.is_valid else '✗ INVALID'}")
-            print(f"Errors: {result.error_count}, Warnings: {result.warning_count}, Info: {result.info_count}")
+            print(
+                f"\nValidation Result: {'✓ VALID' if result.is_valid else '✗ INVALID'}"
+            )
+            print(
+                f"Errors: {result.error_count}, Warnings: {result.warning_count}, Info: {result.info_count}"
+            )
 
             if result.issues:
                 print("\nIssues:")
                 for issue in result.issues:
-                    level_icon = {"error": "✗", "warning": "⚠", "info": "ℹ"}[issue.level.value]
+                    level_icon = {"error": "✗", "warning": "⚠", "info": "ℹ"}[
+                        issue.level.value
+                    ]
                     path = f" [{issue.node_path}]" if issue.node_path else ""
                     print(f"  {level_icon} {issue.code}{path}: {issue.message}")
 
@@ -360,10 +381,8 @@ class PyForest:
     # =============================================================================
 
     def find_nodes(
-        self,
-        tree: TreeDefinition,
-        predicate: Callable[[TreeNodeDefinition], bool]
-    ) -> List[TreeNodeDefinition]:
+        self, tree: TreeDefinition, predicate: Callable[[TreeNodeDefinition], bool]
+    ) -> list[TreeNodeDefinition]:
         """Find all nodes matching a predicate function.
 
         Args:
@@ -399,7 +418,9 @@ class PyForest:
 
         return results
 
-    def find_nodes_by_type(self, tree: TreeDefinition, node_type: str) -> List[TreeNodeDefinition]:
+    def find_nodes_by_type(
+        self, tree: TreeDefinition, node_type: str
+    ) -> list[TreeNodeDefinition]:
         """Find all nodes of a specific type.
 
         Args:
@@ -415,7 +436,9 @@ class PyForest:
         """
         return self.find_nodes(tree, lambda n: n.node_type == node_type)
 
-    def find_nodes_by_name(self, tree: TreeDefinition, name: str, exact: bool = True) -> List[TreeNodeDefinition]:
+    def find_nodes_by_name(
+        self, tree: TreeDefinition, name: str, exact: bool = True
+    ) -> list[TreeNodeDefinition]:
         """Find nodes by name.
 
         Args:
@@ -439,7 +462,9 @@ class PyForest:
             name_lower = name.lower()
             return self.find_nodes(tree, lambda n: name_lower in n.name.lower())
 
-    def get_node_by_id(self, tree: TreeDefinition, node_id: UUID) -> Optional[TreeNodeDefinition]:
+    def get_node_by_id(
+        self, tree: TreeDefinition, node_id: UUID
+    ) -> TreeNodeDefinition | None:
         """Find a node by its UUID.
 
         Args:
@@ -457,7 +482,7 @@ class PyForest:
         results = self.find_nodes(tree, lambda n: n.node_id == node_id)
         return results[0] if results else None
 
-    def get_all_nodes(self, tree: TreeDefinition) -> List[TreeNodeDefinition]:
+    def get_all_nodes(self, tree: TreeDefinition) -> list[TreeNodeDefinition]:
         """Get all nodes in a tree (including subtrees).
 
         Args:
@@ -517,7 +542,8 @@ class PyForest:
         avg_depth = sum(depths) / len(depths) if depths else 0
 
         leaf_count = sum(
-            count for node_type, count in type_counts.items()
+            count
+            for node_type, count in type_counts.items()
             if self._is_leaf_type(node_type)
         )
 
@@ -542,7 +568,12 @@ class PyForest:
             return schema.child_constraints.max_children == 0
         return False
 
-    def print_tree_structure(self, tree: TreeDefinition, show_config: bool = False, max_depth: Optional[int] = None):
+    def print_tree_structure(
+        self,
+        tree: TreeDefinition,
+        show_config: bool = False,
+        max_depth: int | None = None,
+    ):
         """Print a formatted tree structure.
 
         Args:
@@ -553,6 +584,7 @@ class PyForest:
         Example:
             >>> pf.print_tree_structure(tree, show_config=True, max_depth=3)
         """
+
         def print_node(node: TreeNodeDefinition, indent: int = 0, depth: int = 0):
             if max_depth is not None and depth > max_depth:
                 return
@@ -576,7 +608,7 @@ class PyForest:
             for name in tree.subtrees:
                 print(f"  - {name}")
 
-    def count_nodes_by_type(self, tree: TreeDefinition) -> Dict[str, int]:
+    def count_nodes_by_type(self, tree: TreeDefinition) -> dict[str, int]:
         """Count nodes by type.
 
         Args:
@@ -597,7 +629,7 @@ class PyForest:
 
         return dict(counts)
 
-    def get_node_path(self, tree: TreeDefinition, node_id: UUID) -> Optional[List[str]]:
+    def get_node_path(self, tree: TreeDefinition, node_id: UUID) -> list[str] | None:
         """Get the path from root to a specific node.
 
         Args:
@@ -612,7 +644,8 @@ class PyForest:
             >>> if path:
             >>>     print(" -> ".join(path))
         """
-        def search(node: TreeNodeDefinition, path: List[str]) -> Optional[List[str]]:
+
+        def search(node: TreeNodeDefinition, path: list[str]) -> list[str] | None:
             current_path = path + [node.name]
 
             if node.node_id == node_id:
@@ -648,11 +681,10 @@ class PyForest:
         """
         if not YAML_AVAILABLE:
             raise ImportError(
-                "PyYAML is required for YAML support. "
-                "Install with: pip install pyyaml"
+                "PyYAML is required for YAML support. Install with: pip install pyyaml"
             )
 
-        with open(path, 'r') as f:
+        with open(path) as f:
             data = yaml.safe_load(f)
 
         return TreeDefinition.model_validate(data)
@@ -672,20 +704,19 @@ class PyForest:
         """
         if not YAML_AVAILABLE:
             raise ImportError(
-                "PyYAML is required for YAML support. "
-                "Install with: pip install pyyaml"
+                "PyYAML is required for YAML support. Install with: pip install pyyaml"
             )
 
         data = tree.model_dump(by_alias=True)
 
-        with open(path, 'w') as f:
+        with open(path, "w") as f:
             yaml.safe_dump(data, f, indent=2, default_flow_style=False, sort_keys=False)
 
     # =============================================================================
     # Batch Operations
     # =============================================================================
 
-    def load_batch(self, paths: List[str]) -> Dict[str, TreeDefinition]:
+    def load_batch(self, paths: list[str]) -> dict[str, TreeDefinition]:
         """Load multiple trees from files.
 
         Args:
@@ -709,14 +740,16 @@ class PyForest:
             file_path = Path(path)
             filename = file_path.stem
 
-            if file_path.suffix.lower() in ['.yaml', '.yml']:
+            if file_path.suffix.lower() in [".yaml", ".yml"]:
                 results[filename] = self.load_yaml(str(path))
             else:
                 results[filename] = self.load_tree(str(path))
 
         return results
 
-    def validate_batch(self, trees: Dict[str, TreeDefinition]) -> Dict[str, TreeValidationResult]:
+    def validate_batch(
+        self, trees: dict[str, TreeDefinition]
+    ) -> dict[str, TreeValidationResult]:
         """Validate multiple trees.
 
         Args:
@@ -776,7 +809,7 @@ class PyForest:
             return self._tree_hash_cache[tree_id_str]
 
         # Serialize only the structure (exclude metadata)
-        def serialize_node(node: TreeNodeDefinition) -> Dict:
+        def serialize_node(node: TreeNodeDefinition) -> dict:
             return {
                 "node_type": node.node_type,
                 "config": node.config,
@@ -787,14 +820,13 @@ class PyForest:
         structure = {
             "root": serialize_node(tree.root),
             "subtrees": {
-                name: serialize_node(subtree)
-                for name, subtree in tree.subtrees.items()
+                name: serialize_node(subtree) for name, subtree in tree.subtrees.items()
             },
         }
 
         # Compute hash
         content_str = json.dumps(structure, sort_keys=True, default=str)
-        content_hash = hashlib.sha256(content_str.encode('utf-8')).hexdigest()
+        content_hash = hashlib.sha256(content_str.encode("utf-8")).hexdigest()
 
         # Cache result
         if self.enable_cache:
@@ -818,7 +850,7 @@ class PyForest:
         """
         return self.hash_tree(tree1) == self.hash_tree(tree2)
 
-    def get_subtree(self, tree: TreeDefinition, node_id: UUID) -> Optional[TreeDefinition]:
+    def get_subtree(self, tree: TreeDefinition, node_id: UUID) -> TreeDefinition | None:
         """Extract a subtree starting from a specific node.
 
         Args:
@@ -842,11 +874,12 @@ class PyForest:
         new_metadata = TreeMetadata(
             name=f"Subtree: {node.name}",
             version="1.0.0",
-            description=f"Extracted from {tree.metadata.name}"
+            description=f"Extracted from {tree.metadata.name}",
         )
 
         # Create new tree with node as root
         from uuid import uuid4
+
         return TreeDefinition(
             tree_id=uuid4(),
             metadata=new_metadata,
@@ -866,7 +899,7 @@ class Execution:
         py_tree: py_trees.trees.BehaviourTree,
         serializer: TreeSerializer,
         profiling_level: ProfilingLevel,
-        profiler: Optional[TreeProfiler],
+        profiler: TreeProfiler | None,
     ):
         """Initialize execution.
 
@@ -885,16 +918,13 @@ class Execution:
 
         # Start profiling if enabled
         if self.profiler:
-            self.profiler.start_profiling(
-                str(tree_def.tree_id),
-                tree_def.tree_id
-            )
+            self.profiler.start_profiling(str(tree_def.tree_id), tree_def.tree_id)
 
     def tick(
         self,
         count: int = 1,
-        blackboard_updates: Optional[Dict[str, Any]] = None,
-    ) -> 'TickResult':
+        blackboard_updates: dict[str, Any] | None = None,
+    ) -> "TickResult":
         """Tick the tree.
 
         Args:
@@ -940,9 +970,7 @@ class Execution:
         if self.profiler:
             if root_uuid:
                 self.profiler.after_tick(
-                    self.py_tree.root,
-                    root_uuid,
-                    self.py_tree.root.status
+                    self.py_tree.root, root_uuid, self.py_tree.root.status
                 )
             self.profiler.on_tick_complete()
 
@@ -962,7 +990,7 @@ class Execution:
             tip_node=self.py_tree.tip().name if self.py_tree.tip() else None,
         )
 
-    def get_profiling_report(self, verbose: bool = False) -> Optional[str]:
+    def get_profiling_report(self, verbose: bool = False) -> str | None:
         """Get profiling report if profiling is enabled.
 
         Args:
@@ -1004,7 +1032,7 @@ class Execution:
 class Blackboard:
     """Wrapper around blackboard for convenient access."""
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, data: dict[str, Any]):
         """Initialize with blackboard data.
 
         Args:
@@ -1036,7 +1064,7 @@ class Blackboard:
 
         return default
 
-    def keys(self) -> List[str]:
+    def keys(self) -> list[str]:
         """Get all blackboard keys.
 
         Returns:
@@ -1044,7 +1072,7 @@ class Blackboard:
         """
         return list(self._data.keys())
 
-    def items(self) -> List[tuple]:
+    def items(self) -> list[tuple]:
         """Get all blackboard items.
 
         Returns:
@@ -1065,7 +1093,7 @@ class TickResult:
         status: str,
         tick_count: int,
         blackboard: Blackboard,
-        tip_node: Optional[str],
+        tip_node: str | None,
     ):
         """Initialize tick result.
 
@@ -1091,9 +1119,10 @@ class TickResult:
 
 # Convenience functions for quick usage
 
+
 def load_and_run(
     tree_path: str,
-    blackboard_updates: Dict[str, Any],
+    blackboard_updates: dict[str, Any],
     ticks: int = 1,
 ) -> TickResult:
     """Quick function to load a tree and run it.

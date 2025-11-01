@@ -2,9 +2,10 @@
 
 import operator
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
-from py_trees import behaviour, blackboard, common, decorators
+from py_trees import behaviour, common, decorators
 
 
 class CheckBattery(behaviour.Behaviour):
@@ -22,9 +23,7 @@ class CheckBattery(behaviour.Behaviour):
         super().__init__(name=name)
         self.threshold = threshold
         self.blackboard = self.attach_blackboard_client()
-        self.blackboard.register_key(
-            key="/battery/level", access=common.Access.READ
-        )
+        self.blackboard.register_key(key="/battery/level", access=common.Access.READ)
 
     def update(self) -> common.Status:
         """Check battery level against threshold.
@@ -242,10 +241,14 @@ class CheckBlackboardCondition(decorators.Decorator):
             condition_passed = self.op_func(bb_value, self.value)
 
             if condition_passed:
-                self.feedback_message = f"{self.variable}={bb_value} {self.operator_str} {self.value} ✓"
+                self.feedback_message = (
+                    f"{self.variable}={bb_value} {self.operator_str} {self.value} ✓"
+                )
                 return self.decorated.status
             else:
-                self.feedback_message = f"{self.variable}={bb_value} {self.operator_str} {self.value} ✗"
+                self.feedback_message = (
+                    f"{self.variable}={bb_value} {self.operator_str} {self.value} ✗"
+                )
                 # Stop the child since condition failed
                 if self.decorated.status == common.Status.RUNNING:
                     self.decorated.stop(common.Status.INVALID)

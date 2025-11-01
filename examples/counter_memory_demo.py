@@ -12,7 +12,8 @@ Let's see what actually happens!
 """
 
 import time
-from py_trees import behaviour, common, composites, blackboard
+
+from py_trees import behaviour, common, composites
 
 
 class Counter(behaviour.Behaviour):
@@ -57,9 +58,7 @@ def run_memory_demo(memory: bool):
     counter3 = Counter("Counter3", target=10)
 
     root = composites.Sequence(
-        name="Count to 30",
-        memory=memory,
-        children=[counter1, counter2, counter3]
+        name="Count to 30", memory=memory, children=[counter1, counter2, counter3]
     )
 
     # Tick until complete (or give up after 50 ticks)

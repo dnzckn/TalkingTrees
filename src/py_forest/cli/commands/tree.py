@@ -2,13 +2,12 @@
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.table import Table
 
 from py_forest.cli.client import get_client
 
@@ -18,8 +17,10 @@ console = Console()
 
 @app.command("list")
 def list_trees(
-    name: Optional[str] = typer.Option(None, "--name", "-n", help="Filter by name"),
-    tags: Optional[str] = typer.Option(None, "--tags", "-t", help="Filter by tags (comma-separated)"),
+    name: str | None = typer.Option(None, "--name", "-n", help="Filter by name"),
+    tags: str | None = typer.Option(
+        None, "--tags", "-t", help="Filter by tags (comma-separated)"
+    ),
 ):
     """List all trees in the library."""
     try:
@@ -61,7 +62,7 @@ def list_trees(
 @app.command("get")
 def get_tree(
     tree_id: str = typer.Argument(..., help="Tree ID to retrieve"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save to file"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Save to file"),
     show_json: bool = typer.Option(False, "--json", help="Show raw JSON"),
 ):
     """Get details of a specific tree."""
@@ -80,15 +81,17 @@ def get_tree(
             console.print(syntax)
         else:
             metadata = tree.get("metadata", {})
-            console.print(Panel.fit(
-                f"[bold cyan]{metadata.get('name', 'N/A')}[/bold cyan]\n\n"
-                f"[bold]ID:[/bold] {tree.get('tree_id', 'N/A')}\n"
-                f"[bold]Version:[/bold] {metadata.get('version', 'N/A')}\n"
-                f"[bold]Description:[/bold] {metadata.get('description', 'N/A')}\n"
-                f"[bold]Tags:[/bold] {', '.join(metadata.get('tags', []))}\n"
-                f"[bold]Author:[/bold] {metadata.get('author', 'N/A')}",
-                title="Tree Details"
-            ))
+            console.print(
+                Panel.fit(
+                    f"[bold cyan]{metadata.get('name', 'N/A')}[/bold cyan]\n\n"
+                    f"[bold]ID:[/bold] {tree.get('tree_id', 'N/A')}\n"
+                    f"[bold]Version:[/bold] {metadata.get('version', 'N/A')}\n"
+                    f"[bold]Description:[/bold] {metadata.get('description', 'N/A')}\n"
+                    f"[bold]Tags:[/bold] {', '.join(metadata.get('tags', []))}\n"
+                    f"[bold]Author:[/bold] {metadata.get('author', 'N/A')}",
+                    title="Tree Details",
+                )
+            )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -111,9 +114,11 @@ def create_tree(
         client = get_client()
         created_tree = client.create_tree(tree_def)
 
-        console.print(f"[green]✓ Tree created successfully[/green]")
+        console.print("[green]✓ Tree created successfully[/green]")
         console.print(f"[bold]Tree ID:[/bold] {created_tree.get('tree_id')}")
-        console.print(f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}")
+        console.print(
+            f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}"
+        )
 
     except json.JSONDecodeError as e:
         console.print(f"[red]Error: Invalid JSON in file: {e}[/red]")
@@ -148,8 +153,12 @@ def delete_tree(
 
 @app.command("validate")
 def validate_tree(
-    file: Optional[Path] = typer.Option(None, "--file", "-f", help="JSON file to validate"),
-    tree_id: Optional[str] = typer.Option(None, "--id", help="Tree ID from library to validate"),
+    file: Path | None = typer.Option(
+        None, "--file", "-f", help="JSON file to validate"
+    ),
+    tree_id: str | None = typer.Option(
+        None, "--id", help="Tree ID from library to validate"
+    ),
 ):
     """Validate a tree definition."""
     if not file and not tree_id:

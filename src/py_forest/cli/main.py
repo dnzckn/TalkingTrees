@@ -1,8 +1,6 @@
 """Main CLI entry point for PyForest."""
 
 import typer
-from pathlib import Path
-from typing import Optional
 
 from py_forest.cli import commands
 
@@ -28,8 +26,10 @@ def version():
 @app.command()
 def config(
     show: bool = typer.Option(False, "--show", help="Show current configuration"),
-    set_key: Optional[str] = typer.Option(None, "--set", help="Set config key (format: key=value)"),
-    api_url: Optional[str] = typer.Option(None, "--api-url", help="Set API base URL"),
+    set_key: str | None = typer.Option(
+        None, "--set", help="Set config key (format: key=value)"
+    ),
+    api_url: str | None = typer.Option(None, "--api-url", help="Set API base URL"),
 ):
     """Manage CLI configuration."""
     from py_forest.cli.config import get_config, save_config
@@ -69,14 +69,17 @@ def config(
 def profile(
     tree_id: str = typer.Argument(..., help="Tree ID to profile"),
     ticks: int = typer.Option(100, "--ticks", "-t", help="Number of ticks to execute"),
-    warmup: int = typer.Option(10, "--warmup", "-w", help="Warmup ticks (not included in stats)"),
+    warmup: int = typer.Option(
+        10, "--warmup", "-w", help="Warmup ticks (not included in stats)"
+    ),
 ):
     """Profile a behavior tree's performance."""
     import time
+
     from rich.console import Console
-    from rich.table import Table
     from rich.panel import Panel
     from rich.progress import Progress, SpinnerColumn, TextColumn
+    from rich.table import Table
 
     from py_forest.cli.client import get_client
 
@@ -122,17 +125,19 @@ def profile(
 
         # Display results
         console.print("\n" + "=" * 70)
-        console.print(Panel.fit(
-            f"[bold]Tree ID:[/bold] {tree_id}\n"
-            f"[bold]Total Ticks:[/bold] {stats.get('total_ticks', 0)}\n"
-            f"[bold]Wall Clock Time:[/bold] {total_time:.2f}ms\n"
-            f"[bold]Tree Execution Time:[/bold] {stats.get('total_duration_ms', 0):.2f}ms\n"
-            f"[bold]Average Tick:[/bold] {stats.get('avg_tick_duration_ms', 0):.4f}ms\n"
-            f"[bold]Min Tick:[/bold] {stats.get('min_tick_duration_ms', 0):.4f}ms\n"
-            f"[bold]Max Tick:[/bold] {stats.get('max_tick_duration_ms', 0):.4f}ms\n"
-            f"[bold]Throughput:[/bold] {(ticks / total_time * 1000):.2f} ticks/sec",
-            title="Performance Profile"
-        ))
+        console.print(
+            Panel.fit(
+                f"[bold]Tree ID:[/bold] {tree_id}\n"
+                f"[bold]Total Ticks:[/bold] {stats.get('total_ticks', 0)}\n"
+                f"[bold]Wall Clock Time:[/bold] {total_time:.2f}ms\n"
+                f"[bold]Tree Execution Time:[/bold] {stats.get('total_duration_ms', 0):.2f}ms\n"
+                f"[bold]Average Tick:[/bold] {stats.get('avg_tick_duration_ms', 0):.4f}ms\n"
+                f"[bold]Min Tick:[/bold] {stats.get('min_tick_duration_ms', 0):.4f}ms\n"
+                f"[bold]Max Tick:[/bold] {stats.get('max_tick_duration_ms', 0):.4f}ms\n"
+                f"[bold]Throughput:[/bold] {(ticks / total_time * 1000):.2f} ticks/sec",
+                title="Performance Profile",
+            )
+        )
 
         # Show per-node statistics
         node_stats = stats.get("node_stats", {})
@@ -150,10 +155,10 @@ def profile(
             sorted_nodes = sorted(
                 node_stats.items(),
                 key=lambda x: x[1].get("total_duration_ms", 0),
-                reverse=True
+                reverse=True,
             )[:10]
 
-            total_duration = stats.get('total_duration_ms', 1)
+            total_duration = stats.get("total_duration_ms", 1)
 
             for node_id, node_stat in sorted_nodes:
                 name = node_stat.get("node_name", node_id[:12])
@@ -161,7 +166,9 @@ def profile(
                 tick_count = node_stat.get("tick_count", 0)
                 avg_duration = node_stat.get("avg_duration_ms", 0)
                 node_total = node_stat.get("total_duration_ms", 0)
-                percentage = (node_total / total_duration * 100) if total_duration > 0 else 0
+                percentage = (
+                    (node_total / total_duration * 100) if total_duration > 0 else 0
+                )
 
                 table.add_row(
                     name,
@@ -169,7 +176,7 @@ def profile(
                     str(tick_count),
                     f"{avg_duration:.4f}",
                     f"{node_total:.2f}",
-                    f"{percentage:.1f}%"
+                    f"{percentage:.1f}%",
                 )
 
             console.print(table)

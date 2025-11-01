@@ -4,16 +4,15 @@ This module provides common utilities used across the conversion pipeline,
 particularly for operator mappings between py_trees and PyForest formats.
 """
 
-from typing import Callable, Dict, Any
 import operator as op
-
+from collections.abc import Callable
 
 # =============================================================================
 # Operator Mappings
 # =============================================================================
 
 # Bidirectional operator mappings for comparison operations
-OPERATOR_TO_STRING: Dict[Callable, str] = {
+OPERATOR_TO_STRING: dict[Callable, str] = {
     op.gt: ">",
     op.ge: ">=",
     op.lt: "<",
@@ -22,7 +21,7 @@ OPERATOR_TO_STRING: Dict[Callable, str] = {
     op.ne: "!=",
 }
 
-STRING_TO_OPERATOR: Dict[str, Callable] = {
+STRING_TO_OPERATOR: dict[str, Callable] = {
     ">": op.gt,
     ">=": op.ge,
     "<": op.lt,

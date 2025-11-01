@@ -2,8 +2,8 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
-from uuid import UUID, uuid4
+from typing import Any
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 
@@ -38,9 +38,7 @@ class SchedulerState(str, Enum):
 class NodeState(BaseModel):
     """Runtime state of a single node in the tree."""
 
-    status: Status = Field(
-        description="Current execution status"
-    )
+    status: Status = Field(description="Current execution status")
     feedback_message: str = Field(
         default="",
         description="Feedback message from the node",
@@ -62,10 +60,8 @@ class NodeState(BaseModel):
 class ExecutionConfig(BaseModel):
     """Configuration for a tree execution instance."""
 
-    tree_id: UUID = Field(
-        description="ID of the tree definition to execute"
-    )
-    tree_version: Optional[str] = Field(
+    tree_id: UUID = Field(description="ID of the tree definition to execute")
+    tree_version: str | None = Field(
         default=None,
         description="Specific version to execute (latest if not specified)",
     )
@@ -73,15 +69,15 @@ class ExecutionConfig(BaseModel):
         default=ExecutionMode.MANUAL,
         description="Execution mode",
     )
-    initial_blackboard: Dict[str, Any] = Field(
+    initial_blackboard: dict[str, Any] = Field(
         default_factory=dict,
         description="Initial blackboard values",
     )
-    tick_interval_ms: Optional[int] = Field(
+    tick_interval_ms: int | None = Field(
         default=None,
         description="Tick interval in milliseconds (for interval mode)",
     )
-    max_ticks: Optional[int] = Field(
+    max_ticks: int | None = Field(
         default=None,
         description="Maximum number of ticks before auto-stop",
     )
@@ -97,31 +93,23 @@ class ExecutionSnapshot(BaseModel):
     execution_id: UUID = Field(
         description="Unique identifier for this execution instance"
     )
-    tree_id: UUID = Field(
-        description="ID of the tree definition being executed"
-    )
-    tree_version: str = Field(
-        description="Version of the tree being executed"
-    )
-    tick_count: int = Field(
-        description="Total number of ticks executed"
-    )
-    root_status: Status = Field(
-        description="Status of the root node"
-    )
-    tip_node_id: Optional[UUID] = Field(
+    tree_id: UUID = Field(description="ID of the tree definition being executed")
+    tree_version: str = Field(description="Version of the tree being executed")
+    tick_count: int = Field(description="Total number of ticks executed")
+    root_status: Status = Field(description="Status of the root node")
+    tip_node_id: UUID | None = Field(
         default=None,
         description="ID of the deepest running node (the 'tip')",
     )
-    node_states: Dict[str, NodeState] = Field(
+    node_states: dict[str, NodeState] = Field(
         default_factory=dict,
         description="State of each node, keyed by node_id (as string)",
     )
-    blackboard: Dict[str, Any] = Field(
+    blackboard: dict[str, Any] = Field(
         default_factory=dict,
         description="Current blackboard values",
     )
-    blackboard_metadata: Dict[str, Dict[str, Any]] = Field(
+    blackboard_metadata: dict[str, dict[str, Any]] = Field(
         default_factory=dict,
         description="Blackboard metadata (readers, writers, activity)",
     )
@@ -129,12 +117,8 @@ class ExecutionSnapshot(BaseModel):
         default_factory=datetime.utcnow,
         description="Snapshot timestamp",
     )
-    mode: ExecutionMode = Field(
-        description="Current execution mode"
-    )
-    is_running: bool = Field(
-        description="Whether execution is currently active"
-    )
+    mode: ExecutionMode = Field(description="Current execution mode")
+    is_running: bool = Field(description="Whether execution is currently active")
 
     class Config:
         """Pydantic configuration."""
@@ -159,20 +143,14 @@ class ExecutionSnapshot(BaseModel):
 class ExecutionHistoryEntry(BaseModel):
     """Single entry in execution history."""
 
-    tick_number: int = Field(
-        description="Tick number when this snapshot was taken"
-    )
-    timestamp: datetime = Field(
-        description="Timestamp of this tick"
-    )
-    root_status: Status = Field(
-        description="Root status after this tick"
-    )
-    tip_node_id: Optional[UUID] = Field(
+    tick_number: int = Field(description="Tick number when this snapshot was taken")
+    timestamp: datetime = Field(description="Timestamp of this tick")
+    root_status: Status = Field(description="Root status after this tick")
+    tip_node_id: UUID | None = Field(
         default=None,
         description="Tip node after this tick",
     )
-    changes: Dict[str, Any] = Field(
+    changes: dict[str, Any] = Field(
         default_factory=dict,
         description="Changes from previous tick (delta)",
     )
@@ -181,37 +159,19 @@ class ExecutionHistoryEntry(BaseModel):
 class ExecutionSummary(BaseModel):
     """Summary information about an execution instance."""
 
-    execution_id: UUID = Field(
-        description="Execution instance ID"
-    )
-    tree_id: UUID = Field(
-        description="Tree definition ID"
-    )
-    tree_name: str = Field(
-        description="Human-readable tree name"
-    )
-    tree_version: str = Field(
-        description="Tree version"
-    )
-    status: Status = Field(
-        description="Current execution status"
-    )
-    mode: ExecutionMode = Field(
-        description="Execution mode"
-    )
-    tick_count: int = Field(
-        description="Total ticks executed"
-    )
-    started_at: datetime = Field(
-        description="Execution start time"
-    )
-    last_tick_at: Optional[datetime] = Field(
+    execution_id: UUID = Field(description="Execution instance ID")
+    tree_id: UUID = Field(description="Tree definition ID")
+    tree_name: str = Field(description="Human-readable tree name")
+    tree_version: str = Field(description="Tree version")
+    status: Status = Field(description="Current execution status")
+    mode: ExecutionMode = Field(description="Execution mode")
+    tick_count: int = Field(description="Total ticks executed")
+    started_at: datetime = Field(description="Execution start time")
+    last_tick_at: datetime | None = Field(
         default=None,
         description="Last tick timestamp",
     )
-    is_running: bool = Field(
-        description="Whether actively running"
-    )
+    is_running: bool = Field(description="Whether actively running")
 
 
 class TickRequest(BaseModel):
@@ -226,7 +186,7 @@ class TickRequest(BaseModel):
         default=True,
         description="Whether to return a full snapshot after ticking",
     )
-    blackboard_updates: Dict[str, Any] = Field(
+    blackboard_updates: dict[str, Any] = Field(
         default_factory=dict,
         description="Blackboard values to update before ticking (sensor inputs)",
     )
@@ -235,19 +195,11 @@ class TickRequest(BaseModel):
 class TickResponse(BaseModel):
     """Response from a tick operation."""
 
-    execution_id: UUID = Field(
-        description="Execution instance ID"
-    )
-    ticks_executed: int = Field(
-        description="Number of ticks that were executed"
-    )
-    new_tick_count: int = Field(
-        description="Total tick count after operation"
-    )
-    root_status: Status = Field(
-        description="Root status after ticking"
-    )
-    snapshot: Optional[ExecutionSnapshot] = Field(
+    execution_id: UUID = Field(description="Execution instance ID")
+    ticks_executed: int = Field(description="Number of ticks that were executed")
+    new_tick_count: int = Field(description="Total tick count after operation")
+    root_status: Status = Field(description="Root status after ticking")
+    snapshot: ExecutionSnapshot | None = Field(
         default=None,
         description="Full state snapshot (if requested)",
     )
@@ -256,55 +208,40 @@ class TickResponse(BaseModel):
 class SchedulerStatus(BaseModel):
     """Status of the execution scheduler."""
 
-    execution_id: UUID = Field(
-        description="Execution instance ID"
+    execution_id: UUID = Field(description="Execution instance ID")
+    state: SchedulerState = Field(description="Current scheduler state")
+    mode: ExecutionMode | None = Field(
+        default=None, description="Execution mode (AUTO or INTERVAL)"
     )
-    state: SchedulerState = Field(
-        description="Current scheduler state"
-    )
-    mode: Optional[ExecutionMode] = Field(
-        default=None,
-        description="Execution mode (AUTO or INTERVAL)"
-    )
-    interval_ms: Optional[int] = Field(
-        default=None,
-        description="Interval in milliseconds (for INTERVAL mode)"
+    interval_ms: int | None = Field(
+        default=None, description="Interval in milliseconds (for INTERVAL mode)"
     )
     ticks_executed: int = Field(
-        default=0,
-        description="Total ticks executed by scheduler"
+        default=0, description="Total ticks executed by scheduler"
     )
-    started_at: Optional[datetime] = Field(
-        default=None,
-        description="When scheduler started"
+    started_at: datetime | None = Field(
+        default=None, description="When scheduler started"
     )
-    stopped_at: Optional[datetime] = Field(
-        default=None,
-        description="When scheduler stopped"
+    stopped_at: datetime | None = Field(
+        default=None, description="When scheduler stopped"
     )
-    error_message: Optional[str] = Field(
-        default=None,
-        description="Error message if state is ERROR"
+    error_message: str | None = Field(
+        default=None, description="Error message if state is ERROR"
     )
 
 
 class StartSchedulerRequest(BaseModel):
     """Request to start execution scheduler."""
 
-    mode: ExecutionMode = Field(
-        description="Execution mode (AUTO or INTERVAL)"
-    )
-    interval_ms: Optional[int] = Field(
+    mode: ExecutionMode = Field(description="Execution mode (AUTO or INTERVAL)")
+    interval_ms: int | None = Field(
         default=100,
         ge=10,
-        description="Interval in milliseconds (for INTERVAL mode, min 10ms)"
+        description="Interval in milliseconds (for INTERVAL mode, min 10ms)",
     )
-    max_ticks: Optional[int] = Field(
-        default=None,
-        ge=1,
-        description="Maximum ticks before auto-stop"
+    max_ticks: int | None = Field(
+        default=None, ge=1, description="Maximum ticks before auto-stop"
     )
     stop_on_terminal: bool = Field(
-        default=True,
-        description="Stop when tree reaches SUCCESS or FAILURE"
+        default=True, description="Stop when tree reaches SUCCESS or FAILURE"
     )

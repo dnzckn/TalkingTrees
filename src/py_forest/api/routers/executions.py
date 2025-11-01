@@ -1,6 +1,5 @@
 """Execution control endpoints."""
 
-from typing import List
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -47,10 +46,10 @@ def create_execution(
         raise HTTPException(status_code=400, detail=str(e))
 
 
-@router.get("/", response_model=List[ExecutionSummary])
+@router.get("/", response_model=list[ExecutionSummary])
 def list_executions(
     service: ExecutionService = Depends(execution_service_dependency),
-) -> List[ExecutionSummary]:
+) -> list[ExecutionSummary]:
     """List all execution instances.
 
     Returns:

@@ -1,7 +1,6 @@
 """Execution statistics tracking."""
 
 from datetime import datetime
-from typing import Dict
 from uuid import UUID
 
 from py_forest.models.execution import Status
@@ -24,7 +23,7 @@ class StatisticsTracker:
             execution_id: Execution instance ID
         """
         self.execution_id = execution_id
-        self.node_stats: Dict[UUID, NodeStatistics] = {}
+        self.node_stats: dict[UUID, NodeStatistics] = {}
         self.total_ticks = 0
         self.successful_ticks = 0
         self.failed_ticks = 0
@@ -35,7 +34,7 @@ class StatisticsTracker:
 
         # Timing tracking
         self._tick_start_time: float | None = None
-        self._node_start_times: Dict[UUID, float] = {}
+        self._node_start_times: dict[UUID, float] = {}
 
     def on_tick_start(self) -> None:
         """Record tick start."""
@@ -73,9 +72,7 @@ class StatisticsTracker:
         elif root_status == Status.RUNNING:
             self.running_ticks += 1
 
-    def on_node_tick_start(
-        self, node_id: UUID, node_name: str, node_type: str
-    ) -> None:
+    def on_node_tick_start(self, node_id: UUID, node_name: str, node_type: str) -> None:
         """Record node tick start.
 
         Args:

@@ -1,12 +1,6 @@
 """Tree visualization and graph generation."""
 
-from datetime import datetime
-from typing import Dict, List, Optional
-from uuid import UUID
-
-import py_trees
-
-from py_forest.models.execution import ExecutionSnapshot, Status
+from py_forest.models.execution import ExecutionSnapshot
 from py_forest.models.visualization import (
     DotGraph,
     DotGraphOptions,
@@ -45,7 +39,7 @@ class TreeVisualizer:
         pass
 
     def to_dot(
-        self, snapshot: ExecutionSnapshot, options: Optional[DotGraphOptions] = None
+        self, snapshot: ExecutionSnapshot, options: DotGraphOptions | None = None
     ) -> DotGraph:
         """Convert execution snapshot to Graphviz DOT format.
 
@@ -64,9 +58,11 @@ class TreeVisualizer:
         # Graph header
         lines.append("digraph BehaviorTree {")
         lines.append(f'    rankdir="{options.rankdir}";')
-        lines.append(f'    node [shape="{options.node_shape}", '
-                    f'fontname="{options.font_name}", '
-                    f'fontsize={options.font_size}];')
+        lines.append(
+            f'    node [shape="{options.node_shape}", '
+            f'fontname="{options.font_name}", '
+            f"fontsize={options.font_size}];"
+        )
         lines.append("")
 
         # Process nodes recursively
@@ -83,11 +79,11 @@ class TreeVisualizer:
 
     def _add_node_to_dot(
         self,
-        node: Dict,
-        lines: List[str],
+        node: dict,
+        lines: list[str],
         options: DotGraphOptions,
-        node_states: Dict,
-        parent_id: Optional[str] = None,
+        node_states: dict,
+        parent_id: str | None = None,
     ) -> None:
         """Recursively add node to DOT graph.
 
@@ -132,8 +128,7 @@ class TreeVisualizer:
 
         # Add node
         lines.append(
-            f'    "{node_id}" [label="{label}", '
-            f'fillcolor="{color}", style=filled];'
+            f'    "{node_id}" [label="{label}", fillcolor="{color}", style=filled];'
         )
 
         # Add edge from parent
@@ -182,9 +177,9 @@ class TreeVisualizer:
 
     def _add_node_to_vis(
         self,
-        node: Dict,
+        node: dict,
         vis_snapshot: VisualizationSnapshot,
-        node_states: Dict,
+        node_states: dict,
     ) -> None:
         """Recursively add node to visualization snapshot.
 
@@ -235,7 +230,7 @@ class TreeVisualizer:
             self._add_node_to_vis(child, vis_snapshot, node_states)
 
     def snapshot_to_svg(
-        self, snapshot: ExecutionSnapshot, options: Optional[DotGraphOptions] = None
+        self, snapshot: ExecutionSnapshot, options: DotGraphOptions | None = None
     ) -> str:
         """Convert snapshot to SVG via Graphviz.
 
@@ -267,7 +262,7 @@ class TreeVisualizer:
         return svg_bytes.decode("utf-8")
 
     def snapshot_to_png(
-        self, snapshot: ExecutionSnapshot, options: Optional[DotGraphOptions] = None
+        self, snapshot: ExecutionSnapshot, options: DotGraphOptions | None = None
     ) -> bytes:
         """Convert snapshot to PNG via Graphviz.
 

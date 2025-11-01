@@ -12,7 +12,7 @@ Usage:
     python examples/sdk_enhanced_demo.py
 """
 
-from py_forest.sdk import PyForest, quick_validate, analyze_tree, compare_tree_structures
+from py_forest.sdk import PyForest
 
 
 def demo_validation():
@@ -24,13 +24,12 @@ def demo_validation():
     pf = PyForest()
 
     # Create a simple tree (in practice, you'd load from file)
-    from py_forest.models.tree import TreeDefinition, TreeNodeDefinition, TreeMetadata
     from uuid import uuid4
 
+    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+
     metadata = TreeMetadata(
-        name="Demo Tree",
-        version="1.0.0",
-        description="Example for validation demo"
+        name="Demo Tree", version="1.0.0", description="Example for validation demo"
     )
 
     root = TreeNodeDefinition(
@@ -40,25 +39,15 @@ def demo_validation():
         config={"memory": True},
         children=[
             TreeNodeDefinition(
-                node_type="Success",
-                node_id=uuid4(),
-                name="Step1",
-                config={}
+                node_type="Success", node_id=uuid4(), name="Step1", config={}
             ),
             TreeNodeDefinition(
-                node_type="Success",
-                node_id=uuid4(),
-                name="Step2",
-                config={}
+                node_type="Success", node_id=uuid4(), name="Step2", config={}
             ),
-        ]
+        ],
     )
 
-    tree = TreeDefinition(
-        tree_id=uuid4(),
-        metadata=metadata,
-        root=root
-    )
+    tree = TreeDefinition(tree_id=uuid4(), metadata=metadata, root=root)
 
     # Validate the tree
     result = pf.validate_tree(tree, verbose=True)
@@ -80,13 +69,11 @@ def demo_search():
     pf = PyForest()
 
     # Create a more complex tree
-    from py_forest.models.tree import TreeDefinition, TreeNodeDefinition, TreeMetadata
     from uuid import uuid4
 
-    metadata = TreeMetadata(
-        name="Search Demo Tree",
-        version="1.0.0"
-    )
+    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+
+    metadata = TreeMetadata(name="Search Demo Tree", version="1.0.0")
 
     root = TreeNodeDefinition(
         node_type="Sequence",
@@ -101,12 +88,9 @@ def demo_search():
                 config={"duration": 10.0},
                 children=[
                     TreeNodeDefinition(
-                        node_type="Success",
-                        node_id=uuid4(),
-                        name="Task1",
-                        config={}
+                        node_type="Success", node_id=uuid4(), name="Task1", config={}
                     )
-                ]
+                ],
             ),
             TreeNodeDefinition(
                 node_type="Timeout",
@@ -115,14 +99,11 @@ def demo_search():
                 config={"duration": 30.0},
                 children=[
                     TreeNodeDefinition(
-                        node_type="Success",
-                        node_id=uuid4(),
-                        name="Task2",
-                        config={}
+                        node_type="Success", node_id=uuid4(), name="Task2", config={}
                     )
-                ]
+                ],
             ),
-        ]
+        ],
     )
 
     tree = TreeDefinition(tree_id=uuid4(), metadata=metadata, root=root)
@@ -137,8 +118,7 @@ def demo_search():
     # Find long-running timeouts
     print("\n2. Finding timeouts > 20 seconds...")
     long_timeouts = pf.find_nodes(
-        tree,
-        lambda n: n.node_type == "Timeout" and n.config.get("duration", 0) > 20
+        tree, lambda n: n.node_type == "Timeout" and n.config.get("duration", 0) > 20
     )
     print(f"   Found {len(long_timeouts)} long timeouts:")
     for node in long_timeouts:
@@ -167,13 +147,11 @@ def demo_statistics():
     pf = PyForest()
 
     # Create a tree with variety of nodes
-    from py_forest.models.tree import TreeDefinition, TreeNodeDefinition, TreeMetadata
     from uuid import uuid4
 
-    metadata = TreeMetadata(
-        name="Statistics Demo",
-        version="1.0.0"
-    )
+    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+
+    metadata = TreeMetadata(name="Statistics Demo", version="1.0.0")
 
     root = TreeNodeDefinition(
         node_type="Selector",
@@ -188,18 +166,12 @@ def demo_statistics():
                 config={"memory": True},
                 children=[
                     TreeNodeDefinition(
-                        node_type="Success",
-                        node_id=uuid4(),
-                        name="Check1",
-                        config={}
+                        node_type="Success", node_id=uuid4(), name="Check1", config={}
                     ),
                     TreeNodeDefinition(
-                        node_type="Success",
-                        node_id=uuid4(),
-                        name="Action1",
-                        config={}
+                        node_type="Success", node_id=uuid4(), name="Action1", config={}
                     ),
-                ]
+                ],
             ),
             TreeNodeDefinition(
                 node_type="Inverter",
@@ -211,11 +183,11 @@ def demo_statistics():
                         node_type="Failure",
                         node_id=uuid4(),
                         name="AlwaysFail",
-                        config={}
+                        config={},
                     )
-                ]
+                ],
             ),
-        ]
+        ],
     )
 
     tree = TreeDefinition(tree_id=uuid4(), metadata=metadata, root=root)
@@ -246,8 +218,6 @@ def demo_batch_operations():
 
     # Note: This demo shows the API, but requires actual files to run
     # In practice, you would have multiple JSON/YAML files to load
-
-    pf = PyForest()
 
     print("\nBatch operations allow you to:")
     print("  - Load multiple trees in one call")
@@ -284,8 +254,9 @@ def demo_tree_manipulation():
     pf = PyForest()
 
     # Create original tree
-    from py_forest.models.tree import TreeDefinition, TreeNodeDefinition, TreeMetadata
     from uuid import uuid4
+
+    from py_forest.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 
     metadata = TreeMetadata(name="Original", version="1.0.0")
     root = TreeNodeDefinition(
@@ -295,12 +266,9 @@ def demo_tree_manipulation():
         config={"memory": True},
         children=[
             TreeNodeDefinition(
-                node_type="Success",
-                node_id=uuid4(),
-                name="Step1",
-                config={}
+                node_type="Success", node_id=uuid4(), name="Step1", config={}
             )
-        ]
+        ],
     )
     tree1 = TreeDefinition(tree_id=uuid4(), metadata=metadata, root=root)
 
@@ -329,10 +297,7 @@ def demo_tree_manipulation():
     print("\n4. Modifying clone...")
     tree2.root.children.append(
         TreeNodeDefinition(
-            node_type="Success",
-            node_id=uuid4(),
-            name="Step2",
-            config={}
+            node_type="Success", node_id=uuid4(), name="Step2", config={}
         )
     )
     hash2_modified = pf.hash_tree(tree2)
@@ -414,6 +379,7 @@ def main():
     except Exception as e:
         print(f"\n✗ Error during demonstration: {e}")
         import traceback
+
         traceback.print_exc()
 
 

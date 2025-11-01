@@ -78,7 +78,9 @@ async def execution_websocket(
                     event_types = message.get("events", [])
                     event_enums = [EventType(t) for t in event_types]
                     connection.unsubscribe(event_enums)
-                    await connection.send_message("unsubscribed", {"events": event_types})
+                    await connection.send_message(
+                        "unsubscribed", {"events": event_types}
+                    )
 
                 elif action == "subscribe_all":
                     # Subscribe to all events

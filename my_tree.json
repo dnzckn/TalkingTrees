@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "f35a3b60-3b3e-4e53-96df-f491c81feeb2",
+  "tree_id": "7850a504-a926-4e29-8577-bbc3be6555f6",
   "metadata": {
-    "name": "Sensor Monitor",
+    "name": "My Tree",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-11-01 04:28:23.137639",
-    "modified_at": "2025-11-01 04:28:23.137640",
+    "created_at": "2025-11-01 04:46:51.843564",
+    "modified_at": "2025-11-01 04:46:51.843567",
     "description": "Converted from py_trees",
     "tags": [],
     "changelog": null,
@@ -14,8 +14,8 @@
   },
   "root": {
     "node_type": "Sequence",
-    "node_id": "cfcc898b-46c9-a75e-8280-3df464dfd1a6",
-    "name": "Sensor Monitor",
+    "node_id": "1dddb3e2-82fc-46fb-0dd5-85b239105f0e",
+    "name": "Main",
     "config": {
       "memory": false,
       "_py_trees_class": "Sequence"
@@ -23,25 +23,22 @@
     "description": null,
     "children": [
       {
-        "node_type": "Action",
-        "node_id": "24f38353-09de-394e-4a45-e36d555c14c1",
-        "name": "Temp Check",
+        "node_type": "Success",
+        "node_id": "a8a8e8e8-f8d5-4379-5190-48540da50ec2",
+        "name": "Task1",
         "config": {
-          "_py_trees_class": "CheckSensorThreshold"
+          "_py_trees_class": "Success"
         },
         "description": null,
         "children": [],
         "$ref": null
       },
       {
-        "node_type": "SetBlackboardVariable",
-        "node_id": "28738759-d43f-816d-855c-fc5bc0864cd2",
-        "name": "Activate Cooling",
+        "node_type": "Success",
+        "node_id": "452dfb45-4668-1d62-9541-4b90b65e5852",
+        "name": "Task2",
         "config": {
-          "variable": "cooling_active",
-          "value": true,
-          "overwrite": true,
-          "_py_trees_class": "SetBlackboardVariable"
+          "_py_trees_class": "Success"
         },
         "description": null,
         "children": [],

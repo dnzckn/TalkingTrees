@@ -7,11 +7,13 @@ Tests all functionality of the py_trees <-> PyForest adapter.
 Run with: python tests/test_py_trees_adapter.py
 """
 
-import py_trees
 import operator
+
+import py_trees
 from py_trees.common import ComparisonExpression
+
+from py_forest.adapters import from_py_trees, to_py_trees
 from py_forest.sdk import PyForest
-from py_forest.adapters import from_py_trees, to_py_trees, print_comparison
 
 
 def test_basic_conversion():
@@ -52,10 +54,9 @@ def test_blackboard_condition():
     root = py_trees.composites.Sequence(name="Condition Test", memory=False)
 
     # Create comparison expression
-    check = ComparisonExpression('battery_level', operator.lt, 20)
+    check = ComparisonExpression("battery_level", operator.lt, 20)
     condition = py_trees.behaviours.CheckBlackboardVariableValue(
-        name="Battery Low?",
-        check=check
+        name="Battery Low?", check=check
     )
     root.add_child(condition)
 
@@ -64,12 +65,14 @@ def test_blackboard_condition():
 
     # Verify
     condition_node = pf_tree.root.children[0]
-    assert condition_node.config['variable'] == 'battery_level'
-    assert condition_node.config['operator'] == '<'
-    assert condition_node.config['value'] == 20
+    assert condition_node.config["variable"] == "battery_level"
+    assert condition_node.config["operator"] == "<"
+    assert condition_node.config["value"] == 20
 
-    print(f"✓ Condition config: variable={condition_node.config['variable']}, "
-          f"op={condition_node.config['operator']}, value={condition_node.config['value']}")
+    print(
+        f"✓ Condition config: variable={condition_node.config['variable']}, "
+        f"op={condition_node.config['operator']}, value={condition_node.config['value']}"
+    )
     print("✓ TEST 2 PASSED")
     return pf_tree
 
@@ -86,7 +89,7 @@ def test_blackboard_setter():
         name="Set Action",
         variable_name="robot_action",
         variable_value="charge",
-        overwrite=True
+        overwrite=True,
     )
     root.add_child(setter)
 
@@ -95,12 +98,14 @@ def test_blackboard_setter():
 
     # Verify
     setter_node = pf_tree.root.children[0]
-    assert setter_node.config['variable'] == 'robot_action'
-    assert setter_node.config['overwrite'] == True
+    assert setter_node.config["variable"] == "robot_action"
+    assert setter_node.config["overwrite"] is True
 
     # Note: value is not extractable from py_trees SetBlackboardVariable
-    print(f"✓ Setter config: variable={setter_node.config['variable']}, "
-          f"overwrite={setter_node.config['overwrite']}")
+    print(
+        f"✓ Setter config: variable={setter_node.config['variable']}, "
+        f"overwrite={setter_node.config['overwrite']}"
+    )
     print("✓ TEST 3 PASSED")
     return pf_tree
 
@@ -116,11 +121,10 @@ def test_complex_tree():
 
     # Emergency branch
     emergency = py_trees.composites.Sequence(name="Emergency", memory=False)
-    emergency_check = ComparisonExpression('error_level', operator.gt, 90)
+    emergency_check = ComparisonExpression("error_level", operator.gt, 90)
     emergency.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Critical Error?",
-            check=emergency_check
+            name="Critical Error?", check=emergency_check
         )
     )
     emergency.add_child(
@@ -128,7 +132,7 @@ def test_complex_tree():
             name="Emergency Stop",
             variable_name="action",
             variable_value="stop",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -140,7 +144,7 @@ def test_complex_tree():
             name="Set Running",
             variable_name="action",
             variable_value="run",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -156,7 +160,9 @@ def test_complex_tree():
     assert pf_tree.root.children[0].node_type == "Sequence"
     assert len(pf_tree.root.children[0].children) == 2
 
-    print(f"✓ Root: {pf_tree.root.node_type} with {len(pf_tree.root.children)} children")
+    print(
+        f"✓ Root: {pf_tree.root.node_type} with {len(pf_tree.root.children)} children"
+    )
     print("✓ TEST 4 PASSED")
     return pf_tree
 
@@ -198,11 +204,10 @@ def test_reverse_conversion():
 
     # Create PyForest tree
     root = py_trees.composites.Sequence(name="Original", memory=False)
-    check = ComparisonExpression('value', operator.eq, 42)
+    check = ComparisonExpression("value", operator.eq, 42)
     root.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Check Value",
-            check=check
+            name="Check Value", check=check
         )
     )
     root.add_child(
@@ -210,7 +215,7 @@ def test_reverse_conversion():
             name="Set Result",
             variable_name="result",
             variable_value="success",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -231,12 +236,14 @@ def test_reverse_conversion():
     assert pt_root.name == "Original"
     assert isinstance(pt_root, py_trees.composites.Sequence)
     assert len(pt_root.children) == 2
-    assert isinstance(pt_root.children[0], py_trees.behaviours.CheckBlackboardVariableValue)
+    assert isinstance(
+        pt_root.children[0], py_trees.behaviours.CheckBlackboardVariableValue
+    )
     assert isinstance(pt_root.children[1], py_trees.behaviours.SetBlackboardVariable)
 
     # Verify condition details
     condition = pt_root.children[0]
-    assert condition.check.variable == 'value'
+    assert condition.check.variable == "value"
     assert condition.check.operator == 42  # Remember py_trees swaps these
     assert condition.check.value == operator.eq
 
@@ -263,10 +270,9 @@ def test_multiple_operators():
 
     for op_func, op_str, value in operators_to_test:
         # Create condition
-        check = ComparisonExpression('test_var', op_func, value)
+        check = ComparisonExpression("test_var", op_func, value)
         condition = py_trees.behaviours.CheckBlackboardVariableValue(
-            name=f"Test {op_str}",
-            check=check
+            name=f"Test {op_str}", check=check
         )
 
         # Wrap in sequence
@@ -278,8 +284,8 @@ def test_multiple_operators():
 
         # Verify
         cond_node = pf_tree.root.children[0]
-        assert cond_node.config['operator'] == op_str, f"Failed for {op_str}"
-        assert cond_node.config['value'] == value
+        assert cond_node.config["operator"] == op_str, f"Failed for {op_str}"
+        assert cond_node.config["value"] == value
 
         print(f"  ✓ {op_str:3s} operator: test_var {op_str} {value}")
 
@@ -312,7 +318,10 @@ def test_nested_composites():
     assert pf_tree.root.children[0].node_type == "Sequence"
     assert pf_tree.root.children[0].children[0].node_type == "Selector"
     assert pf_tree.root.children[0].children[0].children[0].node_type == "Sequence"
-    assert pf_tree.root.children[0].children[0].children[0].children[0].node_type == "Success"
+    assert (
+        pf_tree.root.children[0].children[0].children[0].children[0].node_type
+        == "Success"
+    )
 
     print("✓ 4 levels of nesting preserved")
     print("✓ TEST 8 PASSED")
@@ -326,8 +335,7 @@ def test_parallel_composite():
 
     # Create parallel
     root = py_trees.composites.Parallel(
-        name="Monitor Systems",
-        policy=py_trees.common.ParallelPolicy.SuccessOnAll()
+        name="Monitor Systems", policy=py_trees.common.ParallelPolicy.SuccessOnAll()
     )
     root.add_child(py_trees.behaviours.Success(name="Monitor Sensors"))
     root.add_child(py_trees.behaviours.Success(name="Monitor Comms"))
@@ -381,10 +389,12 @@ def test_repeat_decorator():
 
     # Verify
     assert pf_tree.root.node_type == "Repeat"
-    assert pf_tree.root.config.get('num_success') == 5
+    assert pf_tree.root.config.get("num_success") == 5
     assert len(pf_tree.root.children) == 1
 
-    print(f"✓ Repeat decorator converted with num_success={pf_tree.root.config.get('num_success')}")
+    print(
+        f"✓ Repeat decorator converted with num_success={pf_tree.root.config.get('num_success')}"
+    )
     print("✓ TEST 11 PASSED")
 
 
@@ -403,10 +413,12 @@ def test_retry_decorator():
 
     # Verify
     assert pf_tree.root.node_type == "Retry"
-    assert pf_tree.root.config.get('num_failures') == 3
+    assert pf_tree.root.config.get("num_failures") == 3
     assert len(pf_tree.root.children) == 1
 
-    print(f"✓ Retry decorator converted with num_failures={pf_tree.root.config.get('num_failures')}")
+    print(
+        f"✓ Retry decorator converted with num_failures={pf_tree.root.config.get('num_failures')}"
+    )
     print("✓ TEST 12 PASSED")
 
 
@@ -418,17 +430,21 @@ def test_timeout_decorator():
 
     # Create timeout decorator
     child = py_trees.behaviours.Running(name="Long Task")
-    root = py_trees.decorators.Timeout(name="5 second timeout", child=child, duration=5.0)
+    root = py_trees.decorators.Timeout(
+        name="5 second timeout", child=child, duration=5.0
+    )
 
     # Convert
     pf_tree, _ = from_py_trees(root, name="Timeout Test", version="1.0.0")
 
     # Verify
     assert pf_tree.root.node_type == "Timeout"
-    assert pf_tree.root.config.get('duration') == 5.0
+    assert pf_tree.root.config.get("duration") == 5.0
     assert len(pf_tree.root.children) == 1
 
-    print(f"✓ Timeout decorator converted with duration={pf_tree.root.config.get('duration')}s")
+    print(
+        f"✓ Timeout decorator converted with duration={pf_tree.root.config.get('duration')}s"
+    )
     print("✓ TEST 13 PASSED")
 
 
@@ -523,5 +539,6 @@ def run_all_tests():
 
 if __name__ == "__main__":
     import sys
+
     success = run_all_tests()
     sys.exit(0 if success else 1)

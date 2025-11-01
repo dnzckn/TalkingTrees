@@ -1,13 +1,16 @@
 """WebSocket connection management for real-time updates."""
 
 import asyncio
-import json
-from typing import Dict, List, Set
 from uuid import UUID
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-from py_forest.models.events import EventFilter, EventType, ExecutionEvent, WebSocketMessage
+from py_forest.models.events import (
+    EventFilter,
+    EventType,
+    ExecutionEvent,
+    WebSocketMessage,
+)
 
 
 class WebSocketConnection:
@@ -25,7 +28,7 @@ class WebSocketConnection:
         self.execution_id = execution_id
         self.connection_id = connection_id
         self.event_filter: EventFilter = EventFilter()
-        self.subscribed_events: Set[EventType] = set()
+        self.subscribed_events: set[EventType] = set()
         self.is_active = True
 
     async def send_event(self, event: ExecutionEvent) -> bool:
@@ -123,7 +126,7 @@ class WebSocketConnection:
         """
         self.event_filter = event_filter
 
-    def subscribe(self, event_types: List[EventType]) -> None:
+    def subscribe(self, event_types: list[EventType]) -> None:
         """Subscribe to specific event types.
 
         Args:
@@ -131,7 +134,7 @@ class WebSocketConnection:
         """
         self.subscribed_events = set(event_types)
 
-    def unsubscribe(self, event_types: List[EventType]) -> None:
+    def unsubscribe(self, event_types: list[EventType]) -> None:
         """Unsubscribe from specific event types.
 
         Args:
@@ -165,11 +168,13 @@ class WebSocketManager:
     def __init__(self):
         """Initialize WebSocket manager."""
         # execution_id -> list of connections
-        self._connections: Dict[UUID, List[WebSocketConnection]] = {}
+        self._connections: dict[UUID, list[WebSocketConnection]] = {}
         self._lock = asyncio.Lock()
         self._connection_counter = 0
 
-    async def connect(self, websocket: WebSocket, execution_id: UUID) -> WebSocketConnection:
+    async def connect(
+        self, websocket: WebSocket, execution_id: UUID
+    ) -> WebSocketConnection:
         """Register a new WebSocket connection.
 
         Args:

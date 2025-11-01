@@ -1,7 +1,7 @@
 """Debugging models for breakpoints, watches, and step execution."""
 
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -34,7 +34,7 @@ class Breakpoint(BaseModel):
 
     node_id: UUID = Field(description="Node ID to break on")
     enabled: bool = Field(default=True, description="Whether breakpoint is active")
-    condition: Optional[str] = Field(
+    condition: str | None = Field(
         default=None, description="Optional Python expression condition"
     )
     hit_count: int = Field(default=0, description="Number of times hit")
@@ -45,7 +45,7 @@ class WatchExpression(BaseModel):
 
     key: str = Field(description="Blackboard key to watch")
     condition: WatchCondition = Field(description="Condition type")
-    target_value: Optional[Any] = Field(
+    target_value: Any | None = Field(
         default=None, description="Target value for comparison"
     )
     enabled: bool = Field(default=True, description="Whether watch is active")
@@ -57,14 +57,14 @@ class DebugState(BaseModel):
 
     execution_id: UUID = Field(description="Execution instance ID")
     is_paused: bool = Field(description="Whether execution is paused")
-    paused_at_node: Optional[UUID] = Field(
+    paused_at_node: UUID | None = Field(
         default=None, description="Node where execution is paused"
     )
     step_mode: StepMode = Field(description="Current step mode")
-    breakpoints: Dict[str, Breakpoint] = Field(
+    breakpoints: dict[str, Breakpoint] = Field(
         default_factory=dict, description="Active breakpoints (node_id -> breakpoint)"
     )
-    watches: Dict[str, WatchExpression] = Field(
+    watches: dict[str, WatchExpression] = Field(
         default_factory=dict, description="Active watches (key -> watch)"
     )
     breakpoint_hits: int = Field(default=0, description="Total breakpoint hits")
@@ -75,9 +75,7 @@ class AddBreakpointRequest(BaseModel):
     """Request to add a breakpoint."""
 
     node_id: UUID = Field(description="Node ID to break on")
-    condition: Optional[str] = Field(
-        default=None, description="Optional Python condition"
-    )
+    condition: str | None = Field(default=None, description="Optional Python condition")
 
 
 class AddWatchRequest(BaseModel):
@@ -85,7 +83,7 @@ class AddWatchRequest(BaseModel):
 
     key: str = Field(description="Blackboard key to watch")
     condition: WatchCondition = Field(description="Condition type")
-    target_value: Optional[Any] = Field(
+    target_value: Any | None = Field(
         default=None, description="Target value for comparison"
     )
 

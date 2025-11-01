@@ -35,8 +35,8 @@ Quick Start:
 __version__ = "0.1.0"
 
 from py_forest.core.registry import BehaviorRegistry
+from py_forest.models.execution import ExecutionConfig, ExecutionSnapshot
 from py_forest.models.tree import TreeDefinition, TreeNodeDefinition
-from py_forest.models.execution import ExecutionSnapshot, ExecutionConfig
 
 # Import SDK
 from py_forest.sdk import PyForest

@@ -1,7 +1,7 @@
 """Models for tree and behavior validation."""
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -21,16 +21,12 @@ class ValidationIssue(BaseModel):
     level: ValidationLevel = Field(description="Severity level")
     code: str = Field(description="Issue code (e.g., 'CIRCULAR_REF')")
     message: str = Field(description="Human-readable message")
-    node_id: Optional[UUID] = Field(
-        default=None, description="Node ID where issue occurs"
-    )
-    node_path: Optional[str] = Field(
+    node_id: UUID | None = Field(default=None, description="Node ID where issue occurs")
+    node_path: str | None = Field(
         default=None, description="Path to node (e.g., 'root.child[0].child[1]')"
     )
-    field: Optional[str] = Field(
-        default=None, description="Field name with issue"
-    )
-    context: Dict[str, Any] = Field(
+    field: str | None = Field(default=None, description="Field name with issue")
+    context: dict[str, Any] = Field(
         default_factory=dict, description="Additional context"
     )
 
@@ -39,7 +35,7 @@ class TreeValidationResult(BaseModel):
     """Result of tree validation."""
 
     is_valid: bool = Field(description="Whether tree is valid (no errors)")
-    issues: List[ValidationIssue] = Field(
+    issues: list[ValidationIssue] = Field(
         default_factory=list, description="List of validation issues"
     )
     error_count: int = Field(default=0, description="Number of errors")
@@ -63,13 +59,11 @@ class BehaviorParameter(BaseModel):
     name: str = Field(description="Parameter name")
     type: str = Field(description="Parameter type (string/int/float/bool/object/array)")
     required: bool = Field(default=False, description="Whether parameter is required")
-    default: Optional[Any] = Field(default=None, description="Default value")
-    description: Optional[str] = Field(
-        default=None, description="Parameter description"
-    )
-    min_value: Optional[float] = Field(default=None, description="Minimum value (numeric)")
-    max_value: Optional[float] = Field(default=None, description="Maximum value (numeric)")
-    allowed_values: Optional[List[Any]] = Field(
+    default: Any | None = Field(default=None, description="Default value")
+    description: str | None = Field(default=None, description="Parameter description")
+    min_value: float | None = Field(default=None, description="Minimum value (numeric)")
+    max_value: float | None = Field(default=None, description="Maximum value (numeric)")
+    allowed_values: list[Any] | None = Field(
         default=None, description="Allowed values (enum)"
     )
 
@@ -82,8 +76,8 @@ class BehaviorValidationSchema(BaseModel):
     category: str = Field(
         default="behavior", description="Category (composite/decorator/behavior)"
     )
-    description: Optional[str] = Field(default=None, description="Behavior description")
-    parameters: List[BehaviorParameter] = Field(
+    description: str | None = Field(default=None, description="Behavior description")
+    parameters: list[BehaviorParameter] = Field(
         default_factory=list, description="Expected parameters"
     )
     allows_children: bool = Field(
@@ -92,10 +86,10 @@ class BehaviorValidationSchema(BaseModel):
     requires_children: bool = Field(
         default=False, description="Whether behavior must have children"
     )
-    min_children: Optional[int] = Field(
+    min_children: int | None = Field(
         default=None, description="Minimum number of children"
     )
-    max_children: Optional[int] = Field(
+    max_children: int | None = Field(
         default=None, description="Maximum number of children"
     )
 
@@ -106,7 +100,7 @@ class TemplateParameter(BaseModel):
     name: str = Field(description="Parameter name")
     type: str = Field(description="Parameter type")
     description: str = Field(description="Parameter description")
-    default: Optional[Any] = Field(default=None, description="Default value")
+    default: Any | None = Field(default=None, description="Default value")
     required: bool = Field(default=True, description="Whether parameter is required")
 
 
@@ -117,14 +111,14 @@ class TreeTemplate(BaseModel):
     name: str = Field(description="Template name")
     description: str = Field(description="Template description")
     category: str = Field(default="general", description="Template category")
-    tags: List[str] = Field(default_factory=list, description="Template tags")
-    parameters: List[TemplateParameter] = Field(
+    tags: list[str] = Field(default_factory=list, description="Template tags")
+    parameters: list[TemplateParameter] = Field(
         default_factory=list, description="Template parameters"
     )
-    tree_structure: Dict[str, Any] = Field(
+    tree_structure: dict[str, Any] = Field(
         description="Tree definition with parameter placeholders"
     )
-    example_params: Dict[str, Any] = Field(
+    example_params: dict[str, Any] = Field(
         default_factory=dict, description="Example parameter values"
     )
 
@@ -133,10 +127,8 @@ class TemplateInstantiationRequest(BaseModel):
     """Request to instantiate a template."""
 
     template_id: str = Field(description="Template to instantiate")
-    parameters: Dict[str, Any] = Field(
+    parameters: dict[str, Any] = Field(
         default_factory=dict, description="Parameter values"
     )
-    tree_name: Optional[str] = Field(
-        default=None, description="Name for generated tree"
-    )
+    tree_name: str | None = Field(default=None, description="Name for generated tree")
     tree_version: str = Field(default="1.0.0", description="Version for generated tree")

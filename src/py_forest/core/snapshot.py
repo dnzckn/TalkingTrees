@@ -1,10 +1,9 @@
 """State snapshot capture using py_trees visitors."""
 
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID
 
-import py_trees
 from py_trees import behaviour, blackboard, trees, visitors
 
 from py_forest.models.execution import (
@@ -26,8 +25,8 @@ class SnapshotVisitor(visitors.VisitorBase):
     def __init__(self):
         """Initialize the visitor."""
         super().__init__(full=True)  # Visit all nodes, not just traversed
-        self.node_states: Dict[str, NodeState] = {}
-        self.tip_node_id: Optional[UUID] = None
+        self.node_states: dict[str, NodeState] = {}
+        self.tip_node_id: UUID | None = None
 
     def initialise(self) -> None:
         """Reset state before tree traversal."""

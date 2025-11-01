@@ -2,8 +2,9 @@
 """Test round-trip conversion validation."""
 
 import py_trees
-from py_trees.composites import Sequence, Selector
-from py_trees.behaviours import Success, Failure, SetBlackboardVariable
+from py_trees.behaviours import Failure, SetBlackboardVariable, Success
+from py_trees.composites import Selector, Sequence
+
 from py_forest.adapters.py_trees_adapter import from_py_trees, to_py_trees
 from py_forest.core.round_trip_validator import RoundTripValidator
 
@@ -22,7 +23,7 @@ def test_simple_round_trip():
             Success(name="Step1"),
             Success(name="Step2"),
             Success(name="Step3"),
-        ]
+        ],
     )
 
     # Round-trip conversion
@@ -63,7 +64,7 @@ def test_complex_round_trip():
                     Success(name="Option1"),
                     Failure(name="Option2"),
                     Success(name="Option3"),
-                ]
+                ],
             ),
             Sequence(
                 name="Cleanup",
@@ -71,9 +72,9 @@ def test_complex_round_trip():
                 children=[
                     Success(name="Step1"),
                     Success(name="Step2"),
-                ]
+                ],
             ),
-        ]
+        ],
     )
 
     # Round-trip conversion
@@ -110,16 +111,16 @@ def test_setblackboard_round_trip():
                 name="Set Speed",
                 variable_name="speed",
                 variable_value=42.5,
-                overwrite=True
+                overwrite=True,
             ),
             SetBlackboardVariable(
                 name="Set Mode",
                 variable_name="mode",
                 variable_value="AUTO",
-                overwrite=True
+                overwrite=True,
             ),
             Success(name="Done"),
-        ]
+        ],
     )
 
     # Round-trip conversion
@@ -161,21 +162,14 @@ def test_decorator_round_trip():
         name="Root",
         memory=True,
         children=[
-            py_trees.decorators.Inverter(
-                name="Not",
-                child=Failure(name="FailTask")
-            ),
+            py_trees.decorators.Inverter(name="Not", child=Failure(name="FailTask")),
             py_trees.decorators.Timeout(
-                name="TimeLimit",
-                child=Success(name="SlowTask"),
-                duration=5.0
+                name="TimeLimit", child=Success(name="SlowTask"), duration=5.0
             ),
             py_trees.decorators.Retry(
-                name="RetryThrice",
-                child=Success(name="FlakeyTask"),
-                num_failures=3
+                name="RetryThrice", child=Success(name="FlakeyTask"), num_failures=3
             ),
-        ]
+        ],
     )
 
     # Round-trip conversion
@@ -214,9 +208,9 @@ def test_memory_parameter():
                 children=[
                     Success(name="Option1"),
                     Success(name="Option2"),
-                ]
+                ],
             ),
-        ]
+        ],
     )
 
     # Round-trip conversion
@@ -228,7 +222,7 @@ def test_memory_parameter():
     is_valid = validator.validate(original, round_trip)
 
     # Check memory specifically
-    if round_trip.memory == False and round_trip.children[0].memory == True:
+    if round_trip.memory is False and round_trip.children[0].memory is True:
         print(f"✓ Root memory: {round_trip.memory} (expected: False)")
         print(f"✓ Child memory: {round_trip.children[0].memory} (expected: True)")
 

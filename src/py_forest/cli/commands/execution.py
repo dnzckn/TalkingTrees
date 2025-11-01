@@ -3,15 +3,12 @@
 import json
 import time
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
-from rich.live import Live
-from rich.layout import Layout
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from py_forest.cli.client import get_client
 
@@ -57,8 +54,12 @@ def run_tree(
     tree_id: str = typer.Argument(..., help="Tree ID to execute"),
     ticks: int = typer.Option(1, "--ticks", "-t", help="Number of ticks to execute"),
     auto: bool = typer.Option(False, "--auto", help="Run in AUTO mode (continuous)"),
-    interval: Optional[int] = typer.Option(None, "--interval", "-i", help="Run in INTERVAL mode (milliseconds)"),
-    monitor: bool = typer.Option(False, "--monitor", "-m", help="Monitor execution in real-time"),
+    interval: int | None = typer.Option(
+        None, "--interval", "-i", help="Run in INTERVAL mode (milliseconds)"
+    ),
+    monitor: bool = typer.Option(
+        False, "--monitor", "-m", help="Monitor execution in real-time"
+    ),
 ):
     """Execute a behavior tree."""
     try:
@@ -122,7 +123,9 @@ def run_tree(
                 task = progress.add_task("Ticking...", total=ticks)
 
                 for i in range(ticks):
-                    result = client.tick_execution(exec_id, count=1, capture_snapshot=True)
+                    result = client.tick_execution(
+                        exec_id, count=1, capture_snapshot=True
+                    )
                     progress.update(task, advance=1)
 
                     if i == ticks - 1:  # Last tick
@@ -173,7 +176,7 @@ def stop_execution(
         console.print(f"[cyan]Stopping execution {execution_id}...[/cyan]")
         client.stop_scheduler(execution_id)
 
-        console.print(f"[green]✓ Execution stopped[/green]")
+        console.print("[green]✓ Execution stopped[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -188,7 +191,9 @@ def delete_execution(
     """Delete an execution instance."""
     try:
         if not force:
-            confirm = typer.confirm(f"Are you sure you want to delete execution {execution_id}?")
+            confirm = typer.confirm(
+                f"Are you sure you want to delete execution {execution_id}?"
+            )
             if not confirm:
                 console.print("[yellow]Cancelled[/yellow]")
                 raise typer.Exit(0)
@@ -206,7 +211,7 @@ def delete_execution(
 @app.command("snapshot")
 def get_snapshot(
     execution_id: str = typer.Argument(..., help="Execution ID"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save to file"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Save to file"),
 ):
     """Get current snapshot of an execution."""
     try:
@@ -218,13 +223,15 @@ def get_snapshot(
                 json.dump(snapshot, f, indent=2)
             console.print(f"[green]✓ Snapshot saved to {output}[/green]")
         else:
-            console.print(Panel.fit(
-                f"[bold]Tree:[/bold] {snapshot.get('tree', {}).get('tree_id', 'N/A')}\n"
-                f"[bold]Tick Count:[/bold] {snapshot.get('tick_count', 0)}\n"
-                f"[bold]Root Status:[/bold] {snapshot.get('tree', {}).get('root', {}).get('status', 'N/A')}\n"
-                f"[bold]Node States:[/bold] {len(snapshot.get('node_states', []))} node(s)",
-                title="Execution Snapshot"
-            ))
+            console.print(
+                Panel.fit(
+                    f"[bold]Tree:[/bold] {snapshot.get('tree', {}).get('tree_id', 'N/A')}\n"
+                    f"[bold]Tick Count:[/bold] {snapshot.get('tick_count', 0)}\n"
+                    f"[bold]Root Status:[/bold] {snapshot.get('tree', {}).get('root', {}).get('status', 'N/A')}\n"
+                    f"[bold]Node States:[/bold] {len(snapshot.get('node_states', []))} node(s)",
+                    title="Execution Snapshot",
+                )
+            )
 
             # Show blackboard
             blackboard = snapshot.get("blackboard", {})
@@ -256,14 +263,16 @@ def _show_statistics(client, execution_id: str):
     """Helper to display execution statistics."""
     stats = client.get_statistics(execution_id)
 
-    console.print(Panel.fit(
-        f"[bold]Total Ticks:[/bold] {stats.get('total_ticks', 0)}\n"
-        f"[bold]Total Duration:[/bold] {stats.get('total_duration_ms', 0):.2f}ms\n"
-        f"[bold]Average Tick:[/bold] {stats.get('avg_tick_duration_ms', 0):.2f}ms\n"
-        f"[bold]Min Tick:[/bold] {stats.get('min_tick_duration_ms', 0):.2f}ms\n"
-        f"[bold]Max Tick:[/bold] {stats.get('max_tick_duration_ms', 0):.2f}ms",
-        title="Execution Statistics"
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]Total Ticks:[/bold] {stats.get('total_ticks', 0)}\n"
+            f"[bold]Total Duration:[/bold] {stats.get('total_duration_ms', 0):.2f}ms\n"
+            f"[bold]Average Tick:[/bold] {stats.get('avg_tick_duration_ms', 0):.2f}ms\n"
+            f"[bold]Min Tick:[/bold] {stats.get('min_tick_duration_ms', 0):.2f}ms\n"
+            f"[bold]Max Tick:[/bold] {stats.get('max_tick_duration_ms', 0):.2f}ms",
+            title="Execution Statistics",
+        )
+    )
 
     # Show per-node stats
     node_stats = stats.get("node_stats", {})
@@ -279,7 +288,7 @@ def _show_statistics(client, execution_id: str):
         sorted_nodes = sorted(
             node_stats.items(),
             key=lambda x: x[1].get("total_duration_ms", 0),
-            reverse=True
+            reverse=True,
         )[:10]
 
         for node_id, node_stat in sorted_nodes:
@@ -292,7 +301,7 @@ def _show_statistics(client, execution_id: str):
                 name,
                 str(tick_count),
                 f"{avg_duration:.2f}ms",
-                f"{total_duration:.2f}ms"
+                f"{total_duration:.2f}ms",
             )
 
         console.print(table)
@@ -316,7 +325,7 @@ def _monitor_execution(client, execution_id: str, auto: bool = False):
                 f"[bold]Ticks:[/bold] {total_ticks:6d} | "
                 f"[bold]Status:[/bold] {root_status:10s} | "
                 f"[bold]Avg:[/bold] {avg_tick:6.2f}ms",
-                end="\r"
+                end="\r",
             )
 
             time.sleep(0.5)

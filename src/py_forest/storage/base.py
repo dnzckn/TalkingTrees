@@ -1,7 +1,6 @@
 """Abstract base class for tree library storage."""
 
 from abc import ABC, abstractmethod
-from typing import List, Optional
 from uuid import UUID
 
 from py_forest.models.tree import (
@@ -24,9 +23,9 @@ class TreeLibrary(ABC):
     @abstractmethod
     def list_trees(
         self,
-        tags: Optional[List[str]] = None,
-        status: Optional[str] = None,
-    ) -> List[TreeCatalogEntry]:
+        tags: list[str] | None = None,
+        status: str | None = None,
+    ) -> list[TreeCatalogEntry]:
         """List all trees in the library.
 
         Args:
@@ -42,7 +41,7 @@ class TreeLibrary(ABC):
     def get_tree(
         self,
         tree_id: UUID,
-        version: Optional[str] = None,
+        version: str | None = None,
     ) -> TreeDefinition:
         """Get a specific tree definition.
 
@@ -82,7 +81,7 @@ class TreeLibrary(ABC):
     def delete_tree(
         self,
         tree_id: UUID,
-        version: Optional[str] = None,
+        version: str | None = None,
     ) -> bool:
         """Delete a tree or specific version.
 
@@ -96,7 +95,7 @@ class TreeLibrary(ABC):
         pass
 
     @abstractmethod
-    def list_versions(self, tree_id: UUID) -> List[VersionInfo]:
+    def list_versions(self, tree_id: UUID) -> list[VersionInfo]:
         """List all versions of a tree.
 
         Args:
@@ -111,7 +110,7 @@ class TreeLibrary(ABC):
         pass
 
     @abstractmethod
-    def tree_exists(self, tree_id: UUID, version: Optional[str] = None) -> bool:
+    def tree_exists(self, tree_id: UUID, version: str | None = None) -> bool:
         """Check if a tree (or version) exists.
 
         Args:
@@ -124,7 +123,7 @@ class TreeLibrary(ABC):
         pass
 
     @abstractmethod
-    def search_trees(self, query: str) -> List[TreeCatalogEntry]:
+    def search_trees(self, query: str) -> list[TreeCatalogEntry]:
         """Search trees by name, description, or tags.
 
         Args:

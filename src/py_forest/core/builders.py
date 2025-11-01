@@ -3,29 +3,26 @@
 This module provides a registry-based system for building py_trees nodes
 from PyForest TreeNodeDefinition during deserialization. Each node type
 has a dedicated builder that knows how to construct it with proper config.
-
-This replaces the if/elif chains in:
-- core/serializer.py::_build_decorator()
-- core/registry.py::create_node()
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
+from typing import Any
+
 import py_trees
 from py_trees import behaviour
 
 from py_forest.core.utils import string_to_operator
 
-
 # =============================================================================
 # Base Builder
 # =============================================================================
+
 
 class NodeBuilder(ABC):
     """Base class for building py_trees nodes from config."""
 
     @abstractmethod
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         """Build a py_trees node.
 
         Args:
@@ -43,13 +40,14 @@ class NodeBuilder(ABC):
 # Decorator Builders
 # =============================================================================
 
+
 class DecoratorBuilder(NodeBuilder):
     """Base class for decorator builders.
 
     Decorators require a child node which should be passed via kwargs.
     """
 
-    def get_child(self, kwargs: Dict[str, Any]) -> behaviour.Behaviour:
+    def get_child(self, kwargs: dict[str, Any]) -> behaviour.Behaviour:
         """Extract and validate child from kwargs.
 
         Args:
@@ -61,7 +59,7 @@ class DecoratorBuilder(NodeBuilder):
         Raises:
             ValueError: If child not provided
         """
-        child = kwargs.get('child')
+        child = kwargs.get("child")
         if not child:
             raise ValueError("Decorator requires 'child' parameter")
         return child
@@ -70,7 +68,7 @@ class DecoratorBuilder(NodeBuilder):
 class InverterBuilder(DecoratorBuilder):
     """Build Inverter decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.Inverter(name=name, child=child)
 
@@ -78,7 +76,7 @@ class InverterBuilder(DecoratorBuilder):
 class SuccessIsFailureBuilder(DecoratorBuilder):
     """Build SuccessIsFailure decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.SuccessIsFailure(name=name, child=child)
 
@@ -86,7 +84,7 @@ class SuccessIsFailureBuilder(DecoratorBuilder):
 class FailureIsSuccessBuilder(DecoratorBuilder):
     """Build FailureIsSuccess decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.FailureIsSuccess(name=name, child=child)
 
@@ -94,7 +92,7 @@ class FailureIsSuccessBuilder(DecoratorBuilder):
 class FailureIsRunningBuilder(DecoratorBuilder):
     """Build FailureIsRunning decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.FailureIsRunning(name=name, child=child)
 
@@ -102,7 +100,7 @@ class FailureIsRunningBuilder(DecoratorBuilder):
 class RunningIsFailureBuilder(DecoratorBuilder):
     """Build RunningIsFailure decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.RunningIsFailure(name=name, child=child)
 
@@ -110,7 +108,7 @@ class RunningIsFailureBuilder(DecoratorBuilder):
 class RunningIsSuccessBuilder(DecoratorBuilder):
     """Build RunningIsSuccess decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.RunningIsSuccess(name=name, child=child)
 
@@ -118,7 +116,7 @@ class RunningIsSuccessBuilder(DecoratorBuilder):
 class SuccessIsRunningBuilder(DecoratorBuilder):
     """Build SuccessIsRunning decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.SuccessIsRunning(name=name, child=child)
 
@@ -126,64 +124,52 @@ class SuccessIsRunningBuilder(DecoratorBuilder):
 class RepeatBuilder(DecoratorBuilder):
     """Build Repeat decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         num_success = config.get("num_success", 1)
         return py_trees.decorators.Repeat(
-            name=name,
-            child=child,
-            num_success=num_success
+            name=name, child=child, num_success=num_success
         )
 
 
 class RetryBuilder(DecoratorBuilder):
     """Build Retry decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         num_failures = config.get("num_failures", 3)
         return py_trees.decorators.Retry(
-            name=name,
-            child=child,
-            num_failures=num_failures
+            name=name, child=child, num_failures=num_failures
         )
 
 
 class OneShotBuilder(DecoratorBuilder):
     """Build OneShot decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         policy_str = config.get("policy", "ON_COMPLETION")
         policy = getattr(
             py_trees.common.OneShotPolicy,
             policy_str,
-            py_trees.common.OneShotPolicy.ON_COMPLETION
+            py_trees.common.OneShotPolicy.ON_COMPLETION,
         )
-        return py_trees.decorators.OneShot(
-            name=name,
-            child=child,
-            policy=policy
-        )
+        return py_trees.decorators.OneShot(name=name, child=child, policy=policy)
 
 
 class TimeoutBuilder(DecoratorBuilder):
     """Build Timeout decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         duration = config.get("duration", 5.0)
-        return py_trees.decorators.Timeout(
-            name=name,
-            child=child,
-            duration=duration
-        )
+        return py_trees.decorators.Timeout(name=name, child=child, duration=duration)
 
 
 class EternalGuardBuilder(DecoratorBuilder):
     """Build EternalGuard decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         variable = config.get("variable", "condition")
         value = config.get("value", True)
@@ -193,17 +179,14 @@ class EternalGuardBuilder(DecoratorBuilder):
         check = py_trees.common.ComparisonExpression(variable, comparison_op, value)
 
         return py_trees.decorators.EternalGuard(
-            name=name,
-            child=child,
-            blackboard_keys=[variable],
-            condition=check
+            name=name, child=child, blackboard_keys=[variable], condition=check
         )
 
 
 class ConditionBuilder(DecoratorBuilder):
     """Build Condition decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         variable = config.get("variable", "condition")
         value = config.get("value", True)
@@ -213,17 +196,14 @@ class ConditionBuilder(DecoratorBuilder):
         check = py_trees.common.ComparisonExpression(variable, comparison_op, value)
 
         return py_trees.decorators.Condition(
-            name=name,
-            child=child,
-            blackboard_keys=[variable],
-            status=check
+            name=name, child=child, blackboard_keys=[variable], status=check
         )
 
 
 class CountBuilder(DecoratorBuilder):
     """Build Count decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.Count(name=name, child=child)
 
@@ -231,20 +211,18 @@ class CountBuilder(DecoratorBuilder):
 class StatusToBlackboardBuilder(DecoratorBuilder):
     """Build StatusToBlackboard decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         variable = config.get("variable", "status")
         return py_trees.decorators.StatusToBlackboard(
-            name=name,
-            child=child,
-            variable_name=variable
+            name=name, child=child, variable_name=variable
         )
 
 
 class PassThroughBuilder(DecoratorBuilder):
     """Build PassThrough decorator."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         child = self.get_child(kwargs)
         return py_trees.decorators.PassThrough(name=name, child=child)
 
@@ -253,10 +231,11 @@ class PassThroughBuilder(DecoratorBuilder):
 # Composite Builders
 # =============================================================================
 
+
 class SequenceBuilder(NodeBuilder):
     """Build Sequence composite."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         memory = config.get("memory", True)
         return py_trees.composites.Sequence(name=name, memory=memory)
 
@@ -264,7 +243,7 @@ class SequenceBuilder(NodeBuilder):
 class SelectorBuilder(NodeBuilder):
     """Build Selector composite."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         memory = config.get("memory", True)
         return py_trees.composites.Selector(name=name, memory=memory)
 
@@ -272,17 +251,23 @@ class SelectorBuilder(NodeBuilder):
 class ParallelBuilder(NodeBuilder):
     """Build Parallel composite."""
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         policy_name = config.get("policy", "SuccessOnAll")
         synchronise = config.get("synchronise", True)
 
         # Create parallel policy
         if policy_name == "SuccessOnAll":
-            policy = py_trees.common.ParallelPolicy.SuccessOnAll(synchronise=synchronise)
+            policy = py_trees.common.ParallelPolicy.SuccessOnAll(
+                synchronise=synchronise
+            )
         elif policy_name == "SuccessOnOne":
-            policy = py_trees.common.ParallelPolicy.SuccessOnOne(synchronise=synchronise)
+            policy = py_trees.common.ParallelPolicy.SuccessOnOne(
+                synchronise=synchronise
+            )
         else:
-            policy = py_trees.common.ParallelPolicy.SuccessOnAll(synchronise=synchronise)
+            policy = py_trees.common.ParallelPolicy.SuccessOnAll(
+                synchronise=synchronise
+            )
 
         return py_trees.composites.Parallel(name=name, policy=policy)
 
@@ -290,6 +275,7 @@ class ParallelBuilder(NodeBuilder):
 # =============================================================================
 # Behavior Builders (Simple)
 # =============================================================================
+
 
 class SimpleBehaviorBuilder(NodeBuilder):
     """Builder for simple behaviors with just a name parameter.
@@ -300,7 +286,7 @@ class SimpleBehaviorBuilder(NodeBuilder):
     def __init__(self, behavior_class):
         self.behavior_class = behavior_class
 
-    def build(self, name: str, config: Dict[str, Any], **kwargs) -> behaviour.Behaviour:
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
         return self.behavior_class(name=name)
 
 
@@ -309,7 +295,7 @@ class SimpleBehaviorBuilder(NodeBuilder):
 # =============================================================================
 
 # Decorator builders
-DECORATOR_BUILDERS: Dict[str, NodeBuilder] = {
+DECORATOR_BUILDERS: dict[str, NodeBuilder] = {
     "Inverter": InverterBuilder(),
     "SuccessIsFailure": SuccessIsFailureBuilder(),
     "FailureIsSuccess": FailureIsSuccessBuilder(),
@@ -329,14 +315,14 @@ DECORATOR_BUILDERS: Dict[str, NodeBuilder] = {
 }
 
 # Composite builders
-COMPOSITE_BUILDERS: Dict[str, NodeBuilder] = {
+COMPOSITE_BUILDERS: dict[str, NodeBuilder] = {
     "Sequence": SequenceBuilder(),
     "Selector": SelectorBuilder(),
     "Parallel": ParallelBuilder(),
 }
 
 # Simple behavior builders
-SIMPLE_BEHAVIOR_BUILDERS: Dict[str, NodeBuilder] = {
+SIMPLE_BEHAVIOR_BUILDERS: dict[str, NodeBuilder] = {
     "Success": SimpleBehaviorBuilder(py_trees.behaviours.Success),
     "Failure": SimpleBehaviorBuilder(py_trees.behaviours.Failure),
     "Running": SimpleBehaviorBuilder(py_trees.behaviours.Running),
@@ -344,14 +330,14 @@ SIMPLE_BEHAVIOR_BUILDERS: Dict[str, NodeBuilder] = {
 }
 
 # Combined registry
-BUILDER_REGISTRY: Dict[str, NodeBuilder] = {
+BUILDER_REGISTRY: dict[str, NodeBuilder] = {
     **DECORATOR_BUILDERS,
     **COMPOSITE_BUILDERS,
     **SIMPLE_BEHAVIOR_BUILDERS,
 }
 
 
-def get_builder(node_type: str) -> Optional[NodeBuilder]:
+def get_builder(node_type: str) -> NodeBuilder | None:
     """Get the builder for a node type.
 
     Args:
@@ -368,10 +354,10 @@ def get_builder(node_type: str) -> Optional[NodeBuilder]:
     return BUILDER_REGISTRY.get(node_type)
 
 
-def build_decorator(node_type: str, name: str, config: Dict[str, Any], child: behaviour.Behaviour) -> behaviour.Behaviour:
+def build_decorator(
+    node_type: str, name: str, config: dict[str, Any], child: behaviour.Behaviour
+) -> behaviour.Behaviour:
     """Build a decorator node using the registry.
-
-    This is the main entry point that replaces the if/elif chain in serializer.
 
     Args:
         node_type: Decorator type
@@ -399,7 +385,9 @@ def build_decorator(node_type: str, name: str, config: Dict[str, Any], child: be
     return builder.build(name, config, child=child)
 
 
-def build_composite(node_type: str, name: str, config: Dict[str, Any]) -> behaviour.Behaviour:
+def build_composite(
+    node_type: str, name: str, config: dict[str, Any]
+) -> behaviour.Behaviour:
     """Build a composite node using the registry.
 
     Args:
@@ -427,7 +415,9 @@ def build_composite(node_type: str, name: str, config: Dict[str, Any]) -> behavi
     return builder.build(name, config)
 
 
-def build_behavior(node_type: str, name: str, config: Dict[str, Any]) -> behaviour.Behaviour:
+def build_behavior(
+    node_type: str, name: str, config: dict[str, Any]
+) -> behaviour.Behaviour:
     """Build a behavior node using the registry.
 
     Args:
@@ -451,6 +441,7 @@ def build_behavior(node_type: str, name: str, config: Dict[str, Any]) -> behavio
         # This handles behaviors not in the builder registry
         # (e.g., TickCounter, CheckBattery, Log, custom user behaviors)
         from py_forest.core.registry import get_registry
+
         registry = get_registry()
         return registry.create_node(node_type, name, config)
 

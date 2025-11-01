@@ -24,8 +24,8 @@ This tutorial demonstrates:
 - THE CONTROL LOOP PATTERN (most important!)
 """
 
-import time
 import random
+
 from py_forest.sdk import PyForest
 
 # =============================================================================
@@ -125,8 +125,9 @@ def create_tree_from_code():
     print("=" * 70)
     print()
 
-    import py_trees
     import operator
+
+    import py_trees
     from py_trees.common import ComparisonExpression
 
     print("Building behavior tree with py_trees...")
@@ -208,7 +209,7 @@ def create_tree_from_code():
         description="Created entirely from py_trees code",
     )
 
-    print(f"✓ Converted to PyForest")
+    print("✓ Converted to PyForest")
     print(f"  Tree: {tree.metadata.name}")
     print(f"  Version: {tree.metadata.version}")
     print()
@@ -475,7 +476,7 @@ def test_scenarios():
     action = result.blackboard.get("/robot_action")
 
     print(f"  Tree Decision: {action}")
-    print(f"  Expected: patrol or similar")
+    print("  Expected: patrol or similar")
     print()
 
     # Scenario 2: Low battery
@@ -487,7 +488,7 @@ def test_scenarios():
     action = result.blackboard.get("/robot_action")
 
     print(f"  Tree Decision: {action}")
-    print(f"  Expected: return_to_base or charge")
+    print("  Expected: return_to_base or charge")
     print()
 
     # Scenario 3: Critical battery
@@ -499,7 +500,7 @@ def test_scenarios():
     action = result.blackboard.get("/robot_action")
 
     print(f"  Tree Decision: {action}")
-    print(f"  Expected: emergency_stop")
+    print("  Expected: emergency_stop")
     print()
 
 

@@ -1,0 +1,540 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "a3006219-9e11-4c94-b567-89c4bdd61634",
+  "metadata": {
+    "name": "UltraComplex Robot",
+    "version": "2.0.0",
+    "author": null,
+    "created_at": "2025-11-01 04:49:02.519991",
+    "modified_at": "2025-11-01 04:49:02.520182",
+    "description": "Converted from py_trees",
+    "tags": [],
+    "changelog": null,
+    "status": "draft"
+  },
+  "root": {
+    "node_type": "Selector",
+    "node_id": "4304ab8f-3bec-0ad4-8aff-421f200c3a5a",
+    "name": "RobotBrain",
+    "config": {
+      "memory": false,
+      "_py_trees_class": "Selector"
+    },
+    "description": null,
+    "children": [
+      {
+        "node_type": "Timeout",
+        "node_id": "1698b00b-9679-b6ef-2458-db5506718b6f",
+        "name": "EmergencyTimeout",
+        "config": {
+          "duration": 10.0,
+          "_py_trees_class": "Timeout"
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "Inverter",
+            "node_id": "cc8f3d29-51c4-98bc-64d8-7277e4f07ebb",
+            "name": "InvertEmergency",
+            "config": {
+              "_py_trees_class": "Inverter"
+            },
+            "description": null,
+            "children": [
+              {
+                "node_type": "Sequence",
+                "node_id": "1f8090fb-cd17-b0da-39c4-5c0e737a9b08",
+                "name": "EmergencySequence",
+                "config": {
+                  "memory": true,
+                  "_py_trees_class": "Sequence"
+                },
+                "description": null,
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardCondition",
+                    "node_id": "cfed6dd3-26a1-96ff-8bdc-a948f1e234b2",
+                    "name": "CheckBatteryLow",
+                    "config": {
+                      "variable": "battery",
+                      "value": 20,
+                      "operator": "<",
+                      "_py_trees_class": "CheckBlackboardVariableValue"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "node_id": "70ccfa71-7206-3eb1-881f-27996148092c",
+                    "name": "SetEmergencyMode",
+                    "config": {
+                      "variable": "emergency",
+                      "value": true,
+                      "overwrite": true,
+                      "_py_trees_class": "SetBlackboardVariable"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "Success",
+                    "node_id": "9cc6137b-ff79-c79b-ead9-30c878f90219",
+                    "name": "AlertOperator",
+                    "config": {
+                      "_py_trees_class": "Success"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  }
+                ],
+                "$ref": null
+              }
+            ],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Sequence",
+        "node_id": "ac9d4655-fedb-8757-1118-f78502232115",
+        "name": "NormalOps",
+        "config": {
+          "memory": true,
+          "_py_trees_class": "Sequence"
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "2869af75-6336-92c1-c313-c1e80ea75b2d",
+            "name": "CheckBatteryOK",
+            "config": {
+              "variable": "battery",
+              "value": 50,
+              "operator": ">=",
+              "_py_trees_class": "CheckBlackboardVariableValue"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "CheckBlackboardVariableExists",
+            "node_id": "9f527c79-56dd-ce98-2492-fcfcea4e9e57",
+            "name": "CheckMissionExists",
+            "config": {
+              "variable": "mission",
+              "_py_trees_class": "CheckBlackboardVariableExists"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "Retry",
+            "node_id": "ecc44eb2-2201-8ab9-d72d-857f7ecc5e35",
+            "name": "RetryParallelTasks",
+            "config": {
+              "num_failures": 3,
+              "_py_trees_class": "Retry"
+            },
+            "description": null,
+            "children": [
+              {
+                "node_type": "Parallel",
+                "node_id": "df983ec0-f045-2390-6fdd-9a190c443cbb",
+                "name": "ParallelSensors",
+                "config": {
+                  "_py_trees_class": "Parallel"
+                },
+                "description": null,
+                "children": [
+                  {
+                    "node_type": "Timeout",
+                    "node_id": "74271716-9263-63c7-34ee-bf2c8009c735",
+                    "name": "CameraScanTimeout",
+                    "config": {
+                      "duration": 5.0,
+                      "_py_trees_class": "Timeout"
+                    },
+                    "description": null,
+                    "children": [
+                      {
+                        "node_type": "Success",
+                        "node_id": "8f443344-b74d-a79a-96d8-3e47251eeda6",
+                        "name": "ScanCamera",
+                        "config": {
+                          "_py_trees_class": "Success"
+                        },
+                        "description": null,
+                        "children": [],
+                        "$ref": null
+                      }
+                    ],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "Timeout",
+                    "node_id": "d4b16b8e-9929-8884-de7d-8cef06754136",
+                    "name": "LidarScanTimeout",
+                    "config": {
+                      "duration": 5.0,
+                      "_py_trees_class": "Timeout"
+                    },
+                    "description": null,
+                    "children": [
+                      {
+                        "node_type": "Success",
+                        "node_id": "0f3dfbeb-f200-6512-491d-937023aace32",
+                        "name": "ScanLidar",
+                        "config": {
+                          "_py_trees_class": "Success"
+                        },
+                        "description": null,
+                        "children": [],
+                        "$ref": null
+                      }
+                    ],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "Success",
+                    "node_id": "2a0dcf28-3871-2289-dbaa-f381f9c7fba8",
+                    "name": "UpdateMap",
+                    "config": {
+                      "_py_trees_class": "Success"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  }
+                ],
+                "$ref": null
+              }
+            ],
+            "$ref": null
+          },
+          {
+            "node_type": "Repeat",
+            "node_id": "7858e681-340b-dcd5-450a-e9d4d0af85e3",
+            "name": "RepeatNavigation",
+            "config": {
+              "num_success": 3,
+              "_py_trees_class": "Repeat"
+            },
+            "description": null,
+            "children": [
+              {
+                "node_type": "Sequence",
+                "node_id": "5189cb08-70ae-67d9-60f2-572176cc0809",
+                "name": "NavigationSequence",
+                "config": {
+                  "memory": true,
+                  "_py_trees_class": "Sequence"
+                },
+                "description": null,
+                "children": [
+                  {
+                    "node_type": "Success",
+                    "node_id": "8866359a-b2e3-96b7-bf27-7e68adcb8f6e",
+                    "name": "PlanPath",
+                    "config": {
+                      "_py_trees_class": "Success"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "Success",
+                    "node_id": "251026ac-3084-d82b-9d6f-4294b7b872ab",
+                    "name": "ExecutePath",
+                    "config": {
+                      "_py_trees_class": "Success"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "node_id": "e74662cc-8c98-0e08-c2f9-bcb71c5f0eff",
+                    "name": "UpdateProgress",
+                    "config": {
+                      "variable": "waypoint_count",
+                      "value": 0,
+                      "overwrite": true,
+                      "_py_trees_class": "SetBlackboardVariable"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  }
+                ],
+                "$ref": null
+              }
+            ],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Sequence",
+        "node_id": "31ebbcd8-529b-fb5c-029f-b3cd12076493",
+        "name": "MaintenanceMode",
+        "config": {
+          "memory": false,
+          "_py_trees_class": "Sequence"
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "CheckBlackboardCondition",
+            "node_id": "df15ee31-9e75-5a29-49e3-86cc139a193a",
+            "name": "CheckMaintenanceTime",
+            "config": {
+              "variable": "hours_since_maintenance",
+              "value": 100,
+              "operator": ">",
+              "_py_trees_class": "CheckBlackboardVariableValue"
+            },
+            "description": null,
+            "children": [],
+            "$ref": null
+          },
+          {
+            "node_type": "OneShot",
+            "node_id": "96cf27b2-5b9c-96e1-c135-718cb4f83bec",
+            "name": "OneShotMaintenance",
+            "config": {
+              "policy": "OneShotPolicy.ON_SUCCESSFUL_COMPLETION",
+              "_py_trees_class": "OneShot"
+            },
+            "description": null,
+            "children": [
+              {
+                "node_type": "Selector",
+                "node_id": "cfb2ea28-dd5d-93aa-d569-b1d472fed473",
+                "name": "MaintenanceSelector",
+                "config": {
+                  "memory": false,
+                  "_py_trees_class": "Selector"
+                },
+                "description": null,
+                "children": [
+                  {
+                    "node_type": "Timeout",
+                    "node_id": "df248d2b-f44d-74a6-e32b-707672178f2a",
+                    "name": "SelfMaintenanceTimeout",
+                    "config": {
+                      "duration": 30.0,
+                      "_py_trees_class": "Timeout"
+                    },
+                    "description": null,
+                    "children": [
+                      {
+                        "node_type": "Sequence",
+                        "node_id": "19e0fba0-c90a-a387-69fb-272cffc1f0ed",
+                        "name": "SelfMaintenance",
+                        "config": {
+                          "memory": true,
+                          "_py_trees_class": "Sequence"
+                        },
+                        "description": null,
+                        "children": [
+                          {
+                            "node_type": "Success",
+                            "node_id": "fa23443b-44c4-8a6b-ccd2-3895a70ff5bd",
+                            "name": "RunDiagnostics",
+                            "config": {
+                              "_py_trees_class": "Success"
+                            },
+                            "description": null,
+                            "children": [],
+                            "$ref": null
+                          },
+                          {
+                            "node_type": "Success",
+                            "node_id": "683945cf-f42e-c767-8d89-c3a898bf014d",
+                            "name": "ClearCache",
+                            "config": {
+                              "_py_trees_class": "Success"
+                            },
+                            "description": null,
+                            "children": [],
+                            "$ref": null
+                          },
+                          {
+                            "node_type": "SetBlackboardVariable",
+                            "node_id": "761cdff8-e80c-3542-b8e7-c920698593f4",
+                            "name": "ResetMaintenanceTimer",
+                            "config": {
+                              "variable": "hours_since_maintenance",
+                              "value": 0,
+                              "overwrite": true,
+                              "_py_trees_class": "SetBlackboardVariable"
+                            },
+                            "description": null,
+                            "children": [],
+                            "$ref": null
+                          }
+                        ],
+                        "$ref": null
+                      }
+                    ],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "5da9a58f-01d2-3468-244d-a9e327af831d",
+                    "name": "RequestAssistance",
+                    "config": {
+                      "memory": true,
+                      "_py_trees_class": "Sequence"
+                    },
+                    "description": null,
+                    "children": [
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "0b3dd7a2-7a52-9c32-e040-4b8236602bb4",
+                        "name": "SetAssistanceNeeded",
+                        "config": {
+                          "variable": "assistance_needed",
+                          "value": true,
+                          "overwrite": true,
+                          "_py_trees_class": "SetBlackboardVariable"
+                        },
+                        "description": null,
+                        "children": [],
+                        "$ref": null
+                      },
+                      {
+                        "node_type": "Success",
+                        "node_id": "bcb5e644-7ee7-601e-a26e-2e824fc342c0",
+                        "name": "WaitForHuman",
+                        "config": {
+                          "_py_trees_class": "Success"
+                        },
+                        "description": null,
+                        "children": [],
+                        "$ref": null
+                      }
+                    ],
+                    "$ref": null
+                  }
+                ],
+                "$ref": null
+              }
+            ],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "SuccessIsFailure",
+        "node_id": "0884ecbf-267d-cafc-88b3-8646d730be61",
+        "name": "ConvertIdleStatus",
+        "config": {
+          "_py_trees_class": "SuccessIsFailure"
+        },
+        "description": null,
+        "children": [
+          {
+            "node_type": "FailureIsSuccess",
+            "node_id": "eed94ecb-040f-36a2-cee8-e69ef6beb11c",
+            "name": "DoubleConvert",
+            "config": {
+              "_py_trees_class": "FailureIsSuccess"
+            },
+            "description": null,
+            "children": [
+              {
+                "node_type": "Sequence",
+                "node_id": "65be7841-47d5-3bf0-04f0-0e3d8955d05d",
+                "name": "IdleSequence",
+                "config": {
+                  "memory": true,
+                  "_py_trees_class": "Sequence"
+                },
+                "description": null,
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardCondition",
+                    "node_id": "cb9b129a-5390-50c7-56ae-504d8e51f747",
+                    "name": "CheckNoMission",
+                    "config": {
+                      "variable": "mission",
+                      "value": null,
+                      "operator": "==",
+                      "_py_trees_class": "CheckBlackboardVariableValue"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "node_id": "4bb1b949-5d93-e824-ec46-97e2fba8eeb7",
+                    "name": "SetIdleMode",
+                    "config": {
+                      "variable": "mode",
+                      "value": "idle",
+                      "overwrite": true,
+                      "_py_trees_class": "SetBlackboardVariable"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  },
+                  {
+                    "node_type": "Running",
+                    "node_id": "dd140a20-b028-99b1-a24e-8c216fa69e1f",
+                    "name": "IdleLoop",
+                    "config": {
+                      "_py_trees_class": "Running"
+                    },
+                    "description": null,
+                    "children": [],
+                    "$ref": null
+                  }
+                ],
+                "$ref": null
+              }
+            ],
+            "$ref": null
+          }
+        ],
+        "$ref": null
+      },
+      {
+        "node_type": "Success",
+        "node_id": "186a1403-ae55-364b-4933-e6847d279e70",
+        "name": "FallbackSuccess",
+        "config": {
+          "_py_trees_class": "Success"
+        },
+        "description": null,
+        "children": [],
+        "$ref": null
+      }
+    ],
+    "$ref": null
+  },
+  "subtrees": {},
+  "dependencies": {
+    "behaviors": [],
+    "subtrees": [],
+    "external": []
+  },
+  "validation": {
+    "warnings": [],
+    "errors": []
+  }
+}

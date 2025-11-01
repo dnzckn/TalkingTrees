@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any
 from uuid import UUID
 
 from py_forest.models.tree import TreeDefinition, TreeNodeDefinition
@@ -58,11 +58,11 @@ class NodeDiff:
     node_type: str
     diff_type: DiffType
     path: str  # Hierarchical path like "Root → Selector → Sequence"
-    property_diffs: List[PropertyDiff]
-    old_parent_id: Optional[UUID] = None
-    new_parent_id: Optional[UUID] = None
-    child_index_old: Optional[int] = None  # Position in sibling list
-    child_index_new: Optional[int] = None
+    property_diffs: list[PropertyDiff]
+    old_parent_id: UUID | None = None
+    new_parent_id: UUID | None = None
+    child_index_old: int | None = None  # Position in sibling list
+    child_index_new: int | None = None
 
     def __repr__(self) -> str:
         """String representation."""
@@ -90,19 +90,16 @@ class TreeDiff:
     new_version: str
     old_tree_id: UUID
     new_tree_id: UUID
-    node_diffs: List[NodeDiff]
-    metadata_changes: List[PropertyDiff]
+    node_diffs: list[NodeDiff]
+    metadata_changes: list[PropertyDiff]
 
     @property
     def has_changes(self) -> bool:
         """Check if there are any differences."""
-        return (
-            len(self.node_diffs) > 0
-            or len(self.metadata_changes) > 0
-        )
+        return len(self.node_diffs) > 0 or len(self.metadata_changes) > 0
 
     @property
-    def summary(self) -> Dict[str, int]:
+    def summary(self) -> dict[str, int]:
         """Get summary statistics."""
         counts = {
             "added": 0,
@@ -145,14 +142,14 @@ class TreeDiffer:
 
     def __init__(self):
         """Initialize the differ."""
-        self.old_nodes: Dict[UUID, TreeNodeDefinition] = {}
-        self.new_nodes: Dict[UUID, TreeNodeDefinition] = {}
-        self.old_paths: Dict[UUID, str] = {}
-        self.new_paths: Dict[UUID, str] = {}
-        self.old_parents: Dict[UUID, Optional[UUID]] = {}
-        self.new_parents: Dict[UUID, Optional[UUID]] = {}
-        self.old_indices: Dict[UUID, int] = {}
-        self.new_indices: Dict[UUID, int] = {}
+        self.old_nodes: dict[UUID, TreeNodeDefinition] = {}
+        self.new_nodes: dict[UUID, TreeNodeDefinition] = {}
+        self.old_paths: dict[UUID, str] = {}
+        self.new_paths: dict[UUID, str] = {}
+        self.old_parents: dict[UUID, UUID | None] = {}
+        self.new_parents: dict[UUID, UUID | None] = {}
+        self.old_indices: dict[UUID, int] = {}
+        self.new_indices: dict[UUID, int] = {}
 
     def diff_trees(
         self,
@@ -171,10 +168,22 @@ class TreeDiffer:
             TreeDiff object with all differences
         """
         # Build node maps
-        self._build_node_map(old_tree.root, self.old_nodes, self.old_paths,
-                            self.old_parents, self.old_indices, "Root")
-        self._build_node_map(new_tree.root, self.new_nodes, self.new_paths,
-                            self.new_parents, self.new_indices, "Root")
+        self._build_node_map(
+            old_tree.root,
+            self.old_nodes,
+            self.old_paths,
+            self.old_parents,
+            self.old_indices,
+            "Root",
+        )
+        self._build_node_map(
+            new_tree.root,
+            self.new_nodes,
+            self.new_paths,
+            self.new_parents,
+            self.new_indices,
+            "Root",
+        )
 
         # Match nodes (by UUID or semantically)
         matched_pairs, added_ids, removed_ids = self._match_nodes(semantic)
@@ -185,30 +194,34 @@ class TreeDiffer:
         # Removed nodes
         for node_id in removed_ids:
             node = self.old_nodes[node_id]
-            node_diffs.append(NodeDiff(
-                node_id=node_id,
-                name=node.name,
-                node_type=node.node_type,
-                diff_type=DiffType.REMOVED,
-                path=self.old_paths[node_id],
-                property_diffs=[],
-                old_parent_id=self.old_parents.get(node_id),
-                child_index_old=self.old_indices.get(node_id),
-            ))
+            node_diffs.append(
+                NodeDiff(
+                    node_id=node_id,
+                    name=node.name,
+                    node_type=node.node_type,
+                    diff_type=DiffType.REMOVED,
+                    path=self.old_paths[node_id],
+                    property_diffs=[],
+                    old_parent_id=self.old_parents.get(node_id),
+                    child_index_old=self.old_indices.get(node_id),
+                )
+            )
 
         # Added nodes
         for node_id in added_ids:
             node = self.new_nodes[node_id]
-            node_diffs.append(NodeDiff(
-                node_id=node_id,
-                name=node.name,
-                node_type=node.node_type,
-                diff_type=DiffType.ADDED,
-                path=self.new_paths[node_id],
-                property_diffs=[],
-                new_parent_id=self.new_parents.get(node_id),
-                child_index_new=self.new_indices.get(node_id),
-            ))
+            node_diffs.append(
+                NodeDiff(
+                    node_id=node_id,
+                    name=node.name,
+                    node_type=node.node_type,
+                    diff_type=DiffType.ADDED,
+                    path=self.new_paths[node_id],
+                    property_diffs=[],
+                    new_parent_id=self.new_parents.get(node_id),
+                    child_index_new=self.new_indices.get(node_id),
+                )
+            )
 
         # Modified/Moved/Unchanged nodes
         for old_id, new_id in matched_pairs:
@@ -237,18 +250,20 @@ class TreeDiffer:
                 diff_type = DiffType.UNCHANGED
 
             if diff_type != DiffType.UNCHANGED:  # Only include changes
-                node_diffs.append(NodeDiff(
-                    node_id=new_id,  # Use new ID for reference
-                    name=new_node.name,
-                    node_type=new_node.node_type,
-                    diff_type=diff_type,
-                    path=self.new_paths[new_id],
-                    property_diffs=prop_diffs,
-                    old_parent_id=old_parent,
-                    new_parent_id=new_parent,
-                    child_index_old=old_index,
-                    child_index_new=new_index,
-                ))
+                node_diffs.append(
+                    NodeDiff(
+                        node_id=new_id,  # Use new ID for reference
+                        name=new_node.name,
+                        node_type=new_node.node_type,
+                        diff_type=diff_type,
+                        path=self.new_paths[new_id],
+                        property_diffs=prop_diffs,
+                        old_parent_id=old_parent,
+                        new_parent_id=new_parent,
+                        child_index_old=old_index,
+                        child_index_new=new_index,
+                    )
+                )
 
         # Diff metadata
         metadata_changes = self._diff_metadata(old_tree, new_tree)
@@ -265,12 +280,12 @@ class TreeDiffer:
     def _build_node_map(
         self,
         node: TreeNodeDefinition,
-        node_map: Dict[UUID, TreeNodeDefinition],
-        path_map: Dict[UUID, str],
-        parent_map: Dict[UUID, Optional[UUID]],
-        index_map: Dict[UUID, int],
+        node_map: dict[UUID, TreeNodeDefinition],
+        path_map: dict[UUID, str],
+        parent_map: dict[UUID, UUID | None],
+        index_map: dict[UUID, int],
         path: str,
-        parent_id: Optional[UUID] = None,
+        parent_id: UUID | None = None,
         child_index: int = 0,
     ):
         """Recursively build node maps."""
@@ -282,14 +297,20 @@ class TreeDiffer:
         for idx, child in enumerate(node.children):
             child_path = f"{path} → {child.name}"
             self._build_node_map(
-                child, node_map, path_map, parent_map, index_map,
-                child_path, node.node_id, idx
+                child,
+                node_map,
+                path_map,
+                parent_map,
+                index_map,
+                child_path,
+                node.node_id,
+                idx,
             )
 
     def _match_nodes(
         self,
         semantic: bool,
-    ) -> Tuple[List[Tuple[UUID, UUID]], Set[UUID], Set[UUID]]:
+    ) -> tuple[list[tuple[UUID, UUID]], set[UUID], set[UUID]]:
         """Match nodes between old and new trees.
 
         Args:
@@ -343,48 +364,54 @@ class TreeDiffer:
         self,
         old_node: TreeNodeDefinition,
         new_node: TreeNodeDefinition,
-    ) -> List[PropertyDiff]:
+    ) -> list[PropertyDiff]:
         """Compare node properties."""
         diffs = []
 
         # Compare name
         if old_node.name != new_node.name:
-            diffs.append(PropertyDiff(
-                property_name="name",
-                diff_type=PropertyDiffType.VALUE_CHANGED,
-                old_value=old_node.name,
-                new_value=new_node.name,
-            ))
+            diffs.append(
+                PropertyDiff(
+                    property_name="name",
+                    diff_type=PropertyDiffType.VALUE_CHANGED,
+                    old_value=old_node.name,
+                    new_value=new_node.name,
+                )
+            )
 
         # Compare node_type
         if old_node.node_type != new_node.node_type:
-            diffs.append(PropertyDiff(
-                property_name="node_type",
-                diff_type=PropertyDiffType.VALUE_CHANGED,
-                old_value=old_node.node_type,
-                new_value=new_node.node_type,
-            ))
+            diffs.append(
+                PropertyDiff(
+                    property_name="node_type",
+                    diff_type=PropertyDiffType.VALUE_CHANGED,
+                    old_value=old_node.node_type,
+                    new_value=new_node.node_type,
+                )
+            )
 
         # Compare config
         diffs.extend(self._diff_dict(old_node.config, new_node.config, "config"))
 
         # Compare description if present
         if old_node.description != new_node.description:
-            diffs.append(PropertyDiff(
-                property_name="description",
-                diff_type=PropertyDiffType.VALUE_CHANGED,
-                old_value=old_node.description,
-                new_value=new_node.description
-            ))
+            diffs.append(
+                PropertyDiff(
+                    property_name="description",
+                    diff_type=PropertyDiffType.VALUE_CHANGED,
+                    old_value=old_node.description,
+                    new_value=new_node.description,
+                )
+            )
 
         return diffs
 
     def _diff_dict(
         self,
-        old_dict: Dict[str, Any],
-        new_dict: Dict[str, Any],
+        old_dict: dict[str, Any],
+        new_dict: dict[str, Any],
         prefix: str,
-    ) -> List[PropertyDiff]:
+    ) -> list[PropertyDiff]:
         """Compare two dictionaries."""
         diffs = []
 
@@ -393,19 +420,23 @@ class TreeDiffer:
 
         # Added keys
         for key in new_keys - old_keys:
-            diffs.append(PropertyDiff(
-                property_name=f"{prefix}.{key}",
-                diff_type=PropertyDiffType.ADDED,
-                new_value=new_dict[key],
-            ))
+            diffs.append(
+                PropertyDiff(
+                    property_name=f"{prefix}.{key}",
+                    diff_type=PropertyDiffType.ADDED,
+                    new_value=new_dict[key],
+                )
+            )
 
         # Removed keys
         for key in old_keys - new_keys:
-            diffs.append(PropertyDiff(
-                property_name=f"{prefix}.{key}",
-                diff_type=PropertyDiffType.REMOVED,
-                old_value=old_dict[key],
-            ))
+            diffs.append(
+                PropertyDiff(
+                    property_name=f"{prefix}.{key}",
+                    diff_type=PropertyDiffType.REMOVED,
+                    old_value=old_dict[key],
+                )
+            )
 
         # Modified keys
         for key in old_keys & new_keys:
@@ -415,19 +446,23 @@ class TreeDiffer:
             if old_val != new_val:
                 # Check if type changed
                 if type(old_val) != type(new_val):
-                    diffs.append(PropertyDiff(
-                        property_name=f"{prefix}.{key}",
-                        diff_type=PropertyDiffType.TYPE_CHANGED,
-                        old_value=old_val,
-                        new_value=new_val,
-                    ))
+                    diffs.append(
+                        PropertyDiff(
+                            property_name=f"{prefix}.{key}",
+                            diff_type=PropertyDiffType.TYPE_CHANGED,
+                            old_value=old_val,
+                            new_value=new_val,
+                        )
+                    )
                 else:
-                    diffs.append(PropertyDiff(
-                        property_name=f"{prefix}.{key}",
-                        diff_type=PropertyDiffType.VALUE_CHANGED,
-                        old_value=old_val,
-                        new_value=new_val,
-                    ))
+                    diffs.append(
+                        PropertyDiff(
+                            property_name=f"{prefix}.{key}",
+                            diff_type=PropertyDiffType.VALUE_CHANGED,
+                            old_value=old_val,
+                            new_value=new_val,
+                        )
+                    )
 
         return diffs
 
@@ -435,7 +470,7 @@ class TreeDiffer:
         self,
         old_tree: TreeDefinition,
         new_tree: TreeDefinition,
-    ) -> List[PropertyDiff]:
+    ) -> list[PropertyDiff]:
         """Compare tree metadata."""
         old_meta = old_tree.metadata.model_dump(exclude={"created_at", "modified_at"})
         new_meta = new_tree.metadata.model_dump(exclude={"created_at", "modified_at"})
@@ -451,7 +486,7 @@ class TreeMerger:
         ours: TreeDefinition,
         theirs: TreeDefinition,
         strategy: str = "ours",
-    ) -> Tuple[TreeDefinition, List[str]]:
+    ) -> tuple[TreeDefinition, list[str]]:
         """Three-way merge of tree definitions.
 
         Args:
@@ -487,7 +522,7 @@ class TreeMerger:
         self,
         our_diff: TreeDiff,
         their_diff: TreeDiff,
-    ) -> List[str]:
+    ) -> list[str]:
         """Detect merge conflicts."""
         conflicts = []
 
@@ -503,9 +538,10 @@ class TreeMerger:
             their_change = their_changes[node_id]
 
             # Both modified the same node
-            if (our_change.diff_type in [DiffType.MODIFIED, DiffType.MOVED] and
-                their_change.diff_type in [DiffType.MODIFIED, DiffType.MOVED]):
-
+            if our_change.diff_type in [
+                DiffType.MODIFIED,
+                DiffType.MOVED,
+            ] and their_change.diff_type in [DiffType.MODIFIED, DiffType.MOVED]:
                 # Check if they modified different properties
                 our_props = {pd.property_name for pd in our_change.property_diffs}
                 their_props = {pd.property_name for pd in their_change.property_diffs}
@@ -517,14 +553,18 @@ class TreeMerger:
                     )
 
             # One deleted, one modified
-            if (our_change.diff_type == DiffType.REMOVED and
-                their_change.diff_type == DiffType.MODIFIED):
+            if (
+                our_change.diff_type == DiffType.REMOVED
+                and their_change.diff_type == DiffType.MODIFIED
+            ):
                 conflicts.append(
                     f"Node {our_change.name}: Deleted in ours, modified in theirs"
                 )
 
-            if (our_change.diff_type == DiffType.MODIFIED and
-                their_change.diff_type == DiffType.REMOVED):
+            if (
+                our_change.diff_type == DiffType.MODIFIED
+                and their_change.diff_type == DiffType.REMOVED
+            ):
                 conflicts.append(
                     f"Node {our_change.name}: Modified in ours, deleted in theirs"
                 )
@@ -536,7 +576,7 @@ class TreeMerger:
         base: TreeDefinition,
         our_diff: TreeDiff,
         their_diff: TreeDiff,
-        conflicts: List[str],
+        conflicts: list[str],
         strategy: str,
     ) -> TreeDefinition:
         """Apply merge using conflict resolution strategy.
@@ -577,15 +617,17 @@ def format_diff_as_text(diff: TreeDiff, verbose: bool = False) -> str:
     ]
 
     summary = diff.summary
-    lines.extend([
-        "SUMMARY:",
-        f"  Added:     {summary['added']:3d} nodes",
-        f"  Removed:   {summary['removed']:3d} nodes",
-        f"  Modified:  {summary['modified']:3d} nodes",
-        f"  Moved:     {summary['moved']:3d} nodes",
-        f"  Metadata:  {summary['metadata_changes']:3d} changes",
-        "",
-    ])
+    lines.extend(
+        [
+            "SUMMARY:",
+            f"  Added:     {summary['added']:3d} nodes",
+            f"  Removed:   {summary['removed']:3d} nodes",
+            f"  Modified:  {summary['modified']:3d} nodes",
+            f"  Moved:     {summary['moved']:3d} nodes",
+            f"  Metadata:  {summary['metadata_changes']:3d} changes",
+            "",
+        ]
+    )
 
     if diff.metadata_changes:
         lines.append("METADATA CHANGES:")
@@ -605,7 +647,12 @@ def format_diff_as_text(diff: TreeDiff, verbose: bool = False) -> str:
             by_type[dtype].append(node_diff)
 
         # Show in order: removed, modified, moved, added
-        for dtype in [DiffType.REMOVED, DiffType.MODIFIED, DiffType.MOVED, DiffType.ADDED]:
+        for dtype in [
+            DiffType.REMOVED,
+            DiffType.MODIFIED,
+            DiffType.MOVED,
+            DiffType.ADDED,
+        ]:
             if dtype in by_type:
                 lines.append(f"\n  {dtype.value.upper()}:")
                 for node_diff in by_type[dtype]:
@@ -613,7 +660,7 @@ def format_diff_as_text(diff: TreeDiff, verbose: bool = False) -> str:
                     lines.append(f"      Path: {node_diff.path}")
 
                     if node_diff.property_diffs:
-                        lines.append(f"      Properties:")
+                        lines.append("      Properties:")
                         for prop_diff in node_diff.property_diffs:
                             lines.append(f"        - {prop_diff}")
 

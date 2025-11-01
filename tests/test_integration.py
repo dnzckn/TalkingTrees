@@ -11,7 +11,9 @@ import requests
 BASE_URL = "http://localhost:8000"
 
 # Load example tree
-EXAMPLE_TREE_PATH = Path(__file__).parent.parent / "examples/trees/01_simple_sequence.json"
+EXAMPLE_TREE_PATH = (
+    Path(__file__).parent.parent / "examples/trees/01_simple_sequence.json"
+)
 
 
 class TestTreeLibrary:

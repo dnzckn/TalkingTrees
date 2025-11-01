@@ -21,17 +21,19 @@ Prerequisites:
 
 """
 
-import py_trees
 import operator
-from py_trees.common import ComparisonExpression
-from py_forest.sdk import PyForest
-from py_forest.core.profiler import ProfilingLevel
-from py_forest.adapters import from_py_trees, to_py_trees, print_comparison
 
+import py_trees
+from py_trees.common import ComparisonExpression
+
+from py_forest.adapters import print_comparison, to_py_trees
+from py_forest.core.profiler import ProfilingLevel
+from py_forest.sdk import PyForest
 
 # =============================================================================
 # Example 1: Basic Conversion
 # =============================================================================
+
 
 def example_1_basic_conversion():
     """Create a simple py_trees tree and convert to PyForest"""
@@ -57,10 +59,10 @@ def example_1_basic_conversion():
         root,
         name="Simple Robot Controller",
         version="1.0.0",
-        description="Basic sequence converted from py_trees"
+        description="Basic sequence converted from py_trees",
     )
 
-    print(f"✓ Converted to PyForest TreeDefinition")
+    print("✓ Converted to PyForest TreeDefinition")
     print(f"  Name: {pf_tree.metadata.name}")
     print(f"  Version: {pf_tree.metadata.version}")
     print(f"  Root node: {pf_tree.root.name}")
@@ -76,7 +78,7 @@ def example_1_basic_conversion():
     execution = pf.create_execution(pf_tree)
     result = execution.tick()
 
-    print(f"✓ Execution complete")
+    print("✓ Execution complete")
     print(f"  Status: {result.status}")
     print(f"  Ticks: {result.tick_count}")
     print()
@@ -85,6 +87,7 @@ def example_1_basic_conversion():
 # =============================================================================
 # Example 2: Complex Tree with Conditions
 # =============================================================================
+
 
 def example_2_complex_tree():
     """Demonstrate common py_trees node types with proper API"""
@@ -99,11 +102,10 @@ def example_2_complex_tree():
     patrol_sequence = py_trees.composites.Sequence(name="Patrol Mode", memory=False)
 
     # Create condition check with ComparisonExpression
-    battery_check = ComparisonExpression('battery_level', operator.gt, 50.0)
+    battery_check = ComparisonExpression("battery_level", operator.gt, 50.0)
     patrol_sequence.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Battery OK?",
-            check=battery_check
+            name="Battery OK?", check=battery_check
         )
     )
     patrol_sequence.add_child(
@@ -111,18 +113,17 @@ def example_2_complex_tree():
             name="Set Action",
             variable_name="robot_action",
             variable_value="patrol",
-            overwrite=True
+            overwrite=True,
         )
     )
 
     # Branch 2: Low battery handler
     low_battery_seq = py_trees.composites.Sequence(name="Low Battery", memory=False)
 
-    low_battery_check = ComparisonExpression('battery_level', operator.lt, 20.0)
+    low_battery_check = ComparisonExpression("battery_level", operator.lt, 20.0)
     low_battery_seq.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Battery Low?",
-            check=low_battery_check
+            name="Battery Low?", check=low_battery_check
         )
     )
     low_battery_seq.add_child(
@@ -130,14 +131,13 @@ def example_2_complex_tree():
             name="Return to Base",
             variable_name="robot_action",
             variable_value="return_to_base",
-            overwrite=True
+            overwrite=True,
         )
     )
 
     # Branch 3: Parallel tasks
     parallel = py_trees.composites.Parallel(
-        name="Monitor Systems",
-        policy=py_trees.common.ParallelPolicy.SuccessOnAll()
+        name="Monitor Systems", policy=py_trees.common.ParallelPolicy.SuccessOnAll()
     )
     parallel.add_child(py_trees.behaviours.Success(name="Monitor Sensors"))
     parallel.add_child(py_trees.behaviours.Success(name="Monitor Communications"))
@@ -153,24 +153,21 @@ def example_2_complex_tree():
 
     # Convert to PyForest
     pf = PyForest()
-    pf_tree = pf.from_py_trees(
-        root,
-        name="Advanced Robot Controller",
-        version="1.0.0"
-    )
+    pf_tree = pf.from_py_trees(root, name="Advanced Robot Controller", version="1.0.0")
 
-    print(f"\n✓ Converted to PyForest")
+    print("\n✓ Converted to PyForest")
     print(f"  Root: {pf_tree.root.node_type}")
 
     # Save
     pf.save_tree(pf_tree, "tutorials/py_trees_complex.json")
-    print(f"\n✓ Saved to tutorials/py_trees_complex.json")
+    print("\n✓ Saved to tutorials/py_trees_complex.json")
     print()
 
 
 # =============================================================================
 # Example 3: Complete Workflow - Create, Visualize, Run
 # =============================================================================
+
 
 def example_3_complete_workflow():
     """End-to-end workflow: py_trees → PyForest → Visualize → Run"""
@@ -188,11 +185,10 @@ def example_3_complete_workflow():
     # Emergency branch
     emergency = py_trees.composites.Sequence(name="Emergency", memory=False)
 
-    error_check = ComparisonExpression('error_level', operator.gt, 90)
+    error_check = ComparisonExpression("error_level", operator.gt, 90)
     emergency.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
-            name="Critical Error?",
-            check=error_check
+            name="Critical Error?", check=error_check
         )
     )
     emergency.add_child(
@@ -200,7 +196,7 @@ def example_3_complete_workflow():
             name="Activate Emergency Stop",
             variable_name="system_mode",
             variable_value="emergency_stop",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -212,7 +208,7 @@ def example_3_complete_workflow():
             name="Set Running",
             variable_name="system_mode",
             variable_value="running",
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -231,10 +227,10 @@ def example_3_complete_workflow():
         root,
         name="Task Manager",
         version="1.0.0",
-        description="Manages emergency and normal operations"
+        description="Manages emergency and normal operations",
     )
 
-    print(f"✓ Converted to PyForest TreeDefinition")
+    print("✓ Converted to PyForest TreeDefinition")
     print(f"  Root: {pf_tree.root.name}")
 
     # -------------------------------------------------------------------------
@@ -246,10 +242,10 @@ def example_3_complete_workflow():
     pf.save_tree(pf_tree, output_path)
 
     print(f"✓ Saved to {output_path}")
-    print(f"  → Open in visualization/tree_editor_pro.html")
-    print(f"  → View structure visually")
-    print(f"  → Make edits if needed")
-    print(f"  → Export back to JSON")
+    print("  → Open in visualization/tree_editor_pro.html")
+    print("  → View structure visually")
+    print("  → Make edits if needed")
+    print("  → Export back to JSON")
 
     # -------------------------------------------------------------------------
     # Step 4: Load from JSON (simulating editor round-trip)
@@ -270,17 +266,13 @@ def example_3_complete_workflow():
 
     # Test 1: Normal operation
     print("\n  Test 1: Normal operation (error_level=10)")
-    result = execution.tick(blackboard_updates={
-        "error_level": 10
-    })
+    result = execution.tick(blackboard_updates={"error_level": 10})
     print(f"    Status: {result.status}")
     print(f"    System mode: {result.blackboard.get('system_mode')}")
 
     # Test 2: Emergency
     print("\n  Test 2: Emergency (error_level=95)")
-    result = execution.tick(blackboard_updates={
-        "error_level": 95
-    })
+    result = execution.tick(blackboard_updates={"error_level": 95})
     print(f"    Status: {result.status}")
     print(f"    System mode: {result.blackboard.get('system_mode')}")
 
@@ -291,6 +283,7 @@ def example_3_complete_workflow():
 # =============================================================================
 # Example 4: Decorators - Inverter, Repeat, Retry, Timeout
 # =============================================================================
+
 
 def example_4_decorators():
     """Demonstrate py_trees decorators"""
@@ -308,17 +301,23 @@ def example_4_decorators():
 
     # Repeat: repeat until N successes
     repeat_task = py_trees.behaviours.Success(name="Task")
-    repeater = py_trees.decorators.Repeat(name="Repeat 3 Times", child=repeat_task, num_success=3)
+    repeater = py_trees.decorators.Repeat(
+        name="Repeat 3 Times", child=repeat_task, num_success=3
+    )
     root.add_child(repeater)
 
     # Retry: retry until N failures
     retry_task = py_trees.behaviours.Failure(name="Flaky Task")
-    retrier = py_trees.decorators.Retry(name="Retry 2 Times", child=retry_task, num_failures=2)
+    retrier = py_trees.decorators.Retry(
+        name="Retry 2 Times", child=retry_task, num_failures=2
+    )
     root.add_child(retrier)
 
     # Timeout: fail if exceeds duration
     timeout_task = py_trees.behaviours.Running(name="Long Task")
-    timeout = py_trees.decorators.Timeout(name="5 Second Timeout", child=timeout_task, duration=5.0)
+    timeout = py_trees.decorators.Timeout(
+        name="5 Second Timeout", child=timeout_task, duration=5.0
+    )
     root.add_child(timeout)
 
     print("\npy_trees Tree with Decorators:")
@@ -328,18 +327,19 @@ def example_4_decorators():
     pf = PyForest()
     pf_tree = pf.from_py_trees(root, name="Decorator Demo", version="1.0.0")
 
-    print(f"\n✓ Converted decorators to PyForest")
-    print(f"  All decorator parameters preserved in config")
+    print("\n✓ Converted decorators to PyForest")
+    print("  All decorator parameters preserved in config")
 
     # Save
     pf.save_tree(pf_tree, "tutorials/py_trees_decorators.json")
-    print(f"\n✓ Saved to tutorials/py_trees_decorators.json")
+    print("\n✓ Saved to tutorials/py_trees_decorators.json")
     print()
 
 
 # =============================================================================
 # Example 5: Reverse Conversion (PyForest → py_trees)
 # =============================================================================
+
 
 def example_5_reverse_conversion():
     """Load PyForest tree and convert back to py_trees"""
@@ -374,6 +374,7 @@ def example_5_reverse_conversion():
 # Example 6: Comparison and Debugging
 # =============================================================================
 
+
 def example_6_comparison():
     """Compare py_trees and PyForest representations"""
     print("=" * 70)
@@ -401,6 +402,7 @@ def example_6_comparison():
 # Example 7: Real-World Use Case - Custom Behaviors
 # =============================================================================
 
+
 def example_7_custom_behaviors():
     """Create tree with custom py_trees behaviors"""
     print("=" * 70)
@@ -417,8 +419,7 @@ def example_7_custom_behaviors():
             self.threshold = threshold
             self.blackboard = self.attach_blackboard_client(name=name)
             self.blackboard.register_key(
-                key=sensor_key,
-                access=py_trees.common.Access.READ
+                key=sensor_key, access=py_trees.common.Access.READ
             )
 
         def update(self):
@@ -439,7 +440,7 @@ def example_7_custom_behaviors():
             name="Activate Cooling",
             variable_name="cooling_active",
             variable_value=True,
-            overwrite=True
+            overwrite=True,
         )
     )
 
@@ -450,19 +451,20 @@ def example_7_custom_behaviors():
     pf = PyForest()
     pf_tree = pf.from_py_trees(root, name="Sensor Monitor")
 
-    print(f"\n✓ Converted custom tree to PyForest")
-    print(f"  Note: Custom behaviors converted to generic 'Action' type")
-    print(f"  Original class stored in config['_py_trees_class']")
+    print("\n✓ Converted custom tree to PyForest")
+    print("  Note: Custom behaviors converted to generic 'Action' type")
+    print("  Original class stored in config['_py_trees_class']")
 
     # Save
     pf.save_tree(pf_tree, "tutorials/py_trees_custom.json")
-    print(f"\n✓ Saved to tutorials/py_trees_custom.json")
+    print("\n✓ Saved to tutorials/py_trees_custom.json")
     print()
 
 
 # =============================================================================
 # Example 8: Using with Profiling
 # =============================================================================
+
 
 def example_8_profiling():
     """Convert py_trees tree and run with profiling"""
@@ -473,7 +475,7 @@ def example_8_profiling():
     # Create tree
     root = py_trees.composites.Sequence(name="Profiled Sequence", memory=False)
     for i in range(5):
-        root.add_child(py_trees.behaviours.Success(name=f"Step {i+1}"))
+        root.add_child(py_trees.behaviours.Success(name=f"Step {i + 1}"))
 
     # Convert with profiling enabled
     pf = PyForest(profiling_level=ProfilingLevel.BASIC)

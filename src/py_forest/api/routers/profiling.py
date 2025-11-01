@@ -1,6 +1,6 @@
 """Profiling endpoints for performance analysis."""
 
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/profiling", tags=["profiling"])
 def get_profiling_report(
     execution_id: UUID,
     service: ExecutionService = Depends(execution_service_dependency),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Get current profiling report for an execution.
 
     Args:
@@ -32,8 +32,7 @@ def get_profiling_report(
 
         if report is None:
             raise HTTPException(
-                status_code=400,
-                detail="Profiling is not enabled for this execution"
+                status_code=400, detail="Profiling is not enabled for this execution"
             )
 
         return report
@@ -46,7 +45,7 @@ def get_profiling_report(
 def stop_profiling(
     execution_id: UUID,
     service: ExecutionService = Depends(execution_service_dependency),
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Stop profiling and get final report.
 
     Args:
@@ -63,8 +62,7 @@ def stop_profiling(
 
         if report is None:
             raise HTTPException(
-                status_code=400,
-                detail="Profiling is not enabled for this execution"
+                status_code=400, detail="Profiling is not enabled for this execution"
             )
 
         return report

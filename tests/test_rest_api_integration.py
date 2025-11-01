@@ -13,23 +13,21 @@ Tests the full workflow:
 This ensures the REST API layer correctly calls the SDK.
 """
 
-import py_trees
+import importlib.util
 import operator
-from py_trees.common import ComparisonExpression
-from py_forest.sdk import PyForest
-from py_forest.adapters import from_py_trees
-import requests
-import time
+import os
 import subprocess
 import sys
-import os
-from pathlib import Path
+import time
 
-try:
-    import pytest
-    HAS_PYTEST = True
-except ImportError:
-    HAS_PYTEST = False
+import py_trees
+import requests
+from py_trees.common import ComparisonExpression
+
+from py_forest.adapters import from_py_trees
+from py_forest.sdk import PyForest
+
+HAS_PYTEST = importlib.util.find_spec("pytest") is not None
 
 
 class TestRESTAPIIntegration:
@@ -52,12 +50,13 @@ class TestRESTAPIIntegration:
         root = py_trees.composites.Selector(name="Robot Controller", memory=False)
 
         # Low battery branch
-        low_battery = py_trees.composites.Sequence(name="Low Battery Handler", memory=False)
-        battery_check = ComparisonExpression('battery_level', operator.lt, 20)
+        low_battery = py_trees.composites.Sequence(
+            name="Low Battery Handler", memory=False
+        )
+        battery_check = ComparisonExpression("battery_level", operator.lt, 20)
         low_battery.add_child(
             py_trees.behaviours.CheckBlackboardVariableValue(
-                name="Battery Low?",
-                check=battery_check
+                name="Battery Low?", check=battery_check
             )
         )
         low_battery.add_child(
@@ -65,7 +64,7 @@ class TestRESTAPIIntegration:
                 name="Set Action: Charge",
                 variable_name="robot_action",
                 variable_value="charge",
-                overwrite=True
+                overwrite=True,
             )
         )
 
@@ -74,7 +73,7 @@ class TestRESTAPIIntegration:
             name="Set Action: Patrol",
             variable_name="robot_action",
             variable_value="patrol",
-            overwrite=True
+            overwrite=True,
         )
 
         root.add_child(low_battery)
@@ -92,10 +91,10 @@ class TestRESTAPIIntegration:
             root,
             name="REST API Test Tree",
             version="1.0.0",
-            description="Test tree for REST API integration"
+            description="Test tree for REST API integration",
         )
 
-        print(f"✓ Converted to PyForest TreeDefinition")
+        print("✓ Converted to PyForest TreeDefinition")
         print(f"  Name: {tree_def.metadata.name}")
 
         # IMPORTANT: py_trees doesn't expose variable_value after construction
@@ -104,8 +103,10 @@ class TestRESTAPIIntegration:
         # 1. Create trees directly with PyForest models, or
         # 2. Add values in the visual editor
         print("\n  Note: Adding SetBlackboardVariable values (py_trees limitation)")
-        tree_def.root.children[0].children[1].config['value'] = 'charge'  # Low battery action
-        tree_def.root.children[1].config['value'] = 'patrol'  # Normal operation action
+        tree_def.root.children[0].children[1].config["value"] = (
+            "charge"  # Low battery action
+        )
+        tree_def.root.children[1].config["value"] = "patrol"  # Normal operation action
 
         # Save to JSON for upload
         test_tree_path = "/tmp/rest_api_test_tree.json"
@@ -117,23 +118,25 @@ class TestRESTAPIIntegration:
         # =====================================================================
         print("\nStep 3: Upload tree via REST API...")
 
-        with open(test_tree_path, 'r') as f:
+        with open(test_tree_path) as f:
             tree_json = f.read()
 
         response = requests.post(
             f"{api_server}/trees",
             headers={"Content-Type": "application/json"},
-            data=tree_json
+            data=tree_json,
         )
 
         print(f"Response status code: {response.status_code}")
 
         # Accept both 200 and 201 (created)
-        assert response.status_code in [200, 201], f"Failed to upload tree (status {response.status_code}): {response.text[:500]}"
+        assert response.status_code in [200, 201], (
+            f"Failed to upload tree (status {response.status_code}): {response.text[:500]}"
+        )
         upload_result = response.json()
         tree_id = upload_result["tree_id"]
 
-        print(f"✓ Tree uploaded successfully")
+        print("✓ Tree uploaded successfully")
         print(f"  Tree ID: {tree_id}")
 
         # =====================================================================
@@ -141,16 +144,15 @@ class TestRESTAPIIntegration:
         # =====================================================================
         print("\nStep 4: Create execution via REST API...")
 
-        response = requests.post(
-            f"{api_server}/executions",
-            json={"tree_id": tree_id}
-        )
+        response = requests.post(f"{api_server}/executions", json={"tree_id": tree_id})
 
-        assert response.status_code in [200, 201], f"Failed to create execution (status {response.status_code}): {response.text[:500]}"
+        assert response.status_code in [200, 201], (
+            f"Failed to create execution (status {response.status_code}): {response.text[:500]}"
+        )
         exec_result = response.json()
         execution_id = exec_result["execution_id"]
 
-        print(f"✓ Execution created successfully")
+        print("✓ Execution created successfully")
         print(f"  Execution ID: {execution_id}")
 
         # =====================================================================
@@ -160,34 +162,33 @@ class TestRESTAPIIntegration:
 
         response = requests.post(
             f"{api_server}/executions/{execution_id}/tick",
-            json={
-                "blackboard_updates": {
-                    "battery_level": 10
-                }
-            }
+            json={"blackboard_updates": {"battery_level": 10}},
         )
 
         assert response.status_code == 200, f"Failed to tick execution: {response.text}"
         tick_result = response.json()
 
-        print(f"✓ Tick executed successfully")
+        print("✓ Tick executed successfully")
 
         # Handle different response formats (API returns root_status and snapshot)
-        status = tick_result.get('root_status') or tick_result.get('status')
-        snapshot = tick_result.get('snapshot', {})
+        status = tick_result.get("root_status") or tick_result.get("status")
+        snapshot = tick_result.get("snapshot", {})
 
-        blackboard = snapshot.get('blackboard', {}) if isinstance(snapshot, dict) else {}
+        blackboard = (
+            snapshot.get("blackboard", {}) if isinstance(snapshot, dict) else {}
+        )
 
         # PyForest uses namespaced blackboard keys with leading slash
-        robot_action = blackboard.get('/robot_action') or blackboard.get('robot_action')
+        robot_action = blackboard.get("/robot_action") or blackboard.get("robot_action")
 
         print(f"  Status: {status}")
         print(f"  Robot action: {robot_action}")
 
         # Verify low battery triggers charge action
-        assert status == 'SUCCESS', "Tree should succeed"
-        assert robot_action == 'charge', \
+        assert status == "SUCCESS", "Tree should succeed"
+        assert robot_action == "charge", (
             f"Low battery should trigger charge action, got {robot_action}"
+        )
 
         print("✓ Low battery correctly triggered 'charge' action")
 
@@ -198,34 +199,33 @@ class TestRESTAPIIntegration:
 
         response = requests.post(
             f"{api_server}/executions/{execution_id}/tick",
-            json={
-                "blackboard_updates": {
-                    "battery_level": 80
-                }
-            }
+            json={"blackboard_updates": {"battery_level": 80}},
         )
 
         assert response.status_code == 200, f"Failed to tick execution: {response.text}"
         tick_result = response.json()
 
-        print(f"✓ Tick executed successfully")
+        print("✓ Tick executed successfully")
 
         # Handle different response formats (API returns root_status and snapshot)
-        status = tick_result.get('root_status') or tick_result.get('status')
-        snapshot = tick_result.get('snapshot', {})
+        status = tick_result.get("root_status") or tick_result.get("status")
+        snapshot = tick_result.get("snapshot", {})
 
-        blackboard = snapshot.get('blackboard', {}) if isinstance(snapshot, dict) else {}
+        blackboard = (
+            snapshot.get("blackboard", {}) if isinstance(snapshot, dict) else {}
+        )
 
         # PyForest uses namespaced blackboard keys with leading slash
-        robot_action = blackboard.get('/robot_action') or blackboard.get('robot_action')
+        robot_action = blackboard.get("/robot_action") or blackboard.get("robot_action")
 
         print(f"  Status: {status}")
         print(f"  Robot action: {robot_action}")
 
         # Verify normal battery triggers patrol action
-        assert status == 'SUCCESS', "Tree should succeed"
-        assert robot_action == 'patrol', \
+        assert status == "SUCCESS", "Tree should succeed"
+        assert robot_action == "patrol", (
             f"Normal battery should trigger patrol action, got {robot_action}"
+        )
 
         print("✓ Normal battery correctly triggered 'patrol' action")
 
@@ -236,14 +236,16 @@ class TestRESTAPIIntegration:
 
         response = requests.get(f"{api_server}/executions/{execution_id}")
 
-        assert response.status_code == 200, f"Failed to get execution status: {response.text}"
+        assert response.status_code == 200, (
+            f"Failed to get execution status: {response.text}"
+        )
         status_result = response.json()
 
-        print(f"✓ Retrieved execution status")
+        print("✓ Retrieved execution status")
         print(f"  Tick count: {status_result['tick_count']}")
         print(f"  Status: {status_result['status']}")
 
-        assert status_result['tick_count'] == 2, "Should have ticked twice"
+        assert status_result["tick_count"] == 2, "Should have ticked twice"
 
         # =====================================================================
         # Step 8: List all trees
@@ -255,13 +257,13 @@ class TestRESTAPIIntegration:
         assert response.status_code == 200, f"Failed to list trees: {response.text}"
         trees_result = response.json()
 
-        print(f"✓ Retrieved tree list")
+        print("✓ Retrieved tree list")
         print(f"  Total trees: {len(trees_result)}")
 
         # Find our tree
-        our_tree = next((t for t in trees_result if t['tree_id'] == tree_id), None)
+        our_tree = next((t for t in trees_result if t["tree_id"] == tree_id), None)
         assert our_tree is not None, "Our tree should be in the list"
-        assert our_tree['metadata']['name'] == "REST API Test Tree"
+        assert our_tree["metadata"]["name"] == "REST API Test Tree"
 
         print(f"✓ Found our tree in list: {our_tree['metadata']['name']}")
 
@@ -291,9 +293,7 @@ def run_standalone():
 
     # Start server
     print("\nStarting API server...")
-    import subprocess
     import sys
-    import os
 
     server_process = subprocess.Popen(
         [
@@ -301,12 +301,14 @@ def run_standalone():
             "-m",
             "uvicorn",
             "py_forest.api.main:app",
-            "--host", "127.0.0.1",
-            "--port", "8765",
+            "--host",
+            "127.0.0.1",
+            "--port",
+            "8765",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        cwd=os.path.dirname(os.path.dirname(__file__))
+        cwd=os.path.dirname(os.path.dirname(__file__)),
     )
 
     # Wait for server
@@ -318,7 +320,7 @@ def run_standalone():
         try:
             response = requests.get(f"{api_server}/health", timeout=1)
             if response.status_code == 200:
-                print(f"✓ Server started on port 8765")
+                print("✓ Server started on port 8765")
                 break
         except requests.exceptions.RequestException:
             if i == max_retries - 1:
@@ -334,6 +336,7 @@ def run_standalone():
     except Exception as e:
         print(f"\n✗ Test failed: {e}")
         import traceback
+
         traceback.print_exc()
         success = False
     finally:

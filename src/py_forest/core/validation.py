@@ -1,12 +1,10 @@
 """Tree and behavior validation."""
 
-from typing import Dict, List, Set
 from uuid import UUID
 
 from py_forest.core.registry import BehaviorRegistry
 from py_forest.models.tree import TreeDefinition, TreeNodeDefinition
 from py_forest.models.validation import (
-    BehaviorParameter,
     BehaviorValidationSchema,
     TreeValidationResult,
     ValidationIssue,
@@ -41,7 +39,7 @@ class TreeValidator:
         Returns:
             Validation result with issues
         """
-        issues: List[ValidationIssue] = []
+        issues: list[ValidationIssue] = []
 
         # Collect all node IDs
         all_node_ids = self._collect_node_ids(tree_def.root)
@@ -54,11 +52,8 @@ class TreeValidator:
 
         # Validate subtrees
         for subtree_name, subtree_root in tree_def.subtrees.items():
-            subtree_ids = self._collect_node_ids(subtree_root)
             issues.extend(
-                self._validate_node(
-                    subtree_root, set(), f"subtrees[{subtree_name}]"
-                )
+                self._validate_node(subtree_root, set(), f"subtrees[{subtree_name}]")
             )
 
         # Check subtree references
@@ -77,7 +72,7 @@ class TreeValidator:
             info_count=info_count,
         )
 
-    def _collect_node_ids(self, node: TreeNodeDefinition) -> List[UUID]:
+    def _collect_node_ids(self, node: TreeNodeDefinition) -> list[UUID]:
         """Collect all node IDs in tree.
 
         Args:
@@ -92,8 +87,8 @@ class TreeValidator:
         return ids
 
     def _check_duplicate_ids(
-        self, node: TreeNodeDefinition, all_ids: List[UUID]
-    ) -> List[ValidationIssue]:
+        self, node: TreeNodeDefinition, all_ids: list[UUID]
+    ) -> list[ValidationIssue]:
         """Check for duplicate node IDs.
 
         Args:
@@ -125,8 +120,8 @@ class TreeValidator:
         return issues
 
     def _validate_node(
-        self, node: TreeNodeDefinition, visited: Set[UUID], path: str
-    ) -> List[ValidationIssue]:
+        self, node: TreeNodeDefinition, visited: set[UUID], path: str
+    ) -> list[ValidationIssue]:
         """Validate a single node recursively.
 
         Args:
@@ -169,9 +164,7 @@ class TreeValidator:
         else:
             # Validate behavior configuration
             schema = self.registry.get_schema(node.node_type)
-            issues.extend(
-                self._validate_behavior_config(node, schema, path)
-            )
+            issues.extend(self._validate_behavior_config(node, schema, path))
 
         # Validate children
         if node.children:
@@ -194,9 +187,7 @@ class TreeValidator:
             # Validate each child
             for i, child in enumerate(node.children):
                 child_path = f"{path}.children[{i}]"
-                issues.extend(
-                    self._validate_node(child, visited.copy(), child_path)
-                )
+                issues.extend(self._validate_node(child, visited.copy(), child_path))
         else:
             # Check if composite/decorator without children
             if self.registry.is_registered(node.node_type):
@@ -230,8 +221,8 @@ class TreeValidator:
         return issues
 
     def _validate_behavior_config(
-        self, node: TreeNodeDefinition, schema: Dict, path: str
-    ) -> List[ValidationIssue]:
+        self, node: TreeNodeDefinition, schema: dict, path: str
+    ) -> list[ValidationIssue]:
         """Validate behavior configuration against schema.
 
         Args:
@@ -293,7 +284,10 @@ class TreeValidator:
                             node_id=node.node_id,
                             node_path=path,
                             field=param_name,
-                            context={"expected_type": expected_type, "value": str(value)},
+                            context={
+                                "expected_type": expected_type,
+                                "value": str(value),
+                            },
                         )
                     )
 
@@ -325,7 +319,7 @@ class TreeValidator:
             # Unknown type, assume valid
             return True
 
-    def _check_subtree_refs(self, tree_def: TreeDefinition) -> List[ValidationIssue]:
+    def _check_subtree_refs(self, tree_def: TreeDefinition) -> list[ValidationIssue]:
         """Check that all subtree references are valid.
 
         Args:
@@ -354,9 +348,7 @@ class TreeValidator:
 
         return issues
 
-    def _collect_subtree_refs(
-        self, node: TreeNodeDefinition
-    ) -> List[tuple[UUID, str]]:
+    def _collect_subtree_refs(self, node: TreeNodeDefinition) -> list[tuple[UUID, str]]:
         """Collect all subtree references in tree.
 
         Args:
@@ -382,7 +374,7 @@ class BehaviorValidator:
     def validate_behavior(
         self,
         behavior_type: str,
-        config: Dict,
+        config: dict,
         schema: BehaviorValidationSchema,
     ) -> TreeValidationResult:
         """Validate a behavior configuration.

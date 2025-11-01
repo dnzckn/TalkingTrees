@@ -8,6 +8,7 @@ This investigates whether values are actually being preserved correctly.
 
 import py_trees
 from py_trees.behaviours import SetBlackboardVariable
+
 from py_forest.adapters.py_trees_adapter import from_py_trees, to_py_trees
 
 
@@ -37,7 +38,7 @@ def test_value_extraction():
             name="TestSetter",
             variable_name="test_var",
             variable_value=value,
-            overwrite=True
+            overwrite=True,
         )
 
         # Try to extract value using different methods
@@ -45,36 +46,32 @@ def test_value_extraction():
         print(f"  Type: {type(value)}")
 
         # Method 1: _value attribute (private)
-        if hasattr(node, '_value'):
+        if hasattr(node, "_value"):
             extracted = node._value
             print(f"  ✅ Extracted via _value: {extracted}")
             print(f"     Match: {extracted == value}")
         else:
-            print(f"  ❌ No _value attribute")
+            print("  ❌ No _value attribute")
 
         # Method 2: variable_value attribute
-        if hasattr(node, 'variable_value'):
+        if hasattr(node, "variable_value"):
             extracted = node.variable_value
             print(f"  ✅ Extracted via variable_value: {extracted}")
             print(f"     Match: {extracted == value}")
         else:
-            print(f"  ❌ No variable_value attribute")
+            print("  ❌ No variable_value attribute")
 
         # Method 3: __dict__
-        if '_value' in node.__dict__:
-            extracted = node.__dict__['_value']
+        if "_value" in node.__dict__:
+            extracted = node.__dict__["_value"]
             print(f"  ✅ Extracted via __dict__: {extracted}")
             print(f"     Match: {extracted == value}")
         else:
-            print(f"  ❌ _value not in __dict__")
+            print("  ❌ _value not in __dict__")
 
         # Now test through conversion pipeline
         print("\n  Testing through conversion pipeline:")
-        root = py_trees.composites.Sequence(
-            name="Root",
-            memory=True,
-            children=[node]
-        )
+        root = py_trees.composites.Sequence(name="Root", memory=True, children=[node])
 
         # Convert to PyForest
         pf_tree, context = from_py_trees(root, name="Test", version="1.0.0")
@@ -85,16 +82,16 @@ def test_value_extraction():
             for warning in context.warnings:
                 print(f"      - {warning}")
         else:
-            print(f"  ✅ No conversion warnings")
+            print("  ✅ No conversion warnings")
 
         # Check if value is in config
         setter_node = pf_tree.root.children[0]
-        if 'value' in setter_node.config:
-            config_value = setter_node.config['value']
+        if "value" in setter_node.config:
+            config_value = setter_node.config["value"]
             print(f"  ✅ Value in config: {config_value}")
             print(f"     Match: {config_value == value}")
         else:
-            print(f"  ❌ Value NOT in config")
+            print("  ❌ Value NOT in config")
             print(f"     Config keys: {list(setter_node.config.keys())}")
 
         # Convert back to py_trees
@@ -102,12 +99,12 @@ def test_value_extraction():
         round_trip_node = round_trip_root.children[0]
 
         # Try to extract from round-trip
-        if hasattr(round_trip_node, '_value'):
+        if hasattr(round_trip_node, "_value"):
             rt_value = round_trip_node._value
             print(f"  ✅ Round-trip value: {rt_value}")
             print(f"     Match: {rt_value == value}")
         else:
-            print(f"  ❌ Cannot extract round-trip value")
+            print("  ❌ Cannot extract round-trip value")
 
 
 if __name__ == "__main__":

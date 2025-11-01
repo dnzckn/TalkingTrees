@@ -2,7 +2,7 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field, field_validator
@@ -31,22 +31,20 @@ class TreeNodeDefinition(BaseModel):
         default_factory=uuid4,
         description="Unique identifier for this node instance",
     )
-    name: str = Field(
-        description="Human-readable name for this node"
-    )
-    config: Dict[str, Any] = Field(
+    name: str = Field(description="Human-readable name for this node")
+    config: dict[str, Any] = Field(
         default_factory=dict,
         description="Node-specific configuration parameters",
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None,
         description="Optional semantic description/notes for this node",
     )
-    children: List["TreeNodeDefinition"] = Field(
+    children: list["TreeNodeDefinition"] = Field(
         default_factory=list,
         description="Child nodes (composites only)",
     )
-    ref: Optional[str] = Field(
+    ref: str | None = Field(
         default=None,
         alias="$ref",
         description="Reference to a subtree definition",
@@ -72,15 +70,15 @@ class TreeNodeDefinition(BaseModel):
 class TreeDependencies(BaseModel):
     """Dependencies required by a tree definition."""
 
-    behaviors: List[str] = Field(
+    behaviors: list[str] = Field(
         default_factory=list,
         description="Required behavior types",
     )
-    subtrees: List[str] = Field(
+    subtrees: list[str] = Field(
         default_factory=list,
         description="Referenced subtree IDs",
     )
-    external: List[str] = Field(
+    external: list[str] = Field(
         default_factory=list,
         description="External dependencies (packages, services)",
     )
@@ -89,11 +87,11 @@ class TreeDependencies(BaseModel):
 class ValidationResult(BaseModel):
     """Results from tree validation."""
 
-    warnings: List[str] = Field(
+    warnings: list[str] = Field(
         default_factory=list,
         description="Non-fatal issues",
     )
-    errors: List[str] = Field(
+    errors: list[str] = Field(
         default_factory=list,
         description="Fatal issues preventing execution",
     )
@@ -107,13 +105,9 @@ class ValidationResult(BaseModel):
 class TreeMetadata(BaseModel):
     """Metadata about a tree definition."""
 
-    name: str = Field(
-        description="Human-readable tree name"
-    )
-    version: str = Field(
-        description="Semantic version (e.g., '1.0.0')"
-    )
-    author: Optional[str] = Field(
+    name: str = Field(description="Human-readable tree name")
+    version: str = Field(description="Semantic version (e.g., '1.0.0')")
+    author: str | None = Field(
         default=None,
         description="Author email or identifier",
     )
@@ -125,15 +119,15 @@ class TreeMetadata(BaseModel):
         default_factory=datetime.utcnow,
         description="Last modification timestamp",
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None,
         description="Detailed description of tree purpose",
     )
-    tags: List[str] = Field(
+    tags: list[str] = Field(
         default_factory=list,
         description="Search tags",
     )
-    changelog: Optional[str] = Field(
+    changelog: str | None = Field(
         default=None,
         description="Changes in this version",
     )
@@ -162,10 +156,8 @@ class TreeDefinition(BaseModel):
     metadata: TreeMetadata = Field(
         description="Tree metadata (name, version, author, etc.)"
     )
-    root: TreeNodeDefinition = Field(
-        description="Root node of the tree"
-    )
-    subtrees: Dict[str, TreeNodeDefinition] = Field(
+    root: TreeNodeDefinition = Field(description="Root node of the tree")
+    subtrees: dict[str, TreeNodeDefinition] = Field(
         default_factory=dict,
         description="Named subtree definitions for reuse",
     )
@@ -205,23 +197,15 @@ class TreeDefinition(BaseModel):
 class VersionInfo(BaseModel):
     """Information about a specific tree version."""
 
-    version: str = Field(
-        description="Semantic version string"
-    )
-    file_name: str = Field(
-        description="Storage file name"
-    )
-    created_at: datetime = Field(
-        description="Version creation timestamp"
-    )
-    status: TreeStatus = Field(
-        description="Version status"
-    )
+    version: str = Field(description="Semantic version string")
+    file_name: str = Field(description="Storage file name")
+    created_at: datetime = Field(description="Version creation timestamp")
+    status: TreeStatus = Field(description="Version status")
     is_latest: bool = Field(
         default=False,
         description="Whether this is the latest version",
     )
-    changelog: Optional[str] = Field(
+    changelog: str | None = Field(
         default=None,
         description="Changes in this version",
     )
@@ -230,32 +214,20 @@ class VersionInfo(BaseModel):
 class TreeCatalogEntry(BaseModel):
     """Entry in the tree library catalog."""
 
-    tree_id: UUID = Field(
-        description="Unique tree identifier"
-    )
-    tree_name: str = Field(
-        description="Tree name (folder name)"
-    )
-    display_name: str = Field(
-        description="Human-readable display name"
-    )
-    latest_version: str = Field(
-        description="Latest version number"
-    )
-    status: TreeStatus = Field(
-        description="Current status"
-    )
-    tags: List[str] = Field(
+    tree_id: UUID = Field(description="Unique tree identifier")
+    tree_name: str = Field(description="Tree name (folder name)")
+    display_name: str = Field(description="Human-readable display name")
+    latest_version: str = Field(description="Latest version number")
+    status: TreeStatus = Field(description="Current status")
+    tags: list[str] = Field(
         default_factory=list,
         description="Search tags",
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None,
         description="Brief description",
     )
-    modified_at: datetime = Field(
-        description="Last modification time"
-    )
+    modified_at: datetime = Field(description="Last modification time")
 
 
 # Enable forward references for self-referential models

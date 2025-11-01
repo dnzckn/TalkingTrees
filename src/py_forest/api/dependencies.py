@@ -1,7 +1,7 @@
 """Dependency injection for FastAPI."""
 
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 from py_forest.core.execution import ExecutionService
 from py_forest.core.registry import BehaviorRegistry, get_registry

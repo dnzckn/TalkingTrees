@@ -1,7 +1,7 @@
 """Pydantic models for behavior schemas (editor support)."""
 
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from pydantic import BaseModel, Field
 
@@ -35,39 +35,39 @@ class ConfigPropertySchema(BaseModel):
     type: str = Field(
         description="JSON schema type (string, number, boolean, array, object)"
     )
-    default: Optional[Any] = Field(
+    default: Any | None = Field(
         default=None,
         description="Default value",
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None,
         description="Human-readable description",
     )
-    minimum: Optional[float] = Field(
+    minimum: float | None = Field(
         default=None,
         description="Minimum value (for numbers)",
     )
-    maximum: Optional[float] = Field(
+    maximum: float | None = Field(
         default=None,
         description="Maximum value (for numbers)",
     )
-    enum: Optional[List[Any]] = Field(
+    enum: list[Any] | None = Field(
         default=None,
         description="Allowed values (for enums)",
     )
-    items: Optional[Dict[str, Any]] = Field(
+    items: dict[str, Any] | None = Field(
         default=None,
         description="Array item schema",
     )
-    properties: Optional[Dict[str, "ConfigPropertySchema"]] = Field(
+    properties: dict[str, "ConfigPropertySchema"] | None = Field(
         default=None,
         description="Object property schemas",
     )
-    required: Optional[List[str]] = Field(
+    required: list[str] | None = Field(
         default=None,
         description="Required properties (for objects)",
     )
-    ui_hints: Optional[Dict[str, Any]] = Field(
+    ui_hints: dict[str, Any] | None = Field(
         default=None,
         description="UI rendering hints (widget type, formatting, etc.)",
     )
@@ -81,12 +81,12 @@ class ChildConstraints(BaseModel):
         ge=0,
         description="Minimum number of children",
     )
-    max_children: Optional[int] = Field(
+    max_children: int | None = Field(
         default=None,
         ge=0,
         description="Maximum number of children (None = unlimited)",
     )
-    allowed_types: Optional[List[str]] = Field(
+    allowed_types: list[str] | None = Field(
         default=None,
         description="Allowed child node types (None = any type)",
     )
@@ -95,11 +95,11 @@ class ChildConstraints(BaseModel):
 class BlackboardAccess(BaseModel):
     """Blackboard variable access specification."""
 
-    reads: List[str] = Field(
+    reads: list[str] = Field(
         default_factory=list,
         description="Blackboard keys this behavior reads",
     )
-    writes: List[str] = Field(
+    writes: list[str] = Field(
         default_factory=list,
         description="Blackboard keys this behavior writes",
     )
@@ -108,10 +108,10 @@ class BlackboardAccess(BaseModel):
 class StatusBehavior(BaseModel):
     """Information about status return behavior."""
 
-    returns: List[str] = Field(
+    returns: list[str] = Field(
         description="Possible return statuses (SUCCESS, FAILURE, RUNNING)"
     )
-    description: Optional[str] = Field(
+    description: str | None = Field(
         default=None,
         description="Explanation of when each status is returned",
     )
@@ -120,15 +120,15 @@ class StatusBehavior(BaseModel):
 class BehaviorExample(BaseModel):
     """Example usage of a behavior."""
 
-    config: Dict[str, Any] = Field(
+    config: dict[str, Any] = Field(
         default_factory=dict,
         description="Example configuration",
     )
-    scenario: Optional[str] = Field(
+    scenario: str | None = Field(
         default=None,
         description="Scenario description",
     )
-    expected_status: Optional[str] = Field(
+    expected_status: str | None = Field(
         default=None,
         description="Expected return status",
     )
@@ -144,32 +144,26 @@ class BehaviorSchema(BaseModel):
     - Enforce child constraints
     """
 
-    node_type: str = Field(
-        description="Unique identifier for this behavior type"
-    )
-    category: NodeCategory = Field(
-        description="Behavior category"
-    )
-    display_name: str = Field(
-        description="Human-readable name"
-    )
-    description: Optional[str] = Field(
+    node_type: str = Field(description="Unique identifier for this behavior type")
+    category: NodeCategory = Field(description="Behavior category")
+    display_name: str = Field(description="Human-readable name")
+    description: str | None = Field(
         default=None,
         description="Detailed description of behavior",
     )
-    icon: Optional[str] = Field(
+    icon: str | None = Field(
         default=None,
         description="Icon identifier",
     )
-    color: Optional[str] = Field(
+    color: str | None = Field(
         default=None,
         description="Color in hex format",
     )
-    documentation_url: Optional[str] = Field(
+    documentation_url: str | None = Field(
         default=None,
         description="Link to full documentation",
     )
-    config_schema: Dict[str, ConfigPropertySchema] = Field(
+    config_schema: dict[str, ConfigPropertySchema] = Field(
         default_factory=dict,
         description="Configuration parameter schemas",
     )
@@ -181,11 +175,11 @@ class BehaviorSchema(BaseModel):
         default_factory=BlackboardAccess,
         description="Blackboard variable access",
     )
-    status_behavior: Optional[StatusBehavior] = Field(
+    status_behavior: StatusBehavior | None = Field(
         default=None,
         description="Status return behavior",
     )
-    example: Optional[BehaviorExample] = Field(
+    example: BehaviorExample | None = Field(
         default=None,
         description="Usage example",
     )

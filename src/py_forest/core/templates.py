@@ -5,13 +5,12 @@ import json
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import uuid4
 
 from py_forest.models.tree import TreeDefinition, TreeMetadata
 from py_forest.models.validation import (
     TemplateInstantiationRequest,
-    TemplateParameter,
     TreeTemplate,
 )
 
@@ -27,7 +26,11 @@ class TemplateEngine:
         self.param_pattern = re.compile(r"\{\{(\w+)\}\}")
 
     def instantiate(
-        self, template: TreeTemplate, params: Dict[str, Any], tree_name: Optional[str] = None, tree_version: str = "1.0.0"
+        self,
+        template: TreeTemplate,
+        params: dict[str, Any],
+        tree_name: str | None = None,
+        tree_version: str = "1.0.0",
     ) -> TreeDefinition:
         """Instantiate a tree from a template.
 
@@ -72,9 +75,7 @@ class TemplateEngine:
 
         return tree_def
 
-    def _validate_params(
-        self, template: TreeTemplate, params: Dict[str, Any]
-    ) -> None:
+    def _validate_params(self, template: TreeTemplate, params: dict[str, Any]) -> None:
         """Validate template parameters.
 
         Args:
@@ -87,17 +88,13 @@ class TemplateEngine:
         # Check for required parameters
         for param_def in template.parameters:
             if param_def.required and param_def.name not in params:
-                raise ValueError(
-                    f"Missing required parameter: {param_def.name}"
-                )
+                raise ValueError(f"Missing required parameter: {param_def.name}")
 
         # Check for unknown parameters
         known_params = {p.name for p in template.parameters}
         for param_name in params.keys():
             if param_name not in known_params:
-                raise ValueError(
-                    f"Unknown parameter: {param_name}"
-                )
+                raise ValueError(f"Unknown parameter: {param_name}")
 
         # Type validation
         for param_def in template.parameters:
@@ -127,8 +124,8 @@ class TemplateEngine:
             return True
 
     def _apply_defaults(
-        self, template: TreeTemplate, params: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, template: TreeTemplate, params: dict[str, Any]
+    ) -> dict[str, Any]:
         """Apply default values for missing optional parameters.
 
         Args:
@@ -146,9 +143,7 @@ class TemplateEngine:
 
         return full_params
 
-    def _substitute_params(
-        self, structure: Any, params: Dict[str, Any]
-    ) -> Any:
+    def _substitute_params(self, structure: Any, params: dict[str, Any]) -> Any:
         """Recursively substitute parameters in structure.
 
         Args:
@@ -159,10 +154,7 @@ class TemplateEngine:
             Structure with parameters substituted
         """
         if isinstance(structure, dict):
-            return {
-                k: self._substitute_params(v, params)
-                for k, v in structure.items()
-            }
+            return {k: self._substitute_params(v, params) for k, v in structure.items()}
         elif isinstance(structure, list):
             return [self._substitute_params(item, params) for item in structure]
         elif isinstance(structure, str):
@@ -171,7 +163,7 @@ class TemplateEngine:
         else:
             return structure
 
-    def _substitute_string(self, text: str, params: Dict[str, Any]) -> Any:
+    def _substitute_string(self, text: str, params: dict[str, Any]) -> Any:
         """Substitute parameters in string.
 
         Args:
@@ -214,7 +206,7 @@ class TemplateLibrary:
         self.templates_dir.mkdir(parents=True, exist_ok=True)
         self.engine = TemplateEngine()
 
-    def list_templates(self) -> List[TreeTemplate]:
+    def list_templates(self) -> list[TreeTemplate]:
         """List all available templates.
 
         Returns:
@@ -248,7 +240,7 @@ class TemplateLibrary:
         if not template_file.exists():
             raise ValueError(f"Template not found: {template_id}")
 
-        with open(template_file, "r") as f:
+        with open(template_file) as f:
             data = json.load(f)
 
         return TreeTemplate(**data)
@@ -281,9 +273,7 @@ class TemplateLibrary:
 
         return False
 
-    def instantiate(
-        self, request: TemplateInstantiationRequest
-    ) -> TreeDefinition:
+    def instantiate(self, request: TemplateInstantiationRequest) -> TreeDefinition:
         """Instantiate a template.
 
         Args:
@@ -304,7 +294,7 @@ class TemplateLibrary:
             request.tree_version,
         )
 
-    def get_template_info(self, template_id: str) -> Dict[str, Any]:
+    def get_template_info(self, template_id: str) -> dict[str, Any]:
         """Get template information including parameters.
 
         Args:

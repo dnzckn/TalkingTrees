@@ -1,7 +1,7 @@
 """Execution service for managing tree instances."""
 
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 from uuid import UUID, uuid4
 
 import py_trees
@@ -9,7 +9,7 @@ import py_trees
 from py_forest.core.debug import DebugContext
 from py_forest.core.events import EventEmitter
 from py_forest.core.history import ExecutionHistory, InMemoryHistoryStore
-from py_forest.core.profiler import ProfilingLevel, TreeProfiler, get_profiler
+from py_forest.core.profiler import ProfilingLevel, get_profiler
 from py_forest.core.scheduler import ExecutionScheduler
 from py_forest.core.serializer import TreeSerializer
 from py_forest.core.snapshot import capture_snapshot
@@ -17,14 +17,12 @@ from py_forest.core.statistics import StatisticsTracker
 from py_forest.models.debug import DebugState, StepMode
 from py_forest.models.events import (
     BreakpointHitEvent,
-    EventType,
     TickCompleteEvent,
     TickStartEvent,
     TreeReloadedEvent,
 )
 from py_forest.models.execution import (
     ExecutionConfig,
-    ExecutionMode,
     ExecutionSnapshot,
     ExecutionSummary,
     SchedulerStatus,
@@ -51,8 +49,8 @@ class ExecutionInstance:
         tree: py_trees.trees.BehaviourTree,
         serializer: TreeSerializer,
         config: ExecutionConfig,
-        event_emitter: Optional[EventEmitter] = None,
-        history: Optional[ExecutionHistory] = None,
+        event_emitter: EventEmitter | None = None,
+        history: ExecutionHistory | None = None,
         profiling_level: ProfilingLevel = ProfilingLevel.OFF,
     ):
         """Initialize execution instance.
@@ -73,7 +71,7 @@ class ExecutionInstance:
         self.serializer = serializer
         self.config = config
         self.created_at = datetime.utcnow()
-        self.last_tick_at: Optional[datetime] = None
+        self.last_tick_at: datetime | None = None
         self.is_running = False
 
         # Event and history support
@@ -88,7 +86,11 @@ class ExecutionInstance:
 
         # Profiling support
         self.profiling_level = profiling_level
-        self.profiler = get_profiler(profiling_level) if profiling_level != ProfilingLevel.OFF else None
+        self.profiler = (
+            get_profiler(profiling_level)
+            if profiling_level != ProfilingLevel.OFF
+            else None
+        )
         if self.profiler:
             self.profiler.start_profiling(str(execution_id), tree_def.tree_id)
 
@@ -143,7 +145,9 @@ class ExecutionInstance:
             if self.profiler:
                 root_status_value = self.tree.root.status
                 if root_uuid:
-                    self.profiler.after_tick(self.tree.root, root_uuid, root_status_value)
+                    self.profiler.after_tick(
+                        self.tree.root, root_uuid, root_status_value
+                    )
                 self.profiler.on_tick_complete()
 
             # Statistics: End tick timing
@@ -172,9 +176,7 @@ class ExecutionInstance:
 
                 # Update node status tracking
                 if tip_uuid:
-                    self.debug.update_node_status(
-                        tip_uuid, Status(tip.status.value)
-                    )
+                    self.debug.update_node_status(tip_uuid, Status(tip.status.value))
 
             # Record snapshot in history after each tick if history enabled
             if self.history:
@@ -208,7 +210,7 @@ class ExecutionInstance:
             snapshot=None,  # Will be filled by caller if requested
         )
 
-    def _get_blackboard_dict(self) -> Dict:
+    def _get_blackboard_dict(self) -> dict:
         """Get blackboard as dictionary.
 
         Returns:
@@ -355,7 +357,7 @@ class ExecutionService:
             default_profiling_level: Default profiling level for new executions
         """
         self.library = tree_library
-        self.instances: Dict[UUID, ExecutionInstance] = {}
+        self.instances: dict[UUID, ExecutionInstance] = {}
 
         # History support
         self.enable_history = enable_history
@@ -434,7 +436,7 @@ class ExecutionService:
             raise ValueError(f"Execution not found: {execution_id}")
         return self.instances[execution_id]
 
-    def list_executions(self) -> List[ExecutionSummary]:
+    def list_executions(self) -> list[ExecutionSummary]:
         """List all execution instances.
 
         Returns:
@@ -447,7 +449,7 @@ class ExecutionService:
         execution_id: UUID,
         count: int = 1,
         capture_snapshot: bool = True,
-        blackboard_updates: Optional[Dict[str, Any]] = None,
+        blackboard_updates: dict[str, Any] | None = None,
     ) -> TickResponse:
         """Tick an execution instance.
 
@@ -572,7 +574,7 @@ class ExecutionService:
 
         return len(to_delete)
 
-    def get_history(self, execution_id: UUID) -> List[ExecutionSnapshot]:
+    def get_history(self, execution_id: UUID) -> list[ExecutionSnapshot]:
         """Get execution history.
 
         Args:
@@ -592,7 +594,9 @@ class ExecutionService:
 
         return self.history.get_all(execution_id)
 
-    def get_history_snapshot(self, execution_id: UUID, tick: int) -> Optional[ExecutionSnapshot]:
+    def get_history_snapshot(
+        self, execution_id: UUID, tick: int
+    ) -> ExecutionSnapshot | None:
         """Get specific historical snapshot.
 
         Args:
@@ -612,7 +616,7 @@ class ExecutionService:
 
     def get_history_range(
         self, execution_id: UUID, start_tick: int, end_tick: int
-    ) -> List[ExecutionSnapshot]:
+    ) -> list[ExecutionSnapshot]:
         """Get historical snapshots for tick range.
 
         Args:
@@ -745,7 +749,7 @@ class ExecutionService:
     # Debug control methods
 
     def add_breakpoint(
-        self, execution_id: UUID, node_id: UUID, condition: Optional[str] = None
+        self, execution_id: UUID, node_id: UUID, condition: str | None = None
     ) -> DebugState:
         """Add a breakpoint.
 
@@ -958,7 +962,7 @@ class ExecutionService:
 
     # Profiling methods
 
-    def get_profiling_report(self, execution_id: UUID) -> Optional[Dict[str, Any]]:
+    def get_profiling_report(self, execution_id: UUID) -> dict[str, Any] | None:
         """Get profiling report for an execution.
 
         Args:
@@ -981,7 +985,7 @@ class ExecutionService:
 
         return None
 
-    def stop_profiling(self, execution_id: UUID) -> Optional[Dict[str, Any]]:
+    def stop_profiling(self, execution_id: UUID) -> dict[str, Any] | None:
         """Stop profiling and get final report.
 
         Args:

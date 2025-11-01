@@ -5,6 +5,11 @@ PyForest Adapters
 Adapters for converting between PyForest and other behavior tree libraries.
 """
 
-from .py_trees_adapter import from_py_trees, to_py_trees, print_comparison
+from .py_trees_adapter import (
+    compare_py_trees,
+    from_py_trees,
+    print_comparison,
+    to_py_trees,
+)
 
-__all__ = ["from_py_trees", "to_py_trees", "print_comparison"]
+__all__ = ["from_py_trees", "to_py_trees", "print_comparison", "compare_py_trees"]

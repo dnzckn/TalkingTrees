@@ -2,7 +2,6 @@
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
@@ -17,7 +16,9 @@ console = Console()
 def export_tree(
     tree_id: str = typer.Argument(..., help="Tree ID to export"),
     output: Path = typer.Option(..., "--output", "-o", help="Output file path"),
-    format: str = typer.Option("json", "--format", "-f", help="Export format (json, yaml)"),
+    format: str = typer.Option(
+        "json", "--format", "-f", help="Export format (json, yaml)"
+    ),
 ):
     """Export a tree from the library."""
     try:
@@ -30,10 +31,13 @@ def export_tree(
         elif format == "yaml":
             try:
                 import yaml
+
                 with open(output, "w") as f:
                     yaml.dump(tree, f, default_flow_style=False, sort_keys=False)
             except ImportError:
-                console.print("[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]")
+                console.print(
+                    "[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]"
+                )
                 raise typer.Exit(1)
         else:
             console.print(f"[red]Error: Unsupported format: {format}[/red]")
@@ -49,7 +53,9 @@ def export_tree(
 @app.command("import")
 def import_tree(
     file: Path = typer.Argument(..., help="File to import"),
-    format: str = typer.Option("json", "--format", "-f", help="Import format (json, yaml)"),
+    format: str = typer.Option(
+        "json", "--format", "-f", help="Import format (json, yaml)"
+    ),
 ):
     """Import a tree into the library."""
     try:
@@ -64,10 +70,13 @@ def import_tree(
         elif format == "yaml":
             try:
                 import yaml
+
                 with open(file) as f:
                     tree_def = yaml.safe_load(f)
             except ImportError:
-                console.print("[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]")
+                console.print(
+                    "[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]"
+                )
                 raise typer.Exit(1)
         else:
             console.print(f"[red]Error: Unsupported format: {format}[/red]")
@@ -77,9 +86,11 @@ def import_tree(
         client = get_client()
         created_tree = client.create_tree(tree_def)
 
-        console.print(f"[green]✓ Tree imported successfully[/green]")
+        console.print("[green]✓ Tree imported successfully[/green]")
         console.print(f"[bold]Tree ID:[/bold] {created_tree.get('tree_id')}")
-        console.print(f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}")
+        console.print(
+            f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}"
+        )
 
     except json.JSONDecodeError as e:
         console.print(f"[red]Error: Invalid JSON: {e}[/red]")
@@ -93,7 +104,9 @@ def import_tree(
 def export_dot(
     execution_id: str = typer.Argument(..., help="Execution ID to export"),
     output: Path = typer.Option(..., "--output", "-o", help="Output file path"),
-    render: bool = typer.Option(False, "--render", "-r", help="Render to image (requires graphviz)"),
+    render: bool = typer.Option(
+        False, "--render", "-r", help="Render to image (requires graphviz)"
+    ),
 ):
     """Export execution as DOT graph."""
     try:
@@ -113,12 +126,16 @@ def export_dot(
 
                 output_image = output.with_suffix(".png")
                 src = Source(dot_source)
-                src.render(output.stem, directory=output.parent, format="png", cleanup=True)
+                src.render(
+                    output.stem, directory=output.parent, format="png", cleanup=True
+                )
 
                 console.print(f"[green]✓ Image rendered to {output_image}[/green]")
 
             except ImportError:
-                console.print("[yellow]Warning: graphviz not installed. Install with: pip install graphviz[/yellow]")
+                console.print(
+                    "[yellow]Warning: graphviz not installed. Install with: pip install graphviz[/yellow]"
+                )
             except Exception as e:
                 console.print(f"[yellow]Warning: Could not render image: {e}[/yellow]")
 
@@ -130,7 +147,9 @@ def export_dot(
 @app.command("batch")
 def batch_export(
     output_dir: Path = typer.Option(..., "--output", "-o", help="Output directory"),
-    format: str = typer.Option("json", "--format", "-f", help="Export format (json, yaml)"),
+    format: str = typer.Option(
+        "json", "--format", "-f", help="Export format (json, yaml)"
+    ),
 ):
     """Export all trees from the library."""
     try:
@@ -151,7 +170,9 @@ def batch_export(
             name = metadata.get("name", tree_id)
 
             # Sanitize filename
-            filename = "".join(c if c.isalnum() or c in (" ", "-", "_") else "_" for c in name)
+            filename = "".join(
+                c if c.isalnum() or c in (" ", "-", "_") else "_" for c in name
+            )
             filename = f"{filename}.{format}"
             output_file = output_dir / filename
 
@@ -162,15 +183,20 @@ def batch_export(
             elif format == "yaml":
                 try:
                     import yaml
+
                     with open(output_file, "w") as f:
                         yaml.dump(tree, f, default_flow_style=False, sort_keys=False)
                 except ImportError:
-                    console.print("[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]")
+                    console.print(
+                        "[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]"
+                    )
                     raise typer.Exit(1)
 
             exported_count += 1
 
-        console.print(f"[green]✓ Exported {exported_count} tree(s) to {output_dir}[/green]")
+        console.print(
+            f"[green]✓ Exported {exported_count} tree(s) to {output_dir}[/green]"
+        )
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -180,7 +206,9 @@ def batch_export(
 @app.command("batch-import")
 def batch_import(
     input_dir: Path = typer.Argument(..., help="Directory containing tree files"),
-    format: str = typer.Option("json", "--format", "-f", help="Import format (json, yaml)"),
+    format: str = typer.Option(
+        "json", "--format", "-f", help="Import format (json, yaml)"
+    ),
 ):
     """Import all trees from a directory."""
     try:
@@ -209,10 +237,13 @@ def batch_import(
                 elif format == "yaml":
                     try:
                         import yaml
+
                         with open(file) as f:
                             tree_def = yaml.safe_load(f)
                     except ImportError:
-                        console.print("[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]")
+                        console.print(
+                            "[red]Error: PyYAML not installed. Install with: pip install pyyaml[/red]"
+                        )
                         raise typer.Exit(1)
 
                 # Create tree
@@ -224,7 +255,7 @@ def batch_import(
                 errors.append(f"{file.name}: {e}")
                 console.print(f"[red]✗ Failed: {file.name}[/red]")
 
-        console.print(f"\n[bold]Summary:[/bold]")
+        console.print("\n[bold]Summary:[/bold]")
         console.print(f"  [green]Imported: {imported_count}[/green]")
         if errors:
             console.print(f"  [red]Failed: {len(errors)}[/red]")

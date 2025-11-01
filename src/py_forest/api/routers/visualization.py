@@ -1,6 +1,5 @@
 """Visualization and statistics endpoints."""
 
-from typing import Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -66,7 +65,9 @@ def get_dot_graph(
         raise HTTPException(status_code=404, detail=str(e))
 
 
-@router.get("/executions/{execution_id}/pytrees_js", response_model=VisualizationSnapshot)
+@router.get(
+    "/executions/{execution_id}/pytrees_js", response_model=VisualizationSnapshot
+)
 def get_pytrees_js(
     execution_id: UUID,
     include_blackboard: bool = False,
@@ -143,7 +144,7 @@ def get_svg(
 
         return Response(content=svg_content, media_type="image/svg+xml")
 
-    except ImportError as e:
+    except ImportError:
         raise HTTPException(
             status_code=501,
             detail="SVG export requires graphviz package: pip install graphviz",
@@ -196,7 +197,7 @@ def get_png(
 
         return Response(content=png_bytes, media_type="image/png")
 
-    except ImportError as e:
+    except ImportError:
         raise HTTPException(
             status_code=501,
             detail="PNG export requires graphviz package: pip install graphviz",

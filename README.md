@@ -6,7 +6,7 @@
 
 **Complete py_trees serialization library with REST API support**
 
-PyForest provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via REST API, and deserialize back to executable py_trees with zero data loss.
+PyForest main motivation is to provide bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via REST API, and deserialize back to executable py_trees with zero data loss.
 
 ## Core Features
 
@@ -28,7 +28,7 @@ pip install -e .
 
 ```python
 from py_forest.sdk import PyForest
-from py_forest.adapters import from_py_trees, to_py_trees
+from py_forest.adapters import from_py_trees, to_py_trees, compare_py_trees
 import py_trees
 
 # Serialize py_trees to JSON
@@ -48,6 +48,9 @@ loaded = pf.load_tree("my_tree.json")
 
 # Deserialize back to py_trees
 py_trees_root = to_py_trees(loaded)
+
+# Verify round-trip conversion preserves everything
+assert compare_py_trees(root, py_trees_root)  # Returns True!
 ```
 
 ### REST API (Optional)

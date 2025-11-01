@@ -3,30 +3,28 @@
 This module provides a registry-based system for extracting configuration
 from py_trees nodes during serialization. Each node type has a dedicated
 extractor that knows how to safely extract its configuration.
-
-This replaces the massive if/elif chain in adapters/py_trees_adapter.py
-with a clean, testable, extensible architecture.
 """
 
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, Optional
 
 from py_forest.core.utils import operator_to_string
 
 # Type checking imports to avoid circular dependencies
 if TYPE_CHECKING:
-    from py_forest.adapters.py_trees_adapter import ConversionContext
+    pass
 
 
 # =============================================================================
 # Base Extractor
 # =============================================================================
 
+
 class ConfigExtractor(ABC):
     """Base class for extracting config from py_trees nodes."""
 
     @abstractmethod
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
         """Extract configuration from a py_trees node.
 
         Args:
@@ -43,6 +41,7 @@ class ConfigExtractor(ABC):
 # Helper Extractors
 # =============================================================================
 
+
 class ComparisonBasedExtractor(ConfigExtractor):
     """Base extractor for nodes using ComparisonExpression.
 
@@ -50,16 +49,16 @@ class ComparisonBasedExtractor(ConfigExtractor):
     This base class provides common extraction logic.
     """
 
-    def extract_comparison(self, check) -> Dict[str, Any]:
+    def extract_comparison(self, check) -> dict[str, Any]:
         """Extract comparison data and convert to config format."""
         # Import here to avoid circular dependency
         from py_forest.adapters.py_trees_adapter import ComparisonExpressionExtractor
 
         extracted = ComparisonExpressionExtractor.extract(check)
         return {
-            'variable': extracted['variable'],
-            'value': extracted['comparison_value'],
-            'operator': operator_to_string(extracted['operator_function'])
+            "variable": extracted["variable"],
+            "value": extracted["comparison_value"],
+            "operator": operator_to_string(extracted["operator_function"]),
         }
 
 
@@ -67,11 +66,12 @@ class ComparisonBasedExtractor(ConfigExtractor):
 # Blackboard Extractors
 # =============================================================================
 
+
 class CheckBlackboardVariableValueExtractor(ComparisonBasedExtractor):
     """Extract config from CheckBlackboardVariableValue nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'check'):
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "check"):
             return self.extract_comparison(node.check)
         return {}
 
@@ -79,9 +79,9 @@ class CheckBlackboardVariableValueExtractor(ComparisonBasedExtractor):
 class CheckBlackboardVariableExistsExtractor(ConfigExtractor):
     """Extract config from CheckBlackboardVariableExists nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'variable_name'):
-            return {'variable': node.variable_name}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "variable_name"):
+            return {"variable": node.variable_name}
         return {}
 
 
@@ -92,46 +92,48 @@ class SetBlackboardVariableExtractor(ConfigExtractor):
     in different ways across versions and it's not always accessible.
     """
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
         config = {}
 
         # Extract variable name
-        if hasattr(node, 'variable_name'):
-            config['variable'] = node.variable_name
-        elif hasattr(node, 'key'):
-            config['variable'] = node.key
+        if hasattr(node, "variable_name"):
+            config["variable"] = node.variable_name
+        elif hasattr(node, "key"):
+            config["variable"] = node.key
 
         # Extract value (complex logic - try multiple approaches)
         value_extracted = False
 
         # Approach 1: Try variable_value_generator (py_trees 2.3+)
-        if hasattr(node, 'variable_value_generator') and callable(node.variable_value_generator):
+        if hasattr(node, "variable_value_generator") and callable(
+            node.variable_value_generator
+        ):
             try:
-                config['value'] = node.variable_value_generator()
+                config["value"] = node.variable_value_generator()
                 value_extracted = True
             except Exception:
                 # Fallback: Try extracting from lambda closure
                 try:
                     closure = node.variable_value_generator.__closure__
                     if closure and len(closure) > 0:
-                        config['value'] = closure[0].cell_contents
+                        config["value"] = closure[0].cell_contents
                         value_extracted = True
                 except Exception:
                     pass
 
         # Approach 2: Try _value attribute (private, older versions)
-        if not value_extracted and hasattr(node, '_value'):
-            config['value'] = node._value
+        if not value_extracted and hasattr(node, "_value"):
+            config["value"] = node._value
             value_extracted = True
 
         # Approach 3: Try variable_value (older API)
-        elif not value_extracted and hasattr(node, 'variable_value'):
-            config['value'] = node.variable_value
+        elif not value_extracted and hasattr(node, "variable_value"):
+            config["value"] = node.variable_value
             value_extracted = True
 
         # Approach 4: Try __dict__ access
-        elif not value_extracted and '_value' in node.__dict__:
-            config['value'] = node.__dict__['_value']
+        elif not value_extracted and "_value" in node.__dict__:
+            config["value"] = node.__dict__["_value"]
             value_extracted = True
 
         if not value_extracted:
@@ -140,13 +142,13 @@ class SetBlackboardVariableExtractor(ConfigExtractor):
                 "SetBlackboardVariable value not accessible. "
                 "Round-trip conversion will lose this value."
             )
-            config['_data_loss_warning'] = warning_msg
+            config["_data_loss_warning"] = warning_msg
             if context:
                 context.warn(warning_msg, node_name=node.name)
 
         # Extract overwrite flag
-        if hasattr(node, 'overwrite'):
-            config['overwrite'] = node.overwrite
+        if hasattr(node, "overwrite"):
+            config["overwrite"] = node.overwrite
 
         return config
 
@@ -154,28 +156,28 @@ class SetBlackboardVariableExtractor(ConfigExtractor):
 class UnsetBlackboardVariableExtractor(ConfigExtractor):
     """Extract config from UnsetBlackboardVariable nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'variable_name'):
-            return {'variable': node.variable_name}
-        elif hasattr(node, 'key'):
-            return {'variable': node.key}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "variable_name"):
+            return {"variable": node.variable_name}
+        elif hasattr(node, "key"):
+            return {"variable": node.key}
         return {}
 
 
 class WaitForBlackboardVariableExtractor(ConfigExtractor):
     """Extract config from WaitForBlackboardVariable nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'variable_name'):
-            return {'variable': node.variable_name}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "variable_name"):
+            return {"variable": node.variable_name}
         return {}
 
 
 class WaitForBlackboardVariableValueExtractor(ComparisonBasedExtractor):
     """Extract config from WaitForBlackboardVariableValue nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'check'):
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "check"):
             return self.extract_comparison(node.check)
         return {}
 
@@ -186,25 +188,29 @@ class CheckBlackboardVariableValuesExtractor(ConfigExtractor):
     This node handles multiple comparison expressions.
     """
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
         config = {}
 
-        if hasattr(node, 'checks'):
+        if hasattr(node, "checks"):
             # Import here to avoid circular dependency
-            from py_forest.adapters.py_trees_adapter import ComparisonExpressionExtractor
+            from py_forest.adapters.py_trees_adapter import (
+                ComparisonExpressionExtractor,
+            )
 
             checks_list = []
             for check in node.checks:
                 extracted = ComparisonExpressionExtractor.extract(check)
-                checks_list.append({
-                    'variable': extracted['variable'],
-                    'operator': operator_to_string(extracted['operator_function']),
-                    'value': extracted['comparison_value']
-                })
-            config['checks'] = checks_list
+                checks_list.append(
+                    {
+                        "variable": extracted["variable"],
+                        "operator": operator_to_string(extracted["operator_function"]),
+                        "value": extracted["comparison_value"],
+                    }
+                )
+            config["checks"] = checks_list
 
-        if hasattr(node, 'logical_operator'):
-            config['logical_operator'] = str(node.logical_operator)
+        if hasattr(node, "logical_operator"):
+            config["logical_operator"] = str(node.logical_operator)
 
         return config
 
@@ -212,9 +218,9 @@ class CheckBlackboardVariableValuesExtractor(ConfigExtractor):
 class BlackboardToStatusExtractor(ConfigExtractor):
     """Extract config from BlackboardToStatus nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'variable_name'):
-            return {'variable': node.variable_name}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "variable_name"):
+            return {"variable": node.variable_name}
         return {}
 
 
@@ -222,45 +228,46 @@ class BlackboardToStatusExtractor(ConfigExtractor):
 # Time-based Extractors
 # =============================================================================
 
+
 class TickCounterExtractor(ConfigExtractor):
     """Extract config from TickCounter nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
         config = {}
-        if hasattr(node, 'num_ticks'):
-            config['num_ticks'] = node.num_ticks
-        if hasattr(node, 'final_status'):
-            config['final_status'] = str(node.final_status)
+        if hasattr(node, "num_ticks"):
+            config["num_ticks"] = node.num_ticks
+        if hasattr(node, "final_status"):
+            config["final_status"] = str(node.final_status)
         return config
 
 
 class SuccessEveryNExtractor(ConfigExtractor):
     """Extract config from SuccessEveryN nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'n'):
-            return {'n': node.n}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "n"):
+            return {"n": node.n}
         return {}
 
 
 class PeriodicExtractor(ConfigExtractor):
     """Extract config from Periodic nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'n'):
-            return {'n': node.n}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "n"):
+            return {"n": node.n}
         return {}
 
 
 class StatusQueueExtractor(ConfigExtractor):
     """Extract config from StatusQueue nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
         config = {}
-        if hasattr(node, 'queue'):
-            config['queue'] = [str(status) for status in node.queue]
-        if hasattr(node, 'eventually'):
-            config['eventually'] = str(node.eventually)
+        if hasattr(node, "queue"):
+            config["queue"] = [str(status) for status in node.queue]
+        if hasattr(node, "eventually"):
+            config["eventually"] = str(node.eventually)
         return config
 
 
@@ -268,12 +275,13 @@ class StatusQueueExtractor(ConfigExtractor):
 # Probabilistic Extractors
 # =============================================================================
 
+
 class ProbabilisticBehaviourExtractor(ConfigExtractor):
     """Extract config from ProbabilisticBehaviour nodes."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'weights'):
-            return {'weights': node.weights}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "weights"):
+            return {"weights": node.weights}
         return {}
 
 
@@ -281,30 +289,31 @@ class ProbabilisticBehaviourExtractor(ConfigExtractor):
 # Decorator Extractors - Repetition
 # =============================================================================
 
+
 class RepeatExtractor(ConfigExtractor):
     """Extract config from Repeat decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'num_success'):
-            return {'num_success': node.num_success}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "num_success"):
+            return {"num_success": node.num_success}
         return {}
 
 
 class RetryExtractor(ConfigExtractor):
     """Extract config from Retry decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'num_failures'):
-            return {'num_failures': node.num_failures}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "num_failures"):
+            return {"num_failures": node.num_failures}
         return {}
 
 
 class OneShotExtractor(ConfigExtractor):
     """Extract config from OneShot decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'policy'):
-            return {'policy': str(node.policy)}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "policy"):
+            return {"policy": str(node.policy)}
         return {}
 
 
@@ -312,12 +321,13 @@ class OneShotExtractor(ConfigExtractor):
 # Decorator Extractors - Time-based
 # =============================================================================
 
+
 class TimeoutExtractor(ConfigExtractor):
     """Extract config from Timeout decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'duration'):
-            return {'duration': node.duration}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "duration"):
+            return {"duration": node.duration}
         return {}
 
 
@@ -325,11 +335,12 @@ class TimeoutExtractor(ConfigExtractor):
 # Decorator Extractors - Advanced
 # =============================================================================
 
+
 class EternalGuardExtractor(ComparisonBasedExtractor):
     """Extract config from EternalGuard decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'check'):
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "check"):
             return self.extract_comparison(node.check)
         return {}
 
@@ -337,8 +348,8 @@ class EternalGuardExtractor(ComparisonBasedExtractor):
 class ConditionExtractor(ComparisonBasedExtractor):
     """Extract config from Condition decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'check'):
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "check"):
             return self.extract_comparison(node.check)
         return {}
 
@@ -346,18 +357,18 @@ class ConditionExtractor(ComparisonBasedExtractor):
 class ForEachExtractor(ConfigExtractor):
     """Extract config from ForEach decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'variable_name'):
-            return {'variable': node.variable_name}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "variable_name"):
+            return {"variable": node.variable_name}
         return {}
 
 
 class StatusToBlackboardExtractor(ConfigExtractor):
     """Extract config from StatusToBlackboard decorator."""
 
-    def extract(self, node, context: Optional = None) -> Dict[str, Any]:
-        if hasattr(node, 'variable_name'):
-            return {'variable': node.variable_name}
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        if hasattr(node, "variable_name"):
+            return {"variable": node.variable_name}
         return {}
 
 
@@ -366,7 +377,7 @@ class StatusToBlackboardExtractor(ConfigExtractor):
 # =============================================================================
 
 # Global registry mapping node class names to extractor instances
-EXTRACTOR_REGISTRY: Dict[str, ConfigExtractor] = {
+EXTRACTOR_REGISTRY: dict[str, ConfigExtractor] = {
     # Blackboard behaviors
     "CheckBlackboardVariableValue": CheckBlackboardVariableValueExtractor(),
     "CheckBlackboardVariableExists": CheckBlackboardVariableExistsExtractor(),
@@ -376,24 +387,19 @@ EXTRACTOR_REGISTRY: Dict[str, ConfigExtractor] = {
     "WaitForBlackboardVariableValue": WaitForBlackboardVariableValueExtractor(),
     "CheckBlackboardVariableValues": CheckBlackboardVariableValuesExtractor(),
     "BlackboardToStatus": BlackboardToStatusExtractor(),
-
     # Time-based behaviors
     "TickCounter": TickCounterExtractor(),
     "SuccessEveryN": SuccessEveryNExtractor(),
     "Periodic": PeriodicExtractor(),
     "StatusQueue": StatusQueueExtractor(),
-
     # Probabilistic
     "ProbabilisticBehaviour": ProbabilisticBehaviourExtractor(),
-
     # Decorators - Repetition
     "Repeat": RepeatExtractor(),
     "Retry": RetryExtractor(),
     "OneShot": OneShotExtractor(),
-
     # Decorators - Time
     "Timeout": TimeoutExtractor(),
-
     # Decorators - Advanced
     "EternalGuard": EternalGuardExtractor(),
     "Condition": ConditionExtractor(),
@@ -402,7 +408,7 @@ EXTRACTOR_REGISTRY: Dict[str, ConfigExtractor] = {
 }
 
 
-def get_extractor(class_name: str) -> Optional[ConfigExtractor]:
+def get_extractor(class_name: str) -> ConfigExtractor | None:
     """Get the extractor for a node class.
 
     Args:
@@ -419,10 +425,8 @@ def get_extractor(class_name: str) -> Optional[ConfigExtractor]:
     return EXTRACTOR_REGISTRY.get(class_name)
 
 
-def extract_config(node, context: Optional = None) -> Dict[str, Any]:
+def extract_config(node, context: Optional = None) -> dict[str, Any]:
     """Extract configuration from a py_trees node using the registry.
-
-    This is the main entry point that replaces the large if/elif chain.
 
     Args:
         node: py_trees node instance
@@ -442,10 +446,10 @@ def extract_config(node, context: Optional = None) -> Dict[str, Any]:
     config = extractor.extract(node, context) if extractor else {}
 
     # Common config for all composites (memory parameter)
-    if hasattr(node, 'memory'):
-        config['memory'] = node.memory
+    if hasattr(node, "memory"):
+        config["memory"] = node.memory
 
     # Store original class name for reference
-    config['_py_trees_class'] = class_name
+    config["_py_trees_class"] = class_name
 
     return config

@@ -29,23 +29,23 @@ Example:
     pf.save_tree(pf_tree, "my_tree.json")
 """
 
-from typing import Optional, Dict, Any
 from datetime import datetime
+from typing import Any
 from uuid import UUID, uuid4
 
+from py_forest.core.utils import string_to_operator
 from py_forest.models.tree import (
     TreeDefinition,
-    TreeNodeDefinition,
-    TreeMetadata,
     TreeDependencies,
-    TreeStatus
+    TreeMetadata,
+    TreeNodeDefinition,
+    TreeStatus,
 )
-from py_forest.core.utils import operator_to_string, string_to_operator
-
 
 # =============================================================================
 # Conversion Context (Warnings)
 # =============================================================================
+
 
 class ConversionContext:
     """
@@ -57,7 +57,7 @@ class ConversionContext:
     def __init__(self):
         self.warnings: list[str] = []
 
-    def warn(self, message: str, node_name: Optional[str] = None):
+    def warn(self, message: str, node_name: str | None = None):
         """
         Add a warning message.
 
@@ -92,10 +92,9 @@ class ConversionContext:
 # Deterministic UUID Generation
 # =============================================================================
 
+
 def _generate_deterministic_uuid(
-    node,
-    parent_path: str = "",
-    config_keys: Optional[list] = None
+    node, parent_path: str = "", config_keys: list | None = None
 ) -> UUID:
     """
     Generate deterministic UUID based on node structure.
@@ -125,24 +124,24 @@ def _generate_deterministic_uuid(
     # Collect identifying characteristics
     parts = [
         type(node).__name__,  # Node class
-        node.name,            # Node name
-        path,                 # Full path in tree
+        node.name,  # Node name
+        path,  # Full path in tree
     ]
 
     # Add memory parameter if present (important for composites)
-    if hasattr(node, 'memory'):
+    if hasattr(node, "memory"):
         parts.append(f"memory={node.memory}")
 
     # Add key config values for blackboard nodes
-    if hasattr(node, 'variable_name'):
+    if hasattr(node, "variable_name"):
         parts.append(f"var={node.variable_name}")
 
     # Add decorator-specific config
-    if hasattr(node, 'duration'):
+    if hasattr(node, "duration"):
         parts.append(f"duration={node.duration}")
-    if hasattr(node, 'num_failures'):
+    if hasattr(node, "num_failures"):
         parts.append(f"num_failures={node.num_failures}")
-    if hasattr(node, 'num_success'):
+    if hasattr(node, "num_success"):
         parts.append(f"num_success={node.num_success}")
 
     # Add custom config keys if specified
@@ -152,10 +151,10 @@ def _generate_deterministic_uuid(
                 parts.append(f"{key}={getattr(node, key)}")
 
     # Create deterministic string
-    content = '|'.join(str(p) for p in parts)
+    content = "|".join(str(p) for p in parts)
 
     # Hash to bytes
-    hash_bytes = hashlib.sha256(content.encode('utf-8')).digest()
+    hash_bytes = hashlib.sha256(content.encode("utf-8")).digest()
 
     # Use first 16 bytes as UUID
     return UUID(bytes=hash_bytes[:16])
@@ -164,6 +163,7 @@ def _generate_deterministic_uuid(
 # =============================================================================
 # ComparisonExpression Abstraction
 # =============================================================================
+
 
 class ComparisonExpressionExtractor:
     """
@@ -188,9 +188,9 @@ class ComparisonExpressionExtractor:
             Dict with 'variable', 'comparison_value', 'operator_function'
         """
         return {
-            'variable': check.variable,
-            'comparison_value': check.operator,  # Yes, py_trees swaps these!
-            'operator_function': check.value,    # Yes, py_trees swaps these!
+            "variable": check.variable,
+            "comparison_value": check.operator,  # Yes, py_trees swaps these!
+            "operator_function": check.value,  # Yes, py_trees swaps these!
         }
 
     @staticmethod
@@ -207,6 +207,7 @@ class ComparisonExpressionExtractor:
             ComparisonExpression instance
         """
         from py_trees.common import ComparisonExpression
+
         return ComparisonExpression(variable, operator_func, value)
 
 
@@ -220,7 +221,6 @@ NODE_TYPE_MAP = {
     "Sequence": "Sequence",
     "Selector": "Selector",
     "Parallel": "Parallel",
-
     # Decorators - Status Converters
     "Inverter": "Inverter",
     "SuccessIsFailure": "SuccessIsFailure",
@@ -229,34 +229,28 @@ NODE_TYPE_MAP = {
     "RunningIsFailure": "RunningIsFailure",
     "RunningIsSuccess": "RunningIsSuccess",
     "SuccessIsRunning": "SuccessIsRunning",
-
     # Decorators - Repetition
     "Repeat": "Repeat",
     "Retry": "Retry",
     "OneShot": "OneShot",
-
     # Decorators - Time-based
     "Timeout": "Timeout",
-
     # Decorators - Advanced
     "EternalGuard": "EternalGuard",
     "Condition": "Condition",
     "Count": "Count",
     "StatusToBlackboard": "StatusToBlackboard",
     "PassThrough": "PassThrough",
-
     # Basic Behaviors
     "Success": "Success",
     "Failure": "Failure",
     "Running": "Running",
     "Dummy": "Dummy",
-
     # Time-based Behaviors
     "TickCounter": "TickCounter",
     "Periodic": "Periodic",
     "SuccessEveryN": "SuccessEveryN",
     "StatusQueue": "StatusQueue",
-
     # Blackboard Behaviors - Non-blocking
     "CheckBlackboardVariable": "CheckBlackboardCondition",
     "CheckBlackboardVariableExists": "CheckBlackboardVariableExists",
@@ -265,17 +259,15 @@ NODE_TYPE_MAP = {
     "SetBlackboardVariable": "SetBlackboardVariable",
     "UnsetBlackboardVariable": "UnsetBlackboardVariable",
     "BlackboardToStatus": "BlackboardToStatus",
-
     # Blackboard Behaviors - Blocking
     "WaitForBlackboardVariable": "WaitForBlackboardVariable",
     "WaitForBlackboardVariableValue": "WaitForBlackboardVariableValue",
-
     # Probabilistic
     "ProbabilisticBehaviour": "ProbabilisticBehaviour",
 }
 
 
-def _get_node_type(py_trees_node, context: Optional[ConversionContext] = None) -> str:
+def _get_node_type(py_trees_node, context: ConversionContext | None = None) -> str:
     """Determine PyForest node type from py_trees node"""
     class_name = type(py_trees_node).__name__
 
@@ -285,6 +277,7 @@ def _get_node_type(py_trees_node, context: Optional[ConversionContext] = None) -
 
     # Check base classes
     import py_trees
+
     if isinstance(py_trees_node, py_trees.composites.Sequence):
         return "Sequence"
     elif isinstance(py_trees_node, py_trees.composites.Selector):
@@ -298,7 +291,7 @@ def _get_node_type(py_trees_node, context: Optional[ConversionContext] = None) -
         if context:
             context.warn(
                 f"Unknown node type '{class_name}', defaulting to Action",
-                node_name=py_trees_node.name
+                node_name=py_trees_node.name,
             )
         return "Action"
 
@@ -306,12 +299,14 @@ def _get_node_type(py_trees_node, context: Optional[ConversionContext] = None) -
     if context:
         context.warn(
             f"Unrecognized py_trees class '{class_name}', defaulting to Action",
-            node_name=py_trees_node.name
+            node_name=py_trees_node.name,
         )
     return "Action"
 
 
-def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) -> Dict[str, Any]:
+def _extract_config(
+    py_trees_node, context: ConversionContext | None = None
+) -> dict[str, Any]:
     """Extract config from py_trees node to PyForest format.
 
     This function now uses the extractor registry pattern instead of
@@ -319,6 +314,7 @@ def _extract_config(py_trees_node, context: Optional[ConversionContext] = None) 
     in core/extractors.py that knows how to extract its configuration.
     """
     from py_forest.core.extractors import extract_config
+
     return extract_config(py_trees_node, context)
 
 
@@ -326,7 +322,7 @@ def _convert_node(
     py_trees_node,
     parent_path: str = "",
     use_deterministic_uuids: bool = True,
-    context: Optional[ConversionContext] = None
+    context: ConversionContext | None = None,
 ) -> TreeNodeDefinition:
     """
     Convert a py_trees node to PyForest TreeNodeDefinition.
@@ -342,17 +338,25 @@ def _convert_node(
         TreeNodeDefinition with all children converted
     """
     # Build path for this node
-    current_path = f"{parent_path}/{py_trees_node.name}" if parent_path else py_trees_node.name
+    current_path = (
+        f"{parent_path}/{py_trees_node.name}" if parent_path else py_trees_node.name
+    )
 
     # Convert children first
     children = []
-    if hasattr(py_trees_node, 'children'):
+    if hasattr(py_trees_node, "children"):
         # Composite nodes have 'children' (list)
         for child in py_trees_node.children:
-            children.append(_convert_node(child, current_path, use_deterministic_uuids, context))
-    elif hasattr(py_trees_node, 'child'):
+            children.append(
+                _convert_node(child, current_path, use_deterministic_uuids, context)
+            )
+    elif hasattr(py_trees_node, "child"):
         # Decorator nodes have 'child' (single node)
-        children.append(_convert_node(py_trees_node.child, current_path, use_deterministic_uuids, context))
+        children.append(
+            _convert_node(
+                py_trees_node.child, current_path, use_deterministic_uuids, context
+            )
+        )
 
     # Generate UUID
     if use_deterministic_uuids:
@@ -366,7 +370,7 @@ def _convert_node(
         node_id=node_id,
         name=py_trees_node.name,
         config=_extract_config(py_trees_node, context),
-        children=children
+        children=children,
     )
 
 
@@ -375,8 +379,8 @@ def from_py_trees(
     name: str = "Converted Tree",
     version: str = "1.0.0",
     description: str = "Converted from py_trees",
-    tree_id: Optional[UUID] = None,
-    use_deterministic_uuids: bool = True
+    tree_id: UUID | None = None,
+    use_deterministic_uuids: bool = True,
 ) -> tuple[TreeDefinition, ConversionContext]:
     """
     Convert a py_trees tree to PyForest format.
@@ -428,7 +432,7 @@ def from_py_trees(
         root,
         parent_path="",
         use_deterministic_uuids=use_deterministic_uuids,
-        context=context
+        context=context,
     )
 
     # Create metadata
@@ -438,7 +442,7 @@ def from_py_trees(
         description=description,
         created_at=datetime.utcnow(),
         modified_at=datetime.utcnow(),
-        status=TreeStatus.DRAFT
+        status=TreeStatus.DRAFT,
     )
 
     # Create tree definition
@@ -446,7 +450,7 @@ def from_py_trees(
         tree_id=tree_id or uuid4(),
         metadata=metadata,
         root=pf_root,
-        dependencies=TreeDependencies()
+        dependencies=TreeDependencies(),
     )
 
     return tree, context
@@ -491,44 +495,43 @@ def to_py_trees(tree: TreeDefinition):
 
         # Create appropriate py_trees node
         if node_type == "Sequence":
-            memory = config.get('memory', False)
+            memory = config.get("memory", False)
             node = py_trees.composites.Sequence(name=name, memory=memory)
 
         elif node_type == "Selector":
-            memory = config.get('memory', False)
+            memory = config.get("memory", False)
             node = py_trees.composites.Selector(name=name, memory=memory)
 
         elif node_type == "Parallel":
             node = py_trees.composites.Parallel(
-                name=name,
-                policy=py_trees.common.ParallelPolicy.SuccessOnAll()
+                name=name, policy=py_trees.common.ParallelPolicy.SuccessOnAll()
             )
 
         elif node_type == "CheckBlackboardCondition":
-            variable = config.get('variable', 'condition')
-            value = config.get('value', True)
-            op_str = config.get('operator', '==')
+            variable = config.get("variable", "condition")
+            value = config.get("value", True)
+            op_str = config.get("operator", "==")
 
             # Map operator string to operator function
             comparison_op = string_to_operator(op_str)
 
             # Use ComparisonExpression (current py_trees API)
             from py_trees.common import ComparisonExpression
+
             check = ComparisonExpression(variable, comparison_op, value)
             node = py_trees.behaviours.CheckBlackboardVariableValue(
-                name=name,
-                check=check
+                name=name, check=check
             )
 
         elif node_type == "SetBlackboardVariable":
-            variable = config.get('variable', 'output')
-            value = config.get('value', None)
-            overwrite = config.get('overwrite', True)  # Default to True for safety
+            variable = config.get("variable", "output")
+            value = config.get("value", None)
+            overwrite = config.get("overwrite", True)  # Default to True for safety
             node = py_trees.behaviours.SetBlackboardVariable(
                 name=name,
                 variable_name=variable,
                 variable_value=value,
-                overwrite=overwrite
+                overwrite=overwrite,
             )
 
         elif node_type == "Success":
@@ -545,133 +548,126 @@ def to_py_trees(tree: TreeDefinition):
 
         # Blackboard operations - non-blocking
         elif node_type == "CheckBlackboardVariableExists":
-            variable = config.get('variable', 'var')
+            variable = config.get("variable", "var")
             node = py_trees.behaviours.CheckBlackboardVariableExists(
-                name=name,
-                variable_name=variable
+                name=name, variable_name=variable
             )
 
         elif node_type == "UnsetBlackboardVariable":
-            variable = config.get('variable', 'var')
-            node = py_trees.behaviours.UnsetBlackboardVariable(
-                name=name,
-                key=variable
-            )
+            variable = config.get("variable", "var")
+            node = py_trees.behaviours.UnsetBlackboardVariable(name=name, key=variable)
 
         elif node_type == "CheckBlackboardVariableValues":
-            checks_list = config.get('checks', [])
-            logical_op_str = config.get('logical_operator', 'and')
+            checks_list = config.get("checks", [])
+            logical_op_str = config.get("logical_operator", "and")
             # Convert back to ComparisonExpression objects
             checks = []
             for check_config in checks_list:
-                op_str = check_config.get('operator', '==')
+                op_str = check_config.get("operator", "==")
                 comparison_op = string_to_operator(op_str)
                 from py_trees.common import ComparisonExpression
-                checks.append(ComparisonExpression(
-                    check_config['variable'],
-                    comparison_op,
-                    check_config['value']
-                ))
+
+                checks.append(
+                    ComparisonExpression(
+                        check_config["variable"], comparison_op, check_config["value"]
+                    )
+                )
             # Map logical operator string to actual operator
             import operator
-            logical_op = operator.and_ if 'and' in logical_op_str.lower() else operator.or_
+
+            logical_op = (
+                operator.and_ if "and" in logical_op_str.lower() else operator.or_
+            )
             node = py_trees.behaviours.CheckBlackboardVariableValues(
-                name=name,
-                checks=checks,
-                logical_operator=logical_op
+                name=name, checks=checks, logical_operator=logical_op
             )
 
         elif node_type == "BlackboardToStatus":
-            variable = config.get('variable', 'status')
+            variable = config.get("variable", "status")
             node = py_trees.behaviours.BlackboardToStatus(
-                name=name,
-                variable_name=variable
+                name=name, variable_name=variable
             )
 
         # Blackboard operations - blocking
         elif node_type == "WaitForBlackboardVariable":
-            variable = config.get('variable', 'var')
+            variable = config.get("variable", "var")
             node = py_trees.behaviours.WaitForBlackboardVariable(
-                name=name,
-                variable_name=variable
+                name=name, variable_name=variable
             )
 
         elif node_type == "WaitForBlackboardVariableValue":
-            variable = config.get('variable', 'var')
-            value = config.get('value', True)
-            op_str = config.get('operator', '==')
+            variable = config.get("variable", "var")
+            value = config.get("value", True)
+            op_str = config.get("operator", "==")
             comparison_op = string_to_operator(op_str)
             from py_trees.common import ComparisonExpression
+
             check = ComparisonExpression(variable, comparison_op, value)
             node = py_trees.behaviours.WaitForBlackboardVariableValue(
-                name=name,
-                check=check
+                name=name, check=check
             )
 
         # Time-based behaviors
         elif node_type == "TickCounter":
-            num_ticks = config.get('num_ticks', 1)
-            final_status_str = config.get('final_status', 'SUCCESS')
+            num_ticks = config.get("num_ticks", 1)
+            final_status_str = config.get("final_status", "SUCCESS")
             # Convert string to Status
             from py_trees.common import Status
+
             final_status = getattr(Status, final_status_str, Status.SUCCESS)
             node = py_trees.behaviours.TickCounter(
-                name=name,
-                num_ticks=num_ticks,
-                final_status=final_status
+                name=name, num_ticks=num_ticks, final_status=final_status
             )
 
         elif node_type == "SuccessEveryN":
-            n = config.get('n', 2)
-            node = py_trees.behaviours.SuccessEveryN(
-                name=name,
-                n=n
-            )
+            n = config.get("n", 2)
+            node = py_trees.behaviours.SuccessEveryN(name=name, n=n)
 
         elif node_type == "Periodic":
-            n = config.get('n', 3)
-            node = py_trees.behaviours.Periodic(
-                name=name,
-                n=n
-            )
+            n = config.get("n", 3)
+            node = py_trees.behaviours.Periodic(name=name, n=n)
 
         elif node_type == "StatusQueue":
-            queue_strs = config.get('queue', ['SUCCESS'])
+            queue_strs = config.get("queue", ["SUCCESS"])
             from py_trees.common import Status
+
             queue = [getattr(Status, s, Status.SUCCESS) for s in queue_strs]
-            eventually_str = config.get('eventually', None)
-            eventually = getattr(Status, eventually_str, None) if eventually_str else None
+            eventually_str = config.get("eventually", None)
+            eventually = (
+                getattr(Status, eventually_str, None) if eventually_str else None
+            )
             node = py_trees.behaviours.StatusQueue(
-                name=name,
-                queue=queue,
-                eventually=eventually
+                name=name, queue=queue, eventually=eventually
             )
 
         # Probabilistic
         elif node_type == "ProbabilisticBehaviour":
-            weights = config.get('weights', [1.0, 1.0, 1.0])
+            weights = config.get("weights", [1.0, 1.0, 1.0])
             # Ensure weights is a 3-element list
             if not isinstance(weights, list) or len(weights) != 3:
                 weights = [1.0, 1.0, 1.0]
             node = py_trees.behaviours.ProbabilisticBehaviour(
-                name=name,
-                weights=weights
+                name=name, weights=weights
             )
 
         # Decorators (placeholders - will be built properly in build_tree)
         elif node_type == "Inverter":
             node = py_trees.decorators.Inverter(
-                name=name,
-                child=py_trees.behaviours.Success("placeholder")
+                name=name, child=py_trees.behaviours.Success("placeholder")
             )
 
-        elif node_type in ["SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
-                            "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning"]:
+        elif node_type in [
+            "SuccessIsFailure",
+            "FailureIsSuccess",
+            "FailureIsRunning",
+            "RunningIsFailure",
+            "RunningIsSuccess",
+            "SuccessIsRunning",
+        ]:
             # Status converter decorators
             decorator_class = getattr(py_trees.decorators, node_type)
             node = decorator_class(
-                name=name,
-                child=py_trees.behaviours.Success("placeholder")
+                name=name, child=py_trees.behaviours.Success("placeholder")
             )
 
         else:
@@ -689,15 +685,24 @@ def to_py_trees(tree: TreeDefinition):
             # Basic
             "Inverter",
             # Status converters
-            "SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
-            "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning",
+            "SuccessIsFailure",
+            "FailureIsSuccess",
+            "FailureIsRunning",
+            "RunningIsFailure",
+            "RunningIsSuccess",
+            "SuccessIsRunning",
             # Repetition
-            "Repeat", "Retry", "OneShot",
+            "Repeat",
+            "Retry",
+            "OneShot",
             # Time-based
             "Timeout",
             # Advanced
-            "EternalGuard", "Condition", "Count",
-            "StatusToBlackboard", "PassThrough"
+            "EternalGuard",
+            "Condition",
+            "Count",
+            "StatusToBlackboard",
+            "PassThrough",
         ]
 
         # Handle decorators specially - they need their child at construction time
@@ -716,75 +721,92 @@ def to_py_trees(tree: TreeDefinition):
             # Status converters (simple - just take child)
             if node_type == "Inverter":
                 pt_node = py_trees.decorators.Inverter(name=name, child=child_pt_node)
-            elif node_type in ["SuccessIsFailure", "FailureIsSuccess", "FailureIsRunning",
-                               "RunningIsFailure", "RunningIsSuccess", "SuccessIsRunning"]:
+            elif node_type in [
+                "SuccessIsFailure",
+                "FailureIsSuccess",
+                "FailureIsRunning",
+                "RunningIsFailure",
+                "RunningIsSuccess",
+                "SuccessIsRunning",
+            ]:
                 decorator_class = getattr(py_trees.decorators, node_type)
                 pt_node = decorator_class(name=name, child=child_pt_node)
 
             # Repetition decorators
             elif node_type == "Repeat":
-                num_success = config.get('num_success', 1)
-                pt_node = py_trees.decorators.Repeat(name=name, child=child_pt_node, num_success=num_success)
+                num_success = config.get("num_success", 1)
+                pt_node = py_trees.decorators.Repeat(
+                    name=name, child=child_pt_node, num_success=num_success
+                )
             elif node_type == "Retry":
-                num_failures = config.get('num_failures', 1)
-                pt_node = py_trees.decorators.Retry(name=name, child=child_pt_node, num_failures=num_failures)
+                num_failures = config.get("num_failures", 1)
+                pt_node = py_trees.decorators.Retry(
+                    name=name, child=child_pt_node, num_failures=num_failures
+                )
             elif node_type == "OneShot":
-                policy_str = config.get('policy', 'ON_COMPLETION')
+                policy_str = config.get("policy", "ON_COMPLETION")
                 # Parse policy string
                 from py_trees.common import OneShotPolicy
-                if 'ON_SUCCESSFUL_COMPLETION' in policy_str:
+
+                if "ON_SUCCESSFUL_COMPLETION" in policy_str:
                     policy = OneShotPolicy.ON_SUCCESSFUL_COMPLETION
                 else:
                     policy = OneShotPolicy.ON_COMPLETION
-                pt_node = py_trees.decorators.OneShot(name=name, child=child_pt_node, policy=policy)
+                pt_node = py_trees.decorators.OneShot(
+                    name=name, child=child_pt_node, policy=policy
+                )
 
             # Time-based
             elif node_type == "Timeout":
-                duration = config.get('duration', 1.0)
-                pt_node = py_trees.decorators.Timeout(name=name, child=child_pt_node, duration=duration)
+                duration = config.get("duration", 1.0)
+                pt_node = py_trees.decorators.Timeout(
+                    name=name, child=child_pt_node, duration=duration
+                )
 
             # Advanced decorators
             elif node_type == "EternalGuard":
-                variable = config.get('variable', 'condition')
-                value = config.get('value', True)
-                op_str = config.get('operator', '==')
+                variable = config.get("variable", "condition")
+                value = config.get("value", True)
+                op_str = config.get("operator", "==")
                 comparison_op = string_to_operator(op_str)
                 from py_trees.common import ComparisonExpression
+
                 check = ComparisonExpression(variable, comparison_op, value)
                 pt_node = py_trees.decorators.EternalGuard(
                     name=name,
                     child=child_pt_node,
                     blackboard_keys=[variable],
-                    condition=check
+                    condition=check,
                 )
 
             elif node_type == "Condition":
-                variable = config.get('variable', 'condition')
-                value = config.get('value', True)
-                op_str = config.get('operator', '==')
+                variable = config.get("variable", "condition")
+                value = config.get("value", True)
+                op_str = config.get("operator", "==")
                 comparison_op = string_to_operator(op_str)
                 from py_trees.common import ComparisonExpression
+
                 check = ComparisonExpression(variable, comparison_op, value)
                 pt_node = py_trees.decorators.Condition(
                     name=name,
                     child=child_pt_node,
                     blackboard_keys=[variable],
-                    status=check
+                    status=check,
                 )
 
             elif node_type == "Count":
                 pt_node = py_trees.decorators.Count(name=name, child=child_pt_node)
 
             elif node_type == "StatusToBlackboard":
-                variable = config.get('variable', 'status')
+                variable = config.get("variable", "status")
                 pt_node = py_trees.decorators.StatusToBlackboard(
-                    name=name,
-                    child=child_pt_node,
-                    variable_name=variable
+                    name=name, child=child_pt_node, variable_name=variable
                 )
 
             elif node_type == "PassThrough":
-                pt_node = py_trees.decorators.PassThrough(name=name, child=child_pt_node)
+                pt_node = py_trees.decorators.PassThrough(
+                    name=name, child=child_pt_node
+                )
 
             return pt_node
 
@@ -792,7 +814,7 @@ def to_py_trees(tree: TreeDefinition):
         pt_node = create_py_trees_node(pf_node)
 
         # Add children for composites
-        if hasattr(pt_node, 'children') and pf_node.children:
+        if hasattr(pt_node, "children") and pf_node.children:
             # Composite node - add children
             for child in pf_node.children:
                 child_pt_node = build_tree(child)
@@ -841,3 +863,83 @@ def print_comparison(py_trees_root, pf_tree: TreeDefinition):
 
     print_tree(pf_tree.root)
     print()
+
+
+# =============================================================================
+# py_trees Comparison
+# =============================================================================
+
+
+def compare_py_trees(
+    root1, root2, *, verbose: bool = False, raise_on_difference: bool = False
+) -> bool:
+    """Compare two py_trees roots for structural and functional equivalence.
+
+    This is useful for verifying round-trip conversion or checking if two
+    trees are functionally identical even if they're different objects in memory.
+
+    Args:
+        root1: First py_trees root
+        root2: Second py_trees root
+        verbose: If True, print detailed comparison results (default: False)
+        raise_on_difference: If True, raise ValueError on differences (default: False)
+
+    Returns:
+        True if trees are functionally equivalent, False otherwise
+
+    Raises:
+        ValueError: If raise_on_difference=True and trees differ
+
+    Example:
+        >>> import py_trees
+        >>> from py_forest.adapters import from_py_trees, to_py_trees, compare_py_trees
+        >>>
+        >>> # Create original tree
+        >>> root = py_trees.composites.Sequence("Main", memory=False, children=[
+        ...     py_trees.behaviours.Success("Task1"),
+        ...     py_trees.behaviours.Success("Task2"),
+        ... ])
+        >>>
+        >>> # Round-trip conversion
+        >>> pf_tree, _ = from_py_trees(root, name="Test", version="1.0")
+        >>> py_trees_root = to_py_trees(pf_tree)
+        >>>
+        >>> # Verify they're equivalent
+        >>> if compare_py_trees(root, py_trees_root):
+        ...     print("✓ Trees are functionally identical!")
+        >>> else:
+        ...     print("✗ Trees differ!")
+        >>>
+        >>> # With verbose output
+        >>> compare_py_trees(root, py_trees_root, verbose=True)
+        >>>
+        >>> # Raise error on difference
+        >>> compare_py_trees(root, py_trees_root, raise_on_difference=True)
+    """
+    from py_forest.core.round_trip_validator import RoundTripValidator
+
+    validator = RoundTripValidator()
+    is_equivalent = validator.validate(root1, root2)
+
+    if verbose:
+        print("=" * 70)
+        print("py_trees Comparison")
+        print("=" * 70)
+        print(f"Tree 1: {root1.name} ({type(root1).__name__})")
+        print(f"Tree 2: {root2.name} ({type(root2).__name__})")
+        print()
+        print(validator.get_error_summary())
+        print()
+
+        if is_equivalent:
+            print("✓ Trees are functionally equivalent!")
+        else:
+            print(f"✗ Trees differ ({len(validator.errors)} issue(s) found)")
+        print("=" * 70)
+
+    if raise_on_difference and not is_equivalent:
+        raise ValueError(
+            f"Trees are not equivalent:\n{validator.get_error_summary()}"
+        )
+
+    return is_equivalent

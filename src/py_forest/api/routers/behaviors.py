@@ -1,7 +1,5 @@
 """Behavior schema endpoints for editor support."""
 
-from typing import Dict, List
-
 from fastapi import APIRouter, Depends, HTTPException
 
 from py_forest.api.dependencies import behavior_registry_dependency
@@ -11,10 +9,10 @@ from py_forest.models.schema import BehaviorSchema, NodeCategory
 router = APIRouter(prefix="/behaviors", tags=["behaviors"])
 
 
-@router.get("/", response_model=Dict[str, BehaviorSchema])
+@router.get("/", response_model=dict[str, BehaviorSchema])
 def get_all_schemas(
     registry: BehaviorRegistry = Depends(behavior_registry_dependency),
-) -> Dict[str, BehaviorSchema]:
+) -> dict[str, BehaviorSchema]:
     """Get all behavior schemas.
 
     Returns:
@@ -23,10 +21,10 @@ def get_all_schemas(
     return registry.get_all_schemas()
 
 
-@router.get("/types", response_model=List[str])
+@router.get("/types", response_model=list[str])
 def list_behavior_types(
     registry: BehaviorRegistry = Depends(behavior_registry_dependency),
-) -> List[str]:
+) -> list[str]:
     """List all registered behavior types.
 
     Returns:
@@ -35,11 +33,11 @@ def list_behavior_types(
     return registry.list_all()
 
 
-@router.get("/category/{category}", response_model=List[str])
+@router.get("/category/{category}", response_model=list[str])
 def list_by_category(
     category: NodeCategory,
     registry: BehaviorRegistry = Depends(behavior_registry_dependency),
-) -> List[str]:
+) -> list[str]:
     """List behaviors by category.
 
     Args:

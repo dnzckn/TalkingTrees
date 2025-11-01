@@ -2,14 +2,13 @@
 
 import json
 from pathlib import Path
-from typing import Optional
 
 import typer
 from rich.console import Console
-from rich.table import Table
 from rich.panel import Panel
-from rich.syntax import Syntax
 from rich.prompt import Prompt
+from rich.syntax import Syntax
+from rich.table import Table
 
 from py_forest.cli.client import get_client
 
@@ -54,7 +53,7 @@ def list_templates():
 @app.command("get")
 def get_template(
     template_id: str = typer.Argument(..., help="Template ID to retrieve"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save to file"),
+    output: Path | None = typer.Option(None, "--output", "-o", help="Save to file"),
     show_json: bool = typer.Option(False, "--json", help="Show raw JSON"),
 ):
     """Get details of a specific template."""
@@ -72,14 +71,16 @@ def get_template(
             syntax = Syntax(json.dumps(template, indent=2), "json", theme="monokai")
             console.print(syntax)
         else:
-            console.print(Panel.fit(
-                f"[bold cyan]{template.get('name', 'N/A')}[/bold cyan]\n\n"
-                f"[bold]ID:[/bold] {template.get('template_id', 'N/A')}\n"
-                f"[bold]Category:[/bold] {template.get('category', 'N/A')}\n"
-                f"[bold]Description:[/bold] {template.get('description', 'N/A')}\n"
-                f"[bold]Tags:[/bold] {', '.join(template.get('tags', []))}",
-                title="Template Details"
-            ))
+            console.print(
+                Panel.fit(
+                    f"[bold cyan]{template.get('name', 'N/A')}[/bold cyan]\n\n"
+                    f"[bold]ID:[/bold] {template.get('template_id', 'N/A')}\n"
+                    f"[bold]Category:[/bold] {template.get('category', 'N/A')}\n"
+                    f"[bold]Description:[/bold] {template.get('description', 'N/A')}\n"
+                    f"[bold]Tags:[/bold] {', '.join(template.get('tags', []))}",
+                    title="Template Details",
+                )
+            )
 
             # Show parameters
             params = template.get("parameters", [])
@@ -122,8 +123,10 @@ def create_template(
         client = get_client()
         created_template = client.create_template(template_def)
 
-        console.print(f"[green]✓ Template created successfully[/green]")
-        console.print(f"[bold]Template ID:[/bold] {created_template.get('template_id')}")
+        console.print("[green]✓ Template created successfully[/green]")
+        console.print(
+            f"[bold]Template ID:[/bold] {created_template.get('template_id')}"
+        )
         console.print(f"[bold]Name:[/bold] {created_template.get('name')}")
 
     except json.JSONDecodeError as e:
@@ -138,9 +141,15 @@ def create_template(
 def instantiate_template(
     template_id: str = typer.Argument(..., help="Template ID to instantiate"),
     tree_name: str = typer.Option(..., "--name", "-n", help="Name for the new tree"),
-    params_file: Optional[Path] = typer.Option(None, "--params", "-p", help="JSON file with parameters"),
-    interactive: bool = typer.Option(False, "--interactive", "-i", help="Prompt for parameters interactively"),
-    output: Optional[Path] = typer.Option(None, "--output", "-o", help="Save tree to file instead of uploading"),
+    params_file: Path | None = typer.Option(
+        None, "--params", "-p", help="JSON file with parameters"
+    ),
+    interactive: bool = typer.Option(
+        False, "--interactive", "-i", help="Prompt for parameters interactively"
+    ),
+    output: Path | None = typer.Option(
+        None, "--output", "-o", help="Save tree to file instead of uploading"
+    ),
 ):
     """Instantiate a tree from a template."""
     try:
@@ -157,7 +166,9 @@ def instantiate_template(
             with open(params_file) as f:
                 params = json.load(f)
         elif interactive:
-            console.print(f"[bold]Creating tree from template: {template.get('name')}[/bold]\n")
+            console.print(
+                f"[bold]Creating tree from template: {template.get('name')}[/bold]\n"
+            )
             for param in template_params:
                 param_name = param.get("name")
                 param_type = param.get("type")
@@ -172,7 +183,9 @@ def instantiate_template(
                 if not required and default is not None:
                     prompt_text += f" [default: {default}]"
 
-                value = Prompt.ask(prompt_text, default=str(default) if default is not None else "")
+                value = Prompt.ask(
+                    prompt_text, default=str(default) if default is not None else ""
+                )
 
                 # Type conversion
                 if value:
@@ -198,9 +211,11 @@ def instantiate_template(
         else:
             # Upload to library
             created_tree = client.create_tree(tree_def)
-            console.print(f"[green]✓ Tree created from template[/green]")
+            console.print("[green]✓ Tree created from template[/green]")
             console.print(f"[bold]Tree ID:[/bold] {created_tree.get('tree_id')}")
-            console.print(f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}")
+            console.print(
+                f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}"
+            )
 
     except json.JSONDecodeError as e:
         console.print(f"[red]Error: Invalid JSON: {e}[/red]")

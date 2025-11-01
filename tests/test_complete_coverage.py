@@ -10,16 +10,15 @@ Tests complete reversibility and identifies any gaps or data loss.
 """
 
 import json
-import tempfile
 import operator
+import tempfile
 from pathlib import Path
-from typing import List, Tuple, Dict, Any
 
 import py_trees
-from py_trees.composites import Sequence, Selector, Parallel
-from py_trees.behaviours import Success, Failure, Running, SetBlackboardVariable
-from py_trees.decorators import Inverter, Timeout, Retry
+from py_trees.behaviours import Failure, Running, SetBlackboardVariable, Success
 from py_trees.common import ComparisonExpression, ParallelPolicy
+from py_trees.composites import Parallel, Selector, Sequence
+from py_trees.decorators import Inverter, Retry, Timeout
 
 from py_forest.adapters.py_trees_adapter import from_py_trees, to_py_trees
 from py_forest.core.round_trip_validator import RoundTripValidator
@@ -30,7 +29,7 @@ class ComprehensiveCoverageTest:
     """Test coverage for all py_trees node types."""
 
     def __init__(self):
-        self.results: List[Tuple[str, bool, str]] = []
+        self.results: list[tuple[str, bool, str]] = []
         self.pf = PyForest()
         self.temp_dir = tempfile.mkdtemp()
 
@@ -78,9 +77,9 @@ class ComprehensiveCoverageTest:
             self.pf.save_tree(pf_tree, str(json_path))
 
             # Verify JSON is valid
-            with open(json_path, 'r') as f:
+            with open(json_path) as f:
                 json_data = json.load(f)
-            assert json_data['$schema'] == '1.0.0', "Invalid schema version"
+            assert json_data["$schema"] == "1.0.0", "Invalid schema version"
 
             # Step 3: JSON → pyforest
             loaded_tree = self.pf.load_tree(str(json_path))
@@ -102,6 +101,7 @@ class ComprehensiveCoverageTest:
             # Optional: Test execution
             if check_execution:
                 from py_forest.core.serializer import TreeSerializer
+
                 serializer = TreeSerializer()
                 bt = serializer.deserialize(loaded_tree)
                 bt.setup()
@@ -134,7 +134,7 @@ class ComprehensiveCoverageTest:
                 Success(name="Step1"),
                 Success(name="Step2"),
                 Success(name="Step3"),
-            ]
+            ],
         )
         self.test_node("Sequence (memory=True)", root)
 
@@ -145,7 +145,7 @@ class ComprehensiveCoverageTest:
             children=[
                 Success(name="Step1"),
                 Success(name="Step2"),
-            ]
+            ],
         )
         self.test_node("Sequence (memory=False)", root)
 
@@ -157,7 +157,7 @@ class ComprehensiveCoverageTest:
                 Failure(name="Option1"),
                 Success(name="Option2"),
                 Failure(name="Option3"),
-            ]
+            ],
         )
         self.test_node("Selector (memory=True)", root)
 
@@ -168,7 +168,7 @@ class ComprehensiveCoverageTest:
             children=[
                 Failure(name="Option1"),
                 Success(name="Option2"),
-            ]
+            ],
         )
         self.test_node("Selector (memory=False)", root)
 
@@ -180,7 +180,7 @@ class ComprehensiveCoverageTest:
                 Success(name="Task1"),
                 Success(name="Task2"),
                 Success(name="Task3"),
-            ]
+            ],
         )
         self.test_node("Parallel (SuccessOnAll)", root)
 
@@ -191,7 +191,7 @@ class ComprehensiveCoverageTest:
             children=[
                 Failure(name="Task1"),
                 Success(name="Task2"),
-            ]
+            ],
         )
         self.test_node("Parallel (SuccessOnOne)", root)
 
@@ -204,42 +204,25 @@ class ComprehensiveCoverageTest:
         print("=" * 80)
 
         # Inverter
-        root = Inverter(
-            name="NotGate",
-            child=Failure(name="FailTask")
-        )
+        root = Inverter(name="NotGate", child=Failure(name="FailTask"))
         self.test_node("Inverter", root)
 
         # Timeout
-        root = Timeout(
-            name="TimeLimit",
-            child=Success(name="SlowTask"),
-            duration=5.0
-        )
+        root = Timeout(name="TimeLimit", child=Success(name="SlowTask"), duration=5.0)
         self.test_node("Timeout (5.0s)", root)
 
         # Timeout with different duration
-        root = Timeout(
-            name="ShortTimeLimit",
-            child=Success(name="Task"),
-            duration=0.5
-        )
+        root = Timeout(name="ShortTimeLimit", child=Success(name="Task"), duration=0.5)
         self.test_node("Timeout (0.5s)", root)
 
         # Retry
         root = Retry(
-            name="RetryThrice",
-            child=Success(name="FlakeyTask"),
-            num_failures=3
+            name="RetryThrice", child=Success(name="FlakeyTask"), num_failures=3
         )
         self.test_node("Retry (3 attempts)", root)
 
         # Retry with different count
-        root = Retry(
-            name="RetryFive",
-            child=Success(name="Task"),
-            num_failures=5
-        )
+        root = Retry(name="RetryFive", child=Success(name="Task"), num_failures=5)
         self.test_node("Retry (5 attempts)", root)
 
     # ==================== BEHAVIORS ====================
@@ -288,10 +271,10 @@ class ComprehensiveCoverageTest:
                         name="Setter",
                         variable_name="test_var",
                         variable_value=value,
-                        overwrite=True
+                        overwrite=True,
                     ),
                     Success(name="Done"),
-                ]
+                ],
             )
             self.test_node(name, root)
 
@@ -314,14 +297,14 @@ class ComprehensiveCoverageTest:
                         name="SetValue",
                         variable_name="battery",
                         variable_value=var_value,
-                        overwrite=True
+                        overwrite=True,
                     ),
                     py_trees.behaviours.CheckBlackboardVariableValue(
                         name="CheckValue",
-                        check=ComparisonExpression('battery', op, check_value)
+                        check=ComparisonExpression("battery", op, check_value),
                     ),
                     Success(name="Done"),
-                ]
+                ],
             )
             self.test_node(name, root)
 
@@ -352,16 +335,16 @@ class ComprehensiveCoverageTest:
                                     children=[
                                         Failure(name="Opt1"),
                                         Success(name="Opt2"),
-                                    ]
+                                    ],
                                 ),
                                 Success(name="L3Task"),
-                            ]
+                            ],
                         ),
                         Failure(name="L2Fallback"),
-                    ]
+                    ],
                 ),
                 Success(name="L1Final"),
-            ]
+            ],
         )
         self.test_node("Nested Composites (4 levels)", root)
 
@@ -371,12 +354,10 @@ class ComprehensiveCoverageTest:
             child=Timeout(
                 name="TimeLimit",
                 child=Retry(
-                    name="RetryOnFail",
-                    child=Success(name="Task"),
-                    num_failures=3
+                    name="RetryOnFail", child=Success(name="Task"), num_failures=3
                 ),
-                duration=5.0
-            )
+                duration=5.0,
+            ),
         )
         self.test_node("Decorator Chain (Inverter→Timeout→Retry)", root)
 
@@ -386,26 +367,23 @@ class ComprehensiveCoverageTest:
             memory=True,
             children=[
                 Success(name="SimpleLeaf"),
-                Inverter(
-                    name="DecoratorChild",
-                    child=Failure(name="InvertedFail")
-                ),
+                Inverter(name="DecoratorChild", child=Failure(name="InvertedFail")),
                 Selector(
                     name="CompositeChild",
                     memory=False,
                     children=[
                         Success(name="A"),
                         Success(name="B"),
-                    ]
+                    ],
                 ),
                 SetBlackboardVariable(
                     name="BBWriter",
                     variable_name="result",
                     variable_value=42,
-                    overwrite=True
+                    overwrite=True,
                 ),
                 Success(name="FinalLeaf"),
-            ]
+            ],
         )
         self.test_node("Mixed Node Types", root)
 
@@ -420,7 +398,7 @@ class ComprehensiveCoverageTest:
                     children=[
                         Success(name="B1T1"),
                         Success(name="B1T2"),
-                    ]
+                    ],
                 ),
                 Sequence(
                     name="Branch2",
@@ -428,9 +406,9 @@ class ComprehensiveCoverageTest:
                     children=[
                         Success(name="B2T1"),
                         Success(name="B2T2"),
-                    ]
+                    ],
                 ),
-            ]
+            ],
         )
         self.test_node("Parallel with Nested Sequences", root)
 

@@ -3,7 +3,6 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional
 from uuid import UUID
 
 from py_forest.models.tree import (
@@ -47,14 +46,14 @@ class FileSystemTreeLibrary(TreeLibrary):
         # Load or create catalog
         self.catalog = self._load_catalog()
 
-    def _load_catalog(self) -> Dict[str, TreeCatalogEntry]:
+    def _load_catalog(self) -> dict[str, TreeCatalogEntry]:
         """Load the catalog from disk.
 
         Returns:
             Dictionary mapping tree_id to catalog entry
         """
         if self.catalog_path.exists():
-            with open(self.catalog_path, "r") as f:
+            with open(self.catalog_path) as f:
                 data = json.load(f)
                 return {
                     entry["tree_id"]: TreeCatalogEntry(**entry)
@@ -65,12 +64,14 @@ class FileSystemTreeLibrary(TreeLibrary):
     def _save_catalog(self) -> None:
         """Save the catalog to disk."""
         data = {
-            "entries": [entry.model_dump(mode="json") for entry in self.catalog.values()]
+            "entries": [
+                entry.model_dump(mode="json") for entry in self.catalog.values()
+            ]
         }
         with open(self.catalog_path, "w") as f:
             json.dump(data, f, indent=2, default=str)
 
-    def _get_tree_dir(self, tree_id: UUID) -> Optional[Path]:
+    def _get_tree_dir(self, tree_id: UUID) -> Path | None:
         """Get the directory path for a tree.
 
         Args:
@@ -84,7 +85,7 @@ class FileSystemTreeLibrary(TreeLibrary):
             if tree_dir.is_dir():
                 metadata_path = tree_dir / "metadata.json"
                 if metadata_path.exists():
-                    with open(metadata_path, "r") as f:
+                    with open(metadata_path) as f:
                         metadata = json.load(f)
                         if metadata.get("tree_id") == str(tree_id):
                             return tree_dir
@@ -116,7 +117,7 @@ class FileSystemTreeLibrary(TreeLibrary):
         tree_dir.mkdir(parents=True, exist_ok=True)
         return tree_dir
 
-    def _load_metadata(self, tree_dir: Path) -> Dict:
+    def _load_metadata(self, tree_dir: Path) -> dict:
         """Load tree metadata file.
 
         Args:
@@ -132,10 +133,10 @@ class FileSystemTreeLibrary(TreeLibrary):
         if not metadata_path.exists():
             raise ValueError(f"Metadata file not found: {metadata_path}")
 
-        with open(metadata_path, "r") as f:
+        with open(metadata_path) as f:
             return json.load(f)
 
-    def _save_metadata(self, tree_dir: Path, metadata: Dict) -> None:
+    def _save_metadata(self, tree_dir: Path, metadata: dict) -> None:
         """Save tree metadata file.
 
         Args:
@@ -148,17 +149,15 @@ class FileSystemTreeLibrary(TreeLibrary):
 
     def list_trees(
         self,
-        tags: Optional[List[str]] = None,
-        status: Optional[str] = None,
-    ) -> List[TreeCatalogEntry]:
+        tags: list[str] | None = None,
+        status: str | None = None,
+    ) -> list[TreeCatalogEntry]:
         """List all trees in the library."""
         entries = list(self.catalog.values())
 
         # Filter by tags
         if tags:
-            entries = [
-                e for e in entries if any(tag in e.tags for tag in tags)
-            ]
+            entries = [e for e in entries if any(tag in e.tags for tag in tags)]
 
         # Filter by status
         if status:
@@ -169,7 +168,7 @@ class FileSystemTreeLibrary(TreeLibrary):
     def get_tree(
         self,
         tree_id: UUID,
-        version: Optional[str] = None,
+        version: str | None = None,
     ) -> TreeDefinition:
         """Get a specific tree definition."""
         tree_dir = self._get_tree_dir(tree_id)
@@ -208,7 +207,7 @@ class FileSystemTreeLibrary(TreeLibrary):
         if not tree_path.exists():
             raise ValueError(f"Tree file not found: {tree_path}")
 
-        with open(tree_path, "r") as f:
+        with open(tree_path) as f:
             data = json.load(f)
             return TreeDefinition(**data)
 
@@ -282,7 +281,7 @@ class FileSystemTreeLibrary(TreeLibrary):
     def delete_tree(
         self,
         tree_id: UUID,
-        version: Optional[str] = None,
+        version: str | None = None,
     ) -> bool:
         """Delete a tree or specific version."""
         tree_dir = self._get_tree_dir(tree_id)
@@ -321,7 +320,7 @@ class FileSystemTreeLibrary(TreeLibrary):
 
             return True
 
-    def list_versions(self, tree_id: UUID) -> List[VersionInfo]:
+    def list_versions(self, tree_id: UUID) -> list[VersionInfo]:
         """List all versions of a tree."""
         tree_dir = self._get_tree_dir(tree_id)
         if tree_dir is None:
@@ -330,7 +329,7 @@ class FileSystemTreeLibrary(TreeLibrary):
         metadata = self._load_metadata(tree_dir)
         return [VersionInfo(**v) for v in metadata.get("versions", [])]
 
-    def tree_exists(self, tree_id: UUID, version: Optional[str] = None) -> bool:
+    def tree_exists(self, tree_id: UUID, version: str | None = None) -> bool:
         """Check if a tree (or version) exists."""
         tree_dir = self._get_tree_dir(tree_id)
         if tree_dir is None:
@@ -342,7 +341,7 @@ class FileSystemTreeLibrary(TreeLibrary):
         metadata = self._load_metadata(tree_dir)
         return any(v["version"] == version for v in metadata.get("versions", []))
 
-    def search_trees(self, query: str) -> List[TreeCatalogEntry]:
+    def search_trees(self, query: str) -> list[TreeCatalogEntry]:
         """Search trees by name, description, or tags."""
         query_lower = query.lower()
         results = []
