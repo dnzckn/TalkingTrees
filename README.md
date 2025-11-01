@@ -23,7 +23,7 @@ Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
 - **FastAPI-based REST API** - Optional HTTP API with 47 endpoints for tree management
-- **Visual Tree Editor** - Professional browser-based drag-and-drop editor *(heavily WIP)*
+- **Visual Tree Editor** - Browser-based drag-and-drop editor *(heavily WIP)*
 - **Python SDK** - High-level API for tree creation and manipulation
 
 ## Quick Start
