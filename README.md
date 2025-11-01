@@ -224,6 +224,4 @@ talking_trees/
 
 **Requirements**: Python 3.10+ • py_trees 2.3+ • Pydantic 2.x • FastAPI 0.100+ (optional)
 
-**Testing**: 66 tests, 100% pass rate • See `pytest tests/ -v`
-
 **License**: See [LICENSE](LICENSE)
