@@ -6,17 +6,21 @@
 
 **Complete py_trees serialization library with REST API support**
 
+## About
+
 TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via REST API, and deserialize back to executable py_trees with zero data loss.
+
+Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
 
 ## Core Features
 
-- **Complete Reversibility** - Perfect round-trip: `py_trees ↔ JSON ↔ py_trees`
+- **Complete Reversibility** - Perfect round-trip with zero data loss
 - **40+ Node Types** - All composites, decorators, and behaviors from py_trees 2.3+
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
 - **FastAPI Integration** - Optional REST API with 47 endpoints for tree management
 - **Visual Tree Editor** - Professional browser-based drag-and-drop editor *(heavily WIP)*
-- **Zero Data Loss** - All parameters, configurations, and tree structure preserved
+- **Python SDK** - High-level API for tree creation and manipulation
 
 ## Quick Start
 
@@ -26,43 +30,64 @@ TalkingTrees provides bidirectional JSON serialization for [py_trees](https://gi
 pip install -e .
 ```
 
-### Python SDK
+### Basic Usage
 
 ```python
 from talking_trees.sdk import TalkingTrees
-from talking_trees.adapters import from_py_trees, to_py_trees, compare_py_trees
+from talking_trees.adapters import from_py_trees, to_py_trees
 import py_trees
 
-# Serialize py_trees to JSON
+# Create a py_trees behavior tree
 root = py_trees.composites.Sequence(name="Main", memory=True, children=[
     py_trees.behaviours.Success(name="Task1"),
     py_trees.behaviours.Success(name="Task2"),
 ])
 
+# Convert to TalkingTrees format
 tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
 # Save to file
 tt = TalkingTrees()
 tt.save_tree(tt_tree, "my_tree.json")
 
-# Load from file
+# Load and convert back
 loaded = tt.load_tree("my_tree.json")
+py_trees_root = to_py_trees(loaded)
+```
+
+## Python SDK
+
+The SDK provides high-level functions for working with behavior trees:
+
+```python
+from talking_trees.sdk import TalkingTrees
+from talking_trees.adapters import from_py_trees, to_py_trees, compare_py_trees
+
+# Serialize py_trees to JSON
+tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
+
+# Save/load trees
+tt = TalkingTrees()
+tt.save_tree(tt_tree, "output.json")
+loaded = tt.load_tree("input.json")
 
 # Deserialize back to py_trees
 py_trees_root = to_py_trees(loaded)
 
-# Verify round-trip conversion preserves everything
-assert compare_py_trees(root, py_trees_root)  # Returns True
+# Verify round-trip conversion
+assert compare_py_trees(original_root, py_trees_root)
 ```
 
-### REST API (Optional)
+## REST API
+
+Start the FastAPI server for remote tree management:
 
 ```bash
-# Start server
 python scripts/run_server.py
-
 # Access API docs at http://localhost:8000/docs
 ```
+
+### API Examples
 
 ```python
 import requests
@@ -74,9 +99,7 @@ tree = {
     "root": {
         "node_type": "Sequence",
         "name": "Main",
-        "children": [
-            {"node_type": "Success", "name": "Task"}
-        ]
+        "children": [{"node_type": "Success", "name": "Task"}]
     }
 }
 
@@ -97,7 +120,11 @@ requests.post(
 )
 ```
 
-### Visual Editor
+47 endpoints available for tree management, execution, debugging, and visualization.
+
+## Visual Editor
+
+Launch the browser-based tree editor:
 
 ```bash
 ./scripts/run_editor.sh
@@ -107,27 +134,24 @@ requests.post(
   <img src="images/visualizer_screenshot.png" alt="TalkingTrees Tree Editor" width="800"/>
 </p>
 
-Opens the TalkingTrees Tree Editor at `http://localhost:8000` - a professional drag-and-drop interface for creating and editing behavior trees with real-time visualization, node property editing, and automatic layout.
+Opens at `http://localhost:8000` - drag-and-drop interface for creating and editing behavior trees with real-time visualization and node property editing.
 
-## Supported Node Types (40+)
+## CLI Tools
 
-### Composites (3)
-- **Sequence** - Execute children in order (AND logic)
-- **Selector** - Try children until success (OR logic)
-- **Parallel** - Execute children concurrently with configurable policies
+```bash
+# Tree management
+talkingtrees tree list
+talkingtrees tree create my_tree.json
+talkingtrees tree get <TREE_ID>
 
-### Decorators (14)
-- **Status Converters** - Inverter, SuccessIsFailure, FailureIsSuccess, FailureIsRunning, RunningIsFailure, RunningIsSuccess, SuccessIsRunning
-- **Repetition** - Repeat, Retry, OneShot
-- **Time-based** - Timeout
-- **Advanced** - EternalGuard, Condition, Count, StatusToBlackboard, PassThrough
+# Execution
+talkingtrees exec run <TREE_ID> --ticks 10
+talkingtrees exec stats <EXECUTION_ID>
 
-### Behaviors (13+)
-- **Basic** - Success, Failure, Running, Dummy
-- **Time-based** - TickCounter, SuccessEveryN, Periodic, StatusQueue
-- **Blackboard** - CheckBlackboardVariableExists, CheckBlackboardVariableValue, SetBlackboardVariable, UnsetBlackboardVariable, WaitForBlackboardVariable, WaitForBlackboardVariableValue, CheckBlackboardVariableValues, BlackboardToStatus
-- **Probabilistic** - ProbabilisticBehaviour
-- **Custom** - Extensible behavior registration system
+# Import/Export
+talkingtrees export import examples/trees/01_simple_sequence.json
+talkingtrees export tree <TREE_ID> -o output.json
+```
 
 ## Architecture
 
@@ -137,7 +161,7 @@ Opens the TalkingTrees Tree Editor at `http://localhost:8000` - a professional d
 └────────────┬─────────────────────────────────────────────┘
              │ from_py_trees() / to_py_trees()
 ┌────────────▼─────────────────────────────────────────────┐
-│  TalkingTrees Core                                           │
+│  TalkingTrees Core                                       │
 │  • Constants (type-safe config keys)                     │
 │  • Utilities (comparison, parallel policy, UUID)         │
 │  • Registry (extensible node type system)                │
@@ -160,101 +184,10 @@ Opens the TalkingTrees Tree Editor at `http://localhost:8000` - a professional d
 
 ### Key Components
 
-**Type-Safe Constants** (`core/constants.py`)
-- All configuration keys as typed constants
-- Prevents typos and enables IDE autocomplete
-- Single source of truth for defaults
-
-**Enhanced Errors** (`core/exceptions.py`)
-- TreeBuildError with full context (node, path, suggestions)
-- Helpful debugging information
-- Clear guidance for fixing issues
-
-**Centralized Utilities** (`core/utils.py`)
-- ParallelPolicyFactory for policy creation
-- ComparisonExpressionUtil for py_trees quirks
-- Deterministic UUID generation
-
-**Registry Pattern** (`core/registry.py`)
-- Extensible node type registration
-- Schema-based validation
-- Category-based queries
-
-## CLI Tool
-
-```bash
-# Tree management
-talkingtrees tree list
-talkingtrees tree create my_tree.json
-talkingtrees tree get <TREE_ID>
-
-# Execution
-talkingtrees exec run <TREE_ID> --ticks 10
-talkingtrees exec stats <EXECUTION_ID>
-
-# Import/Export
-talkingtrees export import examples/trees/01_simple_sequence.json
-talkingtrees export tree <TREE_ID> -o output.json
-```
-
-## Examples
-
-See `examples/trees/` for complete examples:
-- `01_simple_sequence.json` - Basic sequence pattern
-- `02_simple_selector.json` - Selector with fallback
-- `03_retry_pattern.json` - Error handling with retry
-- `04_parallel_tasks.json` - Concurrent execution
-- `05_patrol_robot.json` - Robot patrol behavior
-
-```bash
-# Import and run an example
-talkingtrees export import examples/trees/01_simple_sequence.json
-talkingtrees exec run <TREE_ID> --ticks 5
-```
-
-## Testing
-
-```bash
-# Run all tests
-pytest tests/ -v
-
-# Core functionality tests
-pytest tests/test_round_trip.py -v          # Reversibility verification
-pytest tests/test_py_trees_adapter.py -v    # Adapter conversion
-pytest tests/test_compare_trees.py -v       # Tree comparison
-pytest tests/test_deterministic_uuids.py -v # UUID generation
-pytest tests/test_security_hardening.py -v  # Depth limits, cycle detection
-```
-
-**Test Results**: 66 tests, 100% pass rate
-
-## Code Quality
-
-- **Minimal Duplication**: Less than 2% code duplication
-- **Type Safety**: Constants-based configuration system
-- **Pydantic V2**: Fully compatible with latest Pydantic
-- **Zero Magic Strings**: All config keys are typed constants
-- **Enhanced Errors**: Context-rich error messages
-- **Registry Pattern**: Extensible architecture
-
-## Documentation
-
-- **[API Reference](docs/API_REFERENCE.md)** - REST API endpoints and usage
-
-## Development
-
-```bash
-# Install with dev dependencies
-pip install -e ".[dev]"
-
-# Code quality tools
-black src/ tests/
-ruff check src/ tests/
-mypy src/
-
-# Run tests with coverage
-pytest tests/ --cov=talking_trees --cov-report=html
-```
+- **Type-Safe Constants** (`core/constants.py`) - All configuration keys as typed constants
+- **Enhanced Errors** (`core/exceptions.py`) - TreeBuildError with full context and suggestions
+- **Centralized Utilities** (`core/utils.py`) - ParallelPolicyFactory, ComparisonExpressionUtil, UUID generation
+- **Registry Pattern** (`core/registry.py`) - Extensible node type registration with schema-based validation
 
 ## Project Structure
 
@@ -262,47 +195,35 @@ pytest tests/ --cov=talking_trees --cov-report=html
 talking_trees/
 ├── src/talking_trees/
 │   ├── adapters/         # py_trees ↔ TalkingTrees conversion
-│   ├── core/
-│   │   ├── constants.py  # Type-safe configuration constants
-│   │   ├── exceptions.py # Enhanced error classes
-│   │   ├── utils.py      # Centralized utilities
-│   │   ├── registry.py   # Node type registration
-│   │   ├── serializer.py # JSON ↔ py_trees conversion
-│   │   ├── builders.py   # Node construction
-│   │   ├── extractors.py # Config extraction
-│   │   ├── validation.py # Tree validation
-│   │   └── execution.py  # Runtime execution
+│   ├── core/             # Constants, exceptions, utils, registry
 │   ├── models/           # Pydantic data models (V2)
 │   ├── storage/          # File-based tree library
 │   ├── api/              # FastAPI REST API (optional)
 │   ├── cli/              # Command-line interface
 │   ├── behaviors/        # Custom behavior implementations
 │   └── sdk.py            # High-level Python SDK
-├── tests/                # Test suite (66 tests)
-├── examples/             # Example trees and templates
+├── tests/                # Test suite (66 tests, 100% pass)
+├── examples/
+│   ├── demos/            # Python demo scripts
+│   ├── trees/            # Example tree JSON files
+│   └── templates/        # Tree templates
+├── tutorials/            # Tutorial scripts and code
+├── tutorial_assets/      # Tutorial JSON files
 ├── docs/                 # Documentation
 └── scripts/              # Launch and utility scripts
 ```
 
-## Performance
-
-- Tree serialization: ~10ms for 100-node trees
-- Deserialization: ~15ms for 100-node trees
-- Single tick execution: 0.1-1ms depending on complexity
-- Memory usage: ~1MB per execution instance
-- Registry lookups: O(1) with caching
-
-## Requirements
-
-- Python 3.10+
-- py_trees 2.3+
-- Pydantic 2.x
-- FastAPI 0.100+ (optional, for REST API)
-
 ## Links
 
-- [py_trees Documentation](https://py-trees.readthedocs.io/)
-- [py_trees GitHub](https://github.com/splintered-reality/py_trees)
-- [FastAPI Documentation](https://fastapi.tiangolo.com/)
-- [Behavior Trees Guide](https://www.behaviortree.dev/)
-- [Pydantic Documentation](https://docs.pydantic.dev/)
+- **Documentation**: [API Reference](docs/API_REFERENCE.md)
+- **py_trees**: [Documentation](https://py-trees.readthedocs.io/) | [GitHub](https://github.com/splintered-reality/py_trees)
+- **Dependencies**: [FastAPI](https://fastapi.tiangolo.com/) | [Pydantic](https://docs.pydantic.dev/)
+- **Resources**: [Behavior Trees Guide](https://www.behaviortree.dev/)
+
+---
+
+**Requirements**: Python 3.10+ • py_trees 2.3+ • Pydantic 2.x • FastAPI 0.100+ (optional)
+
+**Testing**: 66 tests, 100% pass rate • See `pytest tests/ -v`
+
+**License**: See [LICENSE](LICENSE)
