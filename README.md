@@ -4,11 +4,11 @@
 
 # TalkingTrees
 
-**Complete py_trees serialization library with REST API support**
+**Complete py_trees serialization library with FastAPI-based REST API support**
 
 ## About
 
-TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via REST API, and deserialize back to executable py_trees with zero data loss.
+TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via FastAPI-based REST API, and deserialize back to executable py_trees with zero data loss.
 
 Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
 
@@ -18,7 +18,7 @@ Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
 - **40+ Node Types** - All composites, decorators, and behaviors from py_trees 2.3+
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
-- **FastAPI Integration** - Optional REST API with 47 endpoints for tree management
+- **FastAPI-based REST API** - Optional HTTP API with 47 endpoints for tree management
 - **Visual Tree Editor** - Professional browser-based drag-and-drop editor *(heavily WIP)*
 - **Python SDK** - High-level API for tree creation and manipulation
 
@@ -78,9 +78,9 @@ py_trees_root = to_py_trees(loaded)
 assert compare_py_trees(original_root, py_trees_root)
 ```
 
-## REST API
+## FastAPI-based REST API
 
-Start the FastAPI server for remote tree management:
+Start the server for remote tree management:
 
 ```bash
 python scripts/run_server.py
@@ -177,7 +177,7 @@ talkingtrees export tree <TREE_ID> -o output.json
 └──────────────────────────────────────────────────────────┘
              │ (Optional)
 ┌────────────▼─────────────────────────────────────────────┐
-│  REST API (FastAPI) - 47 endpoints                       │
+│  FastAPI-based REST API - 47 endpoints                   │
 │  • Trees • Executions • Debug • Visualization            │
 └──────────────────────────────────────────────────────────┘
 ```
@@ -198,7 +198,7 @@ talking_trees/
 │   ├── core/             # Constants, exceptions, utils, registry
 │   ├── models/           # Pydantic data models (V2)
 │   ├── storage/          # File-based tree library
-│   ├── api/              # FastAPI REST API (optional)
+│   ├── api/              # FastAPI-based REST API (optional)
 │   ├── cli/              # Command-line interface
 │   ├── behaviors/        # Custom behavior implementations
 │   └── sdk.py            # High-level Python SDK
