@@ -36,7 +36,7 @@ class TestRESTAPIIntegration:
     def test_full_workflow_with_rest_api(self, api_server=None):
         """Test complete workflow: py_trees -> PyForest -> REST API -> Execute"""
         if api_server is None:
-            api_server = "http://127.0.0.1:8765"
+            api_server = "http://127.0.0.1:8000"
 
         print("\n" + "=" * 70)
         print("TEST: Full Workflow with REST API")
@@ -53,7 +53,7 @@ class TestRESTAPIIntegration:
         low_battery = py_trees.composites.Sequence(
             name="Low Battery Handler", memory=False
         )
-        battery_check = ComparisonExpression("battery_level", operator.lt, 20)
+        battery_check = ComparisonExpression("battery_level", 20, operator.lt)
         low_battery.add_child(
             py_trees.behaviours.CheckBlackboardVariableValue(
                 name="Battery Low?", check=battery_check
@@ -263,9 +263,9 @@ class TestRESTAPIIntegration:
         # Find our tree
         our_tree = next((t for t in trees_result if t["tree_id"] == tree_id), None)
         assert our_tree is not None, "Our tree should be in the list"
-        assert our_tree["metadata"]["name"] == "REST API Test Tree"
+        assert our_tree["tree_name"] == "REST API Test Tree"
 
-        print(f"✓ Found our tree in list: {our_tree['metadata']['name']}")
+        print(f"✓ Found our tree in list: {our_tree['tree_name']}")
 
         print("\n" + "=" * 70)
         print("✅ REST API INTEGRATION TEST PASSED")
@@ -304,7 +304,7 @@ def run_standalone():
             "--host",
             "127.0.0.1",
             "--port",
-            "8765",
+            "8000",
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -320,7 +320,7 @@ def run_standalone():
         try:
             response = requests.get(f"{api_server}/health", timeout=1)
             if response.status_code == 200:
-                print("✓ Server started on port 8765")
+                print("✓ Server started on port 8000")
                 break
         except requests.exceptions.RequestException:
             if i == max_retries - 1:

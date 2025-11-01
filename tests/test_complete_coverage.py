@@ -301,7 +301,7 @@ class ComprehensiveCoverageTest:
                     ),
                     py_trees.behaviours.CheckBlackboardVariableValue(
                         name="CheckValue",
-                        check=ComparisonExpression("battery", op, check_value),
+                        check=ComparisonExpression("battery", check_value, op),
                     ),
                     Success(name="Done"),
                 ],

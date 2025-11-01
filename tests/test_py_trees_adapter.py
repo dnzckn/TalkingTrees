@@ -54,7 +54,7 @@ def test_blackboard_condition():
     root = py_trees.composites.Sequence(name="Condition Test", memory=False)
 
     # Create comparison expression
-    check = ComparisonExpression("battery_level", operator.lt, 20)
+    check = ComparisonExpression("battery_level", 20, operator.lt)
     condition = py_trees.behaviours.CheckBlackboardVariableValue(
         name="Battery Low?", check=check
     )
@@ -121,7 +121,7 @@ def test_complex_tree():
 
     # Emergency branch
     emergency = py_trees.composites.Sequence(name="Emergency", memory=False)
-    emergency_check = ComparisonExpression("error_level", operator.gt, 90)
+    emergency_check = ComparisonExpression("error_level", 90, operator.gt)
     emergency.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
             name="Critical Error?", check=emergency_check
@@ -204,7 +204,7 @@ def test_reverse_conversion():
 
     # Create PyForest tree
     root = py_trees.composites.Sequence(name="Original", memory=False)
-    check = ComparisonExpression("value", operator.eq, 42)
+    check = ComparisonExpression("value", 42, operator.eq)
     root.add_child(
         py_trees.behaviours.CheckBlackboardVariableValue(
             name="Check Value", check=check
@@ -244,8 +244,8 @@ def test_reverse_conversion():
     # Verify condition details
     condition = pt_root.children[0]
     assert condition.check.variable == "value"
-    assert condition.check.operator == 42  # Remember py_trees swaps these
-    assert condition.check.value == operator.eq
+    assert condition.check.value == 42  # Correct: .value contains the comparison value
+    assert condition.check.operator == operator.eq  # Correct: .operator contains the operator function
 
     print("✓ Converted PyForest → py_trees")
     print("✓ Structure validated")
@@ -270,7 +270,7 @@ def test_multiple_operators():
 
     for op_func, op_str, value in operators_to_test:
         # Create condition
-        check = ComparisonExpression("test_var", op_func, value)
+        check = ComparisonExpression("test_var", value, op_func)
         condition = py_trees.behaviours.CheckBlackboardVariableValue(
             name=f"Test {op_str}", check=check
         )

@@ -130,11 +130,15 @@ class ParallelPolicyFactory:
 class ComparisonExpressionUtil:
     """Centralized handling of py_trees ComparisonExpression.
 
-    py_trees has a confusing API quirk where:
-    - ComparisonExpression.operator actually contains the comparison VALUE
-    - ComparisonExpression.value actually contains the operator FUNCTION
+    py_trees ComparisonExpression signature is:
+    - ComparisonExpression(variable, value, operator)
 
-    This utility provides a clear abstraction to handle this confusion.
+    Where:
+    - variable: string name of blackboard variable
+    - value: the comparison value (RHS)
+    - operator: the callable comparison function (e.g. operator.lt)
+
+    This utility provides a clear abstraction for serialization/deserialization.
     """
 
     @staticmethod
@@ -148,15 +152,15 @@ class ComparisonExpressionUtil:
             Dict with 'variable', 'operator' (string), 'value'
 
         Example:
-            >>> check = ComparisonExpression("battery", operator.lt, 20)
+            >>> check = ComparisonExpression("battery", 20, operator.lt)
             >>> config = ComparisonExpressionUtil.extract(check)
             >>> config
             {'variable': 'battery', 'operator': '<', 'value': 20}
         """
         return {
             "variable": check.variable,
-            "operator": operator_to_string(check.value),  # Swapped by py_trees!
-            "value": check.operator,  # Swapped by py_trees!
+            "operator": operator_to_string(check.operator),
+            "value": check.value,
         }
 
     @staticmethod
@@ -180,7 +184,9 @@ class ComparisonExpressionUtil:
         import py_trees
 
         operator_func = string_to_operator(operator_str)
-        return py_trees.common.ComparisonExpression(variable, operator_func, value)
+        # NOTE: ComparisonExpression signature is (variable, value, operator)
+        # NOT (variable, operator, value)!
+        return py_trees.common.ComparisonExpression(variable, value, operator_func)
 
 
 # =============================================================================

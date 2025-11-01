@@ -119,20 +119,12 @@ class ExecutionSnapshot(BaseModel):
     )
     mode: ExecutionMode = Field(description="Current execution mode")
     is_running: bool = Field(description="Whether execution is currently active")
-
-    model_config = ConfigDict(
-    )
-    tick_number: int = Field(description="Tick number when this snapshot was taken")
-    timestamp: datetime = Field(description="Timestamp of this tick")
-    root_status: Status = Field(description="Root status after this tick")
-    tip_node_id: UUID | None = Field(
+    tree: dict[str, Any] | None = Field(
         default=None,
-        description="Tip node after this tick",
+        description="Tree structure (root node definition)",
     )
-    changes: dict[str, Any] = Field(
-        default_factory=dict,
-        description="Changes from previous tick (delta)",
-    )
+
+    model_config = ConfigDict()
 
 
 class ExecutionSummary(BaseModel):

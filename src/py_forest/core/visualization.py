@@ -99,8 +99,8 @@ class TreeVisualizer:
         node_type = node["type"]
 
         # Get node state
-        state = node_states.get(node_id, {})
-        status = state.get("status", "INVALID")
+        state = node_states.get(node_id)
+        status = state.status.value if state else "INVALID"
 
         # Build label
         label_parts = [node_name]
@@ -193,9 +193,9 @@ class TreeVisualizer:
         node_type = node["type"]
 
         # Get node state
-        state = node_states.get(node_id, {})
-        status = state.get("status", "INVALID")
-        is_active = state.get("is_active", False)
+        state = node_states.get(node_id)
+        status = state.status.value if state else "INVALID"
+        is_active = state.is_current_child if state else False
 
         # Determine color by type
         if node_type in ["Sequence", "Selector", "Parallel"]:
@@ -215,7 +215,7 @@ class TreeVisualizer:
             children=[child["id"] for child in node.get("children", [])],
             data={
                 "Class": node_type,
-                "Feedback": state.get("feedback", ""),
+                "Feedback": state.feedback_message if state else "",
             },
         )
 

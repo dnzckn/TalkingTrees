@@ -71,6 +71,7 @@ def capture_snapshot(
     serializer: Any,  # TreeSerializer
     mode: str,
     is_running: bool,
+    tree_def: Any | None = None,  # TreeDefinition
 ) -> ExecutionSnapshot:
     """Capture a complete execution snapshot.
 
@@ -82,6 +83,7 @@ def capture_snapshot(
         serializer: TreeSerializer with UUID mappings
         mode: Execution mode
         is_running: Whether execution is active
+        tree_def: Optional tree definition for structure
 
     Returns:
         Complete execution snapshot
@@ -129,6 +131,27 @@ def capture_snapshot(
                 "exclusive": [str(uid) for uid in metadata.exclusive],
             }
 
+    # Create tree structure dict if tree_def provided
+    tree_structure = None
+    if tree_def:
+        root_dict = tree_def.root.model_dump(mode='json')
+        # Recursively fix field names for API compatibility
+        def fix_node_fields(node_dict):
+            # Add 'id' alias for 'node_id'
+            if 'node_id' in node_dict:
+                node_dict['id'] = node_dict['node_id']
+            # Add 'type' alias for 'node_type'
+            if 'node_type' in node_dict:
+                node_dict['type'] = node_dict['node_type']
+            # Recursively process children
+            if 'children' in node_dict:
+                for child in node_dict['children']:
+                    fix_node_fields(child)
+        fix_node_fields(root_dict)
+        tree_structure = {
+            "root": root_dict
+        }
+
     # Create snapshot
     snapshot = ExecutionSnapshot(
         execution_id=execution_id,
@@ -143,6 +166,7 @@ def capture_snapshot(
         timestamp=datetime.utcnow(),
         mode=mode,
         is_running=is_running,
+        tree=tree_structure,
     )
 
     return snapshot

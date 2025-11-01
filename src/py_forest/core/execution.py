@@ -239,6 +239,7 @@ class ExecutionInstance:
             serializer=self.serializer,
             mode=self.config.mode.value,
             is_running=self.is_running,
+            tree_def=self.tree_def,
         )
 
     def get_summary(self) -> ExecutionSummary:

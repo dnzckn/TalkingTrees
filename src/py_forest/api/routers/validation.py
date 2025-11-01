@@ -105,29 +105,35 @@ def validate_behavior(
         )
 
     # Get behavior schema
-    schema_dict = registry.get_schema(behavior_type)
+    behavior_schema = registry.get_schema(behavior_type)
+
+    if not behavior_schema:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Schema not found for behavior type: {behavior_type}",
+        )
 
     # Convert to BehaviorValidationSchema
     # This is a simplified conversion - in production you'd want more robust handling
     from py_forest.models.validation import BehaviorParameter
 
     parameters = []
-    for param_name, param_info in schema_dict.get("parameters", {}).items():
+    for param_name, param_schema in behavior_schema.config_schema.items():
         parameters.append(
             BehaviorParameter(
                 name=param_name,
-                type=param_info.get("type", "string"),
-                required=param_info.get("required", False),
-                default=param_info.get("default"),
-                description=param_info.get("description"),
+                type=param_schema.type,
+                required=False,  # ConfigPropertySchema doesn't have required field
+                default=param_schema.default,
+                description=param_schema.description,
             )
         )
 
     schema = BehaviorValidationSchema(
         behavior_type=behavior_type,
-        display_name=schema_dict.get("display_name", behavior_type),
-        category=schema_dict.get("category", "behavior"),
-        description=schema_dict.get("description"),
+        display_name=behavior_schema.display_name,
+        category=behavior_schema.category.value,
+        description=behavior_schema.description,
         parameters=parameters,
     )
 

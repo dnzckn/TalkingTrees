@@ -171,7 +171,7 @@ class TreeValidator:
             # Check if behavior allows children
             if self.registry.is_registered(node.node_type):
                 schema = self.registry.get_schema(node.node_type)
-                category = schema.get("category", "behavior")
+                category = schema.category.value if schema and schema.category else "behavior"
 
                 if category not in ["composite", "decorator"]:
                     issues.append(
@@ -192,7 +192,7 @@ class TreeValidator:
             # Check if composite/decorator without children
             if self.registry.is_registered(node.node_type):
                 schema = self.registry.get_schema(node.node_type)
-                category = schema.get("category", "behavior")
+                category = schema.category.value if schema and schema.category else "behavior"
 
                 if category in ["composite", "decorator"]:
                     issues.append(
@@ -221,13 +221,13 @@ class TreeValidator:
         return issues
 
     def _validate_behavior_config(
-        self, node: TreeNodeDefinition, schema: dict, path: str
+        self, node: TreeNodeDefinition, schema, path: str
     ) -> list[ValidationIssue]:
         """Validate behavior configuration against schema.
 
         Args:
             node: Node to validate
-            schema: Behavior schema
+            schema: Behavior schema (BehaviorSchema or None)
             path: Node path
 
         Returns:
@@ -236,7 +236,10 @@ class TreeValidator:
         issues = []
 
         # Get expected parameters from schema
-        params_schema = schema.get("parameters", {})
+        if schema is None:
+            return issues
+
+        params_schema = schema.config_schema if hasattr(schema, 'config_schema') else {}
 
         # Check for unknown parameters
         for param_name in node.config.keys():
@@ -252,44 +255,30 @@ class TreeValidator:
                     )
                 )
 
-        # Check required parameters
-        for param_name, param_schema in params_schema.items():
-            if param_schema.get("required", False):
-                if param_name not in node.config:
-                    issues.append(
-                        ValidationIssue(
-                            level=ValidationLevel.ERROR,
-                            code="MISSING_REQUIRED_PARAMETER",
-                            message=f"Missing required parameter: {param_name}",
-                            node_id=node.node_id,
-                            node_path=path,
-                            field=param_name,
-                        )
-                    )
-
         # Validate parameter types
         for param_name, value in node.config.items():
             if param_name in params_schema:
                 param_schema = params_schema[param_name]
-                expected_type = param_schema.get("type")
+                expected_type = param_schema.type if hasattr(param_schema, 'type') else None
 
                 # Basic type validation
-                type_valid = self._check_param_type(value, expected_type)
-                if not type_valid:
-                    issues.append(
-                        ValidationIssue(
-                            level=ValidationLevel.ERROR,
-                            code="INVALID_PARAMETER_TYPE",
-                            message=f"Parameter '{param_name}' has invalid type. Expected: {expected_type}",
-                            node_id=node.node_id,
-                            node_path=path,
-                            field=param_name,
-                            context={
-                                "expected_type": expected_type,
-                                "value": str(value),
-                            },
+                if expected_type:
+                    type_valid = self._check_param_type(value, expected_type)
+                    if not type_valid:
+                        issues.append(
+                            ValidationIssue(
+                                level=ValidationLevel.ERROR,
+                                code="INVALID_PARAMETER_TYPE",
+                                message=f"Parameter '{param_name}' has invalid type. Expected: {expected_type}",
+                                node_id=node.node_id,
+                                node_path=path,
+                                field=param_name,
+                                context={
+                                    "expected_type": expected_type,
+                                    "value": str(value),
+                                },
+                            )
                         )
-                    )
 
         return issues
 

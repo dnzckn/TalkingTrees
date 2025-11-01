@@ -145,7 +145,7 @@ def test_compare_round_trip_with_blackboard():
         children=[
             py_trees.behaviours.CheckBlackboardVariableValue(
                 name="CheckBattery",
-                check=ComparisonExpression("battery", operator.ge, 50),
+                check=ComparisonExpression("battery", 50, operator.ge),
             ),
             py_trees.behaviours.SetBlackboardVariable(
                 name="SetMode",
@@ -208,7 +208,7 @@ def test_ultra_complex_round_trip():
                         children=[
                             py_trees.behaviours.CheckBlackboardVariableValue(
                                 name="CheckBatteryLow",
-                                check=ComparisonExpression("battery", operator.lt, 20),
+                                check=ComparisonExpression("battery", 20, operator.lt),
                             ),
                             py_trees.behaviours.SetBlackboardVariable(
                                 name="SetEmergencyMode",
@@ -307,7 +307,7 @@ def test_multiple_blackboard_operations():
                 overwrite=False,
             ),
             py_trees.behaviours.CheckBlackboardVariableValue(
-                name="CheckVar3", check=ComparisonExpression("var3", operator.eq, "test")
+                name="CheckVar3", check=ComparisonExpression("var3", "test", operator.eq)
             ),
             py_trees.behaviours.SetBlackboardVariable(
                 name="SetVar4",

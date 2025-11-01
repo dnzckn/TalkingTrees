@@ -145,7 +145,8 @@ class ComparisonExpressionExtractor:
         """
         from py_trees.common import ComparisonExpression
 
-        return ComparisonExpression(variable, operator_func, value)
+        # NOTE: ComparisonExpression signature is (variable, value, operator)
+        return ComparisonExpression(variable, value, operator_func)
 
 
 # =============================================================================
