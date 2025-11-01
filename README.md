@@ -299,16 +299,6 @@ py_forest/
 - Pydantic 2.x
 - FastAPI 0.100+ (optional, for REST API)
 
-## License
-
-MIT License - Copyright (c) 2025 Deniz N. Cakan
-
-See [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-Built on [py_trees](https://github.com/splintered-reality/py_trees) by Daniel Stonier and the Splintered Reality team.
-
 ## Links
 
 - [py_trees Documentation](https://py-trees.readthedocs.io/)
