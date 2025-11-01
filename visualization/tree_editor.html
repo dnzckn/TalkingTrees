@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyForest - Professional Behavior Tree Editor</title>
+    <title>PyForest - Behavior Tree Editor</title>
     <style>
         * {
             margin: 0;
@@ -36,7 +37,7 @@
             align-items: center;
             padding: 0 15px;
             gap: 5px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
 
         .toolbar-group {
@@ -170,23 +171,34 @@
             cursor: grab;
             border-left: 4px solid;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .node-item:hover {
             background: #3e3e42;
             transform: translateX(5px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         .node-item:active {
             cursor: grabbing;
         }
 
-        .node-item.composite { border-left-color: #4ec9b0; }
-        .node-item.decorator { border-left-color: #dcdcaa; }
-        .node-item.action { border-left-color: #4fc1ff; }
-        .node-item.condition { border-left-color: #c586c0; }
+        .node-item.composite {
+            border-left-color: #4ec9b0;
+        }
+
+        .node-item.decorator {
+            border-left-color: #dcdcaa;
+        }
+
+        .node-item.action {
+            border-left-color: #4fc1ff;
+        }
+
+        .node-item.condition {
+            border-left-color: #c586c0;
+        }
 
         .node-item-title {
             font-weight: 600;
@@ -274,7 +286,7 @@
             padding: 12px 16px;
             border-radius: 6px;
             font-size: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             border: 1px solid #3e3e42;
             max-width: 350px;
         }
@@ -294,7 +306,7 @@
             background: rgba(37, 37, 38, 0.95);
             border: 2px solid #3e3e42;
             border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
         }
 
         /* Right Sidebar - Properties */
@@ -333,7 +345,8 @@
             letter-spacing: 0.5px;
         }
 
-        .prop-input, .prop-select {
+        .prop-input,
+        .prop-select {
             width: 100%;
             padding: 10px;
             background: #3c3c3c;
@@ -345,7 +358,8 @@
             transition: all 0.2s;
         }
 
-        .prop-input:focus, .prop-select:focus {
+        .prop-input:focus,
+        .prop-select:focus {
             outline: none;
             border-color: #0e639c;
             background: #404040;
@@ -444,7 +458,7 @@
         .statusbar-separator {
             width: 1px;
             height: 16px;
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         /* Modal */
@@ -455,7 +469,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(0, 0, 0, 0.7);
             z-index: 10000;
             align-items: center;
             justify-content: center;
@@ -472,7 +486,7 @@
             padding: 25px;
             min-width: 400px;
             max-width: 600px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
         }
 
         .modal-title {
@@ -559,7 +573,7 @@
             background: #2d2d30;
             border: 1px solid #3e3e42;
             border-radius: 6px;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
             padding: 5px 0;
             min-width: 180px;
             z-index: 10000;
@@ -672,7 +686,7 @@
             white-space: nowrap;
             margin-bottom: 5px;
             border: 1px solid #3e3e42;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             z-index: 10000;
         }
 
@@ -685,6 +699,7 @@
         }
     </style>
 </head>
+
 <body>
     <div class="app">
         <!-- Toolbar -->
@@ -710,10 +725,12 @@
                 <button class="toolbar-btn" id="redoBtn" onclick="redo()" disabled data-tooltip="Redo (Ctrl+Y)">
                     <span class="toolbar-icon">↷</span> Redo
                 </button>
-                <button class="toolbar-btn" id="connectBtn" onclick="toggleConnectMode()" data-tooltip="Connect Mode: Click parent, then child">
+                <button class="toolbar-btn" id="connectBtn" onclick="toggleConnectMode()"
+                    data-tooltip="Connect Mode: Click parent, then child">
                     <span class="toolbar-icon">🔗</span> Connect
                 </button>
-                <button class="toolbar-btn" id="loadExampleBtn" onclick="loadRobotExample()" data-tooltip="Load Robot Controller Example">
+                <button class="toolbar-btn" id="loadExampleBtn" onclick="loadRobotExample()"
+                    data-tooltip="Load Robot Controller Example">
                     <span class="toolbar-icon">🤖</span> Example
                 </button>
             </div>
@@ -745,14 +762,16 @@
                 <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Save to PyForest API">
                     <span class="toolbar-icon">☁</span> API
                 </button>
-                <button class="toolbar-btn" onclick="openCopyPythonModal()" data-tooltip="Copy Python code to use this tree" style="background: #c586c0;">
+                <button class="toolbar-btn" onclick="openCopyPythonModal()"
+                    data-tooltip="Copy Python code to use this tree" style="background: #c586c0;">
                     <span class="toolbar-icon">🐍</span> Copy Python
                 </button>
             </div>
 
             <!-- Validation & Help -->
             <div class="toolbar-group">
-                <button class="toolbar-btn" id="validateBtn" onclick="validateTree()" data-tooltip="Validate Tree (Ctrl+Shift+V)">
+                <button class="toolbar-btn" id="validateBtn" onclick="validateTree()"
+                    data-tooltip="Validate Tree (Ctrl+Shift+V)">
                     <span class="toolbar-icon">✓</span> Validate
                 </button>
             </div>
@@ -760,9 +779,9 @@
             <!-- Search -->
             <div class="toolbar-group" style="flex: 1; max-width: 250px;">
                 <input type="text" id="nodeSearchInput" placeholder="🔍 Search nodes..."
-                       style="width: 100%; padding: 8px 12px; background: #3c3c3c; border: 1px solid #3e3e42; border-radius: 4px; color: #d4d4d4; font-size: 13px;"
-                       oninput="searchNodes(this.value)"
-                       onkeydown="if(event.key==='Escape') this.value=''; searchNodes('');">
+                    style="width: 100%; padding: 8px 12px; background: #3c3c3c; border: 1px solid #3e3e42; border-radius: 4px; color: #d4d4d4; font-size: 13px;"
+                    oninput="searchNodes(this.value)"
+                    onkeydown="if(event.key==='Escape') this.value=''; searchNodes('');">
             </div>
         </div>
 
@@ -773,19 +792,23 @@
                 <div class="sidebar-tab" onclick="switchTab('library')">Library</div>
             </div>
             <div class="sidebar-content" id="paletteTab">
-                <input type="text" class="library-search" id="paletteSearch" placeholder="Search nodes..." onkeyup="filterPalette()">
+                <input type="text" class="library-search" id="paletteSearch" placeholder="Search nodes..."
+                    onkeyup="filterPalette()">
 
                 <div class="section-title">Composites (Multi-child)</div>
                 <div class="palette-nodes" id="compositesGroup">
-                    <div class="node-item composite" draggable="true" data-type="Sequence" data-search="sequence order sequential">
+                    <div class="node-item composite" draggable="true" data-type="Sequence"
+                        data-search="sequence order sequential">
                         <div class="node-item-title">Sequence</div>
                         <div class="node-item-desc">Execute children in order, fail on first failure</div>
                     </div>
-                    <div class="node-item composite" draggable="true" data-type="Selector" data-search="selector priority fallback">
+                    <div class="node-item composite" draggable="true" data-type="Selector"
+                        data-search="selector priority fallback">
                         <div class="node-item-title">Selector</div>
                         <div class="node-item-desc">Try until one succeeds, fallback pattern</div>
                     </div>
-                    <div class="node-item composite" draggable="true" data-type="Parallel" data-search="parallel concurrent simultaneous">
+                    <div class="node-item composite" draggable="true" data-type="Parallel"
+                        data-search="parallel concurrent simultaneous">
                         <div class="node-item-title">Parallel</div>
                         <div class="node-item-desc">Execute children concurrently</div>
                     </div>
@@ -793,19 +816,23 @@
 
                 <div class="section-title">Decorators (Single-child)</div>
                 <div class="palette-nodes" id="decoratorsGroup">
-                    <div class="node-item decorator" draggable="true" data-type="CheckBlackboardCondition" data-search="check condition if guard">
+                    <div class="node-item decorator" draggable="true" data-type="CheckBlackboardCondition"
+                        data-search="check condition if guard">
                         <div class="node-item-title">Check Condition</div>
                         <div class="node-item-desc">Run child only if condition passes</div>
                     </div>
-                    <div class="node-item decorator" draggable="true" data-type="Inverter" data-search="inverter not flip">
+                    <div class="node-item decorator" draggable="true" data-type="Inverter"
+                        data-search="inverter not flip">
                         <div class="node-item-title">Inverter</div>
                         <div class="node-item-desc">Flip SUCCESS ⇄ FAILURE</div>
                     </div>
-                    <div class="node-item decorator" draggable="true" data-type="Retry" data-search="retry repeat attempts">
+                    <div class="node-item decorator" draggable="true" data-type="Retry"
+                        data-search="retry repeat attempts">
                         <div class="node-item-title">Retry</div>
                         <div class="node-item-desc">Retry child N times on failure</div>
                     </div>
-                    <div class="node-item decorator" draggable="true" data-type="Timeout" data-search="timeout timer duration">
+                    <div class="node-item decorator" draggable="true" data-type="Timeout"
+                        data-search="timeout timer duration">
                         <div class="node-item-title">Timeout</div>
                         <div class="node-item-desc">Fail if child takes too long</div>
                     </div>
@@ -813,11 +840,13 @@
 
                 <div class="section-title">Actions (Leaf nodes)</div>
                 <div class="palette-nodes" id="actionsGroup">
-                    <div class="node-item action" draggable="true" data-type="SetBlackboardVariable" data-search="set write variable action">
+                    <div class="node-item action" draggable="true" data-type="SetBlackboardVariable"
+                        data-search="set write variable action">
                         <div class="node-item-title">Set Variable</div>
                         <div class="node-item-desc">Write to blackboard (REAL ACTION)</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="GetBlackboardVariable" data-search="get read variable query">
+                    <div class="node-item action" draggable="true" data-type="GetBlackboardVariable"
+                        data-search="get read variable query">
                         <div class="node-item-title">Get Variable</div>
                         <div class="node-item-desc">Read from blackboard</div>
                     </div>
@@ -825,15 +854,18 @@
                         <div class="node-item-title">Log</div>
                         <div class="node-item-desc">Log message (debug only, not for production)</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="Wait" data-search="wait sleep delay pause">
+                    <div class="node-item action" draggable="true" data-type="Wait"
+                        data-search="wait sleep delay pause">
                         <div class="node-item-title">Wait</div>
                         <div class="node-item-desc">Wait for duration</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="Success" data-search="success always true">
+                    <div class="node-item action" draggable="true" data-type="Success"
+                        data-search="success always true">
                         <div class="node-item-title">Success</div>
                         <div class="node-item-desc">Always return SUCCESS</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="Failure" data-search="failure always false">
+                    <div class="node-item action" draggable="true" data-type="Failure"
+                        data-search="failure always false">
                         <div class="node-item-title">Failure</div>
                         <div class="node-item-desc">Always return FAILURE</div>
                     </div>
@@ -841,14 +873,16 @@
 
                 <div class="section-title">Conditions (Leaf nodes)</div>
                 <div class="palette-nodes" id="conditionsGroup">
-                    <div class="node-item condition" draggable="true" data-type="CheckBlackboardVariableExists" data-search="check exists has key">
+                    <div class="node-item condition" draggable="true" data-type="CheckBlackboardVariableExists"
+                        data-search="check exists has key">
                         <div class="node-item-title">Check Variable Exists</div>
                         <div class="node-item-desc">Check if blackboard key exists</div>
                     </div>
                 </div>
             </div>
             <div class="sidebar-content" id="libraryTab" style="display: none;">
-                <input type="text" class="library-search" id="librarySearch" placeholder="Search library..." onkeyup="filterLibrary()">
+                <input type="text" class="library-search" id="librarySearch" placeholder="Search library..."
+                    onkeyup="filterLibrary()">
                 <div id="libraryContent">
                     <!-- Populated dynamically -->
                 </div>
@@ -858,7 +892,8 @@
         <!-- Canvas -->
         <div class="canvas-area" id="canvasArea">
             <div class="canvas-overlay" id="canvasHint">
-                <strong>Quick Start:</strong> Drag nodes from the palette onto the canvas, then Shift+Click parent → Click child to connect.
+                <strong>Quick Start:</strong> Drag nodes from the palette onto the canvas, then Shift+Click parent →
+                Click child to connect.
             </div>
             <canvas id="treeCanvas"></canvas>
             <canvas class="minimap" id="minimap" width="200" height="150"></canvas>
@@ -900,7 +935,8 @@
                 <strong>Untitled Tree</strong>
             </div>
             <div class="statusbar-separator"></div>
-            <div class="statusbar-item" id="breadcrumbPath" style="flex: 1; min-width: 200px; font-size: 11px; color: #858585;">
+            <div class="statusbar-item" id="breadcrumbPath"
+                style="flex: 1; min-width: 200px; font-size: 11px; color: #858585;">
                 <span id="pathText"></span>
             </div>
         </div>
@@ -911,7 +947,8 @@
         <div class="modal">
             <div class="modal-title">Save Tree to Library</div>
             <div class="modal-body">
-                <input type="text" class="modal-input" id="saveTreeName" placeholder="Tree Name (e.g., Robot Controller)">
+                <input type="text" class="modal-input" id="saveTreeName"
+                    placeholder="Tree Name (e.g., Robot Controller)">
                 <textarea class="modal-textarea" id="saveTreeDesc" placeholder="Description..."></textarea>
             </div>
             <div class="modal-actions">
@@ -995,42 +1032,46 @@
                 <div style="display: grid; gap: 15px; margin-bottom: 20px;">
                     <!-- Option 1: From File -->
                     <div style="background: #2d2d30; border: 2px solid #3e3e42; border-radius: 6px; padding: 15px; cursor: pointer; transition: all 0.2s;"
-                         onclick="selectPythonOption('file', this)"
-                         onmouseenter="this.style.borderColor='#4fc1ff'"
-                         onmouseleave="if(!this.classList.contains('selected')) this.style.borderColor='#3e3e42'">
+                        onclick="selectPythonOption('file', this)" onmouseenter="this.style.borderColor='#4fc1ff'"
+                        onmouseleave="if(!this.classList.contains('selected')) this.style.borderColor='#3e3e42'">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                             <span style="font-size: 24px;">📄</span>
                             <strong style="color: #4fc1ff; font-size: 15px;">Load from JSON File</strong>
                         </div>
                         <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
-                            Export tree as JSON file, then load it in Python. Best for local development and version control.
+                            Export tree as JSON file, then load it in Python. Best for local development and version
+                            control.
                         </p>
                     </div>
 
                     <!-- Option 2: From API -->
                     <div style="background: #2d2d30; border: 2px solid #3e3e42; border-radius: 6px; padding: 15px; cursor: pointer; transition: all 0.2s;"
-                         onclick="selectPythonOption('api', this)"
-                         onmouseenter="this.style.borderColor='#4fc1ff'"
-                         onmouseleave="if(!this.classList.contains('selected')) this.style.borderColor='#3e3e42'">
+                        onclick="selectPythonOption('api', this)" onmouseenter="this.style.borderColor='#4fc1ff'"
+                        onmouseleave="if(!this.classList.contains('selected')) this.style.borderColor='#3e3e42'">
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
                             <span style="font-size: 24px;">☁️</span>
                             <strong style="color: #4fc1ff; font-size: 15px;">Save to API & Load from Server</strong>
                         </div>
                         <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
-                            Save tree to PyForest API, then load it from the server. Best for shared/production environments.
+                            Save tree to PyForest API, then load it from the server. Best for shared/production
+                            environments.
                         </p>
                     </div>
                 </div>
 
                 <!-- Generated Code Display -->
-                <div id="pythonCodeDisplay" style="display: none; background: #1e1e1e; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; margin-top: 15px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <div id="pythonCodeDisplay"
+                    style="display: none; background: #1e1e1e; border: 1px solid #3e3e42; border-radius: 4px; padding: 15px; margin-top: 15px;">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <strong style="color: #4fc1ff;">Python Code:</strong>
-                        <button onclick="copyGeneratedPythonCode(event)" style="background: #16825d; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        <button onclick="copyGeneratedPythonCode(event)"
+                            style="background: #16825d; border: none; color: white; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px;">
                             📋 Copy to Clipboard
                         </button>
                     </div>
-                    <pre id="generatedPythonCode" style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border: 1px solid #3e3e42; border-radius: 4px; font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0;"></pre>
+                    <pre id="generatedPythonCode"
+                        style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border: 1px solid #3e3e42; border-radius: 4px; font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0;"></pre>
                 </div>
             </div>
             <div class="modal-actions">
@@ -1087,7 +1128,7 @@
         let nextNodeId = 1;
         let canvas, ctx, minimap, minimapCtx;
         let isDragging = false;
-        let dragOffset = {x: 0, y: 0};
+        let dragOffset = { x: 0, y: 0 };
         let connectMode = false;
         let connectFromNode = null;
         let currentTreeName = "Untitled Tree";
@@ -1099,11 +1140,11 @@
         let viewportY = 0;
         let viewportScale = 1.0;
         let isPanning = false;
-        let panStart = {x: 0, y: 0};
+        let panStart = { x: 0, y: 0 };
         let isSpacePressed = false; // For Space+Drag panning
 
         // Drag detection
-        let mouseDownPos = {x: 0, y: 0};
+        let mouseDownPos = { x: 0, y: 0 };
         let hasMovedMouse = false;
         const DRAG_THRESHOLD = 5; // pixels before drag starts
         let dragTargetNode = null; // Node being hovered over during drag (for drag-to-connect)
@@ -1119,16 +1160,16 @@
             'Selector': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { memory: false } },
             'Parallel': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { policy: 'success_on_all' } },
             'Inverter': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
-            'Retry': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { num_tries: 3 }},
-            'Timeout': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { duration: 5.0 }},
-            'CheckBlackboardCondition': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'value', operator_str: '==', value: 0 }},
-            'SetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result', value: '' }},
-            'GetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result' }},
-            'Log': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { message: 'Log message' }},
-            'Wait': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { duration: 1.0 }},
+            'Retry': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { num_tries: 3 } },
+            'Timeout': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { duration: 5.0 } },
+            'CheckBlackboardCondition': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'value', operator_str: '==', value: 0 } },
+            'SetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result', value: '' } },
+            'GetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result' } },
+            'Log': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { message: 'Log message' } },
+            'Wait': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { duration: 1.0 } },
             'Success': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
             'Failure': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
-            'CheckBlackboardVariableExists': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable_name: 'key' }}
+            'CheckBlackboardVariableExists': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable_name: 'key' } }
         };
 
         // Resize canvas to match container (CRITICAL FIX for viewport bugs)
@@ -1443,7 +1484,7 @@
                 isDragging = false;
                 isPanning = false;
                 hasMovedMouse = false;
-                mouseDownPos = {x: 0, y: 0};
+                mouseDownPos = { x: 0, y: 0 };
                 dragTargetNode = null;
                 canvas.style.cursor = connectMode ? 'crosshair' : 'default';
                 // Re-enable minimap pointer events
@@ -1471,7 +1512,7 @@
                 isDragging = false;
                 isPanning = false;
                 hasMovedMouse = false;
-                mouseDownPos = {x: 0, y: 0};
+                mouseDownPos = { x: 0, y: 0 };
                 dragTargetNode = null;
                 canvas.style.cursor = connectMode ? 'crosshair' : 'default';
                 // Re-enable minimap pointer events
@@ -1490,7 +1531,7 @@
                 isDragging = false;
                 isPanning = false;
                 hasMovedMouse = false;
-                mouseDownPos = {x: 0, y: 0};
+                mouseDownPos = { x: 0, y: 0 };
                 dragTargetNode = null;
                 canvas.style.cursor = connectMode ? 'crosshair' : 'default';
                 // Re-enable minimap pointer events
@@ -1619,7 +1660,7 @@
             const contextMenu = document.getElementById('contextMenu');
             contextMenu.classList.remove('active');
 
-            switch(action) {
+            switch (action) {
                 case 'copy':
                     if (selectedNodes.size > 0) copySelected();
                     break;
@@ -1734,7 +1775,7 @@
 
                 // Ctrl/Cmd shortcuts
                 if (e.ctrlKey || e.metaKey) {
-                    switch(e.key.toLowerCase()) {
+                    switch (e.key.toLowerCase()) {
                         case 'n':
                             e.preventDefault();
                             newTree();
@@ -3341,35 +3382,35 @@ print(f"py_trees result: {pt_root.status}")
             // DECORATOR PATTERN - CheckBlackboardCondition wraps SetVariable
             // Decorator only runs child if condition passes!
             const nodes = [
-                {id: 1, type: 'Selector', category: 'composite', name: 'Robot Controller', x: 500, y: 100, config: {memory: false}, children: [], parent: null, collapsed: false},
-                {id: 2, type: 'CheckBlackboardCondition', category: 'decorator', name: 'IF Battery < 20', x: 250, y: 250, config: {variable: 'battery_level', operator_str: '<', value: 20}, children: [], parent: null, collapsed: false},
-                {id: 3, type: 'SetBlackboardVariable', category: 'action', name: 'THEN Charge', x: 250, y: 400, config: {variable: 'robot_action', value: 'charge'}, children: [], parent: null, collapsed: false},
-                {id: 4, type: 'CheckBlackboardCondition', category: 'decorator', name: 'IF Object < 5m', x: 500, y: 250, config: {variable: 'object_distance', operator_str: '<', value: 5.0}, children: [], parent: null, collapsed: false},
-                {id: 5, type: 'SetBlackboardVariable', category: 'action', name: 'THEN Grasp', x: 500, y: 400, config: {variable: 'robot_action', value: 'grasp'}, children: [], parent: null, collapsed: false},
-                {id: 6, type: 'SetBlackboardVariable', category: 'action', name: 'ELSE Patrol', x: 750, y: 250, config: {variable: 'robot_action', value: 'patrol'}, children: [], parent: null, collapsed: false}
+                { id: 1, type: 'Selector', category: 'composite', name: 'Robot Controller', x: 500, y: 100, config: { memory: false }, children: [], parent: null, collapsed: false },
+                { id: 2, type: 'CheckBlackboardCondition', category: 'decorator', name: 'IF Battery < 20', x: 250, y: 250, config: { variable: 'battery_level', operator_str: '<', value: 20 }, children: [], parent: null, collapsed: false },
+                { id: 3, type: 'SetBlackboardVariable', category: 'action', name: 'THEN Charge', x: 250, y: 400, config: { variable: 'robot_action', value: 'charge' }, children: [], parent: null, collapsed: false },
+                { id: 4, type: 'CheckBlackboardCondition', category: 'decorator', name: 'IF Object < 5m', x: 500, y: 250, config: { variable: 'object_distance', operator_str: '<', value: 5.0 }, children: [], parent: null, collapsed: false },
+                { id: 5, type: 'SetBlackboardVariable', category: 'action', name: 'THEN Grasp', x: 500, y: 400, config: { variable: 'robot_action', value: 'grasp' }, children: [], parent: null, collapsed: false },
+                { id: 6, type: 'SetBlackboardVariable', category: 'action', name: 'ELSE Patrol', x: 750, y: 250, config: { variable: 'robot_action', value: 'patrol' }, children: [], parent: null, collapsed: false }
             ];
 
             // Set up parent-child relationships - Decorator pattern
-            nodes[0].children = [{id: 2}, {id: 4}, {id: 6}]; // Root selector: 3 branches
-            nodes[1].parent = {id: 1}; // CheckBattery decorator
-            nodes[1].children = [{id: 3}]; // Decorator wraps SetVariable
-            nodes[2].parent = {id: 2}; // SetVariable child of decorator
-            nodes[3].parent = {id: 1}; // CheckDistance decorator
-            nodes[3].children = [{id: 5}]; // Decorator wraps SetVariable
-            nodes[4].parent = {id: 4}; // SetVariable child of decorator
-            nodes[5].parent = {id: 1}; // Default action
+            nodes[0].children = [{ id: 2 }, { id: 4 }, { id: 6 }]; // Root selector: 3 branches
+            nodes[1].parent = { id: 1 }; // CheckBattery decorator
+            nodes[1].children = [{ id: 3 }]; // Decorator wraps SetVariable
+            nodes[2].parent = { id: 2 }; // SetVariable child of decorator
+            nodes[3].parent = { id: 1 }; // CheckDistance decorator
+            nodes[3].children = [{ id: 5 }]; // Decorator wraps SetVariable
+            nodes[4].parent = { id: 4 }; // SetVariable child of decorator
+            nodes[5].parent = { id: 1 }; // Default action
 
             return nodes;
         }
 
         function createSimplePatrolNodes() {
             const nodes = [
-                {id: 1, type: 'CheckBlackboardCondition', category: 'decorator', name: 'Check Ready', x: 400, y: 100, config: {variable: 'ready', operator_str: '==', value: true}, children: [], parent: null, collapsed: false},
-                {id: 2, type: 'SetBlackboardVariable', category: 'action', name: 'Start Patrol', x: 400, y: 250, config: {variable: 'action', value: 'patrol'}, children: [], parent: null, collapsed: false}
+                { id: 1, type: 'CheckBlackboardCondition', category: 'decorator', name: 'Check Ready', x: 400, y: 100, config: { variable: 'ready', operator_str: '==', value: true }, children: [], parent: null, collapsed: false },
+                { id: 2, type: 'SetBlackboardVariable', category: 'action', name: 'Start Patrol', x: 400, y: 250, config: { variable: 'action', value: 'patrol' }, children: [], parent: null, collapsed: false }
             ];
 
-            nodes[0].children = [{id: 2}];
-            nodes[1].parent = {id: 1};
+            nodes[0].children = [{ id: 2 }];
+            nodes[1].parent = { id: 1 };
 
             return nodes;
         }
@@ -3687,7 +3728,7 @@ print(f"py_trees result: {pt_root.status}")
                 try {
                     const configStr = JSON.stringify(node.config).toLowerCase();
                     configMatch = configStr.includes(lowerQuery);
-                } catch (e) {}
+                } catch (e) { }
 
                 if (nameMatch || typeMatch || configMatch) {
                     searchResults.add(node);
@@ -3930,4 +3971,5 @@ print(f"py_trees result: {pt_root.status}")
         }
     </script>
 </body>
+
 </html>
