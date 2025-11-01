@@ -1135,9 +1135,9 @@ class BehaviorRegistry:
             implementation=examples.CheckBlackboardCondition,
             schema=BehaviorSchema(
                 node_type="CheckBlackboardCondition",
-                category=NodeCategory.DECORATOR,
+                category=NodeCategory.CONDITION,
                 display_name="Check Condition",
-                description="Check blackboard value with comparison operator, run child if true",
+                description="Check blackboard value with comparison operator",
                 icon="condition_check",
                 color="#16A085",
                 config_schema={
@@ -1161,7 +1161,7 @@ class BehaviorRegistry:
                         ui_hints={"widget": "number"},
                     ),
                 },
-                child_constraints=ChildConstraints(min_children=1, max_children=1),
+                child_constraints=ChildConstraints(min_children=0, max_children=0),
                 blackboard_access=BlackboardAccess(
                     reads=["variable"],
                     writes=[],
@@ -1245,6 +1245,25 @@ class BehaviorRegistry:
             for node_type, schema in self._schemas.items()
             if schema.category == category
         ]
+
+    def get_node_types_by_category(self, category: NodeCategory) -> set[str]:
+        """Get all node types in a category as a set (for efficient lookup).
+
+        Args:
+            category: Category to filter by (COMPOSITE, DECORATOR, ACTION, CONDITION)
+
+        Returns:
+            Set of node type identifiers in that category
+
+        Example:
+            >>> registry = get_registry()
+            >>> decorators = registry.get_node_types_by_category(NodeCategory.DECORATOR)
+            >>> "Inverter" in decorators
+            True
+            >>> "Sequence" in decorators
+            False
+        """
+        return set(self.list_by_category(category))
 
     def get_all_schemas(self) -> dict[str, BehaviorSchema]:
         """Get all behavior schemas.
@@ -1354,15 +1373,9 @@ class BehaviorRegistry:
         Returns:
             ParallelPolicy instance
         """
-        if policy_name == "SuccessOnAll":
-            return py_trees.common.ParallelPolicy.SuccessOnAll(synchronise=synchronise)
-        elif policy_name == "SuccessOnOne":
-            return py_trees.common.ParallelPolicy.SuccessOnOne()
-        elif policy_name == "SuccessOnSelected":
-            # For now, return SuccessOnAll - proper implementation needs child list
-            return py_trees.common.ParallelPolicy.SuccessOnAll(synchronise=synchronise)
-        else:
-            raise ValueError(f"Unknown parallel policy: {policy_name}")
+        from py_forest.core.utils import ParallelPolicyFactory
+
+        return ParallelPolicyFactory.create(policy_name, synchronise)
 
 
 # Global registry instance

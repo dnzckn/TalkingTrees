@@ -3,7 +3,7 @@
 from enum import Enum
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class NodeCategory(str, Enum):
@@ -188,10 +188,8 @@ class BehaviorSchema(BaseModel):
         description="Whether this is a built-in py_trees behavior",
     )
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "node_type": "CheckBattery",
                 "category": "condition",
@@ -219,6 +217,7 @@ class BehaviorSchema(BaseModel):
                 },
             }
         }
+    )
 
 
 # Enable forward references

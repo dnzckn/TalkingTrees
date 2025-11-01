@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class Status(str, Enum):
@@ -120,29 +120,8 @@ class ExecutionSnapshot(BaseModel):
     mode: ExecutionMode = Field(description="Current execution mode")
     is_running: bool = Field(description="Whether execution is currently active")
 
-    class Config:
-        """Pydantic configuration."""
-
-        json_schema_extra = {
-            "example": {
-                "execution_id": "abc-123",
-                "tree_id": "def-456",
-                "tree_version": "1.0.0",
-                "tick_count": 42,
-                "root_status": "RUNNING",
-                "tip_node_id": "node-789",
-                "node_states": {},
-                "blackboard": {"/battery/level": 0.75},
-                "timestamp": "2025-10-15T23:00:00Z",
-                "mode": "manual",
-                "is_running": True,
-            }
-        }
-
-
-class ExecutionHistoryEntry(BaseModel):
-    """Single entry in execution history."""
-
+    model_config = ConfigDict(
+    )
     tick_number: int = Field(description="Tick number when this snapshot was taken")
     timestamp: datetime = Field(description="Timestamp of this tick")
     root_status: Status = Field(description="Root status after this tick")

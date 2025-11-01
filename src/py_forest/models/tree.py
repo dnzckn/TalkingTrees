@@ -5,7 +5,7 @@ from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class TreeStatus(str, Enum):
@@ -170,11 +170,9 @@ class TreeDefinition(BaseModel):
         description="Validation results",
     )
 
-    class Config:
-        """Pydantic configuration."""
-
-        populate_by_name = True  # Allow both 'schema_version' and '$schema'
-        json_schema_extra = {
+    model_config = ConfigDict(
+        populate_by_name=True,  # Allow both 'schema_version' and '$schema'
+        json_schema_extra={
             "example": {
                 "$schema": "1.0.0",
                 "tree_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -191,7 +189,8 @@ class TreeDefinition(BaseModel):
                     "children": [],
                 },
             }
-        }
+        },
+    )
 
 
 class VersionInfo(BaseModel):

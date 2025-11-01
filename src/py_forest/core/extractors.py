@@ -51,15 +51,9 @@ class ComparisonBasedExtractor(ConfigExtractor):
 
     def extract_comparison(self, check) -> dict[str, Any]:
         """Extract comparison data and convert to config format."""
-        # Import here to avoid circular dependency
-        from py_forest.adapters.py_trees_adapter import ComparisonExpressionExtractor
+        from py_forest.core.utils import ComparisonExpressionUtil
 
-        extracted = ComparisonExpressionExtractor.extract(check)
-        return {
-            "variable": extracted["variable"],
-            "value": extracted["comparison_value"],
-            "operator": operator_to_string(extracted["operator_function"]),
-        }
+        return ComparisonExpressionUtil.extract(check)
 
 
 # =============================================================================
@@ -192,21 +186,11 @@ class CheckBlackboardVariableValuesExtractor(ConfigExtractor):
         config = {}
 
         if hasattr(node, "checks"):
-            # Import here to avoid circular dependency
-            from py_forest.adapters.py_trees_adapter import (
-                ComparisonExpressionExtractor,
-            )
+            from py_forest.core.utils import ComparisonExpressionUtil
 
             checks_list = []
             for check in node.checks:
-                extracted = ComparisonExpressionExtractor.extract(check)
-                checks_list.append(
-                    {
-                        "variable": extracted["variable"],
-                        "operator": operator_to_string(extracted["operator_function"]),
-                        "value": extracted["comparison_value"],
-                    }
-                )
+                checks_list.append(ComparisonExpressionUtil.extract(check))
             config["checks"] = checks_list
 
         if hasattr(node, "logical_operator"):

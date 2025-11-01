@@ -5,6 +5,7 @@ from uuid import UUID
 import py_trees
 from py_trees import behaviour
 
+from py_forest.core.constants import ConfigKeys, DefaultValues, NodeTypes
 from py_forest.core.registry import get_registry
 from py_forest.models.tree import TreeDefinition, TreeNodeDefinition
 
@@ -30,6 +31,13 @@ class TreeSerializer:
         self.node_map: dict[UUID, behaviour.Behaviour] = {}
         self.reverse_map: dict[behaviour.Behaviour, UUID] = {}
         self.max_depth = max_depth
+
+        # Cache decorator types from registry for efficient lookup
+        from py_forest.models.schema import NodeCategory
+
+        self.decorator_types = self.registry.get_node_types_by_category(
+            NodeCategory.DECORATOR
+        )
 
     def deserialize(self, tree_def: TreeDefinition) -> py_trees.trees.BehaviourTree:
         """Convert TreeDefinition to executable py_trees.BehaviourTree.
@@ -154,35 +162,14 @@ class TreeSerializer:
             raise ValueError(f"Unknown node type: {node_def.node_type}")
 
         # Handle different node categories differently
-        if node_def.node_type in ["Sequence", "Selector"]:
+        if node_def.node_type in [NodeTypes.SEQUENCE, NodeTypes.SELECTOR]:
             # Composites: build children first, then composite
             return self._build_composite(node_def, depth)
-        elif node_def.node_type == "Parallel":
+        elif node_def.node_type == NodeTypes.PARALLEL:
             return self._build_parallel(node_def, depth)
-        elif node_def.node_type in [
-            # Basic
-            "Inverter",
-            # Status converters
-            "SuccessIsFailure",
-            "FailureIsSuccess",
-            "FailureIsRunning",
-            "RunningIsFailure",
-            "RunningIsSuccess",
-            "SuccessIsRunning",
-            # Repetition
-            "Repeat",
-            "Retry",
-            "OneShot",
-            # Time-based
-            "Timeout",
-            # Advanced
-            "EternalGuard",
-            "Condition",
-            "Count",
-            "StatusToBlackboard",
-            "PassThrough",
-        ]:
+        elif node_def.node_type in self.decorator_types:
             # Decorators: need child in constructor
+            # Uses cached set from registry for efficient lookup
             return self._build_decorator(node_def, depth)
         else:
             # Simple behaviors (leaf nodes)
@@ -206,13 +193,13 @@ class TreeSerializer:
         # Create composite with correct memory defaults
         # Sequence defaults to memory=True (committed - completes steps in order)
         # Selector defaults to memory=False (reactive - re-evaluates priorities each tick)
-        if node_def.node_type == "Sequence":
-            memory = node_def.config.get("memory", True)
+        if node_def.node_type == NodeTypes.SEQUENCE:
+            memory = node_def.config.get(ConfigKeys.MEMORY, True)
             composite = py_trees.composites.Sequence(
                 name=node_def.name, memory=memory, children=children
             )
-        elif node_def.node_type == "Selector":
-            memory = node_def.config.get("memory", False)
+        elif node_def.node_type == NodeTypes.SELECTOR:
+            memory = node_def.config.get(ConfigKeys.MEMORY, False)
             composite = py_trees.composites.Selector(
                 name=node_def.name, memory=memory, children=children
             )
@@ -239,24 +226,12 @@ class TreeSerializer:
         # Build children first (increment depth)
         children = [self._build_node(child, depth + 1) for child in node_def.children]
 
-        # Create policy
-        policy_name = node_def.config.get("policy", "SuccessOnAll")
-        synchronise = node_def.config.get("synchronise", True)
+        # Create policy using factory
+        from py_forest.core.utils import ParallelPolicyFactory
 
-        if policy_name == "SuccessOnAll":
-            policy = py_trees.common.ParallelPolicy.SuccessOnAll(
-                synchronise=synchronise
-            )
-        elif policy_name == "SuccessOnOne":
-            policy = py_trees.common.ParallelPolicy.SuccessOnOne()
-        elif policy_name == "SuccessOnSelected":
-            # For now, default to SuccessOnAll
-            # Proper implementation needs child selection
-            policy = py_trees.common.ParallelPolicy.SuccessOnAll(
-                synchronise=synchronise
-            )
-        else:
-            raise ValueError(f"Unknown parallel policy: {policy_name}")
+        policy_name = node_def.config.get(ConfigKeys.POLICY, DefaultValues.POLICY)
+        synchronise = node_def.config.get(ConfigKeys.SYNCHRONISE, DefaultValues.SYNCHRONISE)
+        policy = ParallelPolicyFactory.create(policy_name, synchronise)
 
         # Create parallel
         parallel = py_trees.composites.Parallel(
