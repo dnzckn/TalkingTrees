@@ -58,7 +58,7 @@ python 01_py_trees_integration.py
 - Integration with both ecosystems
 
 **Key Concepts:**
-- `pf.from_py_trees()` - Convert py_trees to TalkingTrees
+- `tt.from_py_trees()` - Convert py_trees to TalkingTrees
 - `to_py_trees()` - Convert TalkingTrees to py_trees
 - Automatic blackboard variable detection
 - All decorator support (Inverter, Repeat, Retry, Timeout)
@@ -138,8 +138,8 @@ python 02_complete_workflow.py
        └─> Paste into your project
 
 3. Use Tree to Control Your System
-   └─> Load tree: pf.load_tree("tree.json")
-       └─> Create execution: execution = pf.create_execution(tree)
+   └─> Load tree: tt.load_tree("tree.json")
+       └─> Create execution: execution = tt.create_execution(tree)
        └─> Control loop:
            sensors → execution.tick(sensors) → actions → execute
 ```
@@ -150,13 +150,13 @@ python 02_complete_workflow.py
 from talking_trees.sdk import TalkingTrees
 
 # Initialize
-pf = TalkingTrees()
+tt = TalkingTrees()
 
 # Load tree (exported from visual editor)
-tree = pf.load_tree("my_tree.json")
+tree = tt.load_tree("my_tree.json")
 
 # Create execution
-execution = pf.create_execution(tree)
+execution = tt.create_execution(tree)
 
 # THE CONTROL LOOP (repeat this)
 while True:
@@ -180,17 +180,17 @@ When you click "Copy Python" in Tree Editor, you get:
 ```python
 from talking_trees.sdk import TalkingTrees
 
-pf = TalkingTrees()
+tt = TalkingTrees()
 
 # Option 1: From File
-tree = pf.load_tree("robot_controller.json")
+tree = tt.load_tree("robot_controller.json")
 
 # Option 2: From API
-pf = TalkingTrees(api_url="http://localhost:8000")
-tree = pf.get_tree("tree-id-here")
+tt = TalkingTrees(api_url="http://localhost:8000")
+tree = tt.get_tree("tree-id-here")
 
 # Create and run
-execution = pf.create_execution(tree)
+execution = tt.create_execution(tree)
 result = execution.tick(blackboard_updates={"sensor": value})
 print(result.status)
 ```
@@ -216,11 +216,11 @@ root.add_child(
 )
 
 # Convert to TalkingTrees
-pf = TalkingTrees()
-pf_tree = pf.from_py_trees(root, name="My Tree", version="1.0.0")
+tt = TalkingTrees()
+tt_tree = tt.from_py_trees(root, name="My Tree", version="1.0.0")
 
 # Save for visualization
-pf.save_tree(pf_tree, "my_tree.json")
+tt.save_tree(tt_tree, "my_tree.json")
 
 # Load in visual editor: ./run_editor.sh
 ```
@@ -248,9 +248,9 @@ root = py_trees.composites.Selector("Root")
 root.add_child(...)
 
 # Convert and visualize
-pf = TalkingTrees()
-tree = pf.from_py_trees(root, "Tree", "1.0")
-pf.save_tree(tree, "tree.json")
+tt = TalkingTrees()
+tree = tt.from_py_trees(root, "Tree", "1.0")
+tt.save_tree(tree, "tree.json")
 
 # Open in editor: ./run_editor.sh
 # Load tree.json to see visualization
@@ -337,7 +337,7 @@ cd tutorials
 python 02_complete_workflow.py
 
 # Or use absolute paths
-pf.load_tree("/absolute/path/to/tree.json")
+tt.load_tree("/absolute/path/to/tree.json")
 ```
 
 ### Tree Editor Not Opening

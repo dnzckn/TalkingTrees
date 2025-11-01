@@ -54,8 +54,8 @@ def example_1_basic_conversion():
 
     # Step 2: Convert to TalkingTrees
     print("\nStep 2: Convert to TalkingTrees format...")
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(
         root,
         name="Simple Robot Controller",
         version="1.0.0",
@@ -69,13 +69,13 @@ def example_1_basic_conversion():
 
     # Step 3: Save to JSON (can be opened in editor)
     print("\nStep 3: Save to JSON...")
-    pf.save_tree(tt_tree, "tutorials/py_trees_simple.json")
+    tt.save_tree(tt_tree, "tutorials/py_trees_simple.json")
     print("✓ Saved to tutorials/py_trees_simple.json")
     print("  Open in visualization/tree_editor_pro.html to view!")
 
     # Step 4: Run with TalkingTrees SDK
     print("\nStep 4: Run with TalkingTrees SDK...")
-    execution = pf.create_execution(tt_tree)
+    execution = tt.create_execution(tt_tree)
     result = execution.tick()
 
     print("✓ Execution complete")
@@ -152,14 +152,14 @@ def example_2_complex_tree():
     print(py_trees.display.ascii_tree(root, show_status=False))
 
     # Convert to TalkingTrees
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(root, name="Advanced Robot Controller", version="1.0.0")
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(root, name="Advanced Robot Controller", version="1.0.0")
 
     print("\n✓ Converted to TalkingTrees")
     print(f"  Root: {tt_tree.root.node_type}")
 
     # Save
-    pf.save_tree(tt_tree, "tutorials/py_trees_complex.json")
+    tt.save_tree(tt_tree, "tutorials/py_trees_complex.json")
     print("\n✓ Saved to tutorials/py_trees_complex.json")
     print()
 
@@ -222,8 +222,8 @@ def example_3_complete_workflow():
     # -------------------------------------------------------------------------
     print("\nStep 2: Convert to TalkingTrees format...")
 
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(
         root,
         name="Task Manager",
         version="1.0.0",
@@ -239,7 +239,7 @@ def example_3_complete_workflow():
     print("\nStep 3: Save to JSON for visualization...")
 
     output_path = "tutorials/py_trees_task_manager.json"
-    pf.save_tree(tt_tree, output_path)
+    tt.save_tree(tt_tree, output_path)
 
     print(f"✓ Saved to {output_path}")
     print("  → Open in visualization/tree_editor_pro.html")
@@ -252,7 +252,7 @@ def example_3_complete_workflow():
     # -------------------------------------------------------------------------
     print("\nStep 4: Load from JSON (after visual editing)...")
 
-    loaded_tree = pf.load_tree(output_path)
+    loaded_tree = tt.load_tree(output_path)
 
     print(f"✓ Loaded tree: {loaded_tree.metadata.name} v{loaded_tree.metadata.version}")
     print(f"  Root: {loaded_tree.root.name}")
@@ -262,7 +262,7 @@ def example_3_complete_workflow():
     # -------------------------------------------------------------------------
     print("\nStep 5: Run via TalkingTrees SDK...")
 
-    execution = pf.create_execution(loaded_tree)
+    execution = tt.create_execution(loaded_tree)
 
     # Test 1: Normal operation
     print("\n  Test 1: Normal operation (error_level=10)")
@@ -324,14 +324,14 @@ def example_4_decorators():
     print(py_trees.display.ascii_tree(root, show_status=False))
 
     # Convert to TalkingTrees
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(root, name="Decorator Demo", version="1.0.0")
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(root, name="Decorator Demo", version="1.0.0")
 
     print("\n✓ Converted decorators to TalkingTrees")
     print("  All decorator parameters preserved in config")
 
     # Save
-    pf.save_tree(tt_tree, "tutorials/py_trees_decorators.json")
+    tt.save_tree(tt_tree, "tutorials/py_trees_decorators.json")
     print("\n✓ Saved to tutorials/py_trees_decorators.json")
     print()
 
@@ -348,8 +348,8 @@ def example_5_reverse_conversion():
     print("=" * 70)
 
     # Load a TalkingTrees tree
-    pf = TalkingTrees()
-    tt_tree = pf.load_tree("examples/robot_v1.json")
+    tt = TalkingTrees()
+    tt_tree = tt.load_tree("examples/robot_v1.json")
 
     print(f"Loaded TalkingTrees tree: {tt_tree.metadata.name}")
     print(f"  Root: {tt_tree.root.node_type}")
@@ -390,8 +390,8 @@ def example_6_comparison():
     root.add_child(py_trees.behaviours.Success(name="Fallback"))
 
     # Convert
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(root, name="Comparison Tree")
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(root, name="Comparison Tree")
 
     # Use utility to compare
     print("\nSide-by-side comparison:")
@@ -448,15 +448,15 @@ def example_7_custom_behaviors():
     print(py_trees.display.ascii_tree(root, show_status=False))
 
     # Convert to TalkingTrees
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(root, name="Sensor Monitor")
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(root, name="Sensor Monitor")
 
     print("\n✓ Converted custom tree to TalkingTrees")
     print("  Note: Custom behaviors converted to generic 'Action' type")
     print("  Original class stored in config['_py_trees_class']")
 
     # Save
-    pf.save_tree(tt_tree, "tutorials/py_trees_custom.json")
+    tt.save_tree(tt_tree, "tutorials/py_trees_custom.json")
     print("\n✓ Saved to tutorials/py_trees_custom.json")
     print()
 
@@ -478,13 +478,13 @@ def example_8_profiling():
         root.add_child(py_trees.behaviours.Success(name=f"Step {i + 1}"))
 
     # Convert with profiling enabled
-    pf = TalkingTrees(profiling_level=ProfilingLevel.BASIC)
-    tt_tree = pf.from_py_trees(root, name="Profiled Tree")
+    tt = TalkingTrees(profiling_level=ProfilingLevel.BASIC)
+    tt_tree = tt.from_py_trees(root, name="Profiled Tree")
 
     print(f"✓ Converted tree: {tt_tree.metadata.name}")
 
     # Run with profiling
-    execution = pf.create_execution(tt_tree)
+    execution = tt.create_execution(tt_tree)
 
     print("\nRunning 50 ticks with profiling...")
     for i in range(50):
@@ -521,7 +521,7 @@ if __name__ == "__main__":
     print("\nKey Takeaways:")
     print("  ✓ Use py_trees API for programmatic tree creation")
     print("  ✓ Use ComparisonExpression for condition checks")
-    print("  ✓ Convert to TalkingTrees with pf.from_py_trees()")
+    print("  ✓ Convert to TalkingTrees with tt.from_py_trees()")
     print("  ✓ Visualize in TalkingTrees editor")
     print("  ✓ Run with SDK or REST API")
     print("  ✓ Reverse conversion supported (to_py_trees)")

@@ -21,7 +21,7 @@ def demo_validation():
     print("DEMO 1: Tree Validation")
     print("=" * 70)
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     # Create a simple tree (in practice, you'd load from file)
     from uuid import uuid4
@@ -50,7 +50,7 @@ def demo_validation():
     tree = TreeDefinition(tree_id=uuid4(), metadata=metadata, root=root)
 
     # Validate the tree
-    result = pf.validate_tree(tree, verbose=True)
+    result = tt.validate_tree(tree, verbose=True)
 
     if result.is_valid:
         print("\n✓ Tree is valid and ready for execution!")
@@ -66,7 +66,7 @@ def demo_search():
     print("DEMO 2: Node Search & Query")
     print("=" * 70)
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     # Create a more complex tree
     from uuid import uuid4
@@ -110,14 +110,14 @@ def demo_search():
 
     # Find all Timeout nodes
     print("\n1. Finding all Timeout nodes...")
-    timeouts = pf.find_nodes_by_type(tree, "Timeout")
+    timeouts = tt.find_nodes_by_type(tree, "Timeout")
     print(f"   Found {len(timeouts)} timeout decorators:")
     for node in timeouts:
         print(f"   - {node.name}: {node.config.get('duration')}s")
 
     # Find long-running timeouts
     print("\n2. Finding timeouts > 20 seconds...")
-    long_timeouts = pf.find_nodes(
+    long_timeouts = tt.find_nodes(
         tree, lambda n: n.node_type == "Timeout" and n.config.get("duration", 0) > 20
     )
     print(f"   Found {len(long_timeouts)} long timeouts:")
@@ -125,12 +125,12 @@ def demo_search():
         print(f"   - {node.name}: {node.config.get('duration')}s")
 
     # Get all nodes
-    all_nodes = pf.get_all_nodes(tree)
+    all_nodes = tt.get_all_nodes(tree)
     print(f"\n3. Total nodes in tree: {len(all_nodes)}")
 
     # Find by name (partial match)
     print("\n4. Finding nodes with 'Task' in name...")
-    task_nodes = pf.find_nodes_by_name(tree, "Task", exact=False)
+    task_nodes = tt.find_nodes_by_name(tree, "Task", exact=False)
     print(f"   Found {len(task_nodes)} task nodes:")
     for node in task_nodes:
         print(f"   - {node.name} ({node.node_type})")
@@ -144,7 +144,7 @@ def demo_statistics():
     print("DEMO 3: Tree Statistics & Analysis")
     print("=" * 70)
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     # Create a tree with variety of nodes
     from uuid import uuid4
@@ -194,18 +194,18 @@ def demo_statistics():
 
     # Get statistics
     print("\nComputing tree statistics...")
-    stats = pf.get_tree_stats(tree)
+    stats = tt.get_tree_stats(tree)
     print(stats.summary())
 
     # Node type distribution
     print("\n\nNode type distribution:")
-    type_counts = pf.count_nodes_by_type(tree)
+    type_counts = tt.count_nodes_by_type(tree)
     for node_type, count in sorted(type_counts.items()):
         print(f"  {node_type}: {count}")
 
     # Print structure
     print("\n\nTree structure:")
-    pf.print_tree_structure(tree, show_config=True)
+    tt.print_tree_structure(tree, show_config=True)
 
     print()
 
@@ -227,14 +227,14 @@ def demo_batch_operations():
     print("\nExample code:")
     print("""
     # Load multiple trees
-    trees = pf.load_batch([
+    trees = tt.load_batch([
         "trees/patrol.json",
         "trees/charge.yaml",
         "trees/explore.json"
     ])
 
     # Validate all
-    results = pf.validate_batch(trees)
+    results = tt.validate_batch(trees)
 
     # Process results
     for name, result in results.items():
@@ -251,7 +251,7 @@ def demo_tree_manipulation():
     print("DEMO 5: Tree Manipulation")
     print("=" * 70)
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     # Create original tree
     from uuid import uuid4
@@ -274,7 +274,7 @@ def demo_tree_manipulation():
 
     # Clone the tree
     print("\n1. Cloning tree...")
-    tree2 = pf.clone_tree(tree1)
+    tree2 = tt.clone_tree(tree1)
     tree2.metadata.name = "Copy"
     tree2.metadata.version = "1.0.1"
     print(f"   Original: {tree1.metadata.name} v{tree1.metadata.version}")
@@ -282,13 +282,13 @@ def demo_tree_manipulation():
 
     # Compare trees
     print("\n2. Comparing trees...")
-    are_equal = pf.trees_equal(tree1, tree2)
+    are_equal = tt.trees_equal(tree1, tree2)
     print(f"   Trees structurally equal: {are_equal}")
 
     # Get content hashes
     print("\n3. Computing content hashes...")
-    hash1 = pf.hash_tree(tree1)
-    hash2 = pf.hash_tree(tree2)
+    hash1 = tt.hash_tree(tree1)
+    hash2 = tt.hash_tree(tree2)
     print(f"   Tree1 hash: {hash1[:16]}...")
     print(f"   Tree2 hash: {hash2[:16]}...")
     print(f"   Hashes match: {hash1 == hash2}")
@@ -300,14 +300,14 @@ def demo_tree_manipulation():
             node_type="Success", node_id=uuid4(), name="Step2", config={}
         )
     )
-    hash2_modified = pf.hash_tree(tree2)
+    hash2_modified = tt.hash_tree(tree2)
     print(f"   Modified hash: {hash2_modified[:16]}...")
     print(f"   Still equal: {hash1 == hash2_modified}")
 
     # Get node path
     if tree2.root.children:
         child = tree2.root.children[0]
-        path = pf.get_node_path(tree2, child.node_id)
+        path = tt.get_node_path(tree2, child.node_id)
         if path:
             print(f"\n5. Node path for '{child.name}':")
             print(f"   {' -> '.join(path)}")

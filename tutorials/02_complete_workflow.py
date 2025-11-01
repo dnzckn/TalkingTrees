@@ -201,8 +201,8 @@ def create_tree_from_code():
 
     # Convert to TalkingTrees format
     print("Converting to TalkingTrees format...")
-    pf = TalkingTrees()
-    tree = pf.from_py_trees(
+    tt = TalkingTrees()
+    tree = tt.from_py_trees(
         root,
         name="Robot Controller (Code-Created)",
         version="1.0.0",
@@ -216,7 +216,7 @@ def create_tree_from_code():
 
     # Optionally save
     print("Saving to JSON...")
-    pf.save_tree(tree, "tutorials/robot_from_code.json")
+    tt.save_tree(tree, "tutorials/robot_from_code.json")
     print("✓ Saved to tutorials/robot_from_code.json")
     print("  (You can now load this in Tree Editor Pro to see visual representation!)")
     print()
@@ -255,11 +255,11 @@ def load_tree_from_editor():
     print("=" * 70)
     print()
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     # Try to load tree exported from visual editor
     try:
-        tree = pf.load_tree("robot_controller.json")
+        tree = tt.load_tree("robot_controller.json")
         print(f"✓ Loaded tree: {tree.metadata.name}")
         print(f"  Version: {tree.metadata.version}")
         print(f"  Description: {tree.metadata.description or 'No description'}")
@@ -278,7 +278,7 @@ def load_tree_from_editor():
         print()
 
         # Fallback to example file
-        tree = pf.load_tree("examples/robot_v1.json")
+        tree = tt.load_tree("examples/robot_v1.json")
         print(f"✓ Loaded tree: {tree.metadata.name}")
         print()
         return tree
@@ -312,11 +312,11 @@ def control_robot_with_tree():
     print()
 
     # Load tree
-    pf = TalkingTrees()
+    tt = TalkingTrees()
     tree = load_tree_from_editor()
 
     # Create execution
-    execution = pf.create_execution(tree)
+    execution = tt.create_execution(tree)
     print("✓ Created execution")
     print()
 
@@ -413,13 +413,13 @@ def demonstrate_copy_python_workflow():
 from talking_trees.sdk import TalkingTrees
 
 # Initialize TalkingTrees SDK
-pf = TalkingTrees()
+tt = TalkingTrees()
 
 # Load tree from JSON file
-tree = pf.load_tree("robot_controller.json")
+tree = tt.load_tree("robot_controller.json")
 
 # Create execution
-execution = pf.create_execution(tree)
+execution = tt.create_execution(tree)
 
 # Run with sensor updates
 result = execution.tick(blackboard_updates={
@@ -460,18 +460,18 @@ def test_scenarios():
     print("=" * 70)
     print()
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     try:
-        tree = pf.load_tree("robot_controller.json")
+        tree = tt.load_tree("robot_controller.json")
     except FileNotFoundError:
-        tree = pf.load_tree("examples/robot_v1.json")
+        tree = tt.load_tree("examples/robot_v1.json")
 
     # Scenario 1: Normal operation
     print("Scenario 1: Normal Operation (Battery: 80%)")
     print("-" * 70)
 
-    execution = pf.create_execution(tree)
+    execution = tt.create_execution(tree)
     result = execution.tick(blackboard_updates={"battery_level": 80.0})
     action = result.blackboard.get("/robot_action")
 
@@ -483,7 +483,7 @@ def test_scenarios():
     print("Scenario 2: Low Battery (Battery: 15%)")
     print("-" * 70)
 
-    execution = pf.create_execution(tree)
+    execution = tt.create_execution(tree)
     result = execution.tick(blackboard_updates={"battery_level": 15.0})
     action = result.blackboard.get("/robot_action")
 
@@ -495,7 +495,7 @@ def test_scenarios():
     print("Scenario 3: Critical Battery (Battery: 3%)")
     print("-" * 70)
 
-    execution = pf.create_execution(tree)
+    execution = tt.create_execution(tree)
     result = execution.tick(blackboard_updates={"battery_level": 3.0})
     action = result.blackboard.get("/robot_action")
 
@@ -568,8 +568,8 @@ if __name__ == "__main__":
     print()
 
     # Use the tree created from code
-    pf = TalkingTrees()
-    execution = pf.create_execution(tree_from_code)
+    tt = TalkingTrees()
+    execution = tt.create_execution(tree_from_code)
     print("✓ Created execution from code-created tree")
     print()
 

@@ -86,7 +86,7 @@ class TestRESTAPIIntegration:
         # =====================================================================
         print("\nStep 2: Convert to TalkingTrees format...")
 
-        pf = TalkingTrees()
+        tt = TalkingTrees()
         tree_def, _ = from_py_trees(
             root,
             name="REST API Test Tree",
@@ -110,7 +110,7 @@ class TestRESTAPIIntegration:
 
         # Save to JSON for upload
         test_tree_path = "/tmp/rest_api_test_tree.json"
-        pf.save_tree(tree_def, test_tree_path)
+        tt.save_tree(tree_def, test_tree_path)
         print(f"✓ Saved to {test_tree_path}")
 
         # =====================================================================

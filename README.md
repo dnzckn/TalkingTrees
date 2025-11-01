@@ -15,7 +15,7 @@ TalkingTrees provides bidirectional JSON serialization for [py_trees](https://gi
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
 - **FastAPI Integration** - Optional REST API with 47 endpoints for tree management
-- **Visual Tree Editor** - Professional browser-based drag-and-drop editor
+- **Visual Tree Editor** - Professional browser-based drag-and-drop editor *(heavily WIP)*
 - **Zero Data Loss** - All parameters, configurations, and tree structure preserved
 
 ## Quick Start
@@ -39,14 +39,14 @@ root = py_trees.composites.Sequence(name="Main", memory=True, children=[
     py_trees.behaviours.Success(name="Task2"),
 ])
 
-pf_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
+tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
 # Save to file
-pf = TalkingTrees()
-pf.save_tree(pf_tree, "my_tree.json")
+tt = TalkingTrees()
+tt.save_tree(tt_tree, "my_tree.json")
 
 # Load from file
-loaded = pf.load_tree("my_tree.json")
+loaded = tt.load_tree("my_tree.json")
 
 # Deserialize back to py_trees
 py_trees_root = to_py_trees(loaded)

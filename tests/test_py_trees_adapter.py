@@ -179,12 +179,12 @@ def test_save_load_roundtrip():
     root.add_child(py_trees.behaviours.Success(name="B"))
 
     # Convert and save
-    pf = TalkingTrees()
+    tt = TalkingTrees()
     tt_tree, _ = from_py_trees(root, name="Roundtrip Test", version="1.0.0")
-    pf.save_tree(tt_tree, "/tmp/test_roundtrip.json")
+    tt.save_tree(tt_tree, "/tmp/test_roundtrip.json")
 
     # Load back
-    loaded = pf.load_tree("/tmp/test_roundtrip.json")
+    loaded = tt.load_tree("/tmp/test_roundtrip.json")
 
     # Verify
     assert loaded.metadata.name == "Roundtrip Test"
@@ -220,14 +220,14 @@ def test_reverse_conversion():
     )
 
     # Convert to TalkingTrees
-    pf = TalkingTrees()
+    tt = TalkingTrees()
     tt_tree, _ = from_py_trees(root, name="Reverse Test", version="1.0.0")
 
     # Save
-    pf.save_tree(tt_tree, "/tmp/test_reverse.json")
+    tt.save_tree(tt_tree, "/tmp/test_reverse.json")
 
     # Load
-    loaded = pf.load_tree("/tmp/test_reverse.json")
+    loaded = tt.load_tree("/tmp/test_reverse.json")
 
     # Convert back to py_trees
     pt_root = to_py_trees(loaded)
@@ -461,12 +461,12 @@ def test_decorator_reverse_conversion():
     root.add_child(inverter)
 
     # Convert to TalkingTrees
-    pf = TalkingTrees()
+    tt = TalkingTrees()
     tt_tree, _ = from_py_trees(root, name="Decorator Test", version="1.0.0")
 
     # Save and load
-    pf.save_tree(tt_tree, "/tmp/test_decorator.json")
-    loaded = pf.load_tree("/tmp/test_decorator.json")
+    tt.save_tree(tt_tree, "/tmp/test_decorator.json")
+    loaded = tt.load_tree("/tmp/test_decorator.json")
 
     # Convert back to py_trees
     pt_root = to_py_trees(loaded)

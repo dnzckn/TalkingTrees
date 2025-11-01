@@ -285,13 +285,13 @@ def main():
 
     # Step 3: Save to JSON
     print("\nSTEP 3: Saving to JSON file...")
-    pf = TalkingTrees()
-    pf.save_tree(tt_tree, "tests/fixtures/ultra_complex_tree.json")
+    tt = TalkingTrees()
+    tt.save_tree(tt_tree, "tests/fixtures/ultra_complex_tree.json")
     print("✓ Saved to tests/fixtures/ultra_complex_tree.json")
 
     # Step 4: Load from JSON
     print("\nSTEP 4: Loading from JSON file...")
-    loaded_tree = pf.load_tree("tests/fixtures/ultra_complex_tree.json")
+    loaded_tree = tt.load_tree("tests/fixtures/ultra_complex_tree.json")
     print("✓ Loaded from tests/fixtures/ultra_complex_tree.json")
 
     # Step 5: Convert back to py_trees

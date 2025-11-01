@@ -25,8 +25,8 @@ Example:
 
     # Now use with TalkingTrees SDK
     from talking_trees.sdk import TalkingTrees
-    pf = TalkingTrees()
-    pf.save_tree(tt_tree, "my_tree.json")
+    tt = TalkingTrees()
+    tt.save_tree(tt_tree, "my_tree.json")
 """
 
 from datetime import datetime
@@ -359,8 +359,8 @@ def from_py_trees(
         >>>
         >>> # Use with TalkingTrees
         >>> from talking_trees.sdk import TalkingTrees
-        >>> pf = TalkingTrees()
-        >>> pf.save_tree(tt_tree, "tree.json")
+        >>> tt = TalkingTrees()
+        >>> tt.save_tree(tt_tree, "tree.json")
     """
     # Create conversion context for tracking warnings
     context = ConversionContext()
@@ -409,8 +409,8 @@ def to_py_trees(tree: TreeDefinition):
         >>> from talking_trees.adapters import to_py_trees
         >>>
         >>> # Load TalkingTrees tree
-        >>> pf = TalkingTrees()
-        >>> tree = pf.load_tree("tree.json")
+        >>> tt = TalkingTrees()
+        >>> tree = tt.load_tree("tree.json")
         >>>
         >>> # Convert to py_trees
         >>> root = to_py_trees(tree)

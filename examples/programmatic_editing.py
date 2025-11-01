@@ -37,8 +37,8 @@ def approach_1_py_trees_roundtrip():
 
     # Step 1: Load existing tree from JSON
     print("\nStep 1: Load existing tree from JSON...")
-    pf = TalkingTrees()
-    tree_def = pf.load_tree("examples/robot_v1.json")
+    tt = TalkingTrees()
+    tree_def = tt.load_tree("examples/robot_v1.json")
     print(f"✓ Loaded: {tree_def.metadata.name}")
     print(f"  Children: {len(tree_def.root.children)}")
 
@@ -81,7 +81,7 @@ def approach_1_py_trees_roundtrip():
 
     # Step 4: Convert back to TalkingTrees
     print("\nStep 4: Convert back to TalkingTrees...")
-    updated_tree = pf.from_py_trees(
+    updated_tree = tt.from_py_trees(
         pt_root,
         name=tree_def.metadata.name + " (Updated)",
         version="2.0.0",
@@ -92,7 +92,7 @@ def approach_1_py_trees_roundtrip():
 
     # Step 5: Save
     print("\nStep 5: Save to JSON...")
-    pf.save_tree(updated_tree, "examples/robot_v2_edited.json")
+    tt.save_tree(updated_tree, "examples/robot_v2_edited.json")
     print("✓ Saved to examples/robot_v2_edited.json")
 
     print("\n✅ Approach 1 complete!")
@@ -113,8 +113,8 @@ def approach_2_direct_manipulation():
 
     # Step 1: Load existing tree
     print("\nStep 1: Load existing tree from JSON...")
-    pf = TalkingTrees()
-    tree_def = pf.load_tree("examples/robot_v1.json")
+    tt = TalkingTrees()
+    tree_def = tt.load_tree("examples/robot_v1.json")
     print(f"✓ Loaded: {tree_def.metadata.name}")
 
     # Step 2: Create new nodes directly
@@ -144,7 +144,7 @@ def approach_2_direct_manipulation():
 
     # Step 5: Save
     print("\nStep 5: Save...")
-    pf.save_tree(tree_def, "examples/robot_v1_direct_edit.json")
+    tt.save_tree(tree_def, "examples/robot_v1_direct_edit.json")
     print("✓ Saved to examples/robot_v1_direct_edit.json")
 
     print("\n✅ Approach 2 complete!")
@@ -163,7 +163,7 @@ def approach_3_hybrid():
     print("APPROACH 3: Hybrid Approach")
     print("=" * 70)
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
 
     # Step 1: Create a complex branch with py_trees
     print("\nStep 1: Create complex branch with py_trees...")
@@ -189,7 +189,7 @@ def approach_3_hybrid():
     )
 
     # Convert just this branch to TalkingTrees
-    maintenance_branch = pf.from_py_trees(
+    maintenance_branch = tt.from_py_trees(
         maintenance_seq, name="Maintenance Branch", version="1.0.0"
     )
 
@@ -197,7 +197,7 @@ def approach_3_hybrid():
 
     # Step 2: Load existing tree
     print("\nStep 2: Load existing tree...")
-    tree_def = pf.load_tree("examples/robot_v1.json")
+    tree_def = tt.load_tree("examples/robot_v1.json")
 
     # Step 3: Insert the complex branch (direct manipulation)
     print("\nStep 3: Insert complex branch...")
@@ -219,7 +219,7 @@ def approach_3_hybrid():
     tree_def.metadata.version = "2.1.0"
     tree_def.metadata.description = "Hybrid edit: maintenance branch + system check"
 
-    pf.save_tree(tree_def, "examples/robot_hybrid_edit.json")
+    tt.save_tree(tree_def, "examples/robot_hybrid_edit.json")
     print("✓ Saved to examples/robot_hybrid_edit.json")
 
     print("\n✅ Approach 3 complete!")
@@ -290,8 +290,8 @@ def demonstration_with_helpers():
     print("BONUS: Using Helper Functions")
     print("=" * 70)
 
-    pf = TalkingTrees()
-    tree_def = pf.load_tree("examples/robot_v1.json")
+    tt = TalkingTrees()
+    tree_def = tt.load_tree("examples/robot_v1.json")
 
     # Find a specific node
     print("\nFinding node by name...")
@@ -311,7 +311,7 @@ def demonstration_with_helpers():
         print(f"✓ Added child to {node.name}")
 
     # Save
-    pf.save_tree(tree_def, "examples/robot_helper_demo.json")
+    tt.save_tree(tree_def, "examples/robot_helper_demo.json")
     print("\n✓ Saved to examples/robot_helper_demo.json")
     print()
 
@@ -351,11 +351,11 @@ def print_comparison():
 ║     • SetBlackboardVariable values lost (need manual add)         ║
 ║                                                                    ║
 ║  EXAMPLE:                                                          ║
-║     tree_def = pf.load_tree("tree.json")                          ║
+║     tree_def = tt.load_tree("tree.json")                          ║
 ║     pt_root = to_py_trees(tree_def)                               ║
 ║     pt_root.add_child(py_trees.behaviours.Success("New"))         ║
-║     updated = pf.from_py_trees(pt_root, "Updated", "2.0")         ║
-║     pf.save_tree(updated, "updated.json")                         ║
+║     updated = tt.from_py_trees(pt_root, "Updated", "2.0")         ║
+║     tt.save_tree(updated, "updated.json")                         ║
 ║                                                                    ║
 ╠════════════════════════════════════════════════════════════════════╣
 ║                                                                    ║
@@ -378,7 +378,7 @@ def print_comparison():
 ║     • More verbose for complex logic                              ║
 ║                                                                    ║
 ║  EXAMPLE:                                                          ║
-║     tree_def = pf.load_tree("tree.json")                          ║
+║     tree_def = tt.load_tree("tree.json")                          ║
 ║     new_node = TreeNodeDefinition(                                ║
 ║         node_type="Success",                                      ║
 ║         node_id=str(uuid4()),                                     ║
@@ -386,7 +386,7 @@ def print_comparison():
 ║         config={}, children=[]                                    ║
 ║     )                                                              ║
 ║     tree_def.root.children.append(new_node)                       ║
-║     pf.save_tree(tree_def, "updated.json")                        ║
+║     tt.save_tree(tree_def, "updated.json")                        ║
 ║                                                                    ║
 ╠════════════════════════════════════════════════════════════════════╣
 ║                                                                    ║
@@ -407,12 +407,12 @@ def print_comparison():
 ║  EXAMPLE:                                                          ║
 ║     # Complex branch with py_trees                                ║
 ║     branch = create_complex_branch()                              ║
-║     branch_def = pf.from_py_trees(branch, "Branch", "1.0")        ║
+║     branch_def = tt.from_py_trees(branch, "Branch", "1.0")        ║
 ║                                                                    ║
 ║     # Load and modify directly                                    ║
-║     tree_def = pf.load_tree("tree.json")                          ║
+║     tree_def = tt.load_tree("tree.json")                          ║
 ║     tree_def.root.children.append(branch_def.root)                ║
-║     pf.save_tree(tree_def, "updated.json")                        ║
+║     tt.save_tree(tree_def, "updated.json")                        ║
 ║                                                                    ║
 ╚════════════════════════════════════════════════════════════════════╝
 """

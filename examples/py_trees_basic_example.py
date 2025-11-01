@@ -60,8 +60,8 @@ def convert_to_talkingtrees(py_trees_root):
     """Convert py_trees tree to TalkingTrees format"""
     print("\nConverting to TalkingTrees format...")
 
-    pf = TalkingTrees()
-    tt_tree = pf.from_py_trees(
+    tt = TalkingTrees()
+    tt_tree = tt.from_py_trees(
         py_trees_root,
         name="Robot Controller",
         version="1.0.0",
@@ -80,14 +80,14 @@ def save_and_load(tt_tree):
     """Save tree to JSON and load it back"""
     print("\nSaving to JSON...")
 
-    pf = TalkingTrees()
+    tt = TalkingTrees()
     output_path = "examples/py_trees_robot.json"
 
-    pf.save_tree(tt_tree, output_path)
+    tt.save_tree(tt_tree, output_path)
     print(f"✓ Saved to {output_path}")
 
     # Load it back
-    loaded = pf.load_tree(output_path)
+    loaded = tt.load_tree(output_path)
     print(f"✓ Loaded back: {loaded.metadata.name}")
 
     return loaded

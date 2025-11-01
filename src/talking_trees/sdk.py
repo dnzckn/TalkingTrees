@@ -123,24 +123,24 @@ class TalkingTrees:
 
     Usage:
         # Basic usage
-        pf = TalkingTrees()
-        tree = pf.load_tree("my_tree.json")
+        tt = TalkingTrees()
+        tree = tt.load_tree("my_tree.json")
 
         # Validate before running
-        validation = pf.validate_tree(tree)
+        validation = tt.validate_tree(tree)
         if not validation.is_valid:
             print("Tree has errors!")
             return
 
         # Search for nodes
-        timeouts = pf.find_nodes_by_type(tree, "Timeout")
+        timeouts = tt.find_nodes_by_type(tree, "Timeout")
 
         # Get statistics
-        stats = pf.get_tree_stats(tree)
+        stats = tt.get_tree_stats(tree)
         print(stats.summary())
 
         # Execute
-        execution = pf.create_execution(tree)
+        execution = tt.create_execution(tree)
         result = execution.tick(blackboard_updates={
             "battery_level": 15,
             "distance": 3.5
@@ -183,7 +183,7 @@ class TalkingTrees:
             TreeDefinition object
 
         Example:
-            tree = pf.load_tree("examples/robot_v1.json")
+            tree = tt.load_tree("examples/robot_v1.json")
         """
         with open(path) as f:
             data = json.load(f)
@@ -198,7 +198,7 @@ class TalkingTrees:
             path: Output file path
 
         Example:
-            pf.save_tree(tree, "my_tree.json")
+            tt.save_tree(tree, "my_tree.json")
         """
         with open(path, "w") as f:
             json.dump(tree.model_dump(by_alias=True), f, indent=2, default=str)
@@ -220,7 +220,7 @@ class TalkingTrees:
             Execution object for running the tree
 
         Example:
-            execution = pf.create_execution(tree, initial_blackboard={
+            execution = tt.create_execution(tree, initial_blackboard={
                 "battery_level": 100.0,
                 "distance": 999.0
             })
@@ -271,9 +271,9 @@ class TalkingTrees:
             Formatted diff string
 
         Example:
-            tree_v1 = pf.load_tree("robot_v1.json")
-            tree_v2 = pf.load_tree("robot_v2.json")
-            diff = pf.diff_trees(tree_v1, tree_v2)
+            tree_v1 = tt.load_tree("robot_v1.json")
+            tree_v2 = tt.load_tree("robot_v2.json")
+            diff = tt.diff_trees(tree_v1, tree_v2)
             print(diff)
         """
         differ = TreeDiffer()
@@ -310,11 +310,11 @@ class TalkingTrees:
             root.add_child(py_trees.behaviours.Success("Step1"))
 
             # Convert to TalkingTrees
-            pf = TalkingTrees()
-            tree = pf.from_py_trees(root, name="My Tree")
+            tt = TalkingTrees()
+            tree = tt.from_py_trees(root, name="My Tree")
 
             # Save for editor
-            pf.save_tree(tree, "my_tree.json")
+            tt.save_tree(tree, "my_tree.json")
         """
         if from_py_trees is None:
             raise ImportError(
@@ -350,7 +350,7 @@ class TalkingTrees:
             Validation result with issues
 
         Example:
-            >>> result = pf.validate_tree(tree)
+            >>> result = tt.validate_tree(tree)
             >>> if not result.is_valid:
             >>>     for issue in result.issues:
             >>>         print(f"{issue.level}: {issue.message}")
@@ -394,10 +394,10 @@ class TalkingTrees:
 
         Example:
             >>> # Find all Sequence nodes
-            >>> sequences = pf.find_nodes(tree, lambda n: n.node_type == "Sequence")
+            >>> sequences = tt.find_nodes(tree, lambda n: n.node_type == "Sequence")
 
             >>> # Find nodes with specific config
-            >>> timeout_nodes = pf.find_nodes(
+            >>> timeout_nodes = tt.find_nodes(
             >>>     tree,
             >>>     lambda n: n.node_type == "Timeout" and n.config.get("duration", 0) > 5
             >>> )
@@ -431,7 +431,7 @@ class TalkingTrees:
             List of matching nodes
 
         Example:
-            >>> timeouts = pf.find_nodes_by_type(tree, "Timeout")
+            >>> timeouts = tt.find_nodes_by_type(tree, "Timeout")
             >>> print(f"Found {len(timeouts)} timeout decorators")
         """
         return self.find_nodes(tree, lambda n: n.node_type == node_type)
@@ -451,10 +451,10 @@ class TalkingTrees:
 
         Example:
             >>> # Find exact match
-            >>> nodes = pf.find_nodes_by_name(tree, "CheckBattery")
+            >>> nodes = tt.find_nodes_by_name(tree, "CheckBattery")
 
             >>> # Find partial match
-            >>> check_nodes = pf.find_nodes_by_name(tree, "check", exact=False)
+            >>> check_nodes = tt.find_nodes_by_name(tree, "check", exact=False)
         """
         if exact:
             return self.find_nodes(tree, lambda n: n.name == name)
@@ -475,7 +475,7 @@ class TalkingTrees:
             Node if found, None otherwise
 
         Example:
-            >>> node = pf.get_node_by_id(tree, some_uuid)
+            >>> node = tt.get_node_by_id(tree, some_uuid)
             >>> if node:
             >>>     print(f"Found: {node.name} ({node.node_type})")
         """
@@ -492,7 +492,7 @@ class TalkingTrees:
             List of all nodes
 
         Example:
-            >>> all_nodes = pf.get_all_nodes(tree)
+            >>> all_nodes = tt.get_all_nodes(tree)
             >>> print(f"Tree has {len(all_nodes)} nodes")
         """
         return self.find_nodes(tree, lambda _: True)
@@ -511,7 +511,7 @@ class TalkingTrees:
             TreeStatistics object
 
         Example:
-            >>> stats = pf.get_tree_stats(tree)
+            >>> stats = tt.get_tree_stats(tree)
             >>> print(stats.summary())
             >>> print(f"Average depth: {stats.avg_depth:.2f}")
         """
@@ -582,7 +582,7 @@ class TalkingTrees:
             max_depth: Maximum depth to print (None = unlimited)
 
         Example:
-            >>> pf.print_tree_structure(tree, show_config=True, max_depth=3)
+            >>> tt.print_tree_structure(tree, show_config=True, max_depth=3)
         """
 
         def print_node(node: TreeNodeDefinition, indent: int = 0, depth: int = 0):
@@ -618,7 +618,7 @@ class TalkingTrees:
             Dictionary mapping node type to count
 
         Example:
-            >>> counts = pf.count_nodes_by_type(tree)
+            >>> counts = tt.count_nodes_by_type(tree)
             >>> for node_type, count in sorted(counts.items()):
             >>>     print(f"{node_type}: {count}")
         """
@@ -640,7 +640,7 @@ class TalkingTrees:
             List of node names from root to target, or None if not found
 
         Example:
-            >>> path = pf.get_node_path(tree, some_node.node_id)
+            >>> path = tt.get_node_path(tree, some_node.node_id)
             >>> if path:
             >>>     print(" -> ".join(path))
         """
@@ -677,7 +677,7 @@ class TalkingTrees:
             ImportError: If PyYAML is not installed
 
         Example:
-            >>> tree = pf.load_yaml("examples/robot.yaml")
+            >>> tree = tt.load_yaml("examples/robot.yaml")
         """
         if not YAML_AVAILABLE:
             raise ImportError(
@@ -700,7 +700,7 @@ class TalkingTrees:
             ImportError: If PyYAML is not installed
 
         Example:
-            >>> pf.save_yaml(tree, "my_tree.yaml")
+            >>> tt.save_yaml(tree, "my_tree.yaml")
         """
         if not YAML_AVAILABLE:
             raise ImportError(
@@ -726,7 +726,7 @@ class TalkingTrees:
             Dictionary mapping filename to TreeDefinition
 
         Example:
-            >>> trees = pf.load_batch([
+            >>> trees = tt.load_batch([
             >>>     "tree1.json",
             >>>     "tree2.yaml",
             >>>     "tree3.json"
@@ -759,8 +759,8 @@ class TalkingTrees:
             Dictionary of tree name to validation result
 
         Example:
-            >>> trees = pf.load_batch(["tree1.json", "tree2.json"])
-            >>> results = pf.validate_batch(trees)
+            >>> trees = tt.load_batch(["tree1.json", "tree2.json"])
+            >>> results = tt.validate_batch(trees)
             >>> for name, result in results.items():
             >>>     print(f"{name}: {'✓' if result.is_valid else '✗'}")
         """
@@ -780,7 +780,7 @@ class TalkingTrees:
             New TreeDefinition with same structure
 
         Example:
-            >>> tree_copy = pf.clone_tree(original_tree)
+            >>> tree_copy = tt.clone_tree(original_tree)
             >>> tree_copy.metadata.name = "Copy of " + original_tree.metadata.name
         """
         return tree.model_copy(deep=True)
@@ -798,8 +798,8 @@ class TalkingTrees:
             SHA-256 hash hex string
 
         Example:
-            >>> hash1 = pf.hash_tree(tree1)
-            >>> hash2 = pf.hash_tree(tree2)
+            >>> hash1 = tt.hash_tree(tree1)
+            >>> hash2 = tt.hash_tree(tree2)
             >>> if hash1 == hash2:
             >>>     print("Trees are structurally identical")
         """
@@ -845,7 +845,7 @@ class TalkingTrees:
             True if trees have identical structure
 
         Example:
-            >>> if pf.trees_equal(tree1, tree2):
+            >>> if tt.trees_equal(tree1, tree2):
             >>>     print("Trees are identical")
         """
         return self.hash_tree(tree1) == self.hash_tree(tree2)
@@ -862,9 +862,9 @@ class TalkingTrees:
 
         Example:
             >>> # Extract a subtree to test independently
-            >>> subtree = pf.get_subtree(tree, some_composite.node_id)
+            >>> subtree = tt.get_subtree(tree, some_composite.node_id)
             >>> if subtree:
-            >>>     result = pf.create_execution(subtree).tick()
+            >>>     result = tt.create_execution(subtree).tick()
         """
         node = self.get_node_by_id(tree, node_id)
         if not node:
@@ -1143,9 +1143,9 @@ def load_and_run(
         )
         print(f"Robot action: {result.blackboard.get('/robot_action')}")
     """
-    pf = TalkingTrees()
-    tree = pf.load_tree(tree_path)
-    execution = pf.create_execution(tree)
+    tt = TalkingTrees()
+    tree = tt.load_tree(tree_path)
+    execution = tt.create_execution(tree)
     return execution.tick(count=ticks, blackboard_updates=blackboard_updates)
 
 
@@ -1163,10 +1163,10 @@ def diff_files(old_path: str, new_path: str) -> str:
         diff = diff_files("robot_v1.json", "robot_v2.json")
         print(diff)
     """
-    pf = TalkingTrees()
-    old_tree = pf.load_tree(old_path)
-    new_tree = pf.load_tree(new_path)
-    return pf.diff_trees(old_tree, new_tree, verbose=True)
+    tt = TalkingTrees()
+    old_tree = tt.load_tree(old_path)
+    new_tree = tt.load_tree(new_path)
+    return tt.diff_trees(old_tree, new_tree, verbose=True)
 
 
 def quick_validate(tree_path: str) -> TreeValidationResult:
@@ -1183,9 +1183,9 @@ def quick_validate(tree_path: str) -> TreeValidationResult:
         >>> if result.is_valid:
         >>>     print("✓ Tree is valid")
     """
-    pf = TalkingTrees()
-    tree = pf.load_tree(tree_path)
-    return pf.validate_tree(tree, verbose=True)
+    tt = TalkingTrees()
+    tree = tt.load_tree(tree_path)
+    return tt.validate_tree(tree, verbose=True)
 
 
 def compare_tree_structures(path1: str, path2: str) -> bool:
@@ -1204,10 +1204,10 @@ def compare_tree_structures(path1: str, path2: str) -> bool:
         >>> else:
         >>>     print("Trees differ")
     """
-    pf = TalkingTrees()
-    tree1 = pf.load_tree(path1)
-    tree2 = pf.load_tree(path2)
-    return pf.trees_equal(tree1, tree2)
+    tt = TalkingTrees()
+    tree1 = tt.load_tree(path1)
+    tree2 = tt.load_tree(path2)
+    return tt.trees_equal(tree1, tree2)
 
 
 def analyze_tree(tree_path: str) -> str:
@@ -1223,14 +1223,14 @@ def analyze_tree(tree_path: str) -> str:
         >>> report = analyze_tree("robot.json")
         >>> print(report)
     """
-    pf = TalkingTrees()
-    tree = pf.load_tree(tree_path)
+    tt = TalkingTrees()
+    tree = tt.load_tree(tree_path)
 
     # Validate
-    validation = pf.validate_tree(tree)
+    validation = tt.validate_tree(tree)
 
     # Get statistics
-    stats = pf.get_tree_stats(tree)
+    stats = tt.get_tree_stats(tree)
 
     # Format report
     lines = [

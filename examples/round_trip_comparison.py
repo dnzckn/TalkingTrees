@@ -33,9 +33,9 @@ def example_basic_comparison():
     tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
 
     # Save and load (optional - demonstrates full round-trip)
-    pf = TalkingTrees()
-    pf.save_tree(tt_tree, "my_tree.json")
-    loaded = pf.load_tree("my_tree.json")
+    tt = TalkingTrees()
+    tt.save_tree(tt_tree, "my_tree.json")
+    loaded = tt.load_tree("my_tree.json")
 
     # Convert back to py_trees
     py_trees_root = to_py_trees(loaded)

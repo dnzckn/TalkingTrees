@@ -30,7 +30,7 @@ class ComprehensiveCoverageTest:
 
     def __init__(self):
         self.results: list[tuple[str, bool, str]] = []
-        self.pf = TalkingTrees()
+        self.tt = TalkingTrees()
         self.temp_dir = tempfile.mkdtemp()
 
     def run_all_tests(self):
@@ -74,7 +74,7 @@ class ComprehensiveCoverageTest:
 
             # Step 2: talkingtrees → JSON file
             json_path = Path(self.temp_dir) / f"{name.replace(' ', '_')}.json"
-            self.pf.save_tree(tt_tree, str(json_path))
+            self.tt.save_tree(tt_tree, str(json_path))
 
             # Verify JSON is valid
             with open(json_path) as f:
@@ -82,7 +82,7 @@ class ComprehensiveCoverageTest:
             assert json_data["$schema"] == "1.0.0", "Invalid schema version"
 
             # Step 3: JSON → talkingtrees
-            loaded_tree = self.pf.load_tree(str(json_path))
+            loaded_tree = self.tt.load_tree(str(json_path))
 
             # Step 4: talkingtrees → py_trees
             round_trip = to_py_trees(loaded_tree)

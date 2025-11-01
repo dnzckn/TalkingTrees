@@ -11,24 +11,24 @@ Built on py_trees with added features:
 Quick Start:
     from talking_trees.sdk import TalkingTrees
 
-    pf = TalkingTrees()
-    tree = pf.load_tree("my_tree.json")
+    tt = TalkingTrees()
+    tree = tt.load_tree("my_tree.json")
 
     # Validate before running
-    validation = pf.validate_tree(tree)
+    validation = tt.validate_tree(tree)
     if not validation.is_valid:
         print("Tree has errors!")
         return
 
     # Search nodes
-    timeouts = pf.find_nodes_by_type(tree, "Timeout")
+    timeouts = tt.find_nodes_by_type(tree, "Timeout")
 
     # Get statistics
-    stats = pf.get_tree_stats(tree)
+    stats = tt.get_tree_stats(tree)
     print(stats.summary())
 
     # Execute
-    execution = pf.create_execution(tree)
+    execution = tt.create_execution(tree)
     result = execution.tick(blackboard_updates={"battery": 75})
 """
 
