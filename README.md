@@ -12,6 +12,10 @@ TalkingTrees provides bidirectional JSON serialization for [py_trees](https://gi
 
 Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
 
+## Why TalkingTrees?
+
+**py_trees has no JSON serialization.** While py_trees excels at runtime execution, it lacks the ability to save/load trees in a portable format. TalkingTrees adds JSON serialization, a visual editor, REST API, and tooling for version control and remote management. It doesn't replace py_trees—it extends it.
+
 ## Core Features
 
 - **Complete Reversibility** - Perfect round-trip with zero data loss
@@ -208,7 +212,7 @@ talking_trees/
 │   ├── trees/            # Example tree JSON files
 │   └── templates/        # Tree templates
 ├── tutorials/            # Tutorial scripts and code
-├── tutorial_assets/      # Tutorial JSON files
+│   └── assets/           # Tutorial JSON files
 ├── docs/                 # Documentation
 └── scripts/              # Launch and utility scripts
 ```
