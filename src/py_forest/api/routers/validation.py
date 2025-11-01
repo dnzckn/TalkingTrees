@@ -114,7 +114,6 @@ def validate_behavior(
         )
 
     # Convert to BehaviorValidationSchema
-    # This is a simplified conversion - in production you'd want more robust handling
     from py_forest.models.validation import BehaviorParameter
 
     parameters = []
@@ -126,6 +125,9 @@ def validate_behavior(
                 required=False,  # ConfigPropertySchema doesn't have required field
                 default=param_schema.default,
                 description=param_schema.description,
+                min_value=param_schema.minimum,  # Map minimum → min_value
+                max_value=param_schema.maximum,  # Map maximum → max_value
+                allowed_values=param_schema.enum,  # Map enum → allowed_values
             )
         )
 
