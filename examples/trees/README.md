@@ -45,6 +45,32 @@ Large tree for performance testing.
 - **Concepts**: Many nodes, deep nesting, parallel execution
 - **Use case**: Performance benchmarking
 
+### 09_day_in_life_sim.json
+Complex simulation of a person's daily routine.
+- **Concepts**: State machines, time management, resource tracking (hunger, thirst, energy, stress)
+- **Use case**: Life simulation, complex state management
+- **Features**: Morning, work, and evening phases with realistic decision-making
+
+### 10_guard_patrol_game.json
+Interactive 2D grid game with NPC guard behavior.
+- **Concepts**: Patrol patterns, investigation, chase logic, grid-based movement
+- **Use case**: Game AI, interactive demos
+- **Features**: Visual grid interface, real-time behavior execution
+
+### 11_ultra_complex.json
+**🚀 Comprehensive demo showcasing ALL major node types**
+- **Concepts**: Timeout, Retry, Repeat, OneShot, Inverter, SuccessIsFailure, FailureIsSuccess, Parallel, complex blackboard operations
+- **Use case**: Learning advanced patterns, testing GUI capabilities
+- **Features**:
+  - Emergency handling with timeout & inverter
+  - Retry & repeat patterns
+  - Parallel sensor processing
+  - OneShot maintenance mode
+  - Status converter chains
+  - Deep nesting (5+ levels)
+  - 30+ nodes total
+- **Perfect for**: Exploring the visual editor's full 40+ node type support
+
 ## Using Examples
 
 ### Load via API

@@ -795,17 +795,18 @@
                 <input type="text" class="library-search" id="paletteSearch" placeholder="Search nodes..."
                     onkeyup="filterPalette()">
 
-                <div class="section-title">Composites (Multi-child)</div>
+                <!-- COMPOSITES SECTION -->
+                <div class="section-title">COMPOSITES (3)</div>
                 <div class="palette-nodes" id="compositesGroup">
                     <div class="node-item composite" draggable="true" data-type="Sequence"
-                        data-search="sequence order sequential">
+                        data-search="sequence order sequential and">
                         <div class="node-item-title">Sequence</div>
-                        <div class="node-item-desc">Execute children in order, fail on first failure</div>
+                        <div class="node-item-desc">Execute children in order (AND logic)</div>
                     </div>
                     <div class="node-item composite" draggable="true" data-type="Selector"
-                        data-search="selector priority fallback">
+                        data-search="selector priority fallback or">
                         <div class="node-item-title">Selector</div>
-                        <div class="node-item-desc">Try until one succeeds, fallback pattern</div>
+                        <div class="node-item-desc">Try children until success (OR logic)</div>
                     </div>
                     <div class="node-item composite" draggable="true" data-type="Parallel"
                         data-search="parallel concurrent simultaneous">
@@ -814,69 +815,242 @@
                     </div>
                 </div>
 
-                <div class="section-title">Decorators (Single-child)</div>
-                <div class="palette-nodes" id="decoratorsGroup">
-                    <div class="node-item decorator" draggable="true" data-type="CheckBlackboardCondition"
-                        data-search="check condition if guard">
-                        <div class="node-item-title">Check Condition</div>
-                        <div class="node-item-desc">Run child only if condition passes</div>
-                    </div>
+                <!-- DECORATORS SECTION -->
+                <div class="section-title">DECORATORS (14)</div>
+
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Status Converters</div>
+                <div class="palette-nodes" id="statusConvertersGroup">
                     <div class="node-item decorator" draggable="true" data-type="Inverter"
-                        data-search="inverter not flip">
+                        data-search="inverter not flip reverse">
                         <div class="node-item-title">Inverter</div>
                         <div class="node-item-desc">Flip SUCCESS ⇄ FAILURE</div>
                     </div>
-                    <div class="node-item decorator" draggable="true" data-type="Retry"
-                        data-search="retry repeat attempts">
-                        <div class="node-item-title">Retry</div>
-                        <div class="node-item-desc">Retry child N times on failure</div>
+                    <div class="node-item decorator" draggable="true" data-type="SuccessIsFailure"
+                        data-search="success failure convert">
+                        <div class="node-item-title">Success Is Failure</div>
+                        <div class="node-item-desc">Convert SUCCESS → FAILURE</div>
                     </div>
-                    <div class="node-item decorator" draggable="true" data-type="Timeout"
-                        data-search="timeout timer duration">
-                        <div class="node-item-title">Timeout</div>
-                        <div class="node-item-desc">Fail if child takes too long</div>
+                    <div class="node-item decorator" draggable="true" data-type="FailureIsSuccess"
+                        data-search="failure success convert">
+                        <div class="node-item-title">Failure Is Success</div>
+                        <div class="node-item-desc">Convert FAILURE → SUCCESS</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="FailureIsRunning"
+                        data-search="failure running convert">
+                        <div class="node-item-title">Failure Is Running</div>
+                        <div class="node-item-desc">Convert FAILURE → RUNNING</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="RunningIsFailure"
+                        data-search="running failure convert">
+                        <div class="node-item-title">Running Is Failure</div>
+                        <div class="node-item-desc">Convert RUNNING → FAILURE</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="RunningIsSuccess"
+                        data-search="running success convert">
+                        <div class="node-item-title">Running Is Success</div>
+                        <div class="node-item-desc">Convert RUNNING → SUCCESS</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="SuccessIsRunning"
+                        data-search="success running convert">
+                        <div class="node-item-title">Success Is Running</div>
+                        <div class="node-item-desc">Convert SUCCESS → RUNNING</div>
                     </div>
                 </div>
 
-                <div class="section-title">Actions (Leaf nodes)</div>
-                <div class="palette-nodes" id="actionsGroup">
-                    <div class="node-item action" draggable="true" data-type="SetBlackboardVariable"
-                        data-search="set write variable action">
-                        <div class="node-item-title">Set Variable</div>
-                        <div class="node-item-desc">Write to blackboard (REAL ACTION)</div>
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Repetition & Control</div>
+                <div class="palette-nodes" id="repetitionGroup">
+                    <div class="node-item decorator" draggable="true" data-type="Retry"
+                        data-search="retry repeat attempts failure">
+                        <div class="node-item-title">Retry</div>
+                        <div class="node-item-desc">Retry child N times on failure</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="GetBlackboardVariable"
-                        data-search="get read variable query">
-                        <div class="node-item-title">Get Variable</div>
-                        <div class="node-item-desc">Read from blackboard</div>
+                    <div class="node-item decorator" draggable="true" data-type="Repeat"
+                        data-search="repeat loop times success">
+                        <div class="node-item-title">Repeat</div>
+                        <div class="node-item-desc">Repeat child N times until success</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="Log" data-search="log print debug">
-                        <div class="node-item-title">Log</div>
-                        <div class="node-item-desc">Log message (debug only, not for production)</div>
+                    <div class="node-item decorator" draggable="true" data-type="OneShot"
+                        data-search="oneshot once single execute">
+                        <div class="node-item-title">One Shot</div>
+                        <div class="node-item-desc">Execute once, then return fixed status</div>
                     </div>
-                    <div class="node-item action" draggable="true" data-type="Wait"
-                        data-search="wait sleep delay pause">
-                        <div class="node-item-title">Wait</div>
-                        <div class="node-item-desc">Wait for duration</div>
+                </div>
+
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Conditionals & Monitoring</div>
+                <div class="palette-nodes" id="conditionalDecGroup">
+                    <div class="node-item decorator" draggable="true" data-type="Timeout"
+                        data-search="timeout timer duration deadline">
+                        <div class="node-item-title">Timeout</div>
+                        <div class="node-item-desc">Fail if child takes too long</div>
                     </div>
+                    <div class="node-item decorator" draggable="true" data-type="EternalGuard"
+                        data-search="eternal guard continuous monitor condition">
+                        <div class="node-item-title">Eternal Guard</div>
+                        <div class="node-item-desc">Continuous condition monitoring</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="Condition"
+                        data-search="condition wait blocking guard">
+                        <div class="node-item-title">Condition</div>
+                        <div class="node-item-desc">Blocking conditional decorator</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="Count"
+                        data-search="count statistics track monitor">
+                        <div class="node-item-title">Count</div>
+                        <div class="node-item-desc">Track execution statistics</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="StatusToBlackboard"
+                        data-search="status blackboard write store">
+                        <div class="node-item-title">Status To Blackboard</div>
+                        <div class="node-item-desc">Write child status to blackboard</div>
+                    </div>
+                    <div class="node-item decorator" draggable="true" data-type="PassThrough"
+                        data-search="passthrough debug transparent">
+                        <div class="node-item-title">Pass Through</div>
+                        <div class="node-item-desc">No-op decorator for debugging</div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS SECTION -->
+                <div class="section-title">ACTIONS (13+)</div>
+
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Basic Status</div>
+                <div class="palette-nodes" id="basicStatusGroup">
                     <div class="node-item action" draggable="true" data-type="Success"
-                        data-search="success always true">
+                        data-search="success always true pass">
                         <div class="node-item-title">Success</div>
                         <div class="node-item-desc">Always return SUCCESS</div>
                     </div>
                     <div class="node-item action" draggable="true" data-type="Failure"
-                        data-search="failure always false">
+                        data-search="failure always false fail">
                         <div class="node-item-title">Failure</div>
                         <div class="node-item-desc">Always return FAILURE</div>
                     </div>
+                    <div class="node-item action" draggable="true" data-type="Running"
+                        data-search="running always pending">
+                        <div class="node-item-title">Running</div>
+                        <div class="node-item-desc">Always return RUNNING</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="Dummy"
+                        data-search="dummy test placeholder">
+                        <div class="node-item-title">Dummy</div>
+                        <div class="node-item-desc">Crash test dummy for testing</div>
+                    </div>
                 </div>
 
-                <div class="section-title">Conditions (Leaf nodes)</div>
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Time-Based</div>
+                <div class="palette-nodes" id="timeBasedGroup">
+                    <div class="node-item action" draggable="true" data-type="Wait"
+                        data-search="wait sleep delay pause timer">
+                        <div class="node-item-title">Wait</div>
+                        <div class="node-item-desc">Wait for duration</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="TickCounter"
+                        data-search="tick counter count number">
+                        <div class="node-item-title">Tick Counter</div>
+                        <div class="node-item-desc">Count N ticks before completing</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="SuccessEveryN"
+                        data-search="success every n periodic interval">
+                        <div class="node-item-title">Success Every N</div>
+                        <div class="node-item-desc">Return SUCCESS every N ticks</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="Periodic"
+                        data-search="periodic cycle rotate status">
+                        <div class="node-item-title">Periodic</div>
+                        <div class="node-item-desc">Cycle through statuses periodically</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="StatusQueue"
+                        data-search="status queue sequence list">
+                        <div class="node-item-title">Status Queue</div>
+                        <div class="node-item-desc">Cycle through predefined status queue</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Blackboard Operations</div>
+                <div class="palette-nodes" id="blackboardActionsGroup">
+                    <div class="node-item action" draggable="true" data-type="SetBlackboardVariable"
+                        data-search="set write variable store blackboard">
+                        <div class="node-item-title">Set Variable</div>
+                        <div class="node-item-desc">Write to blackboard (REAL ACTION)</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="GetBlackboardVariable"
+                        data-search="get read variable fetch blackboard">
+                        <div class="node-item-title">Get Variable</div>
+                        <div class="node-item-desc">Read from blackboard</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="UnsetBlackboardVariable"
+                        data-search="unset delete remove clear blackboard">
+                        <div class="node-item-title">Unset Variable</div>
+                        <div class="node-item-desc">Remove blackboard variable</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="BlackboardToStatus"
+                        data-search="blackboard status read return">
+                        <div class="node-item-title">Blackboard To Status</div>
+                        <div class="node-item-desc">Return status from blackboard</div>
+                    </div>
+                </div>
+
+                <div style="font-size: 10px; font-weight: 600; color: #6c6c6c; margin: 8px 0 4px 8px;">Utilities</div>
+                <div class="palette-nodes" id="utilitiesGroup">
+                    <div class="node-item action" draggable="true" data-type="Log"
+                        data-search="log print debug message console">
+                        <div class="node-item-title">Log</div>
+                        <div class="node-item-desc">Log message (debug only)</div>
+                    </div>
+                    <div class="node-item action" draggable="true" data-type="CheckBlackboardCondition"
+                        data-search="check blackboard condition test if">
+                        <div class="node-item-title">Check Blackboard Condition</div>
+                        <div class="node-item-desc">Check blackboard value with operator</div>
+                    </div>
+                </div>
+
+                <!-- CONDITIONS SECTION -->
+                <div class="section-title">CONDITIONS (5)</div>
                 <div class="palette-nodes" id="conditionsGroup">
                     <div class="node-item condition" draggable="true" data-type="CheckBlackboardVariableExists"
-                        data-search="check exists has key">
+                        data-search="check exists has key blackboard">
                         <div class="node-item-title">Check Variable Exists</div>
                         <div class="node-item-desc">Check if blackboard key exists</div>
+                    </div>
+                    <div class="node-item condition" draggable="true" data-type="WaitForBlackboardVariable"
+                        data-search="wait blackboard variable exists blocking">
+                        <div class="node-item-title">Wait For Variable</div>
+                        <div class="node-item-desc">Blocking wait for variable existence</div>
+                    </div>
+                    <div class="node-item condition" draggable="true" data-type="WaitForBlackboardVariableValue"
+                        data-search="wait blackboard value condition blocking">
+                        <div class="node-item-title">Wait For Value</div>
+                        <div class="node-item-desc">Blocking wait for value condition</div>
+                    </div>
+                    <div class="node-item condition" draggable="true" data-type="CheckBlackboardVariableValue"
+                        data-search="check blackboard value condition test">
+                        <div class="node-item-title">Check Variable Value</div>
+                        <div class="node-item-desc">Check single blackboard condition</div>
+                    </div>
+                    <div class="node-item condition" draggable="true" data-type="CheckBlackboardVariableValues"
+                        data-search="check blackboard multiple conditions and or">
+                        <div class="node-item-title">Check Multiple Values</div>
+                        <div class="node-item-desc">Check multiple conditions with AND/OR</div>
+                    </div>
+                </div>
+
+                <!-- PROBABILISTIC SECTION -->
+                <div class="section-title">PROBABILISTIC (1)</div>
+                <div class="palette-nodes" id="probabilisticGroup">
+                    <div class="node-item action" draggable="true" data-type="ProbabilisticBehaviour"
+                        data-search="probabilistic random weighted chance">
+                        <div class="node-item-title">Probabilistic Behaviour</div>
+                        <div class="node-item-desc">Weighted random status selection</div>
+                    </div>
+                </div>
+
+                <!-- CUSTOM SECTION -->
+                <div class="section-title">CUSTOM (1+)</div>
+                <div class="palette-nodes" id="customGroup">
+                    <div class="node-item action" draggable="true" data-type="CheckBattery"
+                        data-search="check battery level threshold custom">
+                        <div class="node-item-title">Check Battery</div>
+                        <div class="node-item-desc">Check battery above threshold</div>
                     </div>
                 </div>
             </div>
@@ -1154,22 +1328,83 @@
         let historyIndex = -1;
         const MAX_HISTORY = 50;
 
-        // Node Definitions
+        // Enum options for dropdown selectors
+        const ENUM_OPTIONS = {
+            'operator': ['<', '<=', '==', '!=', '>=', '>'],
+            'operator_str': ['<', '<=', '==', '!=', '>=', '>'],
+            'policy': ['SuccessOnAll', 'SuccessOnOne'],
+            'oneshot_policy': ['ON_COMPLETION', 'ON_SUCCESSFUL_COMPLETION'],
+            'final_status': ['SUCCESS', 'FAILURE'],
+            'eventually': ['null', 'SUCCESS', 'FAILURE', 'RUNNING'],
+            'logical_operator': ['and', 'or']
+        };
+
+        // Node Definitions (40+ node types)
         const NODE_DEFS = {
+            // ===== COMPOSITES (3) =====
             'Sequence': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { memory: true } },
             'Selector': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { memory: false } },
-            'Parallel': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { policy: 'success_on_all' } },
+            'Parallel': { category: 'composite', canHaveChildren: true, maxChildren: -1, config: { policy: 'SuccessOnAll', synchronise: true } },
+
+            // ===== DECORATORS (14) =====
+            // Status Converters (7)
             'Inverter': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
-            'Retry': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { num_tries: 3 } },
+            'SuccessIsFailure': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'FailureIsSuccess': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'FailureIsRunning': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'RunningIsFailure': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'RunningIsSuccess': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'SuccessIsRunning': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'PassThrough': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+
+            // Repetition & Control (3)
+            'Retry': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { num_failures: 3 } },
+            'Repeat': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { num_success: 2 } },
+            'OneShot': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { policy: 'ON_COMPLETION' } },
+
+            // Conditionals & Monitoring (4)
             'Timeout': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { duration: 5.0 } },
-            'CheckBlackboardCondition': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'value', operator_str: '==', value: 0 } },
-            'SetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result', value: '' } },
-            'GetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result' } },
-            'Log': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { message: 'Log message' } },
-            'Wait': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { duration: 1.0 } },
+            'EternalGuard': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'condition', operator: '==', value: 0 } },
+            'Condition': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'condition', operator: '==', value: 0 } },
+            'Count': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: {} },
+            'StatusToBlackboard': { category: 'decorator', canHaveChildren: true, maxChildren: 1, config: { variable: 'status' } },
+
+            // ===== ACTIONS (13+) =====
+            // Basic Status (4)
             'Success': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
             'Failure': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
-            'CheckBlackboardVariableExists': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable_name: 'key' } }
+            'Running': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
+            'Dummy': { category: 'action', canHaveChildren: false, maxChildren: 0, config: {} },
+
+            // Time-Based (5)
+            'Wait': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { duration: 1.0 } },
+            'TickCounter': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { num_ticks: 1, final_status: 'SUCCESS' } },
+            'SuccessEveryN': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { n: 2 } },
+            'Periodic': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { n: 3 } },
+            'StatusQueue': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { queue: ['SUCCESS'], eventually: 'null' } },
+
+            // Blackboard Operations (4)
+            'SetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result', value: '' } },
+            'GetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'result' } },
+            'UnsetBlackboardVariable': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'var' } },
+            'BlackboardToStatus': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'status' } },
+
+            // Utilities (2)
+            'Log': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { message: 'Log message' } },
+            'CheckBlackboardCondition': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { variable: 'value', operator_str: '==', value: 0 } },
+
+            // ===== CONDITIONS (5) =====
+            'CheckBlackboardVariableExists': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable: 'key' } },
+            'WaitForBlackboardVariable': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable: 'var' } },
+            'WaitForBlackboardVariableValue': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable: 'var', operator: '==', value: 0 } },
+            'CheckBlackboardVariableValue': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { variable: 'var', operator: '==', value: 0 } },
+            'CheckBlackboardVariableValues': { category: 'condition', canHaveChildren: false, maxChildren: 0, config: { checks: [], logical_operator: 'and' } },
+
+            // ===== PROBABILISTIC (1) =====
+            'ProbabilisticBehaviour': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { weights: [1.0, 1.0, 1.0] } },
+
+            // ===== CUSTOM (1+) =====
+            'CheckBattery': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { threshold: 0.2 } }
         };
 
         // Resize canvas to match container (CRITICAL FIX for viewport bugs)
@@ -2236,7 +2471,35 @@
                     const value = node.config[key];
                     const labelText = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 
-                    if (typeof value === 'boolean') {
+                    // Check if this is an enum property (has dropdown options)
+                    if (key in ENUM_OPTIONS) {
+                        const options = ENUM_OPTIONS[key];
+                        html += `
+                            <div class="prop-group">
+                                <div class="prop-label">${labelText}</div>
+                                <select class="prop-input" onchange="updateNodeConfig('${key}', this.value)">
+                                    ${options.map(opt =>
+                                        `<option value="${opt}" ${value == opt ? 'selected' : ''}>${opt}</option>`
+                                    ).join('')}
+                                </select>
+                            </div>
+                        `;
+                    }
+                    // Check if this is an array property
+                    else if (Array.isArray(value)) {
+                        const jsonValue = JSON.stringify(value, null, 2);
+                        html += `
+                            <div class="prop-group">
+                                <div class="prop-label">${labelText}</div>
+                                <textarea class="prop-input" rows="4"
+                                          onchange="updateNodeConfigArray('${key}', this.value)"
+                                          placeholder="Enter JSON array">${jsonValue}</textarea>
+                                <div style="font-size: 10px; color: #858585; margin-top: 4px;">JSON array format</div>
+                            </div>
+                        `;
+                    }
+                    // Boolean checkbox
+                    else if (typeof value === 'boolean') {
                         html += `
                             <div class="prop-group">
                                 <div class="prop-checkbox">
@@ -2247,7 +2510,9 @@
                                 </div>
                             </div>
                         `;
-                    } else {
+                    }
+                    // Regular text/number input
+                    else {
                         html += `
                             <div class="prop-group">
                                 <div class="prop-label">${labelText}</div>
@@ -2310,6 +2575,24 @@
                 selectedNode.config[key] = value;
                 saveHistory();
                 render();
+            }
+        }
+
+        function updateNodeConfigArray(key, value) {
+            if (selectedNode) {
+                try {
+                    const parsed = JSON.parse(value);
+                    if (Array.isArray(parsed)) {
+                        selectedNode.config[key] = parsed;
+                        saveHistory();
+                        render();
+                        updateStatus('✓ Array updated');
+                    } else {
+                        updateStatus('❌ Must be a valid JSON array');
+                    }
+                } catch (e) {
+                    updateStatus('❌ Invalid JSON format: ' + e.message);
+                }
             }
         }
 

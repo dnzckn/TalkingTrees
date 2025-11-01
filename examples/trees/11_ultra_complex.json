@@ -1,0 +1,421 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "ultra-complex-demo",
+  "metadata": {
+    "name": "Ultra Complex Demo - All Node Types",
+    "version": "1.0.0",
+    "description": "Comprehensive demonstration of all 40+ node types including status converters, advanced decorators, time-based behaviors, probabilistic nodes, and complex blackboard operations",
+    "author": "TalkingTrees",
+    "tags": ["demo", "comprehensive", "advanced"],
+    "status": "production"
+  },
+  "root": {
+    "node_type": "Selector",
+    "name": "Main Controller",
+    "config": {
+      "memory": false
+    },
+    "children": [
+      {
+        "node_type": "Sequence",
+        "name": "Emergency Branch",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "CheckBlackboardVariableValue",
+            "name": "Check Critical Battery",
+            "config": {
+              "variable": "battery",
+              "operator": "<",
+              "value": 10
+            }
+          },
+          {
+            "node_type": "Timeout",
+            "name": "Emergency Timeout",
+            "config": {
+              "duration": 5.0
+            },
+            "children": [
+              {
+                "node_type": "Inverter",
+                "name": "Invert Result",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Set Emergency Mode",
+                    "config": {
+                      "variable": "emergency_mode",
+                      "value": "true"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Status Converters Demo",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "SuccessIsFailure",
+            "name": "Convert Success to Failure",
+            "config": {},
+            "children": [
+              {
+                "node_type": "FailureIsSuccess",
+                "name": "Convert Failure to Success",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Success",
+                    "name": "Always Succeed",
+                    "config": {}
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "node_type": "RunningIsSuccess",
+            "name": "Convert Running to Success",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Running",
+                "name": "Always Running",
+                "config": {}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Repetition Demo",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "Retry",
+            "name": "Retry 3 Times",
+            "config": {
+              "num_failures": 3
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableExists",
+                "name": "Check Data Exists",
+                "config": {
+                  "variable": "sensor_data"
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Repeat",
+            "name": "Repeat 5 Times",
+            "config": {
+              "num_success": 5
+            },
+            "children": [
+              {
+                "node_type": "TickCounter",
+                "name": "Count 10 Ticks",
+                "config": {
+                  "num_ticks": 10,
+                  "final_status": "SUCCESS"
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "OneShot",
+            "name": "Execute Once",
+            "config": {
+              "policy": "ON_SUCCESSFUL_COMPLETION"
+            },
+            "children": [
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Initialize System",
+                "config": {
+                  "variable": "initialized",
+                  "value": "true"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Parallel Processing Demo",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "Parallel",
+            "name": "Parallel Sensors",
+            "config": {
+              "policy": "SuccessOnAll",
+              "synchronise": true
+            },
+            "children": [
+              {
+                "node_type": "Wait",
+                "name": "Camera Scan",
+                "config": {
+                  "duration": 2.0
+                }
+              },
+              {
+                "node_type": "Wait",
+                "name": "Lidar Scan",
+                "config": {
+                  "duration": 2.0
+                }
+              },
+              {
+                "node_type": "Success",
+                "name": "GPS Update",
+                "config": {}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Advanced Conditionals Demo",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "EternalGuard",
+            "name": "Guard Battery Level",
+            "config": {
+              "variable": "battery",
+              "operator": ">",
+              "value": 20
+            },
+            "children": [
+              {
+                "node_type": "Condition",
+                "name": "Wait for Ready Signal",
+                "config": {
+                  "variable": "ready",
+                  "operator": "==",
+                  "value": 1
+                },
+                "children": [
+                  {
+                    "node_type": "Success",
+                    "name": "Execute Task",
+                    "config": {}
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "node_type": "WaitForBlackboardVariableValue",
+            "name": "Wait for Mission Start",
+            "config": {
+              "variable": "mission_status",
+              "operator": "==",
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Time-Based Behaviors Demo",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "SuccessEveryN",
+            "name": "Success Every 3 Ticks",
+            "config": {
+              "n": 3
+            }
+          },
+          {
+            "node_type": "Periodic",
+            "name": "Periodic Cycle",
+            "config": {
+              "n": 5
+            }
+          },
+          {
+            "node_type": "StatusQueue",
+            "name": "Status Sequence",
+            "config": {
+              "queue": ["SUCCESS", "FAILURE", "RUNNING", "SUCCESS"],
+              "eventually": "SUCCESS"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Blackboard Operations Demo",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "SetBlackboardVariable",
+            "name": "Set Counter",
+            "config": {
+              "variable": "counter",
+              "value": "0"
+            }
+          },
+          {
+            "node_type": "GetBlackboardVariable",
+            "name": "Get Counter",
+            "config": {
+              "variable": "counter"
+            }
+          },
+          {
+            "node_type": "CheckBlackboardVariableValues",
+            "name": "Check Multiple Conditions",
+            "config": {
+              "checks": [
+                {"variable": "battery", "operator": ">", "value": 30},
+                {"variable": "temperature", "operator": "<", "value": 80}
+              ],
+              "logical_operator": "and"
+            }
+          },
+          {
+            "node_type": "UnsetBlackboardVariable",
+            "name": "Clear Temp Data",
+            "config": {
+              "variable": "temp_data"
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Monitoring Demo",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "Count",
+            "name": "Count Executions",
+            "config": {},
+            "children": [
+              {
+                "node_type": "StatusToBlackboard",
+                "name": "Store Status",
+                "config": {
+                  "variable": "last_status"
+                },
+                "children": [
+                  {
+                    "node_type": "Success",
+                    "name": "Task",
+                    "config": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Probabilistic Demo",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "ProbabilisticBehaviour",
+            "name": "Random Decision",
+            "config": {
+              "weights": [0.5, 0.3, 0.2]
+            }
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "More Status Converters",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "FailureIsRunning",
+            "name": "Failure to Running",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Failure",
+                "name": "Always Fail",
+                "config": {}
+              }
+            ]
+          },
+          {
+            "node_type": "RunningIsFailure",
+            "name": "Running to Failure",
+            "config": {},
+            "children": [
+              {
+                "node_type": "Dummy",
+                "name": "Dummy Node",
+                "config": {}
+              }
+            ]
+          },
+          {
+            "node_type": "SuccessIsRunning",
+            "name": "Success to Running",
+            "config": {},
+            "children": [
+              {
+                "node_type": "PassThrough",
+                "name": "Debug Passthrough",
+                "config": {},
+                "children": [
+                  {
+                    "node_type": "Success",
+                    "name": "Final Success",
+                    "config": {}
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Success",
+        "name": "Fallback Success",
+        "config": {}
+      }
+    ]
+  }
+}
