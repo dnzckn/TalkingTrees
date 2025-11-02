@@ -152,8 +152,61 @@ class FileSystemTreeLibrary(TreeLibrary):
         tags: list[str] | None = None,
         status: str | None = None,
     ) -> list[TreeCatalogEntry]:
-        """List all trees in the library."""
-        entries = list(self.catalog.values())
+        """List all trees in the library by scanning the filesystem."""
+        # Dynamically scan the filesystem to build the catalog
+        entries = []
+
+        # Scan each tree directory
+        for tree_dir in self.trees_path.iterdir():
+            if not tree_dir.is_dir():
+                continue
+
+            metadata_path = tree_dir / "metadata.json"
+            if not metadata_path.exists():
+                continue
+
+            try:
+                with open(metadata_path) as f:
+                    metadata = json.load(f)
+
+                # Determine latest version
+                latest_version = "draft"
+                tree_status = TreeStatus.DRAFT
+
+                # Check for draft file
+                draft_path = tree_dir / "draft.json"
+                if draft_path.exists():
+                    with open(draft_path) as f:
+                        draft_data = json.load(f)
+                        tree_metadata = draft_data.get("metadata", {})
+                        latest_version = tree_metadata.get("version", "draft")
+                        status_str = tree_metadata.get("status", "draft")
+                        tree_status = TreeStatus(status_str) if isinstance(status_str, str) else status_str
+                else:
+                    # Get latest version from versions list
+                    versions = metadata.get("versions", [])
+                    if versions:
+                        latest = next((v for v in versions if v.get("is_latest")), versions[-1])
+                        latest_version = latest.get("version", "1.0.0")
+                        status_str = latest.get("status", "active")
+                        tree_status = TreeStatus(status_str) if isinstance(status_str, str) else status_str
+
+                # Create catalog entry
+                entry = TreeCatalogEntry(
+                    tree_id=UUID(metadata["tree_id"]),
+                    tree_name=metadata["tree_name"],
+                    display_name=metadata.get("display_name", metadata["tree_name"]),
+                    latest_version=latest_version,
+                    status=tree_status,
+                    tags=metadata.get("tags", []),
+                    description=metadata.get("description", ""),
+                    modified_at=metadata.get("modified_at", datetime.utcnow()),
+                )
+                entries.append(entry)
+
+            except (json.JSONDecodeError, KeyError) as e:
+                # Skip invalid metadata files
+                continue
 
         # Filter by tags
         if tags:

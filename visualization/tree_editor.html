@@ -1206,15 +1206,20 @@
             </div>
             <div class="sidebar-content" id="libraryTab" style="display: none;">
                 <div style="padding: 10px; background: #2d2d30; margin: -15px -15px 10px -15px; border-bottom: 1px solid #3e3e42;">
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-                        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                            <input type="radio" name="libMode" value="local" checked onchange="loadLibraryMode('local')" style="cursor: pointer;">
-                            <span style="color: #d4d4d4; font-size: 12px;">Local</span>
-                        </label>
-                        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
-                            <input type="radio" name="libMode" value="remote" onchange="loadLibraryMode('remote')" style="cursor: pointer;">
-                            <span style="color: #d4d4d4; font-size: 12px;">Remote</span>
-                        </label>
+                    <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px;">
+                        <div style="display: flex; align-items: center; gap: 15px;">
+                            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="libMode" value="local" checked onchange="loadLibraryMode('local')" style="cursor: pointer;">
+                                <span style="color: #d4d4d4; font-size: 12px;">Local</span>
+                            </label>
+                            <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                                <input type="radio" name="libMode" value="remote" onchange="loadLibraryMode('remote')" style="cursor: pointer;">
+                                <span style="color: #d4d4d4; font-size: 12px;">Remote</span>
+                            </label>
+                        </div>
+                        <button onclick="openFolderPicker()" style="background: #3e3e42; border: 1px solid #555; color: #d4d4d4; padding: 4px 8px; border-radius: 3px; font-size: 11px; cursor: pointer; white-space: nowrap;" title="Load trees from a folder on your computer">
+                            📁 Open Folder
+                        </button>
                     </div>
                     <input type="text" class="library-search" id="librarySearch" placeholder="Search library..."
                         onkeyup="filterLibrary()" style="margin: 0;">
@@ -1227,10 +1232,6 @@
 
         <!-- Canvas -->
         <div class="canvas-area" id="canvasArea">
-            <div class="canvas-overlay" id="canvasHint">
-                <strong>Quick Start:</strong> Drag nodes from the palette onto the canvas, then Shift+Click parent →
-                Click child to connect.
-            </div>
             <canvas id="treeCanvas"></canvas>
         </div>
 
@@ -5312,6 +5313,114 @@ async function getLibrary() {
                 updateStatus(`Loaded from API: ${treeName}`);
             } catch (error) {
                 alert(`Error loading tree from API: ${error.message}`);
+            }
+        }
+
+        async function openFolderPicker() {
+            try {
+                // Check if File System Access API is supported
+                if (!('showDirectoryPicker' in window)) {
+                    alert('Folder picker is not supported in your browser. Please use Chrome, Edge, or another Chromium-based browser.');
+                    return;
+                }
+
+                // Open folder picker
+                const dirHandle = await window.showDirectoryPicker();
+
+                // Load trees from the selected folder
+                await loadTreesFromFolder(dirHandle);
+
+            } catch (error) {
+                if (error.name !== 'AbortError') {
+                    console.error('Error opening folder:', error);
+                    alert(`Error opening folder: ${error.message}`);
+                }
+            }
+        }
+
+        async function loadTreesFromFolder(dirHandle) {
+            const content = document.getElementById('libraryContent');
+            content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">Scanning folder...</div>';
+
+            try {
+                const trees = [];
+
+                // Scan directory for .json files
+                for await (const entry of dirHandle.values()) {
+                    if (entry.kind === 'file' && entry.name.endsWith('.json')) {
+                        try {
+                            const file = await entry.getFile();
+                            const text = await file.text();
+                            const treeData = JSON.parse(text);
+
+                            // Check if it's a valid tree (has metadata)
+                            if (treeData.metadata) {
+                                trees.push({
+                                    name: treeData.metadata.name || entry.name,
+                                    description: treeData.metadata.description || 'No description',
+                                    tags: treeData.metadata.tags || [],
+                                    version: treeData.metadata.version || '1.0.0',
+                                    file: entry,
+                                    treeData: treeData
+                                });
+                            }
+                        } catch (e) {
+                            // Skip invalid JSON files
+                            console.warn(`Skipping invalid file: ${entry.name}`, e);
+                        }
+                    }
+                }
+
+                if (trees.length === 0) {
+                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center; font-size: 12px;">No valid tree files found in folder</div>';
+                    return;
+                }
+
+                // Display trees
+                let html = `<div style="padding: 10px; background: #2d2d30; margin: -15px -15px 10px -15px; border-bottom: 1px solid #3e3e42; font-size: 11px; color: #858585;">
+                    📁 ${dirHandle.name} (${trees.length} tree${trees.length !== 1 ? 's' : ''})
+                </div>`;
+
+                trees.forEach((tree, index) => {
+                    html += `
+                        <div class="library-item" onclick="loadTreeFromFolder(${index})">
+                            <div class="library-item-title">${tree.name}</div>
+                            <div class="library-item-desc">${tree.description}</div>
+                            <div class="library-item-meta">
+                                <span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">v${tree.version}</span>
+                                ${tree.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = html;
+
+                // Store trees in global variable for loading
+                window.folderTrees = trees;
+
+            } catch (error) {
+                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center; font-size: 11px;">Error scanning folder: ${error.message}</div>`;
+            }
+        }
+
+        async function loadTreeFromFolder(index) {
+            if (!window.folderTrees || !window.folderTrees[index]) {
+                alert('Error: Tree not found in folder cache');
+                return;
+            }
+
+            const tree = window.folderTrees[index];
+
+            if (nodes.length > 0 && !confirm(`Load "${tree.name}"? Current tree will be lost if not saved.`)) {
+                return;
+            }
+
+            try {
+                await importTreeFromJSON(tree.treeData);
+                updateStatus(`Loaded: ${tree.name}`);
+            } catch (error) {
+                alert(`Error loading tree: ${error.message}`);
             }
         }
 
