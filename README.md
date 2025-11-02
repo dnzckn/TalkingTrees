@@ -38,11 +38,11 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
 pip install -e .
 ```
 
-### Basic Usage
+### Python SDK
 
 ```python
 from talking_trees.sdk import TalkingTrees
-from talking_trees.adapters import from_py_trees, to_py_trees
+from talking_trees.adapters import from_py_trees, to_py_trees, compare_py_trees
 import py_trees
 
 # Create a py_trees behavior tree
@@ -61,29 +61,9 @@ tt.save_tree(tt_tree, "my_tree.json")
 # Load and convert back
 loaded = tt.load_tree("my_tree.json")
 py_trees_root = to_py_trees(loaded)
-```
 
-## Python SDK
-
-The SDK provides high-level functions for working with behavior trees:
-
-```python
-from talking_trees.sdk import TalkingTrees
-from talking_trees.adapters import from_py_trees, to_py_trees, compare_py_trees
-
-# Serialize py_trees to JSON
-tt_tree, context = from_py_trees(root, name="My Tree", version="1.0.0")
-
-# Save/load trees
-tt = TalkingTrees()
-tt.save_tree(tt_tree, "output.json")
-loaded = tt.load_tree("input.json")
-
-# Deserialize back to py_trees
-py_trees_root = to_py_trees(loaded)
-
-# Verify round-trip conversion
-assert compare_py_trees(original_root, py_trees_root)
+# Verify round-trip conversion (optional)
+assert compare_py_trees(root, py_trees_root)
 ```
 
 ## FastAPI-based REST API
