@@ -68,7 +68,7 @@ class ComprehensiveCoverageTest:
             tt_tree, context = from_py_trees(root_node, name=name, version="1.0.0")
 
             if context.has_warnings():
-                print(f"  ⚠ Conversion warnings: {len(context.warnings)}")
+                print(f"  [WARNING] Conversion warnings: {len(context.warnings)}")
                 for warning in context.warnings:
                     print(f"    - {warning}")
 
@@ -94,7 +94,7 @@ class ComprehensiveCoverageTest:
             if not is_valid:
                 error_msg = validator.get_error_summary()
                 self.results.append((name, False, error_msg))
-                print(f"❌ {name}")
+                print(f"[FAIL] {name}")
                 print(f"   {error_msg}")
                 return False
 
@@ -107,14 +107,14 @@ class ComprehensiveCoverageTest:
                 bt.setup()
                 bt.tick()  # Should not crash
 
-            self.results.append((name, True, "✓ Complete reversibility verified"))
-            print(f"✅ {name}")
+            self.results.append((name, True, " Complete reversibility verified"))
+            print(f"[PASS] {name}")
             return True
 
         except Exception as e:
             error_msg = f"Exception: {str(e)}"
             self.results.append((name, False, error_msg))
-            print(f"❌ {name}")
+            print(f"[FAIL] {name}")
             print(f"   {error_msg}")
             return False
 
@@ -433,7 +433,7 @@ class ComprehensiveCoverageTest:
             print("=" * 80)
             for name, result, message in self.results:
                 if not result:
-                    print(f"\n❌ {name}")
+                    print(f"\n[FAIL] {name}")
                     print(f"   {message}")
 
         print("\n" + "=" * 80)
@@ -442,25 +442,25 @@ class ComprehensiveCoverageTest:
 
         coverage = {
             "Composites": {
-                "Sequence": "✅ Fully tested (memory=True/False)",
-                "Selector": "✅ Fully tested (memory=True/False)",
-                "Parallel": "✅ Fully tested (SuccessOnAll/SuccessOnOne)",
+                "Sequence": "[PASS] Fully tested (memory=True/False)",
+                "Selector": "[PASS] Fully tested (memory=True/False)",
+                "Parallel": "[PASS] Fully tested (SuccessOnAll/SuccessOnOne)",
             },
             "Decorators": {
-                "Inverter": "✅ Fully tested",
-                "Timeout": "✅ Fully tested (multiple durations)",
-                "Retry": "✅ Fully tested (multiple attempts)",
-                "OneShot": "⚠️  Registered but not tested",
-                "Repeat": "⚠️  In adapter but not in registry",
-                "Other decorators": "❌ Not implemented (FailureIsRunning, etc.)",
+                "Inverter": "[PASS] Fully tested",
+                "Timeout": "[PASS] Fully tested (multiple durations)",
+                "Retry": "[PASS] Fully tested (multiple attempts)",
+                "OneShot": "[WARNING]  Registered but not tested",
+                "Repeat": "[WARNING]  In adapter but not in registry",
+                "Other decorators": "[FAIL] Not implemented (FailureIsRunning, etc.)",
             },
             "Behaviors": {
-                "Success": "✅ Fully tested",
-                "Failure": "✅ Fully tested",
-                "Running": "✅ Fully tested",
-                "SetBlackboardVariable": "✅ Fully tested (all types)",
-                "CheckBlackboardVariableValue": "✅ Fully tested (all operators)",
-                "Other behaviors": "❌ Not implemented (TickCounter, Wait*, etc.)",
+                "Success": "[PASS] Fully tested",
+                "Failure": "[PASS] Fully tested",
+                "Running": "[PASS] Fully tested",
+                "SetBlackboardVariable": "[PASS] Fully tested (all types)",
+                "CheckBlackboardVariableValue": "[PASS] Fully tested (all operators)",
+                "Other behaviors": "[FAIL] Not implemented (TickCounter, Wait*, etc.)",
             },
         }
 
@@ -471,9 +471,9 @@ class ComprehensiveCoverageTest:
 
         print("\n" + "=" * 80)
         if passed == total:
-            print("✅ ALL TESTS PASSED - Complete reversibility verified!")
+            print("[PASS] ALL TESTS PASSED - Complete reversibility verified!")
         else:
-            print("⚠️  SOME TESTS FAILED - Review failures above")
+            print("[WARNING]  SOME TESTS FAILED - Review failures above")
         print("=" * 80)
         print()
 

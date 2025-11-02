@@ -35,10 +35,10 @@ def test_simple_round_trip():
     is_valid = validator.validate(original, round_trip)
 
     if is_valid:
-        print("✓ PASSED: Simple tree round-trip successful")
+        print(" PASSED: Simple tree round-trip successful")
         print(validator.get_error_summary())
     else:
-        print("✗ FAILED: Validation errors:")
+        print("[X] FAILED: Validation errors:")
         print(validator.get_error_summary())
 
     print()
@@ -86,10 +86,10 @@ def test_complex_round_trip():
     is_valid = validator.validate(original, round_trip)
 
     if is_valid:
-        print("✓ PASSED: Complex tree round-trip successful")
+        print(" PASSED: Complex tree round-trip successful")
         print(validator.get_error_summary())
     else:
-        print("✗ FAILED: Validation errors:")
+        print("[X] FAILED: Validation errors:")
         print(validator.get_error_summary())
 
     print()
@@ -128,7 +128,7 @@ def test_setblackboard_round_trip():
 
     # Check for conversion warnings
     if context.has_warnings():
-        print("⚠ Conversion warnings detected:")
+        print("[WARNING] Conversion warnings detected:")
         print(context.summary())
         print()
 
@@ -139,10 +139,10 @@ def test_setblackboard_round_trip():
     is_valid = validator.validate(original, round_trip)
 
     if is_valid:
-        print("✓ PASSED: SetBlackboardVariable values preserved")
+        print(" PASSED: SetBlackboardVariable values preserved")
         print(validator.get_error_summary())
     else:
-        print("⚠ FAILED: SetBlackboardVariable values NOT preserved")
+        print("[WARNING] FAILED: SetBlackboardVariable values NOT preserved")
         print(validator.get_error_summary())
         print("\nNote: This is a known issue with py_trees - values may not be")
         print("      accessible after construction due to private attributes.")
@@ -181,10 +181,10 @@ def test_decorator_round_trip():
     is_valid = validator.validate(original, round_trip)
 
     if is_valid:
-        print("✓ PASSED: Decorator tree round-trip successful")
+        print(" PASSED: Decorator tree round-trip successful")
         print(validator.get_error_summary())
     else:
-        print("✗ FAILED: Validation errors:")
+        print("[X] FAILED: Validation errors:")
         print(validator.get_error_summary())
 
     print()
@@ -223,14 +223,14 @@ def test_memory_parameter():
 
     # Check memory specifically
     if round_trip.memory is False and round_trip.children[0].memory is True:
-        print(f"✓ Root memory: {round_trip.memory} (expected: False)")
-        print(f"✓ Child memory: {round_trip.children[0].memory} (expected: True)")
+        print(f" Root memory: {round_trip.memory} (expected: False)")
+        print(f" Child memory: {round_trip.children[0].memory} (expected: True)")
 
     if is_valid:
-        print("✓ PASSED: Memory parameters preserved")
+        print(" PASSED: Memory parameters preserved")
         print(validator.get_error_summary())
     else:
-        print("✗ FAILED: Memory parameters NOT preserved")
+        print("[X] FAILED: Memory parameters NOT preserved")
         print(validator.get_error_summary())
 
     print()
@@ -238,7 +238,7 @@ def test_memory_parameter():
 
 
 if __name__ == "__main__":
-    print("\n🧪 Testing Round-Trip Conversion Validation\n")
+    print("\n Testing Round-Trip Conversion Validation\n")
 
     results = []
     results.append(("Simple Round-Trip", test_simple_round_trip()))
@@ -252,15 +252,15 @@ if __name__ == "__main__":
     print("=" * 70)
 
     for name, passed in results:
-        status = "✓ PASSED" if passed else "✗ FAILED"
+        status = " PASSED" if passed else "[X] FAILED"
         print(f"{status}: {name}")
 
     all_passed = all(passed for _, passed in results)
 
     if all_passed:
-        print("\n✅ All tests passed! Round-trip validation is working correctly.")
+        print("\n[PASS] All tests passed! Round-trip validation is working correctly.")
     else:
-        print("\n⚠ Some tests failed. This may indicate:")
+        print("\n[WARNING] Some tests failed. This may indicate:")
         print("  - SetBlackboardVariable value extraction issues (known limitation)")
         print("  - Other conversion problems that need investigation")
 

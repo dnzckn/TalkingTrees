@@ -37,9 +37,9 @@ def test_uuid_stability():
 
     # Check root UUIDs match
     if tt_tree1.root.node_id == tt_tree2.root.node_id:
-        print("✓ Root UUID is stable:", tt_tree1.root.node_id)
+        print(" Root UUID is stable:", tt_tree1.root.node_id)
     else:
-        print("✗ Root UUID changed!")
+        print("[X] Root UUID changed!")
         print("  First:", tt_tree1.root.node_id)
         print("  Second:", tt_tree2.root.node_id)
         return False
@@ -47,13 +47,13 @@ def test_uuid_stability():
     # Check all child UUIDs match
     def compare_nodes(node1, node2, path="root"):
         if node1.node_id != node2.node_id:
-            print(f"✗ UUID mismatch at {path}")
+            print(f"[X] UUID mismatch at {path}")
             print(f"  First: {node1.node_id}")
             print(f"  Second: {node2.node_id}")
             return False
 
         if len(node1.children) != len(node2.children):
-            print(f"✗ Different number of children at {path}")
+            print(f"[X] Different number of children at {path}")
             return False
 
         for i, (child1, child2) in enumerate(zip(node1.children, node2.children)):
@@ -63,7 +63,7 @@ def test_uuid_stability():
         return True
 
     if compare_nodes(tt_tree1.root, tt_tree2.root):
-        print("✓ All node UUIDs are stable across conversions")
+        print(" All node UUIDs are stable across conversions")
     else:
         return False
 
@@ -87,11 +87,11 @@ def test_uuid_determinism():
     tt_tree2, _ = from_py_trees(root2, name="Tree2", use_deterministic_uuids=True)
 
     if tt_tree1.root.node_id != tt_tree2.root.node_id:
-        print("✓ Different structures produce different UUIDs")
+        print(" Different structures produce different UUIDs")
         print("  Sequence UUID:", tt_tree1.root.node_id)
         print("  Selector UUID:", tt_tree2.root.node_id)
     else:
-        print("✗ Same UUID for different structures!")
+        print("[X] Same UUID for different structures!")
         return False
 
     print()
@@ -110,11 +110,11 @@ def test_random_uuids():
     tt_tree2, _ = from_py_trees(root, name="Tree", use_deterministic_uuids=False)
 
     if tt_tree1.root.node_id != tt_tree2.root.node_id:
-        print("✓ Random UUIDs are different each time")
+        print(" Random UUIDs are different each time")
         print("  First:", tt_tree1.root.node_id)
         print("  Second:", tt_tree2.root.node_id)
     else:
-        print("✗ Random UUIDs are the same (unlikely but possible)")
+        print("[X] Random UUIDs are the same (unlikely but possible)")
 
     print()
     return True
@@ -148,11 +148,11 @@ def test_path_sensitivity():
     task2_uuid = tt_tree.root.children[1].children[0].node_id
 
     if task1_uuid != task2_uuid:
-        print("✓ Same name at different paths → different UUIDs")
+        print(" Same name at different paths → different UUIDs")
         print("  Root/Task:", task1_uuid)
         print("  Root/SubSeq/Task:", task2_uuid)
     else:
-        print("✗ Same UUID despite different paths!")
+        print("[X] Same UUID despite different paths!")
         return False
 
     print()
@@ -160,7 +160,7 @@ def test_path_sensitivity():
 
 
 if __name__ == "__main__":
-    print("\n🧪 Testing Deterministic UUID Generation\n")
+    print("\n Testing Deterministic UUID Generation\n")
 
     results = []
     results.append(("UUID Stability", test_uuid_stability()))
@@ -173,14 +173,14 @@ if __name__ == "__main__":
     print("=" * 70)
 
     for name, passed in results:
-        status = "✓ PASSED" if passed else "✗ FAILED"
+        status = " PASSED" if passed else "[X] FAILED"
         print(f"{status}: {name}")
 
     all_passed = all(passed for _, passed in results)
 
     if all_passed:
-        print("\n✅ All tests passed! Deterministic UUIDs are working correctly.")
+        print("\n[PASS] All tests passed! Deterministic UUIDs are working correctly.")
     else:
-        print("\n❌ Some tests failed. Check output above.")
+        print("\n[FAIL] Some tests failed. Check output above.")
 
     print()

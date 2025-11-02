@@ -359,7 +359,7 @@ class TalkingTrees:
 
         if verbose:
             print(
-                f"\nValidation Result: {'✓ VALID' if result.is_valid else '✗ INVALID'}"
+                f"\nValidation Result: {' VALID' if result.is_valid else '[X] INVALID'}"
             )
             print(
                 f"Errors: {result.error_count}, Warnings: {result.warning_count}, Info: {result.info_count}"
@@ -368,7 +368,7 @@ class TalkingTrees:
             if result.issues:
                 print("\nIssues:")
                 for issue in result.issues:
-                    level_icon = {"error": "✗", "warning": "⚠", "info": "ℹ"}[
+                    level_icon = {"error": "[X]", "warning": "[WARNING]", "info": "[INFO]"}[
                         issue.level.value
                     ]
                     path = f" [{issue.node_path}]" if issue.node_path else ""
@@ -762,7 +762,7 @@ class TalkingTrees:
             >>> trees = tt.load_batch(["tree1.json", "tree2.json"])
             >>> results = tt.validate_batch(trees)
             >>> for name, result in results.items():
-            >>>     print(f"{name}: {'✓' if result.is_valid else '✗'}")
+            >>>     print(f"{name}: {'' if result.is_valid else '[X]'}")
         """
         return {name: self.validate_tree(tree) for name, tree in trees.items()}
 
@@ -1181,7 +1181,7 @@ def quick_validate(tree_path: str) -> TreeValidationResult:
     Example:
         >>> result = quick_validate("robot.json")
         >>> if result.is_valid:
-        >>>     print("✓ Tree is valid")
+        >>>     print(" Tree is valid")
     """
     tt = TalkingTrees()
     tree = tt.load_tree(tree_path)
@@ -1238,7 +1238,7 @@ def analyze_tree(tree_path: str) -> str:
         "=" * 70,
         "",
         "VALIDATION:",
-        f"  Status: {'✓ VALID' if validation.is_valid else '✗ INVALID'}",
+        f"  Status: {' VALID' if validation.is_valid else '[X] INVALID'}",
         f"  Errors: {validation.error_count}",
         f"  Warnings: {validation.warning_count}",
         "",

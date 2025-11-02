@@ -15,9 +15,7 @@
     "node_type": "Parallel",
     "name": "Concurrent Tasks",
     "config": {
-      "policy": {
-        "synchronise": false
-      }
+      "policy": "SuccessOnAll"
     },
     "children": [
       {

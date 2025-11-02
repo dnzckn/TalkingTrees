@@ -79,9 +79,9 @@ class ConversionContext:
     def summary(self) -> str:
         """Get a formatted summary of all warnings."""
         if not self.warnings:
-            return "✓ No conversion warnings"
+            return " No conversion warnings"
 
-        lines = [f"⚠ {len(self.warnings)} conversion warning(s):"]
+        lines = [f"[WARNING] {len(self.warnings)} conversion warning(s):"]
         for i, warning in enumerate(self.warnings, 1):
             lines.append(f"  {i}. {warning}")
 
@@ -505,9 +505,9 @@ def compare_py_trees(
         >>>
         >>> # Verify they're equivalent
         >>> if compare_py_trees(root, py_trees_root):
-        ...     print("✓ Trees are functionally identical!")
+        ...     print(" Trees are functionally identical!")
         >>> else:
-        ...     print("✗ Trees differ!")
+        ...     print("[X] Trees differ!")
         >>>
         >>> # With verbose output
         >>> compare_py_trees(root, py_trees_root, verbose=True)
@@ -531,9 +531,9 @@ def compare_py_trees(
         print()
 
         if is_equivalent:
-            print("✓ Trees are functionally equivalent!")
+            print(" Trees are functionally equivalent!")
         else:
-            print(f"✗ Trees differ ({len(validator.errors)} issue(s) found)")
+            print(f"[X] Trees differ ({len(validator.errors)} issue(s) found)")
         print("=" * 70)
 
     if raise_on_difference and not is_equivalent:

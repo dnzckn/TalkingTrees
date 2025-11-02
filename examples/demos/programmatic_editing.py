@@ -39,13 +39,13 @@ def approach_1_py_trees_roundtrip():
     print("\nStep 1: Load existing tree from JSON...")
     tt = TalkingTrees()
     tree_def = tt.load_tree("examples/robot_v1.json")
-    print(f"✓ Loaded: {tree_def.metadata.name}")
+    print(f" Loaded: {tree_def.metadata.name}")
     print(f"  Children: {len(tree_def.root.children)}")
 
     # Step 2: Convert to py_trees for editing
     print("\nStep 2: Convert to py_trees...")
     pt_root = to_py_trees(tree_def)
-    print("✓ Converted to py_trees")
+    print(" Converted to py_trees")
     print(f"  Root: {pt_root.name}")
     print(f"  Children: {len(pt_root.children)}")
 
@@ -76,7 +76,7 @@ def approach_1_py_trees_roundtrip():
     # Insert at beginning (highest priority)
     pt_root.children.insert(0, emergency_stop)
 
-    print("✓ Added emergency stop branch")
+    print(" Added emergency stop branch")
     print(f"  New children count: {len(pt_root.children)}")
 
     # Step 4: Convert back to TalkingTrees
@@ -87,15 +87,15 @@ def approach_1_py_trees_roundtrip():
         version="2.0.0",
         description="Added emergency stop branch",
     )
-    print("✓ Converted to TalkingTrees")
+    print(" Converted to TalkingTrees")
     print(f"  Version: {updated_tree.metadata.version}")
 
     # Step 5: Save
     print("\nStep 5: Save to JSON...")
     tt.save_tree(updated_tree, "examples/robot_v2_edited.json")
-    print("✓ Saved to examples/robot_v2_edited.json")
+    print(" Saved to examples/robot_v2_edited.json")
 
-    print("\n✅ Approach 1 complete!")
+    print("\n[PASS] Approach 1 complete!")
     print("   You can now load robot_v2_edited.json and see the new branch")
     print()
 
@@ -115,7 +115,7 @@ def approach_2_direct_manipulation():
     print("\nStep 1: Load existing tree from JSON...")
     tt = TalkingTrees()
     tree_def = tt.load_tree("examples/robot_v1.json")
-    print(f"✓ Loaded: {tree_def.metadata.name}")
+    print(f" Loaded: {tree_def.metadata.name}")
 
     # Step 2: Create new nodes directly
     print("\nStep 2: Create new nodes...")
@@ -129,12 +129,12 @@ def approach_2_direct_manipulation():
         children=[],
     )
 
-    print(f"✓ Created node: {new_node.name}")
+    print(f" Created node: {new_node.name}")
 
     # Step 3: Add to tree
     print("\nStep 3: Add to tree...")
     tree_def.root.children.append(new_node)
-    print("✓ Added to root")
+    print(" Added to root")
     print(f"  Total children: {len(tree_def.root.children)}")
 
     # Step 4: Update metadata
@@ -145,9 +145,9 @@ def approach_2_direct_manipulation():
     # Step 5: Save
     print("\nStep 5: Save...")
     tt.save_tree(tree_def, "examples/robot_v1_direct_edit.json")
-    print("✓ Saved to examples/robot_v1_direct_edit.json")
+    print(" Saved to examples/robot_v1_direct_edit.json")
 
-    print("\n✅ Approach 2 complete!")
+    print("\n[PASS] Approach 2 complete!")
     print("   Direct manipulation is faster for simple additions")
     print()
 
@@ -193,7 +193,7 @@ def approach_3_hybrid():
         maintenance_seq, name="Maintenance Branch", version="1.0.0"
     )
 
-    print("✓ Created maintenance branch with py_trees")
+    print(" Created maintenance branch with py_trees")
 
     # Step 2: Load existing tree
     print("\nStep 2: Load existing tree...")
@@ -220,9 +220,9 @@ def approach_3_hybrid():
     tree_def.metadata.description = "Hybrid edit: maintenance branch + system check"
 
     tt.save_tree(tree_def, "examples/robot_hybrid_edit.json")
-    print("✓ Saved to examples/robot_hybrid_edit.json")
+    print(" Saved to examples/robot_hybrid_edit.json")
 
-    print("\n✅ Approach 3 complete!")
+    print("\n[PASS] Approach 3 complete!")
     print("   Use py_trees for complex logic, direct editing for simple nodes")
     print()
 
@@ -297,7 +297,7 @@ def demonstration_with_helpers():
     print("\nFinding node by name...")
     node, path = find_node_by_name(tree_def, "Low Battery Handler")
     if node:
-        print(f"✓ Found: {node.name} at path {path}")
+        print(f" Found: {node.name} at path {path}")
 
         # Add a new child to it
         new_child = TreeNodeDefinition(
@@ -308,11 +308,11 @@ def demonstration_with_helpers():
             children=[],
         )
         add_node_to_tree(tree_def, path, new_child)
-        print(f"✓ Added child to {node.name}")
+        print(f" Added child to {node.name}")
 
     # Save
     tt.save_tree(tree_def, "examples/robot_helper_demo.json")
-    print("\n✓ Saved to examples/robot_helper_demo.json")
+    print("\n Saved to examples/robot_helper_demo.json")
     print()
 
 
@@ -335,18 +335,18 @@ def print_comparison():
 ║                                                                    ║
 ║  Approach 1: Round-trip via py_trees                              ║
 ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━                  ║
-║  ✅ BEST FOR:                                                      ║
+║  [PASS] BEST FOR:                                                      ║
 ║     • Complex tree modifications                                  ║
 ║     • Adding multiple nodes with logic                            ║
 ║     • Using py_trees decorators (Inverter, Repeat, etc.)          ║
 ║     • Restructuring large sections                                ║
 ║                                                                    ║
-║  ⚡ PROS:                                                          ║
+║   PROS:                                                          ║
 ║     • Full py_trees API available                                 ║
 ║     • Type checking and IDE support                               ║
 ║     • Easier to reason about complex logic                        ║
 ║                                                                    ║
-║  ⚠️  CONS:                                                          ║
+║  [WARNING]  CONS:                                                          ║
 ║     • Extra conversion step                                       ║
 ║     • SetBlackboardVariable values lost (need manual add)         ║
 ║                                                                    ║
@@ -361,18 +361,18 @@ def print_comparison():
 ║                                                                    ║
 ║  Approach 2: Direct TreeDefinition Manipulation                   ║
 ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-║  ✅ BEST FOR:                                                      ║
+║  [PASS] BEST FOR:                                                      ║
 ║     • Simple additions (single nodes)                             ║
 ║     • Metadata updates                                            ║
 ║     • Quick modifications                                         ║
 ║     • Removing nodes                                              ║
 ║                                                                    ║
-║  ⚡ PROS:                                                          ║
+║   PROS:                                                          ║
 ║     • Fastest (no conversion)                                     ║
 ║     • Direct access to all fields                                 ║
 ║     • No data loss                                                ║
 ║                                                                    ║
-║  ⚠️  CONS:                                                          ║
+║  [WARNING]  CONS:                                                          ║
 ║     • Manual UUID generation                                      ║
 ║     • Need to understand TreeNodeDefinition structure             ║
 ║     • More verbose for complex logic                              ║
@@ -392,16 +392,16 @@ def print_comparison():
 ║                                                                    ║
 ║  Approach 3: Hybrid                                               ║
 ║  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━  ║
-║  ✅ BEST FOR:                                                      ║
+║  [PASS] BEST FOR:                                                      ║
 ║     • Combining complex + simple edits                            ║
 ║     • Building complex branches separately                        ║
 ║     • Optimal workflow efficiency                                 ║
 ║                                                                    ║
-║  ⚡ PROS:                                                          ║
+║   PROS:                                                          ║
 ║     • Best of both worlds                                         ║
 ║     • Maximum flexibility                                         ║
 ║                                                                    ║
-║  ⚠️  CONS:                                                          ║
+║  [WARNING]  CONS:                                                          ║
 ║     • Need to know both approaches                                ║
 ║                                                                    ║
 ║  EXAMPLE:                                                          ║
@@ -418,7 +418,7 @@ def print_comparison():
 """
     print(comparison)
 
-    print("\n📊 DECISION MATRIX:")
+    print("\n DECISION MATRIX:")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print("Task                                    | Recommended Approach")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -460,19 +460,19 @@ if __name__ == "__main__":
     print(" Summary")
     print("=" * 70)
     print()
-    print("✅ You have MULTIPLE ways to edit trees in code:")
+    print("[PASS] You have MULTIPLE ways to edit trees in code:")
     print("   1. Round-trip via py_trees (best for complex edits)")
     print("   2. Direct TreeDefinition manipulation (best for simple edits)")
     print("   3. Hybrid approach (best for mixed complexity)")
     print()
-    print("✅ Files created:")
+    print("[PASS] Files created:")
     print("   • examples/robot_v2_edited.json (Approach 1)")
     print("   • examples/robot_v1_direct_edit.json (Approach 2)")
     print("   • examples/robot_hybrid_edit.json (Approach 3)")
     print("   • examples/robot_helper_demo.json (Helper functions)")
     print()
-    print("✅ The visual editor is just ONE option, not the ONLY option!")
+    print("[PASS] The visual editor is just ONE option, not the ONLY option!")
     print()
-    print("📖 See this file for complete code examples")
-    print("🚀 Choose the approach that fits your workflow")
+    print(" See this file for complete code examples")
+    print(" Choose the approach that fits your workflow")
     print()

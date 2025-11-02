@@ -52,7 +52,7 @@ def create_simple_tree():
     root.add_child(normal)
     root.add_child(idle)
 
-    print(f"✓ Created tree with {len(root.children)} top-level branches")
+    print(f" Created tree with {len(root.children)} top-level branches")
     return root
 
 
@@ -68,7 +68,7 @@ def convert_to_talkingtrees(py_trees_root):
         description="Simple robot controller created with py_trees",
     )
 
-    print("✓ Converted to TalkingTrees")
+    print(" Converted to TalkingTrees")
     print(f"  Tree: {tt_tree.metadata.name} v{tt_tree.metadata.version}")
     print(f"  Root type: {tt_tree.root.node_type}")
     print(f"  Root children: {len(tt_tree.root.children)}")
@@ -84,11 +84,11 @@ def save_and_load(tt_tree):
     output_path = "examples/py_trees_robot.json"
 
     tt.save_tree(tt_tree, output_path)
-    print(f"✓ Saved to {output_path}")
+    print(f" Saved to {output_path}")
 
     # Load it back
     loaded = tt.load_tree(output_path)
-    print(f"✓ Loaded back: {loaded.metadata.name}")
+    print(f" Loaded back: {loaded.metadata.name}")
 
     return loaded
 
@@ -125,7 +125,7 @@ def main():
     visualize_structure(loaded_tree)
 
     print("\n" + "=" * 60)
-    print(" Success! ✓")
+    print(" Success! ")
     print("=" * 60)
     print("\nNext steps:")
     print("  1. Open visualization/tree_editor_pro.html in a browser")

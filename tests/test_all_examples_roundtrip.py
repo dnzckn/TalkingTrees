@@ -51,7 +51,7 @@ class TestResult:
     @property
     def status(self) -> str:
         """Get status emoji."""
-        return "✅ PASS" if self.success else "❌ FAIL"
+        return "[PASS] PASS" if self.success else "[FAIL] FAIL"
 
     @property
     def node_match(self) -> bool:
@@ -192,7 +192,7 @@ def generate_report(results: list[TestResult]) -> str:
 
     # Table rows
     for result in results:
-        match_symbol = "✓" if result.node_match else "✗"
+        match_symbol = "" if result.node_match else "[X]"
         lines.append(
             f"{result.status:<12} {result.filename:<35} "
             f"{result.original_nodes:<10} {result.roundtrip_nodes:<10} {match_symbol:<8}"
@@ -240,9 +240,9 @@ def generate_report(results: list[TestResult]) -> str:
 
     # Final verdict
     if failed == 0:
-        lines.append("✅ ALL TESTS PASSED!")
+        lines.append("[PASS] ALL TESTS PASSED!")
     else:
-        lines.append(f"⚠️  {failed} TEST(S) FAILED")
+        lines.append(f"[WARNING]  {failed} TEST(S) FAILED")
 
     lines.append("=" * 80)
     lines.append("")
@@ -252,19 +252,19 @@ def generate_report(results: list[TestResult]) -> str:
 
 def main():
     """Main test runner."""
-    print("\n🧪 Testing All Example Trees for Round-Trip Conversion\n")
+    print("\n Testing All Example Trees for Round-Trip Conversion\n")
 
     # Find all JSON files in examples/trees/
     examples_dir = Path(__file__).parent.parent / "examples" / "trees"
 
     if not examples_dir.exists():
-        print(f"❌ ERROR: Examples directory not found: {examples_dir}")
+        print(f"[FAIL] ERROR: Examples directory not found: {examples_dir}")
         sys.exit(1)
 
     json_files = sorted(examples_dir.glob("*.json"))
 
     if not json_files:
-        print(f"❌ ERROR: No .json files found in {examples_dir}")
+        print(f"[FAIL] ERROR: No .json files found in {examples_dir}")
         sys.exit(1)
 
     print(f"Found {len(json_files)} example tree files in {examples_dir}\n")
@@ -279,9 +279,9 @@ def main():
 
         # Print immediate status
         if result.success:
-            print(f"✅ PASS ({result.original_nodes} nodes)")
+            print(f"[PASS] PASS ({result.original_nodes} nodes)")
         else:
-            print(f"❌ FAIL - {result.error_message}")
+            print(f"[FAIL] FAIL - {result.error_message}")
 
     print("\n")
 
@@ -294,7 +294,7 @@ def main():
     with open(report_path, "w") as f:
         f.write(report)
 
-    print(f"📄 Detailed report saved to: {report_path}\n")
+    print(f" Detailed report saved to: {report_path}\n")
 
     # Exit with appropriate code
     failed_count = sum(1 for r in results if not r.success)

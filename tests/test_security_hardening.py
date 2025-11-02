@@ -82,14 +82,14 @@ def test_cycle_detection():
 
     try:
         _tree = serializer.deserialize(tree_def)
-        print("✗ FAILED: Cycle was not detected!")
+        print("[X] FAILED: Cycle was not detected!")
         return False
     except ValueError as e:
         if "circular" in str(e).lower():
-            print(f"✓ PASSED: Cycle detected correctly: {e}")
+            print(f" PASSED: Cycle detected correctly: {e}")
             return True
         else:
-            print(f"✗ FAILED: Different error raised: {e}")
+            print(f"[X] FAILED: Different error raised: {e}")
             return False
 
 
@@ -134,14 +134,14 @@ def test_depth_limit():
 
     try:
         _tree = serializer.deserialize(tree_def)
-        print("✗ FAILED: Depth limit was not enforced!")
+        print("[X] FAILED: Depth limit was not enforced!")
         return False
     except ValueError as e:
         if "depth exceeded" in str(e).lower():
-            print(f"✓ PASSED: Depth limit enforced correctly: {e}")
+            print(f" PASSED: Depth limit enforced correctly: {e}")
             return True
         else:
-            print(f"✗ FAILED: Different error raised: {e}")
+            print(f"[X] FAILED: Different error raised: {e}")
             return False
 
 
@@ -187,10 +187,10 @@ def test_normal_deep_tree():
 
     try:
         _tree = serializer.deserialize(tree_def)
-        print(f"✓ PASSED: Deep tree (depth={ACTUAL_DEPTH}) deserialized successfully")
+        print(f" PASSED: Deep tree (depth={ACTUAL_DEPTH}) deserialized successfully")
         return True
     except Exception as e:
-        print(f"✗ FAILED: Normal deep tree failed: {e}")
+        print(f"[X] FAILED: Normal deep tree failed: {e}")
         return False
 
 
@@ -249,19 +249,19 @@ def test_subtree_depth_limit():
 
     try:
         _tree = serializer.deserialize(tree_def)
-        print("✗ FAILED: Depth limit was not enforced with subtrees!")
+        print("[X] FAILED: Depth limit was not enforced with subtrees!")
         return False
     except ValueError as e:
         if "depth exceeded" in str(e).lower():
-            print(f"✓ PASSED: Depth limit enforced with subtrees: {e}")
+            print(f" PASSED: Depth limit enforced with subtrees: {e}")
             return True
         else:
-            print(f"✗ FAILED: Different error raised: {e}")
+            print(f"[X] FAILED: Different error raised: {e}")
             return False
 
 
 if __name__ == "__main__":
-    print("\n🔒 Testing Security Hardening Features\n")
+    print("\n Testing Security Hardening Features\n")
 
     results = []
     results.append(("Cycle Detection", test_cycle_detection()))
@@ -274,14 +274,14 @@ if __name__ == "__main__":
     print("=" * 70)
 
     for name, passed in results:
-        status = "✓ PASSED" if passed else "✗ FAILED"
+        status = " PASSED" if passed else "[X] FAILED"
         print(f"{status}: {name}")
 
     all_passed = all(passed for _, passed in results)
 
     if all_passed:
-        print("\n✅ All security tests passed!")
+        print("\n[PASS] All security tests passed!")
     else:
-        print("\n❌ Some security tests failed.")
+        print("\n[FAIL] Some security tests failed.")
 
     print()

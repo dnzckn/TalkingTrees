@@ -277,27 +277,27 @@ def main():
     )
 
     if context.has_warnings():
-        print(f"⚠️  Conversion warnings: {len(context.warnings)}")
+        print(f"[WARNING]  Conversion warnings: {len(context.warnings)}")
         for warning in context.warnings[:3]:  # Show first 3
             print(f"   - {warning}")
     else:
-        print("✓ No conversion warnings")
+        print(" No conversion warnings")
 
     # Step 3: Save to JSON
     print("\nSTEP 3: Saving to JSON file...")
     tt = TalkingTrees()
     tt.save_tree(tt_tree, "tests/fixtures/ultra_complex_tree.json")
-    print("✓ Saved to tests/fixtures/ultra_complex_tree.json")
+    print(" Saved to tests/fixtures/ultra_complex_tree.json")
 
     # Step 4: Load from JSON
     print("\nSTEP 4: Loading from JSON file...")
     loaded_tree = tt.load_tree("tests/fixtures/ultra_complex_tree.json")
-    print("✓ Loaded from tests/fixtures/ultra_complex_tree.json")
+    print(" Loaded from tests/fixtures/ultra_complex_tree.json")
 
     # Step 5: Convert back to py_trees
     print("\nSTEP 5: Converting back to py_trees...")
     round_trip_root = to_py_trees(loaded_tree)
-    print("✓ Converted back to py_trees")
+    print(" Converted back to py_trees")
     print_tree_stats(round_trip_root, "Round-Trip Tree")
 
     # Step 6: Compare trees
@@ -315,23 +315,23 @@ def main():
     print("=" * 70)
 
     if is_equivalent:
-        print("✅ SUCCESS! Ultra-complex tree survived round-trip perfectly!")
+        print("[PASS] SUCCESS! Ultra-complex tree survived round-trip perfectly!")
         print()
         print("The following were preserved:")
-        print("  ✓ All 5 major branches")
-        print("  ✓ 7 different decorator types")
-        print("  ✓ 3 composite types (Sequence, Selector, Parallel)")
-        print("  ✓ 10+ SetBlackboardVariable values")
-        print("  ✓ 5+ CheckBlackboardVariableValue conditions")
-        print("  ✓ Memory parameters (True/False)")
-        print("  ✓ Timeout durations")
-        print("  ✓ Retry/Repeat counts")
-        print("  ✓ OneShot policies")
-        print("  ✓ Status converters (SuccessIsFailure, etc.)")
-        print("  ✓ Deep nesting (10+ levels)")
-        print("  ✓ Parallel policy configurations")
+        print("   All 5 major branches")
+        print("   7 different decorator types")
+        print("   3 composite types (Sequence, Selector, Parallel)")
+        print("   10+ SetBlackboardVariable values")
+        print("   5+ CheckBlackboardVariableValue conditions")
+        print("   Memory parameters (True/False)")
+        print("   Timeout durations")
+        print("   Retry/Repeat counts")
+        print("   OneShot policies")
+        print("   Status converters (SuccessIsFailure, etc.)")
+        print("   Deep nesting (10+ levels)")
+        print("   Parallel policy configurations")
     else:
-        print("❌ FAILED! Differences found in round-trip conversion!")
+        print("[FAIL] FAILED! Differences found in round-trip conversion!")
         print()
         print("This indicates a bug in the serialization/deserialization logic.")
 

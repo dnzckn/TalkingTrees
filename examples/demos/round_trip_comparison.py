@@ -44,9 +44,9 @@ def example_basic_comparison():
     print("\n1. Simple comparison (returns True/False):")
     is_equivalent = compare_py_trees(root, py_trees_root)
     if is_equivalent:
-        print("   ✓ Trees are functionally identical!")
+        print("    Trees are functionally identical!")
     else:
-        print("   ✗ Trees differ!")
+        print("   [X] Trees differ!")
 
     print("\n2. Verbose comparison (shows details):")
     compare_py_trees(root, py_trees_root, verbose=True)
@@ -126,7 +126,7 @@ def example_complex_tree():
     is_equivalent = compare_py_trees(root, py_trees_root, verbose=True)
 
     if is_equivalent:
-        print("\n✓ All decorator parameters preserved correctly!")
+        print("\n All decorator parameters preserved correctly!")
 
     print()
 
@@ -152,9 +152,9 @@ def example_assertion_mode():
     print("\nTrying assertion mode:")
     try:
         compare_py_trees(root, py_trees_root, raise_on_difference=True)
-        print("✓ No exception raised - trees are equivalent!")
+        print(" No exception raised - trees are equivalent!")
     except ValueError as e:
-        print(f"✗ Exception raised: {e}")
+        print(f"[X] Exception raised: {e}")
 
     print()
 

@@ -30,11 +30,11 @@ def test_no_warnings():
     print(context.summary())
 
     if not context.has_warnings():
-        print("✓ PASSED: No warnings as expected")
+        print(" PASSED: No warnings as expected")
         print()
         return True
     else:
-        print("✗ FAILED: Unexpected warnings")
+        print("[X] FAILED: Unexpected warnings")
         print()
         return False
 
@@ -69,18 +69,18 @@ def test_setblackboard_warning():
 
     # In current implementation, value should be extracted successfully
     if not context.has_warnings():
-        print("✓ PASSED: Value extracted successfully, no warning needed")
+        print(" PASSED: Value extracted successfully, no warning needed")
 
         # Verify value was actually extracted
         set_node = tt_tree.root.children[0]
         if set_node.config.get("value") == 42.5:
-            print("✓ Value preserved:", set_node.config["value"])
+            print(" Value preserved:", set_node.config["value"])
         else:
-            print("✗ Value not preserved!")
+            print("[X] Value not preserved!")
             return False
     else:
         print(
-            "⚠ WARNING: Value extraction failed (this might be expected on some py_trees versions)"
+            "[WARNING] WARNING: Value extraction failed (this might be expected on some py_trees versions)"
         )
         for warning in context.warnings:
             print(f"  - {warning}")
@@ -124,15 +124,15 @@ def test_unknown_node_type():
         # Check if warning mentions CustomBehavior
         has_custom_warning = any("CustomBehavior" in w for w in context.warnings)
         if has_custom_warning:
-            print("✓ PASSED: Warning generated for unknown type 'CustomBehavior'")
+            print(" PASSED: Warning generated for unknown type 'CustomBehavior'")
             print()
             return True
         else:
-            print("✗ FAILED: Warning doesn't mention CustomBehavior")
+            print("[X] FAILED: Warning doesn't mention CustomBehavior")
             print()
             return False
     else:
-        print("✗ FAILED: No warning generated for unknown node type")
+        print("[X] FAILED: No warning generated for unknown node type")
         print()
         return False
 
@@ -147,9 +147,9 @@ def test_context_api():
 
     # Test initial state
     if not context.has_warnings():
-        print("✓ Initially no warnings")
+        print(" Initially no warnings")
     else:
-        print("✗ Should have no warnings initially")
+        print("[X] Should have no warnings initially")
         return False
 
     # Add warnings
@@ -157,37 +157,37 @@ def test_context_api():
     context.warn("Second warning", node_name="MyNode")
 
     if context.has_warnings():
-        print("✓ Warnings detected after adding")
+        print(" Warnings detected after adding")
     else:
-        print("✗ Should have warnings after adding")
+        print("[X] Should have warnings after adding")
         return False
 
     # Check warning count
     if len(context.warnings) == 2:
-        print(f"✓ Correct warning count: {len(context.warnings)}")
+        print(f" Correct warning count: {len(context.warnings)}")
     else:
-        print(f"✗ Wrong warning count: {len(context.warnings)}")
+        print(f"[X] Wrong warning count: {len(context.warnings)}")
         return False
 
     # Check warning format
     if context.warnings[0] == "First warning":
-        print("✓ First warning correct format")
+        print(" First warning correct format")
     else:
-        print(f"✗ First warning wrong: {context.warnings[0]}")
+        print(f"[X] First warning wrong: {context.warnings[0]}")
         return False
 
     if context.warnings[1] == "[MyNode] Second warning":
-        print("✓ Second warning includes node name")
+        print(" Second warning includes node name")
     else:
-        print(f"✗ Second warning wrong: {context.warnings[1]}")
+        print(f"[X] Second warning wrong: {context.warnings[1]}")
         return False
 
     # Test summary
     summary = context.summary()
     if "2 conversion warning(s)" in summary:
-        print("✓ Summary shows warning count")
+        print(" Summary shows warning count")
     else:
-        print(f"✗ Summary wrong: {summary}")
+        print(f"[X] Summary wrong: {summary}")
         return False
 
     print()
@@ -195,7 +195,7 @@ def test_context_api():
 
 
 if __name__ == "__main__":
-    print("\n🧪 Testing ConversionContext Warnings\n")
+    print("\n Testing ConversionContext Warnings\n")
 
     results = []
     results.append(("No Warnings", test_no_warnings()))
@@ -208,14 +208,14 @@ if __name__ == "__main__":
     print("=" * 70)
 
     for name, passed in results:
-        status = "✓ PASSED" if passed else "✗ FAILED"
+        status = " PASSED" if passed else "[X] FAILED"
         print(f"{status}: {name}")
 
     all_passed = all(passed for _, passed in results)
 
     if all_passed:
-        print("\n✅ All tests passed! ConversionContext is working correctly.")
+        print("\n[PASS] All tests passed! ConversionContext is working correctly.")
     else:
-        print("\n❌ Some tests failed. Check output above.")
+        print("\n[FAIL] Some tests failed. Check output above.")
 
     print()

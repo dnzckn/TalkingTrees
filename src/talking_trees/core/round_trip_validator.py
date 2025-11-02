@@ -85,9 +85,9 @@ class RoundTripValidator:
     def get_error_summary(self) -> str:
         """Get a formatted summary of all validation errors."""
         if not self.errors:
-            return "✓ No validation errors"
+            return " No validation errors"
 
-        lines = [f"❌ {len(self.errors)} validation error(s):"]
+        lines = [f"[FAIL] {len(self.errors)} validation error(s):"]
         for i, error in enumerate(self.errors, 1):
             lines.append(f"\n{i}. {error}")
 

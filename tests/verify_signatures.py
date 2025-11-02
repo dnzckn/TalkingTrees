@@ -149,17 +149,17 @@ def main():
     failed = sum(1 for r in results.values() if r['status'] == 'FAIL')
     errors = sum(1 for r in results.values() if r['status'] == 'ERROR')
 
-    print(f"📊 Summary:")
-    print(f"   ✅ PASS:    {passed}/{len(all_node_types)}")
-    print(f"   ⚠️  WARNING: {warned}/{len(all_node_types)}")
-    print(f"   ❌ FAIL:    {failed}/{len(all_node_types)}")
-    print(f"   💥 ERROR:   {errors}/{len(all_node_types)}")
+    print(f" Summary:")
+    print(f"   [PASS] PASS:    {passed}/{len(all_node_types)}")
+    print(f"   [WARNING]  WARNING: {warned}/{len(all_node_types)}")
+    print(f"   [FAIL] FAIL:    {failed}/{len(all_node_types)}")
+    print(f"    ERROR:   {errors}/{len(all_node_types)}")
     print()
 
     # Detailed results
     if failed > 0 or errors > 0:
         print("=" * 80)
-        print("❌ FAILURES AND ERRORS")
+        print("[FAIL] FAILURES AND ERRORS")
         print("=" * 80)
         print()
 
@@ -185,7 +185,7 @@ def main():
 
     if warned > 0:
         print("=" * 80)
-        print("⚠️  WARNINGS")
+        print("[WARNING]  WARNINGS")
         print("=" * 80)
         print()
 
@@ -202,13 +202,13 @@ def main():
 
     # Exit code
     if failed > 0 or errors > 0:
-        print("❌ Verification FAILED")
+        print("[FAIL] Verification FAILED")
         sys.exit(1)
     elif warned > 0:
-        print("⚠️  Verification passed with warnings")
+        print("[WARNING]  Verification passed with warnings")
         sys.exit(0)
     else:
-        print("✅ All signatures verified successfully!")
+        print("[PASS] All signatures verified successfully!")
         sys.exit(0)
 
 

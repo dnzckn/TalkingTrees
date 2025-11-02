@@ -92,7 +92,7 @@ def test_comparison_expression_builder_creates_executable_node():
         "Comparison node should fail for battery_level=50"
     )
 
-    print("✓ ComparisonExpression builder creates executable nodes")
+    print(" ComparisonExpression builder creates executable nodes")
 
 
 # Note: We only need one test to demonstrate the builder contract.
@@ -108,5 +108,5 @@ if __name__ == "__main__":
     test_comparison_expression_builder_creates_executable_node()
 
     print("\n" + "=" * 70)
-    print("✅ Builder execution test passed!")
+    print("[PASS] Builder execution test passed!")
     print("=" * 70)

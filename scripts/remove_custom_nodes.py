@@ -108,7 +108,7 @@ def convert_file(filepath):
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=2)
 
-    print(f"  ✅ Done")
+    print(f"  [PASS] Done")
 
 
 def main():
@@ -129,7 +129,7 @@ def main():
 
     print()
     print("=" * 80)
-    print("✅ All example trees converted to use real py_trees nodes!")
+    print("[PASS] All example trees converted to use real py_trees nodes!")
     print("=" * 80)
 
 

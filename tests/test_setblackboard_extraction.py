@@ -48,26 +48,26 @@ def test_value_extraction():
         # Method 1: _value attribute (private)
         if hasattr(node, "_value"):
             extracted = node._value
-            print(f"  ✅ Extracted via _value: {extracted}")
+            print(f"  [PASS] Extracted via _value: {extracted}")
             print(f"     Match: {extracted == value}")
         else:
-            print("  ❌ No _value attribute")
+            print("  [FAIL] No _value attribute")
 
         # Method 2: variable_value attribute
         if hasattr(node, "variable_value"):
             extracted = node.variable_value
-            print(f"  ✅ Extracted via variable_value: {extracted}")
+            print(f"  [PASS] Extracted via variable_value: {extracted}")
             print(f"     Match: {extracted == value}")
         else:
-            print("  ❌ No variable_value attribute")
+            print("  [FAIL] No variable_value attribute")
 
         # Method 3: __dict__
         if "_value" in node.__dict__:
             extracted = node.__dict__["_value"]
-            print(f"  ✅ Extracted via __dict__: {extracted}")
+            print(f"  [PASS] Extracted via __dict__: {extracted}")
             print(f"     Match: {extracted == value}")
         else:
-            print("  ❌ _value not in __dict__")
+            print("  [FAIL] _value not in __dict__")
 
         # Now test through conversion pipeline
         print("\n  Testing through conversion pipeline:")
@@ -78,20 +78,20 @@ def test_value_extraction():
 
         # Check if warning was issued
         if context.has_warnings():
-            print(f"  ⚠️  Conversion warnings: {len(context.warnings)}")
+            print(f"  [WARNING]  Conversion warnings: {len(context.warnings)}")
             for warning in context.warnings:
                 print(f"      - {warning}")
         else:
-            print("  ✅ No conversion warnings")
+            print("  [PASS] No conversion warnings")
 
         # Check if value is in config
         setter_node = tt_tree.root.children[0]
         if "value" in setter_node.config:
             config_value = setter_node.config["value"]
-            print(f"  ✅ Value in config: {config_value}")
+            print(f"  [PASS] Value in config: {config_value}")
             print(f"     Match: {config_value == value}")
         else:
-            print("  ❌ Value NOT in config")
+            print("  [FAIL] Value NOT in config")
             print(f"     Config keys: {list(setter_node.config.keys())}")
 
         # Convert back to py_trees
@@ -101,10 +101,10 @@ def test_value_extraction():
         # Try to extract from round-trip
         if hasattr(round_trip_node, "_value"):
             rt_value = round_trip_node._value
-            print(f"  ✅ Round-trip value: {rt_value}")
+            print(f"  [PASS] Round-trip value: {rt_value}")
             print(f"     Match: {rt_value == value}")
         else:
-            print("  ❌ Cannot extract round-trip value")
+            print("  [FAIL] Cannot extract round-trip value")
 
 
 if __name__ == "__main__":

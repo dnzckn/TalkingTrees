@@ -192,7 +192,7 @@ def create_tree_from_code():
 
     root.add_child(patrol)
 
-    print("✓ Created py_trees behavior tree:")
+    print(" Created py_trees behavior tree:")
     print(f"  Root: {root.name} ({root.__class__.__name__})")
     print(f"  Children: {len(root.children)}")
     for i, child in enumerate(root.children, 1):
@@ -209,7 +209,7 @@ def create_tree_from_code():
         description="Created entirely from py_trees code",
     )
 
-    print("✓ Converted to TalkingTrees")
+    print(" Converted to TalkingTrees")
     print(f"  Tree: {tree.metadata.name}")
     print(f"  Version: {tree.metadata.version}")
     print()
@@ -217,7 +217,7 @@ def create_tree_from_code():
     # Optionally save
     print("Saving to JSON...")
     tt.save_tree(tree, "tutorials/assets/robot_from_code.json")
-    print("✓ Saved to tutorials/assets/robot_from_code.json")
+    print(" Saved to tutorials/assets/robot_from_code.json")
     print("  (You can now load this in Tree Editor Pro to see visual representation!)")
     print()
 
@@ -238,8 +238,8 @@ def load_tree_from_editor():
 
     1. Run: ./run_editor.sh
     2. Design your tree in Tree Editor Pro (or load examples/robot_v1.json)
-    3. Click "🐍 Copy Python" button
-    4. Choose "📄 Load from JSON File"
+    3. Click " Copy Python" button
+    4. Choose " Load from JSON File"
     5. Click "Export" to save robot_controller.json
     6. Run this script!
 
@@ -260,14 +260,14 @@ def load_tree_from_editor():
     # Try to load tree exported from visual editor
     try:
         tree = tt.load_tree("robot_controller.json")
-        print(f"✓ Loaded tree: {tree.metadata.name}")
+        print(f" Loaded tree: {tree.metadata.name}")
         print(f"  Version: {tree.metadata.version}")
         print(f"  Description: {tree.metadata.description or 'No description'}")
         print()
         return tree
 
     except FileNotFoundError:
-        print("⚠️  robot_controller.json not found!")
+        print("[WARNING]  robot_controller.json not found!")
         print()
         print("To create it:")
         print("  1. Run: ./run_editor.sh")
@@ -279,7 +279,7 @@ def load_tree_from_editor():
 
         # Fallback to example file
         tree = tt.load_tree("examples/robot_v1.json")
-        print(f"✓ Loaded tree: {tree.metadata.name}")
+        print(f" Loaded tree: {tree.metadata.name}")
         print()
         return tree
 
@@ -317,12 +317,12 @@ def control_robot_with_tree():
 
     # Create execution
     execution = tt.create_execution(tree)
-    print("✓ Created execution")
+    print(" Created execution")
     print()
 
     # Create robot
     robot = SimpleRobot()
-    print("✓ Created robot simulator")
+    print(" Created robot simulator")
     print(f"  Initial battery: {robot.battery}%")
     print(f"  Initial position: ({robot.x:.1f}, {robot.y:.1f})")
     print()
@@ -369,12 +369,12 @@ def control_robot_with_tree():
         # Check termination
         if robot.battery <= 0:
             print()
-            print("⚠️  BATTERY DEPLETED - Stopping simulation")
+            print("[WARNING]  BATTERY DEPLETED - Stopping simulation")
             break
 
         if robot.battery > 95 and robot.charging:
             print()
-            print("✓ FULLY CHARGED - Mission can continue")
+            print(" FULLY CHARGED - Mission can continue")
             break
 
     print()
@@ -406,7 +406,7 @@ def demonstrate_copy_python_workflow():
     print("=" * 70)
     print()
 
-    print("When you click '🐍 Copy Python' in the editor, you get code like:")
+    print("When you click ' Copy Python' in the editor, you get code like:")
     print()
     print("=" * 70)
     print("""
@@ -515,9 +515,9 @@ if __name__ == "__main__":
     print("=" * 70 + "\n")
 
     print("This tutorial shows BOTH approaches:")
-    print("  ✓ APPROACH 1: Create trees from pure Python code (py_trees)")
-    print("  ✓ APPROACH 2: Design trees in visual editor")
-    print("  ✓ HOW TO ACTUALLY USE TREES TO CONTROL SYSTEMS")
+    print("   APPROACH 1: Create trees from pure Python code (py_trees)")
+    print("   APPROACH 2: Design trees in visual editor")
+    print("   HOW TO ACTUALLY USE TREES TO CONTROL SYSTEMS")
     print()
 
     input("Press Enter to start...")
@@ -570,12 +570,12 @@ if __name__ == "__main__":
     # Use the tree created from code
     tt = TalkingTrees()
     execution = tt.create_execution(tree_from_code)
-    print("✓ Created execution from code-created tree")
+    print(" Created execution from code-created tree")
     print()
 
     # Create robot
     robot = SimpleRobot()
-    print("✓ Created robot simulator")
+    print(" Created robot simulator")
     print(f"  Initial battery: {robot.battery}%")
     print()
 
@@ -603,25 +603,25 @@ if __name__ == "__main__":
             )
 
         if robot.battery <= 0:
-            print("\n⚠️  BATTERY DEPLETED")
+            print("\n[WARNING]  BATTERY DEPLETED")
             break
 
         if robot.battery > 95 and robot.charging:
-            print("\n✓ FULLY CHARGED")
+            print("\n FULLY CHARGED")
             break
 
     print()
     print("=" * 70)
-    print(" Tutorial Complete! 🎉")
+    print(" Tutorial Complete! ")
     print("=" * 70)
     print()
 
     print("What you learned:")
-    print("  ✓ APPROACH 1: Creating trees from pure Python code (py_trees)")
-    print("  ✓ APPROACH 2: Visual editor workflow + 'Copy Python' button")
-    print("  ✓ Converting between py_trees and TalkingTrees formats")
-    print("  ✓ THE CONTROL LOOP: sensors → tree → actions → execute")
-    print("  ✓ How to integrate behavior trees into real systems")
+    print("   APPROACH 1: Creating trees from pure Python code (py_trees)")
+    print("   APPROACH 2: Visual editor workflow + 'Copy Python' button")
+    print("   Converting between py_trees and TalkingTrees formats")
+    print("   THE CONTROL LOOP: sensors → tree → actions → execute")
+    print("   How to integrate behavior trees into real systems")
     print()
 
     print("Key Takeaway:")
@@ -641,6 +641,6 @@ if __name__ == "__main__":
     print("  • Use the tree to control YOUR system")
     print()
 
-    print("📖 See tutorials/assets/robot_from_code.json (we just created this!)")
-    print("🚀 Run: ./run_editor.sh to visualize it!")
+    print(" See tutorials/assets/robot_from_code.json (we just created this!)")
+    print(" Run: ./run_editor.sh to visualize it!")
     print()

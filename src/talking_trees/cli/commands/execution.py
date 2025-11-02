@@ -69,13 +69,13 @@ def run_tree(
         console.print(f"[cyan]Creating execution for tree {tree_id}...[/cyan]")
         execution = client.create_execution(tree_id)
         exec_id = execution.get("execution_id")
-        console.print(f"[green]✓ Execution created: {exec_id}[/green]\n")
+        console.print(f"[green] Execution created: {exec_id}[/green]\n")
 
         if auto:
             # Start AUTO mode
             console.print("[cyan]Starting AUTO mode execution...[/cyan]")
             client.start_auto(exec_id)
-            console.print("[green]✓ AUTO mode started[/green]")
+            console.print("[green] AUTO mode started[/green]")
 
             if monitor:
                 _monitor_execution(client, exec_id, auto=True)
@@ -89,13 +89,13 @@ def run_tree(
                 except KeyboardInterrupt:
                     console.print("\n[yellow]Stopping execution...[/yellow]")
                     client.stop_scheduler(exec_id)
-                    console.print("[green]✓ Execution stopped[/green]")
+                    console.print("[green] Execution stopped[/green]")
 
         elif interval:
             # Start INTERVAL mode
             console.print(f"[cyan]Starting INTERVAL mode ({interval}ms)...[/cyan]")
             client.start_interval(exec_id, interval)
-            console.print("[green]✓ INTERVAL mode started[/green]")
+            console.print("[green] INTERVAL mode started[/green]")
 
             if monitor:
                 _monitor_execution(client, exec_id, auto=False)
@@ -109,7 +109,7 @@ def run_tree(
                 except KeyboardInterrupt:
                     console.print("\n[yellow]Stopping execution...[/yellow]")
                     client.stop_scheduler(exec_id)
-                    console.print("[green]✓ Execution stopped[/green]")
+                    console.print("[green] Execution stopped[/green]")
 
         else:
             # Manual ticking
@@ -157,7 +157,7 @@ def tick_execution(
         ticks_executed = result.get("ticks_executed", 0)
         root_status = result.get("root_status")
 
-        console.print(f"[green]✓ Executed {ticks_executed} tick(s)[/green]")
+        console.print(f"[green] Executed {ticks_executed} tick(s)[/green]")
         console.print(f"[bold]Root Status:[/bold] {root_status}")
 
     except Exception as e:
@@ -176,7 +176,7 @@ def stop_execution(
         console.print(f"[cyan]Stopping execution {execution_id}...[/cyan]")
         client.stop_scheduler(execution_id)
 
-        console.print("[green]✓ Execution stopped[/green]")
+        console.print("[green] Execution stopped[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -201,7 +201,7 @@ def delete_execution(
         client = get_client()
         client.delete_execution(execution_id)
 
-        console.print(f"[green]✓ Execution {execution_id} deleted[/green]")
+        console.print(f"[green] Execution {execution_id} deleted[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -221,7 +221,7 @@ def get_snapshot(
         if output:
             with open(output, "w") as f:
                 json.dump(snapshot, f, indent=2)
-            console.print(f"[green]✓ Snapshot saved to {output}[/green]")
+            console.print(f"[green] Snapshot saved to {output}[/green]")
         else:
             console.print(
                 Panel.fit(
@@ -333,4 +333,4 @@ def _monitor_execution(client, execution_id: str, auto: bool = False):
     except KeyboardInterrupt:
         console.print("\n\n[yellow]Stopping execution...[/yellow]")
         client.stop_scheduler(execution_id)
-        console.print("[green]✓ Execution stopped[/green]")
+        console.print("[green] Execution stopped[/green]")

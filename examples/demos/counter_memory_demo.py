@@ -77,17 +77,17 @@ def run_memory_demo(memory: bool):
         print(f"  TOTAL: {total_count}/30")
 
         if root.status == common.Status.SUCCESS:
-            print(f"\n✓ Tree completed in {tick_count} ticks!")
-            print(f"✓ Total count: {total_count}")
+            print(f"\n Tree completed in {tick_count} ticks!")
+            print(f" Total count: {total_count}")
             break
 
         time.sleep(0.1)
 
     if root.status != common.Status.SUCCESS:
         total_count = counter1.count + counter2.count + counter3.count
-        print(f"\n✗ Tree did NOT complete after {tick_count} ticks")
-        print(f"✗ Total count: {total_count}/30")
-        print(f"✗ This is why memory={memory} matters!")
+        print(f"\n[X] Tree did NOT complete after {tick_count} ticks")
+        print(f"[X] Total count: {total_count}/30")
+        print(f"[X] This is why memory={memory} matters!")
 
     return tick_count, counter1.count + counter2.count + counter3.count
 

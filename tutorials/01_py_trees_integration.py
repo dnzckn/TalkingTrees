@@ -62,7 +62,7 @@ def example_1_basic_conversion():
         description="Basic sequence converted from py_trees",
     )
 
-    print("✓ Converted to TalkingTrees TreeDefinition")
+    print(" Converted to TalkingTrees TreeDefinition")
     print(f"  Name: {tt_tree.metadata.name}")
     print(f"  Version: {tt_tree.metadata.version}")
     print(f"  Root node: {tt_tree.root.name}")
@@ -70,7 +70,7 @@ def example_1_basic_conversion():
     # Step 3: Save to JSON (can be opened in editor)
     print("\nStep 3: Save to JSON...")
     tt.save_tree(tt_tree, "tutorials/assets/py_trees_simple.json")
-    print("✓ Saved to tutorials/assets/py_trees_simple.json")
+    print(" Saved to tutorials/assets/py_trees_simple.json")
     print("  Open in visualization/tree_editor_pro.html to view!")
 
     # Step 4: Run with TalkingTrees SDK
@@ -78,7 +78,7 @@ def example_1_basic_conversion():
     execution = tt.create_execution(tt_tree)
     result = execution.tick()
 
-    print("✓ Execution complete")
+    print(" Execution complete")
     print(f"  Status: {result.status}")
     print(f"  Ticks: {result.tick_count}")
     print()
@@ -155,12 +155,12 @@ def example_2_complex_tree():
     tt = TalkingTrees()
     tt_tree = tt.from_py_trees(root, name="Advanced Robot Controller", version="1.0.0")
 
-    print("\n✓ Converted to TalkingTrees")
+    print("\n Converted to TalkingTrees")
     print(f"  Root: {tt_tree.root.node_type}")
 
     # Save
     tt.save_tree(tt_tree, "tutorials/assets/py_trees_complex.json")
-    print("\n✓ Saved to tutorials/assets/py_trees_complex.json")
+    print("\n Saved to tutorials/assets/py_trees_complex.json")
     print()
 
 
@@ -215,7 +215,7 @@ def example_3_complete_workflow():
     root.add_child(emergency)
     root.add_child(normal)
 
-    print("✓ Created tree with py_trees")
+    print(" Created tree with py_trees")
 
     # -------------------------------------------------------------------------
     # Step 2: Convert to TalkingTrees format
@@ -230,7 +230,7 @@ def example_3_complete_workflow():
         description="Manages emergency and normal operations",
     )
 
-    print("✓ Converted to TalkingTrees TreeDefinition")
+    print(" Converted to TalkingTrees TreeDefinition")
     print(f"  Root: {tt_tree.root.name}")
 
     # -------------------------------------------------------------------------
@@ -241,7 +241,7 @@ def example_3_complete_workflow():
     output_path = "tutorials/assets/py_trees_task_manager.json"
     tt.save_tree(tt_tree, output_path)
 
-    print(f"✓ Saved to {output_path}")
+    print(f" Saved to {output_path}")
     print("  → Open in visualization/tree_editor_pro.html")
     print("  → View structure visually")
     print("  → Make edits if needed")
@@ -254,7 +254,7 @@ def example_3_complete_workflow():
 
     loaded_tree = tt.load_tree(output_path)
 
-    print(f"✓ Loaded tree: {loaded_tree.metadata.name} v{loaded_tree.metadata.version}")
+    print(f" Loaded tree: {loaded_tree.metadata.name} v{loaded_tree.metadata.version}")
     print(f"  Root: {loaded_tree.root.name}")
 
     # -------------------------------------------------------------------------
@@ -276,7 +276,7 @@ def example_3_complete_workflow():
     print(f"    Status: {result.status}")
     print(f"    System mode: {result.blackboard.get('system_mode')}")
 
-    print("\n✓ Workflow complete!")
+    print("\n Workflow complete!")
     print()
 
 
@@ -327,12 +327,12 @@ def example_4_decorators():
     tt = TalkingTrees()
     tt_tree = tt.from_py_trees(root, name="Decorator Demo", version="1.0.0")
 
-    print("\n✓ Converted decorators to TalkingTrees")
+    print("\n Converted decorators to TalkingTrees")
     print("  All decorator parameters preserved in config")
 
     # Save
     tt.save_tree(tt_tree, "tutorials/assets/py_trees_decorators.json")
-    print("\n✓ Saved to tutorials/assets/py_trees_decorators.json")
+    print("\n Saved to tutorials/assets/py_trees_decorators.json")
     print()
 
 
@@ -358,7 +358,7 @@ def example_5_reverse_conversion():
     print("\nConverting to py_trees...")
     py_trees_root = to_py_trees(tt_tree)
 
-    print("✓ Converted to py_trees")
+    print(" Converted to py_trees")
     print("\npy_trees Structure:")
     print(py_trees.display.ascii_tree(py_trees_root, show_status=False))
 
@@ -451,13 +451,13 @@ def example_7_custom_behaviors():
     tt = TalkingTrees()
     tt_tree = tt.from_py_trees(root, name="Sensor Monitor")
 
-    print("\n✓ Converted custom tree to TalkingTrees")
+    print("\n Converted custom tree to TalkingTrees")
     print("  Note: Custom behaviors converted to generic 'Action' type")
     print("  Original class stored in config['_py_trees_class']")
 
     # Save
     tt.save_tree(tt_tree, "tutorials/assets/py_trees_custom.json")
-    print("\n✓ Saved to tutorials/assets/py_trees_custom.json")
+    print("\n Saved to tutorials/assets/py_trees_custom.json")
     print()
 
 
@@ -481,7 +481,7 @@ def example_8_profiling():
     tt = TalkingTrees(profiling_level=ProfilingLevel.BASIC)
     tt_tree = tt.from_py_trees(root, name="Profiled Tree")
 
-    print(f"✓ Converted tree: {tt_tree.metadata.name}")
+    print(f" Converted tree: {tt_tree.metadata.name}")
 
     # Run with profiling
     execution = tt.create_execution(tt_tree)
@@ -516,21 +516,21 @@ if __name__ == "__main__":
     example_8_profiling()
 
     print("=" * 70)
-    print(" Tutorial Complete! 🎉")
+    print(" Tutorial Complete! ")
     print("=" * 70)
     print("\nKey Takeaways:")
-    print("  ✓ Use py_trees API for programmatic tree creation")
-    print("  ✓ Use ComparisonExpression for condition checks")
-    print("  ✓ Convert to TalkingTrees with tt.from_py_trees()")
-    print("  ✓ Visualize in TalkingTrees editor")
-    print("  ✓ Run with SDK or REST API")
-    print("  ✓ Reverse conversion supported (to_py_trees)")
-    print("  ✓ Decorators fully supported (Inverter, Repeat, Retry, Timeout)")
+    print("   Use py_trees API for programmatic tree creation")
+    print("   Use ComparisonExpression for condition checks")
+    print("   Convert to TalkingTrees with tt.from_py_trees()")
+    print("   Visualize in TalkingTrees editor")
+    print("   Run with SDK or REST API")
+    print("   Reverse conversion supported (to_py_trees)")
+    print("   Decorators fully supported (Inverter, Repeat, Retry, Timeout)")
     print("\nFiles created:")
     print("  • tutorials/assets/py_trees_simple.json")
     print("  • tutorials/assets/py_trees_complex.json")
     print("  • tutorials/assets/py_trees_task_manager.json")
     print("  • tutorials/assets/py_trees_decorators.json")
     print("  • tutorials/assets/py_trees_custom.json")
-    print("\n👉 Open these in visualization/tree_editor_pro.html to view!")
+    print("\n Open these in visualization/tree_editor_pro.html to view!")
     print()

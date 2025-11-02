@@ -39,8 +39,8 @@ def test_basic_conversion():
     assert tt_tree.root.children[0].node_type == "Success"
     assert tt_tree.root.children[2].node_type == "Failure"
 
-    print("✓ Structure validated")
-    print("✓ TEST 1 PASSED")
+    print(" Structure validated")
+    print(" TEST 1 PASSED")
     return tt_tree
 
 
@@ -70,10 +70,10 @@ def test_blackboard_condition():
     assert condition_node.config["value"] == 20
 
     print(
-        f"✓ Condition config: variable={condition_node.config['variable']}, "
+        f" Condition config: variable={condition_node.config['variable']}, "
         f"op={condition_node.config['operator']}, value={condition_node.config['value']}"
     )
-    print("✓ TEST 2 PASSED")
+    print(" TEST 2 PASSED")
     return tt_tree
 
 
@@ -103,10 +103,10 @@ def test_blackboard_setter():
 
     # Note: value is not extractable from py_trees SetBlackboardVariable
     print(
-        f"✓ Setter config: variable={setter_node.config['variable']}, "
+        f" Setter config: variable={setter_node.config['variable']}, "
         f"overwrite={setter_node.config['overwrite']}"
     )
-    print("✓ TEST 3 PASSED")
+    print(" TEST 3 PASSED")
     return tt_tree
 
 
@@ -161,9 +161,9 @@ def test_complex_tree():
     assert len(tt_tree.root.children[0].children) == 2
 
     print(
-        f"✓ Root: {tt_tree.root.node_type} with {len(tt_tree.root.children)} children"
+        f" Root: {tt_tree.root.node_type} with {len(tt_tree.root.children)} children"
     )
-    print("✓ TEST 4 PASSED")
+    print(" TEST 4 PASSED")
     return tt_tree
 
 
@@ -191,9 +191,9 @@ def test_save_load_roundtrip():
     assert loaded.root.node_type == "Selector"
     assert len(loaded.root.children) == 2
 
-    print("✓ Saved and loaded successfully")
-    print("✓ Structure preserved")
-    print("✓ TEST 5 PASSED")
+    print(" Saved and loaded successfully")
+    print(" Structure preserved")
+    print(" TEST 5 PASSED")
 
 
 def test_reverse_conversion():
@@ -247,10 +247,10 @@ def test_reverse_conversion():
     assert condition.check.value == 42  # Correct: .value contains the comparison value
     assert condition.check.operator == operator.eq  # Correct: .operator contains the operator function
 
-    print("✓ Converted TalkingTrees → py_trees")
-    print("✓ Structure validated")
-    print("✓ Condition parameters preserved")
-    print("✓ TEST 6 PASSED")
+    print(" Converted TalkingTrees → py_trees")
+    print(" Structure validated")
+    print(" Condition parameters preserved")
+    print(" TEST 6 PASSED")
 
 
 def test_multiple_operators():
@@ -287,10 +287,10 @@ def test_multiple_operators():
         assert cond_node.config["operator"] == op_str, f"Failed for {op_str}"
         assert cond_node.config["value"] == value
 
-        print(f"  ✓ {op_str:3s} operator: test_var {op_str} {value}")
+        print(f"   {op_str:3s} operator: test_var {op_str} {value}")
 
-    print("✓ All operators tested successfully")
-    print("✓ TEST 7 PASSED")
+    print(" All operators tested successfully")
+    print(" TEST 7 PASSED")
 
 
 def test_nested_composites():
@@ -323,8 +323,8 @@ def test_nested_composites():
         == "Success"
     )
 
-    print("✓ 4 levels of nesting preserved")
-    print("✓ TEST 8 PASSED")
+    print(" 4 levels of nesting preserved")
+    print(" TEST 8 PASSED")
 
 
 def test_parallel_composite():
@@ -347,8 +347,8 @@ def test_parallel_composite():
     assert tt_tree.root.node_type == "Parallel"
     assert len(tt_tree.root.children) == 2
 
-    print("✓ Parallel node converted")
-    print("✓ TEST 9 PASSED")
+    print(" Parallel node converted")
+    print(" TEST 9 PASSED")
 
 
 def test_inverter_decorator():
@@ -369,9 +369,9 @@ def test_inverter_decorator():
     assert len(tt_tree.root.children) == 1
     assert tt_tree.root.children[0].node_type == "Success"
 
-    print("✓ Inverter decorator converted")
-    print("✓ Child preserved")
-    print("✓ TEST 10 PASSED")
+    print(" Inverter decorator converted")
+    print(" Child preserved")
+    print(" TEST 10 PASSED")
 
 
 def test_repeat_decorator():
@@ -393,9 +393,9 @@ def test_repeat_decorator():
     assert len(tt_tree.root.children) == 1
 
     print(
-        f"✓ Repeat decorator converted with num_success={tt_tree.root.config.get('num_success')}"
+        f" Repeat decorator converted with num_success={tt_tree.root.config.get('num_success')}"
     )
-    print("✓ TEST 11 PASSED")
+    print(" TEST 11 PASSED")
 
 
 def test_retry_decorator():
@@ -417,9 +417,9 @@ def test_retry_decorator():
     assert len(tt_tree.root.children) == 1
 
     print(
-        f"✓ Retry decorator converted with num_failures={tt_tree.root.config.get('num_failures')}"
+        f" Retry decorator converted with num_failures={tt_tree.root.config.get('num_failures')}"
     )
-    print("✓ TEST 12 PASSED")
+    print(" TEST 12 PASSED")
 
 
 def test_timeout_decorator():
@@ -443,9 +443,9 @@ def test_timeout_decorator():
     assert len(tt_tree.root.children) == 1
 
     print(
-        f"✓ Timeout decorator converted with duration={tt_tree.root.config.get('duration')}s"
+        f" Timeout decorator converted with duration={tt_tree.root.config.get('duration')}s"
     )
-    print("✓ TEST 13 PASSED")
+    print(" TEST 13 PASSED")
 
 
 def test_decorator_reverse_conversion():
@@ -477,9 +477,9 @@ def test_decorator_reverse_conversion():
     assert len(pt_root.children) == 1
     assert isinstance(pt_root.children[0], py_trees.decorators.Inverter)
 
-    print("✓ Decorator round-trip successful")
-    print("✓ Structure preserved")
-    print("✓ TEST 14 PASSED")
+    print(" Decorator round-trip successful")
+    print(" Structure preserved")
+    print(" TEST 14 PASSED")
 
 
 def run_all_tests():
@@ -513,10 +513,10 @@ def run_all_tests():
             test_func()
             passed += 1
         except AssertionError as e:
-            print(f"\n✗ FAILED: {e}")
+            print(f"\n[X] FAILED: {e}")
             failed += 1
         except Exception as e:
-            print(f"\n✗ ERROR: {e}")
+            print(f"\n[X] ERROR: {e}")
             failed += 1
 
     # Summary
@@ -528,9 +528,9 @@ def run_all_tests():
     print(f"  Failed: {failed}")
 
     if failed == 0:
-        print("\n  ✓ ALL TESTS PASSED!")
+        print("\n   ALL TESTS PASSED!")
     else:
-        print(f"\n  ✗ {failed} TEST(S) FAILED")
+        print(f"\n  [X] {failed} TEST(S) FAILED")
 
     print("=" * 80 + "\n")
 

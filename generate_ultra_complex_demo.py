@@ -213,5 +213,5 @@ if __name__ == "__main__":
     tt = TalkingTrees()
     tt.save_tree(tt_tree, "examples/trees/11_ultra_complex.json")
 
-    print("✓ Ultra complex demo tree saved!")
+    print(" Ultra complex demo tree saved!")
     print("  Load in visual editor to explore advanced patterns")

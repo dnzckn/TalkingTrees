@@ -45,7 +45,7 @@ def config(
     if api_url:
         config_obj.api_url = api_url
         save_config(config_obj)
-        typer.secho(f"✓ API URL set to: {api_url}", fg=typer.colors.GREEN)
+        typer.secho(f" API URL set to: {api_url}", fg=typer.colors.GREEN)
 
     if set_key:
         if "=" not in set_key:
@@ -62,7 +62,7 @@ def config(
             raise typer.Exit(1)
 
         save_config(config_obj)
-        typer.secho(f"✓ {key} set to: {value}", fg=typer.colors.GREEN)
+        typer.secho(f" {key} set to: {value}", fg=typer.colors.GREEN)
 
 
 @app.command()

@@ -73,7 +73,7 @@ def get_tree(
         if output:
             with open(output, "w") as f:
                 json.dump(tree, f, indent=2)
-            console.print(f"[green]✓ Tree saved to {output}[/green]")
+            console.print(f"[green] Tree saved to {output}[/green]")
             return
 
         if show_json:
@@ -114,7 +114,7 @@ def create_tree(
         client = get_client()
         created_tree = client.create_tree(tree_def)
 
-        console.print("[green]✓ Tree created successfully[/green]")
+        console.print("[green] Tree created successfully[/green]")
         console.print(f"[bold]Tree ID:[/bold] {created_tree.get('tree_id')}")
         console.print(
             f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}"
@@ -144,7 +144,7 @@ def delete_tree(
         client = get_client()
         client.delete_tree(tree_id)
 
-        console.print(f"[green]✓ Tree {tree_id} deleted successfully[/green]")
+        console.print(f"[green] Tree {tree_id} deleted successfully[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -186,9 +186,9 @@ def validate_tree(
         issues = result.get("issues", [])
 
         if is_valid:
-            console.print("[green]✓ Tree is valid[/green]")
+            console.print("[green] Tree is valid[/green]")
         else:
-            console.print("[red]✗ Tree has validation errors[/red]")
+            console.print("[red][X] Tree has validation errors[/red]")
 
         if error_count > 0:
             console.print(f"\n[red bold]Errors: {error_count}[/red bold]")

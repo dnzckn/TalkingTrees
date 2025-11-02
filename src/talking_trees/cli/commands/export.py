@@ -43,7 +43,7 @@ def export_tree(
             console.print(f"[red]Error: Unsupported format: {format}[/red]")
             raise typer.Exit(1)
 
-        console.print(f"[green]✓ Tree exported to {output}[/green]")
+        console.print(f"[green] Tree exported to {output}[/green]")
 
     except Exception as e:
         console.print(f"[red]Error: {e}[/red]")
@@ -86,7 +86,7 @@ def import_tree(
         client = get_client()
         created_tree = client.create_tree(tree_def)
 
-        console.print("[green]✓ Tree imported successfully[/green]")
+        console.print("[green] Tree imported successfully[/green]")
         console.print(f"[bold]Tree ID:[/bold] {created_tree.get('tree_id')}")
         console.print(
             f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}"
@@ -117,7 +117,7 @@ def export_dot(
         with open(output, "w") as f:
             f.write(dot_source)
 
-        console.print(f"[green]✓ DOT graph exported to {output}[/green]")
+        console.print(f"[green] DOT graph exported to {output}[/green]")
 
         # Render if requested
         if render:
@@ -130,7 +130,7 @@ def export_dot(
                     output.stem, directory=output.parent, format="png", cleanup=True
                 )
 
-                console.print(f"[green]✓ Image rendered to {output_image}[/green]")
+                console.print(f"[green] Image rendered to {output_image}[/green]")
 
             except ImportError:
                 console.print(
@@ -195,7 +195,7 @@ def batch_export(
             exported_count += 1
 
         console.print(
-            f"[green]✓ Exported {exported_count} tree(s) to {output_dir}[/green]"
+            f"[green] Exported {exported_count} tree(s) to {output_dir}[/green]"
         )
 
     except Exception as e:
@@ -249,11 +249,11 @@ def batch_import(
                 # Create tree
                 client.create_tree(tree_def)
                 imported_count += 1
-                console.print(f"[green]✓ Imported: {file.name}[/green]")
+                console.print(f"[green] Imported: {file.name}[/green]")
 
             except Exception as e:
                 errors.append(f"{file.name}: {e}")
-                console.print(f"[red]✗ Failed: {file.name}[/red]")
+                console.print(f"[red][X] Failed: {file.name}[/red]")
 
         console.print("\n[bold]Summary:[/bold]")
         console.print(f"  [green]Imported: {imported_count}[/green]")

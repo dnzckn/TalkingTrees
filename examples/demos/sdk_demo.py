@@ -53,9 +53,9 @@ def demo_validation():
     result = tt.validate_tree(tree, verbose=True)
 
     if result.is_valid:
-        print("\n✓ Tree is valid and ready for execution!")
+        print("\n Tree is valid and ready for execution!")
     else:
-        print(f"\n✗ Tree has {result.error_count} errors")
+        print(f"\n[X] Tree has {result.error_count} errors")
 
     print()
 
@@ -238,7 +238,7 @@ def demo_batch_operations():
 
     # Process results
     for name, result in results.items():
-        status = "✓" if result.is_valid else "✗"
+        status = "" if result.is_valid else "[X]"
         print(f"{status} {name}: {result.error_count} errors")
     """)
 
@@ -368,7 +368,7 @@ def main():
         demo_convenience_functions()
 
         print("=" * 70)
-        print("✓ All demonstrations completed successfully!")
+        print(" All demonstrations completed successfully!")
         print("=" * 70)
         print("\nNext steps:")
         print("  1. Read SDK_ENHANCEMENTS.md for full API documentation")
@@ -377,7 +377,7 @@ def main():
         print()
 
     except Exception as e:
-        print(f"\n✗ Error during demonstration: {e}")
+        print(f"\n[X] Error during demonstration: {e}")
         import traceback
 
         traceback.print_exc()

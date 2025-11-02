@@ -64,7 +64,7 @@ def get_template(
         if output:
             with open(output, "w") as f:
                 json.dump(template, f, indent=2)
-            console.print(f"[green]✓ Template saved to {output}[/green]")
+            console.print(f"[green] Template saved to {output}[/green]")
             return
 
         if show_json:
@@ -123,7 +123,7 @@ def create_template(
         client = get_client()
         created_template = client.create_template(template_def)
 
-        console.print("[green]✓ Template created successfully[/green]")
+        console.print("[green] Template created successfully[/green]")
         console.print(
             f"[bold]Template ID:[/bold] {created_template.get('template_id')}"
         )
@@ -207,11 +207,11 @@ def instantiate_template(
         if output:
             with open(output, "w") as f:
                 json.dump(tree_def, f, indent=2)
-            console.print(f"[green]✓ Tree saved to {output}[/green]")
+            console.print(f"[green] Tree saved to {output}[/green]")
         else:
             # Upload to library
             created_tree = client.create_tree(tree_def)
-            console.print("[green]✓ Tree created from template[/green]")
+            console.print("[green] Tree created from template[/green]")
             console.print(f"[bold]Tree ID:[/bold] {created_tree.get('tree_id')}")
             console.print(
                 f"[bold]Name:[/bold] {created_tree.get('metadata', {}).get('name')}"

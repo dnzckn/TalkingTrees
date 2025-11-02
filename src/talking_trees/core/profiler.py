@@ -208,7 +208,7 @@ class ProfileReport:
             lines.extend(
                 [
                     "BOTTLENECKS (>100ms avg):",
-                    *[f"  ⚠️  {b}" for b in self.bottlenecks],
+                    *[f"  [WARNING]  {b}" for b in self.bottlenecks],
                     "",
                 ]
             )

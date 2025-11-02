@@ -79,7 +79,7 @@ class TestRESTAPIIntegration:
         root.add_child(low_battery)
         root.add_child(normal_ops)
 
-        print("✓ Created py_trees tree with 2 branches")
+        print(" Created py_trees tree with 2 branches")
 
         # =====================================================================
         # Step 2: Convert to TalkingTrees format
@@ -94,7 +94,7 @@ class TestRESTAPIIntegration:
             description="Test tree for REST API integration",
         )
 
-        print("✓ Converted to TalkingTrees TreeDefinition")
+        print(" Converted to TalkingTrees TreeDefinition")
         print(f"  Name: {tree_def.metadata.name}")
 
         # IMPORTANT: py_trees doesn't expose variable_value after construction
@@ -111,7 +111,7 @@ class TestRESTAPIIntegration:
         # Save to JSON for upload
         test_tree_path = "/tmp/rest_api_test_tree.json"
         tt.save_tree(tree_def, test_tree_path)
-        print(f"✓ Saved to {test_tree_path}")
+        print(f" Saved to {test_tree_path}")
 
         # =====================================================================
         # Step 3: Upload tree via REST API
@@ -136,7 +136,7 @@ class TestRESTAPIIntegration:
         upload_result = response.json()
         tree_id = upload_result["tree_id"]
 
-        print("✓ Tree uploaded successfully")
+        print(" Tree uploaded successfully")
         print(f"  Tree ID: {tree_id}")
 
         # =====================================================================
@@ -152,7 +152,7 @@ class TestRESTAPIIntegration:
         exec_result = response.json()
         execution_id = exec_result["execution_id"]
 
-        print("✓ Execution created successfully")
+        print(" Execution created successfully")
         print(f"  Execution ID: {execution_id}")
 
         # =====================================================================
@@ -168,7 +168,7 @@ class TestRESTAPIIntegration:
         assert response.status_code == 200, f"Failed to tick execution: {response.text}"
         tick_result = response.json()
 
-        print("✓ Tick executed successfully")
+        print(" Tick executed successfully")
 
         # Handle different response formats (API returns root_status and snapshot)
         status = tick_result.get("root_status") or tick_result.get("status")
@@ -190,7 +190,7 @@ class TestRESTAPIIntegration:
             f"Low battery should trigger charge action, got {robot_action}"
         )
 
-        print("✓ Low battery correctly triggered 'charge' action")
+        print(" Low battery correctly triggered 'charge' action")
 
         # =====================================================================
         # Step 6: Tick execution with normal battery (should patrol)
@@ -205,7 +205,7 @@ class TestRESTAPIIntegration:
         assert response.status_code == 200, f"Failed to tick execution: {response.text}"
         tick_result = response.json()
 
-        print("✓ Tick executed successfully")
+        print(" Tick executed successfully")
 
         # Handle different response formats (API returns root_status and snapshot)
         status = tick_result.get("root_status") or tick_result.get("status")
@@ -227,7 +227,7 @@ class TestRESTAPIIntegration:
             f"Normal battery should trigger patrol action, got {robot_action}"
         )
 
-        print("✓ Normal battery correctly triggered 'patrol' action")
+        print(" Normal battery correctly triggered 'patrol' action")
 
         # =====================================================================
         # Step 7: Get execution status
@@ -241,7 +241,7 @@ class TestRESTAPIIntegration:
         )
         status_result = response.json()
 
-        print("✓ Retrieved execution status")
+        print(" Retrieved execution status")
         print(f"  Tick count: {status_result['tick_count']}")
         print(f"  Status: {status_result['status']}")
 
@@ -257,7 +257,7 @@ class TestRESTAPIIntegration:
         assert response.status_code == 200, f"Failed to list trees: {response.text}"
         trees_result = response.json()
 
-        print("✓ Retrieved tree list")
+        print(" Retrieved tree list")
         print(f"  Total trees: {len(trees_result)}")
 
         # Find our tree
@@ -265,21 +265,21 @@ class TestRESTAPIIntegration:
         assert our_tree is not None, "Our tree should be in the list"
         assert our_tree["tree_name"] == "REST API Test Tree"
 
-        print(f"✓ Found our tree in list: {our_tree['tree_name']}")
+        print(f" Found our tree in list: {our_tree['tree_name']}")
 
         print("\n" + "=" * 70)
-        print("✅ REST API INTEGRATION TEST PASSED")
+        print("[PASS] REST API INTEGRATION TEST PASSED")
         print("=" * 70)
         print("\nVerified:")
-        print("  ✓ py_trees tree creation")
-        print("  ✓ Conversion to TalkingTrees format")
-        print("  ✓ Tree upload via REST API")
-        print("  ✓ Execution creation via REST API")
-        print("  ✓ Tick execution via REST API with blackboard updates")
-        print("  ✓ Execution status retrieval via REST API")
-        print("  ✓ Tree listing via REST API")
-        print("  ✓ Correct behavior logic (low battery -> charge, normal -> patrol)")
-        print("\n✅ REST API correctly calls SDK and produces expected results!")
+        print("   py_trees tree creation")
+        print("   Conversion to TalkingTrees format")
+        print("   Tree upload via REST API")
+        print("   Execution creation via REST API")
+        print("   Tick execution via REST API with blackboard updates")
+        print("   Execution status retrieval via REST API")
+        print("   Tree listing via REST API")
+        print("   Correct behavior logic (low battery -> charge, normal -> patrol)")
+        print("\n[PASS] REST API correctly calls SDK and produces expected results!")
 
 
 def run_standalone():
@@ -320,12 +320,12 @@ def run_standalone():
         try:
             response = requests.get(f"{api_server}/health", timeout=1)
             if response.status_code == 200:
-                print("✓ Server started on port 8000")
+                print(" Server started on port 8000")
                 break
         except requests.exceptions.RequestException:
             if i == max_retries - 1:
                 server_process.kill()
-                print("✗ Failed to start server")
+                print("[X] Failed to start server")
                 return False
             time.sleep(0.5)
 
@@ -334,7 +334,7 @@ def run_standalone():
         test.test_full_workflow_with_rest_api(api_server)
         success = True
     except Exception as e:
-        print(f"\n✗ Test failed: {e}")
+        print(f"\n[X] Test failed: {e}")
         import traceback
 
         traceback.print_exc()
@@ -344,7 +344,7 @@ def run_standalone():
         print("\nStopping server...")
         server_process.terminate()
         server_process.wait(timeout=5)
-        print("✓ Server stopped")
+        print(" Server stopped")
 
     return success
 
