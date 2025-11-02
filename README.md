@@ -26,10 +26,13 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 - **FastAPI-based REST API** - Optional HTTP API with 47 endpoints for tree management
 - **Visual Tree Editor** - Browser-based drag-and-drop editor with 100% node coverage
 - **Python SDK** - High-level API for tree creation and manipulation
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 - **FastAPI REST API** - Optional HTTP API with 47 endpoints for tree management
@@ -41,6 +44,9 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
   - 12 interactive example trees
 - **Python SDK** - High-level API for programmatic tree creation and manipulation
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
@@ -159,8 +165,11 @@ Launch the browser-based tree editor:
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Opens at `http://localhost:8000` - Drag-and-drop interface with all 40+ node types, enum dropdowns, array editors, and organized palette. Build any tree entirely in the GUI with full backend parity.
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 **Professional drag-and-drop interface** with all 40+ node types, live execution simulation, and debugging tools:
@@ -177,6 +186,9 @@ Opens at `http://localhost:8000` - Drag-and-drop interface with all 40+ node typ
 
 Opens at `http://localhost:8000` - zero-configuration, works offline, 100% node coverage.
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
