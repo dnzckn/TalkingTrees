@@ -8,21 +8,43 @@ This directory contains visual behavior tree editors for TalkingTrees.
 The professional-grade behavior tree editor with complete feature set.
 
 **Features:**
-- Modern toolbar with all essential actions
-- Undo/Redo history (Ctrl+Z/Y)
-- Tree library for saving/loading trees
-- Validation with error checking
-- Search/filter nodes
-- Auto-layout algorithm
-- Grid snap for alignment
-- Pan, zoom, minimap
-- Collapse/expand subtrees
-- Export to JSON
-- Save to TalkingTrees API
-- Keyboard shortcuts
-- Professional VSCode-style theme
-- Properties panel with type-aware inputs
-- Status bar with metrics
+- **Visual Editing**: Modern toolbar with drag-and-drop node palette
+- **Undo/Redo**: Full history tracking (Ctrl+Z/Y)
+- **Tree Library**: Save/load trees locally or from remote API
+  - Local mode: Load from any folder on your computer
+  - Remote mode: Connect to team API server
+  - Folder picker with auto-discovery of .json files
+- **Live Execution Simulator**: Real-time tree execution with visual feedback
+  - Play/Pause/Step controls
+  - Adjustable simulation speed
+  - Visual node states (SUCCESS=green, FAILURE=red, RUNNING=yellow)
+  - Breakpoint support on any node
+- **Execution Timeline Scrubber**: Video-player-style timeline
+  - Scrub through execution history
+  - Click/drag to jump to any tick
+  - Keyboard shortcuts (← → for prev/next tick)
+  - Color-coded tick visualization (green/yellow/red)
+  - Last 100 ticks buffered
+- **Blackboard Inspector**: Live variable viewer
+  - Watch expressions
+  - Edit variables during simulation
+  - Variable usage tracking
+- **Smart Validation**: Real-time error detection
+  - Unreachable nodes
+  - Infinite loops
+  - Missing configurations
+  - Unused/undefined blackboard variables
+- **Layout & Navigation**:
+  - Auto-layout algorithm
+  - Grid snap for alignment
+  - Pan, zoom, minimap
+  - Collapse/expand subtrees
+- **Professional UI**:
+  - VSCode-style dark theme
+  - Type-aware property inputs
+  - Status bar with live metrics
+  - Comprehensive keyboard shortcuts
+  - Interactive tooltips with examples
 
 **Usage:**
 ```bash
