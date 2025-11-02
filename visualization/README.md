@@ -219,7 +219,7 @@ Key sections:
 4. **Validate**: Check for structural errors (Ctrl+V)
 5. **Test**: Run simulation and verify behavior
 6. **Save**: Store in library for reuse (Ctrl+S)
-7. **Deploy**: Export JSON or save to API for production
+7. **Export**: Export JSON or save to API
 
 ### Best Practices
 - One root node (Sequence or Selector)
