@@ -294,19 +294,24 @@ class SimpleBehaviorBuilder(NodeBuilder):
         return self.behavior_class(name=name)
 
 
-class CheckBlackboardConditionBuilder(NodeBuilder):
-    """Builder for CheckBlackboardCondition (maps to py_trees CheckBlackboardVariableValue)."""
+class TickCounterBuilder(NodeBuilder):
+    """Builder for TickCounter."""
 
     def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
-        from talking_trees.core.utils import ComparisonExpressionUtil
+        duration = config.get("duration", 1)
+        completion_status_str = config.get("completion_status", "SUCCESS")
 
-        variable = config.get(ConfigKeys.VARIABLE, "condition")
-        value = config.get(ConfigKeys.VALUE, True)
-        op_str = config.get(ConfigKeys.OPERATOR, "==") if "operator" in config else config.get(ConfigKeys.OPERATOR_STR, "==")
+        # Convert string to Status enum
+        status_map = {
+            "SUCCESS": py_trees.common.Status.SUCCESS,
+            "FAILURE": py_trees.common.Status.FAILURE,
+            "RUNNING": py_trees.common.Status.RUNNING,
+        }
+        completion_status = status_map.get(completion_status_str, py_trees.common.Status.SUCCESS)
 
-        check = ComparisonExpressionUtil.create(variable, op_str, value)
-
-        return py_trees.behaviours.CheckBlackboardVariableValue(name=name, check=check)
+        return py_trees.behaviours.TickCounter(
+            name=name, duration=duration, completion_status=completion_status
+        )
 
 
 class SetBlackboardVariableBuilder(NodeBuilder):
@@ -458,7 +463,6 @@ SIMPLE_BEHAVIOR_BUILDERS: dict[str, NodeBuilder] = {
 
 # Special behavior builders (with complex configuration)
 SPECIAL_BEHAVIOR_BUILDERS: dict[str, NodeBuilder] = {
-    "CheckBlackboardCondition": CheckBlackboardConditionBuilder(),
     "SetBlackboardVariable": SetBlackboardVariableBuilder(),
     "CheckBlackboardVariableExists": CheckBlackboardVariableExistsBuilder(),
     "CheckBlackboardVariableValue": CheckBlackboardVariableValueBuilder(),
@@ -466,6 +470,7 @@ SPECIAL_BEHAVIOR_BUILDERS: dict[str, NodeBuilder] = {
     "CompareBlackboardVariables": CompareBlackboardVariablesBuilder(),
     "UnsetBlackboardVariable": UnsetBlackboardVariableBuilder(),
     "WaitForBlackboardVariable": WaitForBlackboardVariableBuilder(),
+    "TickCounter": TickCounterBuilder(),
 }
 
 # Combined registry

@@ -1,9 +1,7 @@
 """Custom behaviors for TalkingTrees.
 
-This module contains example custom behaviors that extend py_trees.
-Users can create their own behaviors here and register them with the BehaviorRegistry.
+This module is reserved for any custom behavior implementations if needed.
+TalkingTrees focuses on serializing/deserializing py_trees nodes, not inventing new ones.
 """
 
-from talking_trees.behaviors.examples import CheckBattery, Log, Wait
-
-__all__ = ["CheckBattery", "Log", "Wait"]
+__all__ = []
