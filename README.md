@@ -20,11 +20,8 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
 
 ## Core Features
 
-- **Complete Reversibility** - Perfect round-trip conversion with zero data loss
-- **40+ Node Types** - All composites, decorators, and behaviors from py_trees 2.3+
-- **Type-Safe Architecture** - Constants-based configuration system prevents typos
-- **Enhanced Error Messages** - Detailed context with tree paths and suggestions
-- **FastAPI REST API** - Optional HTTP API with 47 endpoints for tree management
+- **Complete Reversibility** - Full round-trip conversion while supporting all py_trees nodes and decorators
+- **FastAPI REST API** - Optional HTTP API with several endpoints for tree management, or execution
 - **GUI Editor** - Browser-based visual editor with:
   - Live execution simulation with timeline scrubber
   - Breakpoint debugging and blackboard inspector
