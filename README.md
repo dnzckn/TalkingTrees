@@ -246,7 +246,7 @@ talking_trees/
 │   ├── cli/              # Command-line interface
 │   ├── behaviors/        # Custom behavior implementations
 │   └── sdk.py            # High-level Python SDK
-├── tests/                # Test suite (66 tests, 100% pass)
+├── tests/                # Test suite 
 ├── examples/
 │   ├── demos/            # Python demo scripts
 │   ├── trees/            # Example tree JSON files
