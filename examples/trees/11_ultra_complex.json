@@ -1,13 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "ultra-complex-demo",
   "metadata": {
     "name": "Ultra Complex Demo - All Node Types",
     "version": "1.0.0",
-    "description": "Comprehensive demonstration of all 40+ node types including status converters, advanced decorators, time-based behaviors, probabilistic nodes, and complex blackboard operations",
+    "description": "Comprehensive demonstration showcasing decorators, parallel execution, status converters, and blackboard operations",
     "author": "TalkingTrees",
     "tags": ["demo", "comprehensive", "advanced"],
-    "status": "production"
+    "status": "active"
   },
   "root": {
     "node_type": "Selector",
@@ -18,18 +17,18 @@
     "children": [
       {
         "node_type": "Sequence",
-        "name": "Emergency Branch",
+        "name": "Branch 1: Timeout & Inverter Demo",
         "config": {
           "memory": true
         },
         "children": [
           {
-            "node_type": "CheckBlackboardVariableValue",
-            "name": "Check Critical Battery",
+            "node_type": "CheckBlackboardCondition",
+            "name": "Check Battery Low",
             "config": {
               "variable": "battery",
-              "operator": "<",
-              "value": 10
+              "operator_str": "<",
+              "value": 20
             }
           },
           {
@@ -60,19 +59,19 @@
       },
       {
         "node_type": "Sequence",
-        "name": "Status Converters Demo",
+        "name": "Branch 2: Status Converters",
         "config": {
           "memory": false
         },
         "children": [
           {
             "node_type": "SuccessIsFailure",
-            "name": "Convert Success to Failure",
+            "name": "Success → Failure",
             "config": {},
             "children": [
               {
                 "node_type": "FailureIsSuccess",
-                "name": "Convert Failure to Success",
+                "name": "Failure → Success",
                 "config": {},
                 "children": [
                   {
@@ -86,7 +85,7 @@
           },
           {
             "node_type": "RunningIsSuccess",
-            "name": "Convert Running to Success",
+            "name": "Running → Success",
             "config": {},
             "children": [
               {
@@ -100,7 +99,7 @@
       },
       {
         "node_type": "Sequence",
-        "name": "Repetition Demo",
+        "name": "Branch 3: Repetition & OneShot",
         "config": {
           "memory": true
         },
@@ -129,12 +128,9 @@
             },
             "children": [
               {
-                "node_type": "TickCounter",
-                "name": "Count 10 Ticks",
-                "config": {
-                  "num_ticks": 10,
-                  "final_status": "SUCCESS"
-                }
+                "node_type": "Success",
+                "name": "Perform Action",
+                "config": {}
               }
             ]
           },
@@ -159,7 +155,7 @@
       },
       {
         "node_type": "Sequence",
-        "name": "Parallel Processing Demo",
+        "name": "Branch 4: Parallel Processing",
         "config": {
           "memory": true
         },
@@ -197,83 +193,7 @@
       },
       {
         "node_type": "Sequence",
-        "name": "Advanced Conditionals Demo",
-        "config": {
-          "memory": false
-        },
-        "children": [
-          {
-            "node_type": "EternalGuard",
-            "name": "Guard Battery Level",
-            "config": {
-              "variable": "battery",
-              "operator": ">",
-              "value": 20
-            },
-            "children": [
-              {
-                "node_type": "Condition",
-                "name": "Wait for Ready Signal",
-                "config": {
-                  "variable": "ready",
-                  "operator": "==",
-                  "value": 1
-                },
-                "children": [
-                  {
-                    "node_type": "Success",
-                    "name": "Execute Task",
-                    "config": {}
-                  }
-                ]
-              }
-            ]
-          },
-          {
-            "node_type": "WaitForBlackboardVariableValue",
-            "name": "Wait for Mission Start",
-            "config": {
-              "variable": "mission_status",
-              "operator": "==",
-              "value": 1
-            }
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Time-Based Behaviors Demo",
-        "config": {
-          "memory": false
-        },
-        "children": [
-          {
-            "node_type": "SuccessEveryN",
-            "name": "Success Every 3 Ticks",
-            "config": {
-              "n": 3
-            }
-          },
-          {
-            "node_type": "Periodic",
-            "name": "Periodic Cycle",
-            "config": {
-              "n": 5
-            }
-          },
-          {
-            "node_type": "StatusQueue",
-            "name": "Status Sequence",
-            "config": {
-              "queue": ["SUCCESS", "FAILURE", "RUNNING", "SUCCESS"],
-              "eventually": "SUCCESS"
-            }
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Blackboard Operations Demo",
+        "name": "Branch 5: Blackboard Operations",
         "config": {
           "memory": true
         },
@@ -294,14 +214,10 @@
             }
           },
           {
-            "node_type": "CheckBlackboardVariableValues",
-            "name": "Check Multiple Conditions",
+            "node_type": "CheckBlackboardVariableExists",
+            "name": "Check Variable Exists",
             "config": {
-              "checks": [
-                {"variable": "battery", "operator": ">", "value": 30},
-                {"variable": "temperature", "operator": "<", "value": 80}
-              ],
-              "logical_operator": "and"
+              "variable": "counter"
             }
           },
           {
@@ -315,60 +231,14 @@
       },
       {
         "node_type": "Sequence",
-        "name": "Monitoring Demo",
-        "config": {
-          "memory": false
-        },
-        "children": [
-          {
-            "node_type": "Count",
-            "name": "Count Executions",
-            "config": {},
-            "children": [
-              {
-                "node_type": "StatusToBlackboard",
-                "name": "Store Status",
-                "config": {
-                  "variable": "last_status"
-                },
-                "children": [
-                  {
-                    "node_type": "Success",
-                    "name": "Task",
-                    "config": {}
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Probabilistic Demo",
-        "config": {
-          "memory": false
-        },
-        "children": [
-          {
-            "node_type": "ProbabilisticBehaviour",
-            "name": "Random Decision",
-            "config": {
-              "weights": [0.5, 0.3, 0.2]
-            }
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "More Status Converters",
+        "name": "Branch 6: More Status Converters",
         "config": {
           "memory": false
         },
         "children": [
           {
             "node_type": "FailureIsRunning",
-            "name": "Failure to Running",
+            "name": "Failure → Running",
             "config": {},
             "children": [
               {
@@ -380,7 +250,7 @@
           },
           {
             "node_type": "RunningIsFailure",
-            "name": "Running to Failure",
+            "name": "Running → Failure",
             "config": {},
             "children": [
               {
@@ -392,7 +262,7 @@
           },
           {
             "node_type": "SuccessIsRunning",
-            "name": "Success to Running",
+            "name": "Success → Running",
             "config": {},
             "children": [
               {

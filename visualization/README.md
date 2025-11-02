@@ -60,12 +60,12 @@ See [EDITOR_SHOWCASE.md](../EDITOR_SHOWCASE.md) for:
 - Example trees (Robot Controller, E-commerce, Game AI)
 - Best practices
 - Common patterns
-- Production workflow
+- Deployment workflow
 - Troubleshooting guide
 
 ## Example Trees
 
-### Robot Controller (Production-Ready)
+### Robot Controller Demo
 ```
 Selector "Robot Controller" (memory=false)
 ├─ Sequence "Low Battery Handler" (memory=true)
@@ -77,7 +77,7 @@ Selector "Robot Controller" (memory=false)
 └─ SetVariable "robot_action = patrol"
 ```
 
-This tree is ready for production use! Export it and test with:
+This tree is ready to export and test with:
 ```bash
 python test_complete_flow.py
 ```
@@ -156,20 +156,20 @@ Key sections:
 3. **Validate**: Check for errors (Ctrl+V)
 4. **Save**: Store in library for reuse
 5. **Test**: Export and run with test script
-6. **Deploy**: Save to API for production
+6. **Deploy**: Save to API for server storage
 
 ### Best Practices
 - One root node (Sequence or Selector)
 - Decorators have exactly 1 child
 - Actions are leaves (no children)
 - Use SetBlackboardVariable for real actions
-- Avoid Log nodes in production
+- Use Log nodes for debugging only
 - Set memory correctly (Selector=false, Sequence=true)
 
 ## Support
 
 - **Issues**: https://github.com/anthropics/talkingtrees/issues
-- **Docs**: See MEMORY_AND_STATE.md, PRODUCTION_SYSTEM.md
+- **Docs**: See MEMORY_AND_STATE.md
 - **API**: http://localhost:8000/docs
 
 ## License

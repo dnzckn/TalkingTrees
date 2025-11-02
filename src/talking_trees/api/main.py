@@ -27,11 +27,11 @@ app = FastAPI(
 )
 
 # Configure CORS for web editor support
-# Default to localhost for development. For production, set TALKINGTREES_CORS_ORIGINS environment variable
+# Default to localhost for development. For deployment, set TALKINGTREES_CORS_ORIGINS environment variable
 # Example: TALKINGTREES_CORS_ORIGINS="https://app.example.com,https://editor.example.com"
 cors_origins_env = os.getenv("TALKINGTREES_CORS_ORIGINS", "")
 if cors_origins_env:
-    # Production: use specific origins from environment variable
+    # Deployment: use specific origins from environment variable
     allowed_origins = [origin.strip() for origin in cors_origins_env.split(",")]
 else:
     # Development: allow localhost and common dev ports

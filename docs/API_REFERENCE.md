@@ -1277,7 +1277,7 @@ ws.onclose = () => {
 
 ## Rate Limiting
 
-Currently no rate limiting. For production deployment, consider:
+Currently no rate limiting. For deployment, consider:
 - Implementing rate limiting middleware
 - Using API gateway with rate limiting
 - Monitoring API usage
@@ -1286,7 +1286,7 @@ Currently no rate limiting. For production deployment, consider:
 
 ## Authentication
 
-Currently no authentication. For production:
+Currently no authentication. For deployment:
 - Add API key authentication
 - Implement OAuth2/JWT tokens
 - Use HTTPS for all requests

@@ -701,6 +701,9 @@
 </head>
 
 <body>
+    <!-- Hidden file input for importing JSON files -->
+    <input type="file" id="fileInput" accept=".json" style="display: none;" onchange="handleFileImport(event)">
+
     <div class="app">
         <!-- Toolbar -->
         <div class="toolbar">
@@ -709,8 +712,8 @@
                 <button class="toolbar-btn" onclick="newTree()" data-tooltip="New Tree (Ctrl+N)">
                     <span class="toolbar-icon">📄</span> New
                 </button>
-                <button class="toolbar-btn" onclick="openLoadModal()" data-tooltip="Load Tree (Ctrl+O)">
-                    <span class="toolbar-icon">📂</span> Open
+                <button class="toolbar-btn" onclick="document.getElementById('fileInput').click()" data-tooltip="Import from File">
+                    <span class="toolbar-icon">📁</span> Import
                 </button>
                 <button class="toolbar-btn" onclick="saveToLibrary()" data-tooltip="Save to Library (Ctrl+S)">
                     <span class="toolbar-icon">💾</span> Save
@@ -1154,7 +1157,6 @@
                     <div>
                         <h3 style="color: #4fc1ff; margin-bottom: 10px; font-size: 14px;">File Operations</h3>
                         <div class="shortcut-item"><kbd>Ctrl+N</kbd><span>New Tree</span></div>
-                        <div class="shortcut-item"><kbd>Ctrl+O</kbd><span>Open from Library</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+S</kbd><span>Save to Library</span></div>
 
                         <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Edit Operations</h3>
@@ -1227,7 +1229,7 @@
                             <strong style="color: #4fc1ff; font-size: 15px;">Save to API & Load from Server</strong>
                         </div>
                         <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
-                            Save tree to PyForest API, then load it from the server. Best for shared/production
+                            Save tree to PyForest API, then load it from the server. Best for shared/collaborative
                             environments.
                         </p>
                     </div>
@@ -2015,10 +2017,6 @@
                             e.preventDefault();
                             newTree();
                             break;
-                        case 'o':
-                            e.preventDefault();
-                            openLoadModal();
-                            break;
                         case 's':
                             e.preventDefault();
                             saveToLibrary();
@@ -2138,31 +2136,42 @@
 
                     if (e.key === 'ArrowUp' && selectedNode.parent) {
                         // Select parent
-                        selectNode(selectedNode.parent, false);
-                        centerViewOnNode(selectedNode.parent);
-                        updateStatus(`↑ Selected parent: ${selectedNode.parent.name}`);
+                        const parentNode = nodes.find(n => n.id === selectedNode.parent.id);
+                        if (parentNode) {
+                            selectNode(parentNode, false);
+                            centerViewOnNode(parentNode);
+                            updateStatus(`↑ Selected parent: ${parentNode.name}`);
+                        }
                     } else if (e.key === 'ArrowDown' && selectedNode.children.length > 0) {
                         // Select first child
-                        const firstChild = selectedNode.children[0];
-                        selectNode(firstChild, false);
-                        centerViewOnNode(firstChild);
-                        updateStatus(`↓ Selected child: ${firstChild.name}`);
+                        const firstChildNode = nodes.find(n => n.id === selectedNode.children[0].id);
+                        if (firstChildNode) {
+                            selectNode(firstChildNode, false);
+                            centerViewOnNode(firstChildNode);
+                            updateStatus(`↓ Selected child: ${firstChildNode.name}`);
+                        }
                     } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
                         // Select sibling
                         if (selectedNode.parent) {
-                            const siblings = selectedNode.parent.children;
-                            const currentIndex = siblings.indexOf(selectedNode);
+                            const parentNode = nodes.find(n => n.id === selectedNode.parent.id);
+                            if (parentNode && parentNode.children) {
+                                const currentIndex = parentNode.children.findIndex(c => c.id === selectedNode.id);
 
-                            if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                                const prevSibling = siblings[currentIndex - 1];
-                                selectNode(prevSibling, false);
-                                centerViewOnNode(prevSibling);
-                                updateStatus(`← Selected previous: ${prevSibling.name}`);
-                            } else if (e.key === 'ArrowRight' && currentIndex < siblings.length - 1) {
-                                const nextSibling = siblings[currentIndex + 1];
-                                selectNode(nextSibling, false);
-                                centerViewOnNode(nextSibling);
-                                updateStatus(`→ Selected next: ${nextSibling.name}`);
+                                if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                                    const prevSiblingNode = nodes.find(n => n.id === parentNode.children[currentIndex - 1].id);
+                                    if (prevSiblingNode) {
+                                        selectNode(prevSiblingNode, false);
+                                        centerViewOnNode(prevSiblingNode);
+                                        updateStatus(`← Selected previous: ${prevSiblingNode.name}`);
+                                    }
+                                } else if (e.key === 'ArrowRight' && currentIndex < parentNode.children.length - 1) {
+                                    const nextSiblingNode = nodes.find(n => n.id === parentNode.children[currentIndex + 1].id);
+                                    if (nextSiblingNode) {
+                                        selectNode(nextSiblingNode, false);
+                                        centerViewOnNode(nextSiblingNode);
+                                        updateStatus(`→ Selected next: ${nextSiblingNode.name}`);
+                                    }
+                                }
                             }
                         }
                     }
@@ -2216,39 +2225,47 @@
                 // Home/End to navigate to first/last sibling
                 if (selectedNode && selectedNode.parent && (e.key === 'Home' || e.key === 'End')) {
                     e.preventDefault();
-                    const siblings = selectedNode.parent.children;
-                    if (e.key === 'Home' && siblings.length > 0) {
-                        const firstSibling = siblings[0];
-                        selectNode(firstSibling, false);
-                        centerViewOnNode(firstSibling);
-                        updateStatus(`Home: ${firstSibling.name}`);
-                    } else if (e.key === 'End' && siblings.length > 0) {
-                        const lastSibling = siblings[siblings.length - 1];
-                        selectNode(lastSibling, false);
-                        centerViewOnNode(lastSibling);
-                        updateStatus(`End: ${lastSibling.name}`);
+                    const parentNode = nodes.find(n => n.id === selectedNode.parent.id);
+                    if (parentNode && parentNode.children && parentNode.children.length > 0) {
+                        if (e.key === 'Home') {
+                            const firstSiblingNode = nodes.find(n => n.id === parentNode.children[0].id);
+                            if (firstSiblingNode) {
+                                selectNode(firstSiblingNode, false);
+                                centerViewOnNode(firstSiblingNode);
+                                updateStatus(`Home: ${firstSiblingNode.name}`);
+                            }
+                        } else if (e.key === 'End') {
+                            const lastSiblingNode = nodes.find(n => n.id === parentNode.children[parentNode.children.length - 1].id);
+                            if (lastSiblingNode) {
+                                selectNode(lastSiblingNode, false);
+                                centerViewOnNode(lastSiblingNode);
+                                updateStatus(`End: ${lastSiblingNode.name}`);
+                            }
+                        }
                     }
                 }
 
                 // Shift+Arrow to swap sibling positions (reorder children)
                 if (selectedNode && selectedNode.parent && e.shiftKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) {
                     e.preventDefault();
-                    const parent = selectedNode.parent;
-                    const siblings = parent.children;
-                    const currentIndex = siblings.indexOf(selectedNode);
+                    const parentNode = nodes.find(n => n.id === selectedNode.parent.id);
+                    if (parentNode && parentNode.children) {
+                        const siblings = parentNode.children;
+                        const currentIndex = siblings.findIndex(c => c.id === selectedNode.id);
 
-                    if (e.key === 'ArrowLeft' && currentIndex > 0) {
-                        // Swap with previous sibling
-                        [siblings[currentIndex - 1], siblings[currentIndex]] = [siblings[currentIndex], siblings[currentIndex - 1]];
-                        saveHistory();
-                        render();
-                        updateStatus(`⇐ Moved ${selectedNode.name} left`);
-                    } else if (e.key === 'ArrowRight' && currentIndex < siblings.length - 1) {
-                        // Swap with next sibling
-                        [siblings[currentIndex], siblings[currentIndex + 1]] = [siblings[currentIndex + 1], siblings[currentIndex]];
-                        saveHistory();
-                        render();
-                        updateStatus(`⇒ Moved ${selectedNode.name} right`);
+                        if (e.key === 'ArrowLeft' && currentIndex > 0) {
+                            // Swap with previous sibling
+                            [siblings[currentIndex - 1], siblings[currentIndex]] = [siblings[currentIndex], siblings[currentIndex - 1]];
+                            saveHistory();
+                            render();
+                            updateStatus(`⇐ Moved ${selectedNode.name} left`);
+                        } else if (e.key === 'ArrowRight' && currentIndex < siblings.length - 1) {
+                            // Swap with next sibling
+                            [siblings[currentIndex], siblings[currentIndex + 1]] = [siblings[currentIndex + 1], siblings[currentIndex]];
+                            saveHistory();
+                            render();
+                            updateStatus(`⇒ Moved ${selectedNode.name} right`);
+                        }
                     }
                 }
 
@@ -2337,8 +2354,8 @@
                 return;
             }
 
-            parent.children.push(child);
-            child.parent = parent;
+            parent.children.push({ id: child.id });
+            child.parent = { id: parent.id };
             saveHistory();
             render();
             updateStatus(`Connected ${parent.name} → ${child.name}`);
@@ -2350,13 +2367,17 @@
                 return;
             }
 
-            const parent = node.parent;
-            const parentName = parent.name;
+            const parentNode = nodes.find(n => n.id === node.parent.id);
+            if (!parentNode) {
+                updateStatus('Parent node not found');
+                return;
+            }
+
+            const parentName = parentNode.name;
 
             // Remove from parent's children array
-            const index = parent.children.indexOf(node);
-            if (index > -1) {
-                parent.children.splice(index, 1);
+            if (parentNode.children) {
+                parentNode.children = parentNode.children.filter(c => c.id !== node.id);
             }
 
             // Clear parent reference
@@ -2411,12 +2432,16 @@
             if (!selectedNode) return;
 
             if (selectedNode.parent) {
-                selectedNode.parent.children = selectedNode.parent.children.filter(c => c !== selectedNode);
+                const parentNode = nodes.find(n => n.id === selectedNode.parent.id);
+                if (parentNode && parentNode.children) {
+                    parentNode.children = parentNode.children.filter(c => c.id !== selectedNode.id);
+                }
             }
 
             function deleteRecursive(node) {
-                for (let child of node.children) {
-                    deleteRecursive(child);
+                for (let childRef of node.children) {
+                    const child = nodes.find(n => n.id === childRef.id);
+                    if (child) deleteRecursive(child);
                 }
                 nodes = nodes.filter(n => n !== node);
             }
@@ -2431,8 +2456,10 @@
 
         function disconnectNode() {
             if (selectedNode && selectedNode.parent) {
-                const parent = selectedNode.parent;
-                parent.children = parent.children.filter(c => c !== selectedNode);
+                const parentNode = nodes.find(n => n.id === selectedNode.parent.id);
+                if (parentNode && parentNode.children) {
+                    parentNode.children = parentNode.children.filter(c => c.id !== selectedNode.id);
+                }
                 selectedNode.parent = null;
                 saveHistory();
                 showProperties(selectedNode);
@@ -2534,10 +2561,12 @@
             `;
 
             if (node.parent) {
+                const parentNode = nodes.find(n => n.id === node.parent.id);
+                const parentName = parentNode ? parentNode.name : 'Unknown';
                 html += `
                     <div class="prop-group">
                         <div class="prop-label">Parent Node</div>
-                        <input class="prop-input" value="${node.parent.name}" disabled>
+                        <input class="prop-input" value="${parentName}" disabled>
                     </div>
                     <div class="prop-group">
                         <button class="prop-btn secondary" onclick="disconnectNode()">
@@ -2615,10 +2644,12 @@
             ctx.scale(viewportScale, viewportScale);
 
             function isNodeVisible(node) {
-                let parent = node.parent;
-                while (parent) {
-                    if (parent.collapsed) return false;
-                    parent = parent.parent;
+                let currentNode = node;
+                while (currentNode.parent) {
+                    const parentNode = nodes.find(n => n.id === currentNode.parent.id);
+                    if (!parentNode) break;
+                    if (parentNode.collapsed) return false;
+                    currentNode = parentNode;
                 }
                 return true;
             }
@@ -2629,7 +2660,10 @@
                 if (!isNodeVisible(node)) return;
                 if (node.collapsed) return;
 
-                node.children.forEach(child => {
+                node.children.forEach(childRef => {
+                    const child = nodes.find(n => n.id === childRef.id);
+                    if (!child) return;
+
                     const fromX = node.x + 75;
                     const fromY = node.y + 60;
                     const toX = child.x + 75;
@@ -2798,16 +2832,19 @@
 
                 // Execution order badge
                 if (node.parent) {
-                    const orderIndex = node.parent.children.indexOf(node) + 1;
-                    ctx.fillStyle = '#27ae60';
-                    ctx.beginPath();
-                    ctx.arc(node.x + 10, node.y + 10, 11, 0, Math.PI * 2);
-                    ctx.fill();
-                    ctx.fillStyle = 'white';
-                    ctx.font = '600 11px Segoe UI';
-                    ctx.textAlign = 'center';
-                    ctx.fillText(orderIndex, node.x + 10, node.y + 14);
-                    ctx.textAlign = 'left';
+                    const parentNode = nodes.find(n => n.id === node.parent.id);
+                    if (parentNode && parentNode.children) {
+                        const orderIndex = parentNode.children.findIndex(c => c.id === node.id) + 1;
+                        ctx.fillStyle = '#27ae60';
+                        ctx.beginPath();
+                        ctx.arc(node.x + 10, node.y + 10, 11, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = 'white';
+                        ctx.font = '600 11px Segoe UI';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(orderIndex, node.x + 10, node.y + 14);
+                        ctx.textAlign = 'left';
+                    }
                 }
 
                 // Child count / collapse badge
@@ -2903,7 +2940,7 @@
             const config = {
                 nodeWidth: 180,      // Approximate node width
                 nodeHeight: 80,      // Approximate node height
-                horizontalSpacing: 40,  // Space between sibling nodes
+                horizontalSpacing: 150,  // Space between sibling nodes (increased for complex trees)
                 verticalSpacing: 120,   // Space between levels
                 startX: 500,         // Starting X position
                 startY: 100          // Starting Y position
@@ -2931,7 +2968,10 @@
         function calculateSubtreePositions(node, config) {
             // Post-order: process children first
             if (node.children.length > 0) {
-                node.children.forEach(child => calculateSubtreePositions(child, config));
+                node.children.forEach(childRef => {
+                    const child = nodes.find(n => n.id === childRef.id);
+                    if (child) calculateSubtreePositions(child, config);
+                });
             }
 
             // Calculate this node's position relative to its children
@@ -2944,42 +2984,47 @@
                 };
             } else if (node.children.length === 1) {
                 // Single child: center over child
-                const child = node.children[0];
-                node._layout = {
-                    width: Math.max(child._layout.width, config.nodeWidth),
-                    offset: child._layout.offset,  // Align with child
-                    subtreeLeft: 0
-                };
+                const childNode = nodes.find(n => n.id === node.children[0].id);
+                if (childNode && childNode._layout) {
+                    node._layout = {
+                        width: Math.max(childNode._layout.width, config.nodeWidth),
+                        offset: childNode._layout.offset,  // Align with child
+                        subtreeLeft: 0
+                    };
+                }
             } else {
                 // Multiple children: space them out and center parent
                 let currentX = 0;
+                const childNodes = node.children.map(ref => nodes.find(n => n.id === ref.id)).filter(n => n && n._layout);
 
-                node.children.forEach((child, i) => {
+                childNodes.forEach((childNode, i) => {
                     if (i === 0) {
                         // First child's subtree starts at 0
-                        child._layout.subtreeLeft = 0;
-                        currentX = child._layout.width / 2;
+                        childNode._layout.subtreeLeft = 0;
+                        currentX = childNode._layout.width / 2;
                     } else {
                         // Position next child's subtree after previous one with spacing
-                        const subtreeLeft = currentX + config.horizontalSpacing + child._layout.width / 2;
-                        child._layout.subtreeLeft = subtreeLeft;
-                        currentX = subtreeLeft + child._layout.width / 2;
+                        const subtreeLeft = currentX + config.horizontalSpacing + childNode._layout.width / 2;
+                        childNode._layout.subtreeLeft = subtreeLeft;
+                        currentX = subtreeLeft + childNode._layout.width / 2;
                     }
                 });
 
                 // Calculate total width and center parent
-                const leftmost = node.children[0];
-                const rightmost = node.children[node.children.length - 1];
-                const leftEdge = leftmost._layout.subtreeLeft - leftmost._layout.width / 2;
-                const rightEdge = rightmost._layout.subtreeLeft + rightmost._layout.width / 2;
-                const subtreeWidth = rightEdge - leftEdge;
-                const center = (leftEdge + rightEdge) / 2;
+                if (childNodes.length > 0) {
+                    const leftmost = childNodes[0];
+                    const rightmost = childNodes[childNodes.length - 1];
+                    const leftEdge = leftmost._layout.subtreeLeft - leftmost._layout.width / 2;
+                    const rightEdge = rightmost._layout.subtreeLeft + rightmost._layout.width / 2;
+                    const subtreeWidth = rightEdge - leftEdge;
+                    const center = (leftEdge + rightEdge) / 2;
 
-                node._layout = {
-                    width: subtreeWidth,
-                    offset: center,  // Parent positioned at center of its subtree
-                    subtreeLeft: 0
-                };
+                    node._layout = {
+                        width: subtreeWidth,
+                        offset: center,  // Parent positioned at center of its subtree
+                        subtreeLeft: 0
+                    };
+                }
             }
         }
 
@@ -2995,11 +3040,14 @@
                 // Calculate the absolute position of this subtree's left edge
                 const subtreeOrigin = x - node._layout.offset;
 
-                node.children.forEach(child => {
-                    // Child's position = subtree origin + child's subtree position + child's internal offset
-                    const childSubtreeX = subtreeOrigin + child._layout.subtreeLeft;
-                    const childX = childSubtreeX + child._layout.offset;
-                    applyAbsolutePositions(child, childX, nextY, config);
+                node.children.forEach(childRef => {
+                    const child = nodes.find(n => n.id === childRef.id);
+                    if (child && child._layout) {
+                        // Child's position = subtree origin + child's subtree position + child's internal offset
+                        const childSubtreeX = subtreeOrigin + child._layout.subtreeLeft;
+                        const childX = childSubtreeX + child._layout.offset;
+                        applyAbsolutePositions(child, childX, nextY, config);
+                    }
                 });
             }
 
@@ -3250,6 +3298,114 @@
             a.download = `${currentTreeName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
             a.click();
             updateStatus('Tree exported as JSON');
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const treeData = JSON.parse(e.target.result);
+                    importTreeFromJSON(treeData);
+                    updateStatus(`✓ Imported tree from ${file.name}`);
+                    // Reset file input so the same file can be imported again
+                    event.target.value = '';
+                } catch (error) {
+                    alert(`Failed to import tree: ${error.message}`);
+                    updateStatus(`❌ Import failed: ${error.message}`);
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function importTreeFromJSON(treeData) {
+            // Clear current tree
+            nodes = [];
+            connections = [];
+            selectedNode = null;
+            nodeCounter = 1;
+
+            // Set tree metadata
+            if (treeData.metadata) {
+                currentTreeName = treeData.metadata.name || 'Imported Tree';
+                currentTreeId = treeData.tree_id || null;
+            }
+
+            // Convert JSON tree to internal node format
+            if (treeData.root) {
+                const rootNode = jsonToNode(treeData.root, null, 200, 100);
+                nodes.push(rootNode);
+                layoutSubtree(rootNode);
+            }
+
+            saveHistory();
+            render();
+
+            // Auto-layout after import
+            autoLayout();
+        }
+
+        function jsonToNode(jsonNode, parentId, x, y) {
+            const nodeType = jsonNode.node_type;
+            const nodeDef = NODE_DEFS[nodeType];
+
+            if (!nodeDef) {
+                console.warn(`Unknown node type: ${nodeType}`);
+                return null;
+            }
+
+            const node = {
+                id: nodeCounter++,
+                type: nodeType,
+                name: jsonNode.name || nodeType,
+                category: nodeDef.category,
+                config: { ...jsonNode.config },
+                children: [],
+                parent: parentId ? { id: parentId } : null,
+                x: x,
+                y: y
+            };
+
+            // Recursively create children
+            if (jsonNode.children && jsonNode.children.length > 0) {
+                const childSpacing = 200;
+                const startX = x - (jsonNode.children.length - 1) * childSpacing / 2;
+
+                jsonNode.children.forEach((childJSON, index) => {
+                    const childX = startX + index * childSpacing;
+                    const childY = y + 150;
+                    const childNode = jsonToNode(childJSON, node.id, childX, childY);
+                    if (childNode) {
+                        node.children.push({ id: childNode.id });
+                        nodes.push(childNode);
+                        connections.push({
+                            from: node.id,
+                            to: childNode.id
+                        });
+                    }
+                });
+            }
+
+            return node;
+        }
+
+        function layoutSubtree(node) {
+            if (!node || node.children.length === 0) return;
+
+            const childSpacing = 200;
+            const startX = node.x - (node.children.length - 1) * childSpacing / 2;
+
+            node.children.forEach((childRef, index) => {
+                const childNode = nodes.find(n => n.id === childRef.id);
+                if (childNode) {
+                    childNode.x = startX + index * childSpacing;
+                    childNode.y = node.y + 150;
+                    layoutSubtree(childNode);
+                }
+            });
         }
 
         async function saveToAPI() {
@@ -3641,7 +3797,7 @@ print(f"py_trees result: {pt_root.status}")
             const demos = [
                 {
                     id: crypto.randomUUID(),
-                    name: "Robot Controller (Production Ready)",
+                    name: "Robot Controller Demo",
                     description: "Priority-based robot automation with battery monitoring, object detection, and patrol. Ready to export and test with test_complete_flow.py!",
                     created: new Date().toISOString(),
                     nodes: createRobotControllerNodes(),
@@ -3732,7 +3888,10 @@ print(f"py_trees result: {pt_root.status}")
             const reachable = new Set();
             function markReachable(node) {
                 reachable.add(node);
-                node.children.forEach(child => markReachable(child));
+                node.children.forEach(childRef => {
+                    const child = nodes.find(n => n.id === childRef.id);
+                    if (child) markReachable(child);
+                });
             }
             if (roots.length > 0) {
                 markReachable(roots[0]);
@@ -4068,8 +4227,11 @@ print(f"py_trees result: {pt_root.status}")
             };
 
             // Recursively copy children
-            node.children.forEach(child => {
-                copy.children.push(copyNodeSubtree(child));
+            node.children.forEach(childRef => {
+                const child = nodes.find(n => n.id === childRef.id);
+                if (child) {
+                    copy.children.push(copyNodeSubtree(child));
+                }
             });
 
             return copy;
@@ -4233,12 +4395,16 @@ print(f"py_trees result: {pt_root.status}")
             const count = selectedNodes.size;
             selectedNodes.forEach(node => {
                 if (node.parent) {
-                    node.parent.children = node.parent.children.filter(c => c !== node);
+                    const parentNode = nodes.find(n => n.id === node.parent.id);
+                    if (parentNode && parentNode.children) {
+                        parentNode.children = parentNode.children.filter(c => c.id !== node.id);
+                    }
                 }
 
                 function deleteRecursive(n) {
-                    for (let child of n.children) {
-                        deleteRecursive(child);
+                    for (let childRef of n.children) {
+                        const child = nodes.find(nd => nd.id === childRef.id);
+                        if (child) deleteRecursive(child);
                     }
                     nodes = nodes.filter(nd => nd !== n);
                 }
