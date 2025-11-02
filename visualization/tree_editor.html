@@ -24,7 +24,7 @@
         .app {
             display: grid;
             grid-template-columns: 280px 1fr 320px;
-            grid-template-rows: auto 1fr 30px;
+            grid-template-rows: auto 1fr 40px 30px;
             height: 100vh;
         }
 
@@ -445,6 +445,91 @@
         .validation-message.success {
             background: #1e3e2e;
             border-left-color: #27ae60;
+        }
+
+        /* Timeline Scrubber */
+        .timeline-scrubber {
+            grid-column: 1 / -1;
+            background: #1e1e1e;
+            border-top: 1px solid #3e3e42;
+            padding: 5px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 11px;
+            color: #d4d4d4;
+            height: 40px;
+        }
+
+        .timeline-btn {
+            background: #3e3e42;
+            border: none;
+            color: #d4d4d4;
+            padding: 4px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.15s;
+        }
+
+        .timeline-btn:hover {
+            background: #4e4e52;
+        }
+
+        .timeline-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .timeline-track {
+            flex: 1;
+            height: 20px;
+            background: #2d2d30;
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            border: 1px solid #3e3e42;
+        }
+
+        .timeline-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .timeline-handle {
+            position: absolute;
+            top: -2px;
+            width: 12px;
+            height: 24px;
+            background: #4fc1ff;
+            border-radius: 4px;
+            cursor: grab;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+            transition: background 0.15s;
+        }
+
+        .timeline-handle:hover {
+            background: #6dcff6;
+        }
+
+        .timeline-handle:active {
+            cursor: grabbing;
+            background: #2ea5d9;
+        }
+
+        .timeline-info {
+            min-width: 140px;
+            font-size: 11px;
+            color: #858585;
+            font-family: 'Consolas', monospace;
+        }
+
+        .timeline-info strong {
+            color: #4fc1ff;
         }
 
         /* Status Bar */
@@ -1265,6 +1350,19 @@
                 <button onclick="toggleMinimap()" style="background: none; border: none; color: #858585; cursor: pointer; font-size: 14px;">×</button>
             </div>
             <canvas id="minimapCanvas" width="200" height="150" style="display: block; cursor: pointer;"></canvas>
+        </div>
+
+        <!-- Timeline Scrubber -->
+        <div class="timeline-scrubber" id="timelineScrubber" style="display: none;">
+            <button class="timeline-btn" onclick="prevTick()" id="prevTickBtn" disabled title="Previous Tick (←)">◀</button>
+            <div class="timeline-track" id="timelineTrack" onmousedown="startTimelineDrag(event)" onclick="jumpToTimelinePosition(event)">
+                <canvas class="timeline-canvas" id="timelineCanvas" width="800" height="20"></canvas>
+                <div class="timeline-handle" id="timelineHandle"></div>
+            </div>
+            <button class="timeline-btn" onclick="nextTick()" id="nextTickBtn" disabled title="Next Tick (→)">▶</button>
+            <div class="timeline-info">
+                <span id="timelineTickInfo">No history</span>
+            </div>
         </div>
 
         <!-- Status Bar -->
@@ -5970,6 +6068,14 @@ async function getLibrary() {
             history: [] // Array of {tick, nodeStates, blackboard}
         };
 
+        // Timeline scrubber state
+        let timelineState = {
+            playbackTick: -1,  // -1 means "live", >= 0 means viewing history
+            maxHistory: 100,   // Keep last 100 ticks
+            isDragging: false,
+            wasRunningBeforeScrub: false
+        };
+
         const NodeStatus = {
             IDLE: 'IDLE',
             RUNNING: 'RUNNING',
@@ -6157,10 +6263,20 @@ async function getLibrary() {
                 blackboard: new Map(simulationState.blackboard)
             });
 
+            // Limit history size
+            if (simulationState.history.length > timelineState.maxHistory) {
+                simulationState.history.shift();
+            }
+
             // Update display
             render();
             updateBlackboardDisplay();
             updateSimTickCounter();
+
+            // Update timeline if visible
+            if (timelineState.playbackTick === -1) {  // Only if in "live" mode
+                updateTimeline();
+            }
         }
 
         function executeNode(node) {
@@ -6365,6 +6481,271 @@ async function getLibrary() {
             html += '</div>';
             content.innerHTML = html;
         }
+
+        // ==================== EXECUTION TIMELINE ====================
+
+        function showTimeline() {
+            const scrubber = document.getElementById('timelineScrubber');
+            if (simulationState.history.length > 0) {
+                scrubber.style.display = 'flex';
+                updateTimeline();
+            }
+        }
+
+        function hideTimeline() {
+            const scrubber = document.getElementById('timelineScrubber');
+            scrubber.style.display = 'none';
+            timelineState.playbackTick = -1;
+        }
+
+        function updateTimeline() {
+            if (simulationState.history.length === 0) return;
+
+            const scrubber = document.getElementById('timelineScrubber');
+            const handle = document.getElementById('timelineHandle');
+            const track = document.getElementById('timelineTrack');
+            const infoSpan = document.getElementById('timelineTickInfo');
+            const prevBtn = document.getElementById('prevTickBtn');
+            const nextBtn = document.getElementById('nextTickBtn');
+
+            // Show timeline if hidden and we have history
+            if (simulationState.history.length > 0) {
+                scrubber.style.display = 'flex';
+            }
+
+            // Get current tick (either playback or latest)
+            const currentTick = timelineState.playbackTick >= 0
+                ? timelineState.playbackTick
+                : simulationState.history.length - 1;
+
+            const historyLength = simulationState.history.length;
+
+            // Update handle position
+            const trackWidth = track.offsetWidth - 12; // minus handle width
+            const position = (currentTick / Math.max(historyLength - 1, 1)) * trackWidth;
+            handle.style.left = `${position}px`;
+
+            // Update info text
+            const tickNumber = simulationState.history[currentTick]?.tick || 0;
+            const mode = timelineState.playbackTick >= 0 ? '⏸' : '▶';
+            infoSpan.innerHTML = `${mode} Tick <strong>${tickNumber}</strong> / ${simulationState.tick} (${historyLength} in buffer)`;
+
+            // Update button states
+            prevBtn.disabled = currentTick <= 0;
+            nextBtn.disabled = currentTick >= historyLength - 1;
+
+            // Render timeline visualization
+            renderTimelineCanvas();
+        }
+
+        function renderTimelineCanvas() {
+            const canvas = document.getElementById('timelineCanvas');
+            const track = document.getElementById('timelineTrack');
+
+            // Resize canvas to match track
+            canvas.width = track.offsetWidth;
+            canvas.height = 20;
+
+            const ctx = canvas.getContext('2d');
+            const historyLength = simulationState.history.length;
+
+            if (historyLength === 0) return;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw tick markers
+            const markerWidth = Math.max(2, canvas.width / historyLength);
+
+            simulationState.history.forEach((snapshot, index) => {
+                const x = (index / historyLength) * canvas.width;
+
+                // Determine color based on node states in this tick
+                let hasFailure = false;
+                let hasRunning = false;
+                let allSuccess = true;
+
+                snapshot.nodeStates.forEach((state, nodeId) => {
+                    if (state.status === 'FAILURE') hasFailure = true;
+                    if (state.status === 'RUNNING') hasRunning = true;
+                    if (state.status !== 'SUCCESS' && state.status !== 'IDLE') allSuccess = false;
+                });
+
+                // Set color
+                if (hasFailure) {
+                    ctx.fillStyle = '#e06c75'; // Red
+                } else if (hasRunning) {
+                    ctx.fillStyle = '#d19a66'; // Yellow
+                } else if (allSuccess) {
+                    ctx.fillStyle = '#98c379'; // Green
+                } else {
+                    ctx.fillStyle = '#858585'; // Gray
+                }
+
+                // Draw marker
+                ctx.fillRect(x, 5, markerWidth, 10);
+            });
+
+            // Draw current position indicator
+            const currentTick = timelineState.playbackTick >= 0
+                ? timelineState.playbackTick
+                : historyLength - 1;
+            const currentX = (currentTick / historyLength) * canvas.width;
+
+            ctx.strokeStyle = '#4fc1ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(currentX, 0);
+            ctx.lineTo(currentX, 20);
+            ctx.stroke();
+        }
+
+        function prevTick() {
+            if (simulationState.history.length === 0) return;
+
+            const currentTick = timelineState.playbackTick >= 0
+                ? timelineState.playbackTick
+                : simulationState.history.length - 1;
+
+            if (currentTick > 0) {
+                scrubToTick(currentTick - 1);
+            }
+        }
+
+        function nextTick() {
+            if (simulationState.history.length === 0) return;
+
+            const currentTick = timelineState.playbackTick >= 0
+                ? timelineState.playbackTick
+                : simulationState.history.length - 1;
+
+            if (currentTick < simulationState.history.length - 1) {
+                scrubToTick(currentTick + 1);
+            } else {
+                // Return to live mode
+                returnToLive();
+            }
+        }
+
+        function scrubToTick(tickIndex) {
+            if (tickIndex < 0 || tickIndex >= simulationState.history.length) return;
+
+            // Pause simulation if running
+            if (timelineState.playbackTick === -1 && simulationState.running) {
+                timelineState.wasRunningBeforeScrub = true;
+                pauseSimulation();
+            }
+
+            timelineState.playbackTick = tickIndex;
+
+            // Restore state from history
+            const snapshot = simulationState.history[tickIndex];
+            simulationState.nodeStates = new Map(snapshot.nodeStates);
+            simulationState.blackboard = new Map(snapshot.blackboard);
+
+            // Update displays
+            render();
+            updateBlackboardDisplay();
+            updateTimeline();
+        }
+
+        function returnToLive() {
+            timelineState.playbackTick = -1;
+
+            // Restore latest state
+            if (simulationState.history.length > 0) {
+                const latest = simulationState.history[simulationState.history.length - 1];
+                simulationState.nodeStates = new Map(latest.nodeStates);
+                simulationState.blackboard = new Map(latest.blackboard);
+            }
+
+            // Resume simulation if it was running
+            if (timelineState.wasRunningBeforeScrub) {
+                startSimulation();
+                timelineState.wasRunningBeforeScrub = false;
+            }
+
+            render();
+            updateBlackboardDisplay();
+            updateTimeline();
+        }
+
+        function jumpToTimelinePosition(event) {
+            if (event.target !== event.currentTarget) return; // Ignore handle clicks
+
+            const track = document.getElementById('timelineTrack');
+            const rect = track.getBoundingClientRect();
+            const x = event.clientX - rect.left;
+            const percent = x / rect.width;
+            const tickIndex = Math.floor(percent * simulationState.history.length);
+
+            scrubToTick(Math.max(0, Math.min(tickIndex, simulationState.history.length - 1)));
+        }
+
+        function startTimelineDrag(event) {
+            if (simulationState.history.length === 0) return;
+
+            timelineState.isDragging = true;
+            event.preventDefault();
+
+            function onDrag(e) {
+                if (!timelineState.isDragging) return;
+
+                const track = document.getElementById('timelineTrack');
+                const rect = track.getBoundingClientRect();
+                const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+                const percent = x / rect.width;
+                const tickIndex = Math.floor(percent * simulationState.history.length);
+
+                scrubToTick(Math.max(0, Math.min(tickIndex, simulationState.history.length - 1)));
+            }
+
+            function onDragEnd() {
+                timelineState.isDragging = false;
+                document.removeEventListener('mousemove', onDrag);
+                document.removeEventListener('mouseup', onDragEnd);
+            }
+
+            document.addEventListener('mousemove', onDrag);
+            document.addEventListener('mouseup', onDragEnd);
+        }
+
+        // Add keyboard controls for timeline
+        document.addEventListener('keydown', (e) => {
+            // Only handle timeline keys if timeline is visible and not typing in input
+            if (document.getElementById('timelineScrubber').style.display === 'none') return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevTick();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                nextTick();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                scrubToTick(0);
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                returnToLive();
+            }
+        });
+
+        // Show/hide timeline when simulation starts/stops
+        const originalStartSimulation = startSimulation;
+        startSimulation = function() {
+            originalStartSimulation();
+            showTimeline();
+        };
+
+        const originalResetSimulation = resetSimulation;
+        resetSimulation = function() {
+            originalResetSimulation();
+            hideTimeline();
+            simulationState.history = [];
+            timelineState.playbackTick = -1;
+        };
+
     </script>
 </body>
 
