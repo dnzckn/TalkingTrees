@@ -5,7 +5,7 @@ This directory contains visual behavior tree editors for TalkingTrees.
 ## Files
 
 ### tree_editor.html
-The professional-grade behavior tree editor with complete feature set.
+The behavior tree editor with complete feature set.
 
 **Features:**
 - **Visual Editing**: Modern toolbar with drag-and-drop node palette
@@ -39,7 +39,7 @@ The professional-grade behavior tree editor with complete feature set.
   - Grid snap for alignment
   - Pan, zoom, minimap
   - Collapse/expand subtrees
-- **Professional UI**:
+- **Modern UI**:
   - VSCode-style dark theme
   - Type-aware property inputs
   - Status bar with live metrics
@@ -167,7 +167,7 @@ system.execute(action)
 
 ## Architecture
 
-The professional editor is a single-page application built with:
+The editor is a single-page application built with:
 - **No dependencies**: Pure HTML/CSS/JavaScript
 - **localStorage**: For tree library and persistence
 - **Canvas API**: For high-performance rendering
