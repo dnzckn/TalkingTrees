@@ -8,7 +8,7 @@
 
 ## About
 
-TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Create trees visually in the GUI editor, edit them programmatically via Python SDK or REST API, version control as JSON, and execute with py_trees runtime—all with zero data loss.
+TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Create trees visually in the GUI editor, edit them programmatically via Python SDK or REST API, version control as JSON, and execute with py_trees runtime - all with zero data loss.
 
 Perfect round-trip conversion: `py_trees ↔ TalkingTrees (JSON) ↔ py_trees`
 
@@ -16,7 +16,7 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
 
 ## Why TalkingTrees?
 
-**py_trees has no JSON serialization.** While py_trees excels at runtime execution, it lacks the ability to save/load trees in a portable format. TalkingTrees adds JSON serialization, a visual editor, REST API, and tooling for version control and remote management. It doesn't replace py_trees—it extends it.
+**py_trees has no JSON serialization.** While py_trees excels at runtime execution, it lacks the ability to save/load trees in a portable format. TalkingTrees adds JSON serialization, a visual editor, REST API, and tooling for version control and remote management. It doesn't replace py_trees - it extends it.
 
 ## Core Features
 

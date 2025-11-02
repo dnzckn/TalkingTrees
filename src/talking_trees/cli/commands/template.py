@@ -96,7 +96,7 @@ def get_template(
                     name = param.get("name", "N/A")
                     param_type = param.get("type", "N/A")
                     required = "Yes" if param.get("required", False) else "No"
-                    default = str(param.get("default", "—"))
+                    default = str(param.get("default", "-"))
 
                     param_table.add_row(name, param_type, required, default)
 
