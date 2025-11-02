@@ -1291,7 +1291,7 @@
         const API_BASE = 'http://localhost:8000';
         const STORAGE_KEY_LIBRARY = 'pyforest_tree_library';
         const STORAGE_KEY_CURRENT = 'pyforest_current_tree';
-        const LIBRARY_VERSION = '3.0'; // Increment to force reload demos
+        const LIBRARY_VERSION = '2.0'; // Increment to force reload demos
 
         // State
         let nodes = [];
@@ -3166,17 +3166,8 @@
 
         // History (Undo/Redo)
         function saveHistory() {
-            // Dehydrate nodes to remove circular references before stringifying
-            const dehydratedNodes = nodes.map(node => ({
-                ...node,
-                parent: node.parent && node.parent.id ? { id: node.parent.id } : null,
-                children: node.children.map(child =>
-                    child && child.id ? { id: child.id } : child
-                )
-            }));
-
             const state = {
-                nodes: JSON.parse(JSON.stringify(dehydratedNodes)),
+                nodes: JSON.parse(JSON.stringify(nodes)),
                 selectedNodeId: selectedNode ? selectedNode.id : null,
                 nextNodeId: nextNodeId
             };
@@ -3653,7 +3644,7 @@ print(f"py_trees result: {pt_root.status}")
             document.getElementById('saveModal').classList.add('active');
         }
 
-        async function confirmSaveToLibrary() {
+        function confirmSaveToLibrary() {
             const name = document.getElementById('saveTreeName').value.trim();
             const desc = document.getElementById('saveTreeDesc').value.trim();
 
@@ -3663,7 +3654,7 @@ print(f"py_trees result: {pt_root.status}")
             }
 
             const roots = nodes.filter(n => !n.parent);
-            const library = await getLibrary();
+            const library = getLibrary();
 
             const entry = {
                 id: crypto.randomUUID(),
@@ -3684,8 +3675,8 @@ print(f"py_trees result: {pt_root.status}")
             loadLibrary();
         }
 
-        async function loadLibrary() {
-            const library = await getLibrary();
+        function loadLibrary() {
+            const library = getLibrary();
             const content = document.getElementById('libraryContent');
 
             if (library.length === 0) {
@@ -3711,12 +3702,12 @@ print(f"py_trees result: {pt_root.status}")
             content.innerHTML = html;
         }
 
-        async function loadFromLibrary(id) {
+        function loadFromLibrary(id) {
             if (nodes.length > 0 && !confirm('Load tree? Current tree will be lost if not saved.')) {
                 return;
             }
 
-            const library = await getLibrary();
+            const library = getLibrary();
             const entry = library.find(e => e.id === id);
 
             if (!entry) return;
@@ -3750,13 +3741,13 @@ print(f"py_trees result: {pt_root.status}")
             updateStatus(`✓ Loaded: ${entry.name}`);
         }
 
-        async function loadFromLibraryAndClose(id) {
-            await loadFromLibrary(id);
+        function loadFromLibraryAndClose(id) {
+            loadFromLibrary(id);
             closeModal('loadModal');
         }
 
-        async function openLoadModal() {
-            const library = await getLibrary();
+        function openLoadModal() {
+            const library = getLibrary();
             const content = document.getElementById('loadModalContent');
 
             if (library.length === 0) {
@@ -3782,99 +3773,18 @@ print(f"py_trees result: {pt_root.status}")
             document.getElementById('loadModal').classList.add('active');
         }
 
-        async function loadFromLibraryAndClose(id) {
-            await loadFromLibrary(id);
+        function loadFromLibraryAndClose(id) {
+            loadFromLibrary(id);
             closeModal('loadModal');
         }
 
-        
-        // Load trees from REST API
-        async function loadTreesFromAPI() {
-            try {
-                // Step 1: Get list of tree catalog entries
-                const catalogResponse = await fetch(`${API_BASE}/trees/`);
-                if (!catalogResponse.ok) throw new Error('API not available');
-
-                const catalog = await catalogResponse.json();
-                console.log(`Found ${catalog.length} trees in catalog`);
-
-                // Step 2: Fetch full TreeDefinition for each tree
-                const treePromises = catalog.map(entry =>
-                    fetch(`${API_BASE}/trees/${entry.tree_id}`).then(r => r.json())
-                );
-                const apiTrees = await Promise.all(treePromises);
-                console.log(`Loaded ${apiTrees.length} full tree definitions`);
-
-                // Step 3: Convert API format to GUI format
-                const guiTrees = apiTrees.map(apiTree => {
-                    const nodes = [];
-                    let nextId = 1;
-
-                    function convertNode(apiNode, parent = null) {
-                        const id = nextId++;
-                        const guiNode = {
-                            id: id,
-                            type: apiNode.node_type,
-                            category: NODE_DEFS[apiNode.node_type]?.category || 'action',
-                            name: apiNode.name,
-                            x: 400 + (Math.random() - 0.5) * 200,
-                            y: 100 + (nextId - 1) * 100,
-                            config: apiNode.config || {},
-                            children: [],
-                            parent: parent,
-                            collapsed: false
-                        };
-
-                        nodes.push(guiNode);
-
-                        if (apiNode.children && apiNode.children.length > 0) {
-                            guiNode.children = apiNode.children.map(child => {
-                                const childNode = convertNode(child, { id: id });
-                                return { id: childNode.id };
-                            });
-                        }
-
-                        return guiNode;
-                    }
-
-                    convertNode(apiTree.root);
-
-                    return {
-                        id: apiTree.tree_id,
-                        name: apiTree.metadata.name,
-                        description: apiTree.metadata.description || '',
-                        created: apiTree.metadata.created_at || new Date().toISOString(),
-                        nodes: nodes,
-                        rootNodeId: 1
-                    };
-                });
-
-                return guiTrees;
-            } catch (error) {
-                console.log('Could not load from API:', error);
-                return null;
-            }
-        }
-
-async function getLibrary() {
+        function getLibrary() {
             const data = localStorage.getItem(STORAGE_KEY_LIBRARY);
             const versionData = localStorage.getItem(STORAGE_KEY_LIBRARY + '_version');
 
             // Force reload if version changed or no library
             if (!data || versionData !== LIBRARY_VERSION) {
-                console.log('Loading fresh library (version changed or empty)');
-                
-                // Try to load from API first
-                const apiTrees = await loadTreesFromAPI();
-                if (apiTrees && apiTrees.length > 0) {
-                    console.log('Using trees from API');
-                    saveLibrary(apiTrees);
-                    localStorage.setItem(STORAGE_KEY_LIBRARY + '_version', LIBRARY_VERSION);
-                    return apiTrees;
-                }
-                
-                // Fall back to demo trees
-                console.log('API not available, using demo trees');
+                console.log('Loading fresh demo trees (version changed)');
                 const newLibrary = createDemoLibrary();
                 localStorage.setItem(STORAGE_KEY_LIBRARY + '_version', LIBRARY_VERSION);
                 return newLibrary;
