@@ -782,15 +782,15 @@
 
             <!-- Export Operations -->
             <div class="toolbar-group">
-                <button class="toolbar-btn success" onclick="exportTree()" data-tooltip="Export JSON">
-                    <span class="toolbar-icon">📦</span> Export
+                <button class="toolbar-btn success" onclick="exportTree()" data-tooltip="Download tree as JSON file">
+                    <span class="toolbar-icon">⬇️</span> Download
                 </button>
-                <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Save to TalkingTrees API">
-                    <span class="toolbar-icon">☁</span> API
+                <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Publish tree to API server">
+                    <span class="toolbar-icon">☁️</span> Publish
                 </button>
                 <button class="toolbar-btn" onclick="openCopyPythonModal()"
-                    data-tooltip="Copy Python code to use this tree" style="background: #c586c0;">
-                    <span class="toolbar-icon">🐍</span> Copy Python
+                    data-tooltip="Get Python SDK code to load and run this tree" style="background: #c586c0;">
+                    <span class="toolbar-icon">🐍</span> Get Code
                 </button>
             </div>
 
@@ -1264,11 +1264,11 @@
 
     <!-- Copy Python Modal -->
     <div class="modal-overlay" id="copyPythonModal">
-        <div class="modal" style="max-width: 700px;">
-            <div class="modal-title">🐍 Copy Python Code</div>
-            <div class="modal-body">
+        <div class="modal" style="max-width: 800px; max-height: 90vh; display: flex; flex-direction: column;">
+            <div class="modal-title">🐍 Python SDK Code</div>
+            <div class="modal-body" style="overflow-y: auto; flex: 1;">
                 <p style="color: #d4d4d4; margin-bottom: 15px;">
-                    Choose how you want to use this tree in Python:
+                    Choose how you want to load and use this tree in Python:
                 </p>
 
                 <div style="display: grid; gap: 15px; margin-bottom: 20px;">
@@ -1313,7 +1313,7 @@
                         </button>
                     </div>
                     <pre id="generatedPythonCode"
-                        style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border: 1px solid #3e3e42; border-radius: 4px; font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 0;"></pre>
+                        style="background: #1e1e1e; color: #d4d4d4; padding: 15px; border: 1px solid #3e3e42; border-radius: 4px; font-family: 'Monaco', 'Menlo', 'Consolas', monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; overflow-y: auto; max-height: 400px; margin: 0; white-space: pre-wrap; word-wrap: break-word;"></pre>
                 </div>
             </div>
             <div class="modal-actions">
@@ -4433,9 +4433,10 @@ async function getLibrary() {
             { name: 'New Tree', shortcut: 'Ctrl+N', action: () => newTree(), category: 'File' },
             { name: 'Save to Library', shortcut: 'Ctrl+S', action: () => saveToLibrary(), category: 'File' },
             { name: 'Load from Library', shortcut: '', action: () => openLoadModal(), category: 'File' },
-            { name: 'Export Tree (JSON)', shortcut: '', action: () => exportJSON(), category: 'File' },
-            { name: 'Export Tree (Python)', shortcut: '', action: () => exportPython(), category: 'File' },
-            { name: 'Import Tree (JSON)', shortcut: '', action: () => importFromJSON(), category: 'File' },
+            { name: 'Download as JSON', shortcut: '', action: () => exportTree(), category: 'File' },
+            { name: 'Publish to API', shortcut: '', action: () => saveToAPI(), category: 'File' },
+            { name: 'Get Python Code', shortcut: '', action: () => openCopyPythonModal(), category: 'File' },
+            { name: 'Import from JSON File', shortcut: '', action: () => importFromJSON(), category: 'File' },
 
             { name: 'Undo', shortcut: 'Ctrl+Z', action: () => undo(), category: 'Edit' },
             { name: 'Redo', shortcut: 'Ctrl+Y', action: () => redo(), category: 'Edit' },
