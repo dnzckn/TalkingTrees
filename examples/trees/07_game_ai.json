@@ -169,16 +169,5 @@
       "default": false,
       "description": "Whether collectible item is nearby"
     }
-  },
-  "dependencies": {
-    "behaviors": [
-      "Selector",
-      "Sequence",
-      "Inverter",
-      "CheckBattery",
-      "Log",
-      "Wait",
-      "Success"
-    ]
   }
 }

@@ -69,13 +69,5 @@
         ]
       }
     ]
-  },
-  "dependencies": {
-    "behaviors": [
-      "Parallel",
-      "Sequence",
-      "Log",
-      "Wait"
-    ]
   }
 }

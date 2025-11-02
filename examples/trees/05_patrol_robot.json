@@ -121,16 +121,5 @@
       "default": 0,
       "description": "Current waypoint index"
     }
-  },
-  "dependencies": {
-    "behaviors": [
-      "Selector",
-      "Sequence",
-      "Inverter",
-      "CheckBattery",
-      "Log",
-      "Wait",
-      "Success"
-    ]
   }
 }

@@ -24,7 +24,7 @@
         .app {
             display: grid;
             grid-template-columns: 280px 1fr 320px;
-            grid-template-rows: 50px 1fr 30px;
+            grid-template-rows: auto 1fr 30px;
             height: 100vh;
         }
 
@@ -34,8 +34,9 @@
             background: linear-gradient(180deg, #2d2d30 0%, #252526 100%);
             border-bottom: 1px solid #3e3e42;
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            padding: 0 15px;
+            padding: 5px 15px;
             gap: 5px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
         }
@@ -50,6 +51,14 @@
         .toolbar-group:last-child {
             border-right: none;
             margin-left: auto;
+        }
+
+        .toolbar-group.new-row {
+            flex-basis: 100%;
+            border-right: none;
+            margin-left: 0;
+            padding-top: 5px;
+            border-top: 1px solid #3e3e42;
         }
 
         .toolbar-btn {
@@ -241,7 +250,8 @@
 
         .library-item-meta {
             display: flex;
-            gap: 10px;
+            flex-wrap: wrap;
+            gap: 4px;
             font-size: 10px;
             color: #858585;
         }
@@ -297,16 +307,17 @@
             font-weight: 600;
         }
 
-        .minimap {
-            position: absolute;
-            bottom: 15px;
-            right: 15px;
-            width: 200px;
-            height: 150px;
-            background: rgba(37, 37, 38, 0.95);
-            border: 2px solid #3e3e42;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+        /* Minimap hover effect */
+        #minimapCanvas:hover {
+            opacity: 0.9;
+        }
+
+        #minimapPanel {
+            transition: border-color 0.2s ease;
+        }
+
+        #minimapPanel:hover {
+            border-color: #4fc1ff !important;
         }
 
         /* Right Sidebar - Properties */
@@ -620,6 +631,38 @@
             color: #808080;
         }
 
+        .context-menu-header {
+            padding: 8px 20px 4px 20px;
+            color: #4fc1ff;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .context-menu-item.has-submenu {
+            position: relative;
+        }
+
+        .context-submenu {
+            position: absolute;
+            left: 100%;
+            top: -5px;
+            background: #2d2d30;
+            border: 1px solid #3e3e42;
+            border-radius: 6px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+            padding: 5px 0;
+            min-width: 180px;
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 10001;
+        }
+
+        .context-menu-item.has-submenu:hover .context-submenu {
+            display: block !important;
+        }
+
         /* Keyboard Shortcuts Panel */
         .shortcut-item {
             display: flex;
@@ -646,6 +689,40 @@
 
         .shortcut-item span {
             flex: 1;
+        }
+
+        /* Validation Messages */
+        .validation-message {
+            background: #37373d;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            border-left: 4px solid #4fc1ff;
+            line-height: 1.6;
+        }
+
+        .validation-message.success {
+            background: rgba(76, 175, 80, 0.15);
+            border-left-color: #4caf50;
+            color: #81c784;
+        }
+
+        .validation-message.error {
+            background: rgba(229, 57, 53, 0.15);
+            border-left-color: #e53935;
+            color: #e57373;
+        }
+
+        .validation-message.warning {
+            background: rgba(255, 152, 0, 0.15);
+            border-left-color: #ff9800;
+            color: #ffb74d;
+        }
+
+        .validation-message.info {
+            background: rgba(33, 150, 243, 0.15);
+            border-left-color: #2196f3;
+            color: #64b5f6;
         }
 
         /* Scrollbar styling */
@@ -688,6 +765,12 @@
             border: 1px solid #3e3e42;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             z-index: 10000;
+        }
+
+        /* Left-aligned tooltip for items on the left edge */
+        .tooltip-left[data-tooltip]:hover::after {
+            left: 0;
+            transform: translateX(0);
         }
 
         /* Grid toggle */
@@ -735,6 +818,9 @@
                 <button class="toolbar-btn" onclick="newTree()" data-tooltip="New Tree (Ctrl+N)">
                     <span class="toolbar-icon">📄</span> New
                 </button>
+                <button class="toolbar-btn" onclick="openLoadModal()" data-tooltip="Load Tree from Library">
+                    <span class="toolbar-icon">📚</span> Load
+                </button>
                 <button class="toolbar-btn" onclick="document.getElementById('fileInput').click()" data-tooltip="Import from File">
                     <span class="toolbar-icon">📁</span> Import
                 </button>
@@ -778,6 +864,9 @@
                 <button class="toolbar-btn" id="gridBtn" onclick="toggleGrid()" data-tooltip="Toggle Grid (Ctrl+G)">
                     <span class="toolbar-icon">#</span> Grid
                 </button>
+                <button class="toolbar-btn" onclick="toggleMinimap()" data-tooltip="Toggle Minimap">
+                    <span class="toolbar-icon">🗺️</span> Map
+                </button>
             </div>
 
             <!-- Export Operations -->
@@ -799,6 +888,51 @@
                 <button class="toolbar-btn" id="validateBtn" onclick="validateTree()"
                     data-tooltip="Validate Tree (Ctrl+Shift+V)">
                     <span class="toolbar-icon">✓</span> Validate
+                </button>
+            </div>
+
+            <!-- Simulation Controls -->
+            <div class="toolbar-group new-row" style="background: rgba(76, 175, 80, 0.1); padding: 4px 8px; border-radius: 4px;">
+                <span class="tooltip-left" style="color: #4fc1ff; font-size: 11px; margin-right: 8px; cursor: help;"
+                    data-tooltip="⚠️ Mock simulator - visualizes flow only, no real code execution">
+                    ℹ️ Sim
+                </span>
+                <span id="simTickCounter" style="font-size: 12px; color: #27ae60; font-weight: 600; margin-right: 10px; min-width: 60px; display: inline-block;"
+                    data-tooltip="Current simulation tick">
+                    Tick: 0
+                </span>
+                <label style="display: inline-flex; align-items: center; margin-right: 10px; cursor: pointer; user-select: none;"
+                    data-tooltip="Toggle between Manual (step-only) and Auto (play with speed control) modes">
+                    <input type="checkbox" id="simModeToggle" onchange="toggleSimulationMode()"
+                        style="margin-right: 4px; cursor: pointer;">
+                    <span id="simModeLabel" style="font-size: 12px; color: #d4d4d4;">Auto</span>
+                </label>
+                <button class="toolbar-btn" id="simPlayBtn" onclick="toggleSimulation()"
+                    data-tooltip="Run Simulation (Space)" style="background: #4caf50;">
+                    <span class="toolbar-icon">▶</span> Run
+                </button>
+                <button class="toolbar-btn" id="simStepBtn" onclick="stepSimulation()"
+                    data-tooltip="Step Forward (→)" disabled>
+                    <span class="toolbar-icon">⏭</span> Step
+                </button>
+                <button class="toolbar-btn" id="simResetBtn" onclick="resetSimulation()"
+                    data-tooltip="Reset Simulation" disabled>
+                    <span class="toolbar-icon">⏹</span> Reset
+                </button>
+                <span style="display: inline-flex; align-items: center; margin: 0 6px; gap: 4px;">
+                    <label style="font-size: 11px; color: #d4d4d4;">TPS:</label>
+                    <input type="number" id="simSpeedInput" min="0.1" max="100" step="0.1" value="1"
+                        style="width: 50px; padding: 2px 4px; background: #3c3c3c; border: 1px solid #3e3e42; border-radius: 3px; color: #d4d4d4; font-size: 11px;"
+                        data-tooltip="Ticks Per Second (0.1 - 100)"
+                        oninput="updateSimSpeedFromTPS(this.value)">
+                    <input type="range" id="simSpeedSlider" min="0.1" max="100" step="0.1" value="1"
+                        style="width: 80px; vertical-align: middle;"
+                        data-tooltip="Ticks Per Second"
+                        oninput="updateSimSpeedFromSlider(this.value)">
+                </span>
+                <button class="toolbar-btn" id="blackboardToggle" onclick="toggleBlackboard()"
+                    data-tooltip="Toggle Blackboard Inspector" style="background: #2196f3;">
+                    <span class="toolbar-icon">📊</span> BB
                 </button>
             </div>
 
@@ -1069,20 +1203,22 @@
                         <div class="node-item-desc">Weighted random status selection</div>
                     </div>
                 </div>
-
-                <!-- CUSTOM SECTION -->
-                <div class="section-title">CUSTOM (1+)</div>
-                <div class="palette-nodes" id="customGroup">
-                    <div class="node-item action" draggable="true" data-type="CheckBattery"
-                        data-search="check battery level threshold custom">
-                        <div class="node-item-title">Check Battery</div>
-                        <div class="node-item-desc">Check battery above threshold</div>
-                    </div>
-                </div>
             </div>
             <div class="sidebar-content" id="libraryTab" style="display: none;">
-                <input type="text" class="library-search" id="librarySearch" placeholder="Search library..."
-                    onkeyup="filterLibrary()">
+                <div style="padding: 10px; background: #2d2d30; margin: -15px -15px 10px -15px; border-bottom: 1px solid #3e3e42;">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+                        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="radio" name="libMode" value="local" checked onchange="loadLibraryMode('local')" style="cursor: pointer;">
+                            <span style="color: #d4d4d4; font-size: 12px;">Local</span>
+                        </label>
+                        <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                            <input type="radio" name="libMode" value="remote" onchange="loadLibraryMode('remote')" style="cursor: pointer;">
+                            <span style="color: #d4d4d4; font-size: 12px;">Remote</span>
+                        </label>
+                    </div>
+                    <input type="text" class="library-search" id="librarySearch" placeholder="Search library..."
+                        onkeyup="filterLibrary()" style="margin: 0;">
+                </div>
                 <div id="libraryContent">
                     <!-- Populated dynamically -->
                 </div>
@@ -1096,7 +1232,6 @@
                 Click child to connect.
             </div>
             <canvas id="treeCanvas"></canvas>
-            <canvas class="minimap" id="minimap" width="200" height="150"></canvas>
         </div>
 
         <!-- Right Sidebar -->
@@ -1107,6 +1242,28 @@
                     Select a node to edit its properties
                 </div>
             </div>
+        </div>
+
+        <!-- Blackboard Inspector -->
+        <div id="blackboardPanel" class="draggable-panel" style="display: none; position: absolute; right: 20px; top: 60px; width: 300px; min-width: 250px; background: #252526; border: 1px solid #3e3e42; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 100; resize: both; overflow: hidden;">
+            <div class="panel-header" style="padding: 12px; border-bottom: 1px solid #3e3e42; display: flex; justify-content: space-between; align-items: center; cursor: move;">
+                <strong style="color: #4fc1ff;">📊 Blackboard</strong>
+                <button onclick="toggleBlackboard()" style="background: none; border: none; color: #858585; cursor: pointer; font-size: 18px;">×</button>
+            </div>
+            <div id="blackboardContent" style="padding: 12px; max-height: 450px; overflow-y: auto;">
+                <div style="color: #858585; font-size: 12px; text-align: center; padding: 20px;">
+                    Run simulation to see blackboard variables
+                </div>
+            </div>
+        </div>
+
+        <!-- Minimap -->
+        <div id="minimapPanel" class="draggable-panel" style="position: absolute; bottom: 80px; right: 20px; width: 200px; min-width: 150px; background: rgba(30, 30, 30, 0.9); border: 2px solid #3e3e42; border-radius: 8px; z-index: 100; resize: both; overflow: hidden;">
+            <div class="panel-header" style="padding: 6px 10px; border-bottom: 1px solid #3e3e42; display: flex; justify-content: space-between; align-items: center; background: rgba(40, 40, 40, 0.95); cursor: move;">
+                <strong style="color: #4fc1ff; font-size: 11px;">🗺️ Minimap</strong>
+                <button onclick="toggleMinimap()" style="background: none; border: none; color: #858585; cursor: pointer; font-size: 14px;">×</button>
+            </div>
+            <canvas id="minimapCanvas" width="200" height="150" style="display: block; cursor: pointer;"></canvas>
         </div>
 
         <!-- Status Bar -->
@@ -1143,7 +1300,14 @@
     </div>
 
     <!-- Toast Notifications Container -->
-    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+    <div id="toastContainer" style="position: fixed; bottom: 100px; right: 20px; z-index: 10000; display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none;"></div>
+
+    <!-- Node Tooltip -->
+    <div id="nodeTooltip" style="display: none; position: fixed; background: rgba(30, 30, 30, 0.98); border: 1px solid #4fc1ff; border-radius: 6px; padding: 12px 16px; z-index: 10001; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.5); pointer-events: none;">
+        <div style="color: #4fc1ff; font-weight: 600; font-size: 13px; margin-bottom: 6px;" id="tooltipTitle"></div>
+        <div style="color: #cccccc; font-size: 12px; line-height: 1.5;" id="tooltipDescription"></div>
+        <div style="color: #858585; font-size: 11px; margin-top: 8px; padding-top: 8px; border-top: 1px solid #3e3e42;" id="tooltipConfig"></div>
+    </div>
 
     <!-- Save Modal -->
     <div class="modal-overlay" id="saveModal">
@@ -1165,6 +1329,17 @@
     <div class="modal-overlay" id="loadModal">
         <div class="modal">
             <div class="modal-title">Load Tree</div>
+            <div style="padding: 12px 20px; border-bottom: 1px solid #3e3e42; display: flex; align-items: center; gap: 15px;">
+                <span style="color: #d4d4d4; font-size: 13px;">Mode:</span>
+                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="radio" name="loadMode" value="local" checked onchange="switchLoadMode('local')" style="cursor: pointer;">
+                    <span style="color: #d4d4d4; font-size: 13px;">Local Examples</span>
+                </label>
+                <label style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">
+                    <input type="radio" name="loadMode" value="remote" onchange="switchLoadMode('remote')" style="cursor: pointer;">
+                    <span style="color: #d4d4d4; font-size: 13px;">Remote API</span>
+                </label>
+            </div>
             <div class="modal-body" id="loadModalContent">
                 <!-- Populated dynamically -->
             </div>
@@ -1324,6 +1499,56 @@
 
     <!-- Context Menu -->
     <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item has-submenu" id="addChildMenuItem">
+            <span>➕</span> Add Child
+            <span style="margin-left: auto; opacity: 0.6;">▶</span>
+            <div class="context-submenu" id="addChildSubmenu" style="display: none;">
+                <div class="context-menu-header">Common Nodes</div>
+                <div class="context-menu-item" onclick="addChildNode('Sequence')">
+                    <span>→</span> Sequence
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('Selector')">
+                    <span>?</span> Selector
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('Parallel')">
+                    <span>⚡</span> Parallel
+                </div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-header">Decorators</div>
+                <div class="context-menu-item" onclick="addChildNode('Inverter')">
+                    <span>¬</span> Inverter
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('Retry')">
+                    <span>↻</span> Retry
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('Timeout')">
+                    <span>⏱</span> Timeout
+                </div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-header">Actions</div>
+                <div class="context-menu-item" onclick="addChildNode('Success')">
+                    <span>✓</span> Success
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('Failure')">
+                    <span>✗</span> Failure
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('Wait')">
+                    <span>⏳</span> Wait
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('SetBlackboardVariable')">
+                    <span>✍</span> Set Variable
+                </div>
+                <div class="context-menu-separator"></div>
+                <div class="context-menu-header">Conditions</div>
+                <div class="context-menu-item" onclick="addChildNode('CheckBlackboardVariableValue')">
+                    <span>🔍</span> Check Variable
+                </div>
+                <div class="context-menu-item" onclick="addChildNode('CheckBlackboardVariableExists')">
+                    <span>📌</span> Variable Exists
+                </div>
+            </div>
+        </div>
+        <div class="context-menu-separator"></div>
         <div class="context-menu-item" onclick="contextMenuAction('copy')">
             <span>📋</span> Copy
             <span class="context-menu-shortcut">Ctrl+C</span>
@@ -1407,6 +1632,125 @@
             'logical_operator': ['and', 'or']
         };
 
+        // Node type icons for better visual recognition
+        const NODE_ICONS = {
+            // Composites
+            'Sequence': '→',
+            'Selector': '?',
+            'Parallel': '⚡',
+
+            // Decorators - Status Converters
+            'Inverter': '¬',
+            'SuccessIsFailure': '⇅',
+            'FailureIsSuccess': '⇅',
+            'FailureIsRunning': '⟳',
+            'RunningIsFailure': '⟳',
+            'RunningIsSuccess': '⟳',
+            'SuccessIsRunning': '⟳',
+            'PassThrough': '→',
+
+            // Decorators - Control Flow
+            'Retry': '↻',
+            'Repeat': '∞',
+            'OneShot': '1',
+            'Timeout': '⏱',
+            'EternalGuard': '👁',
+            'Condition': '❓',
+            'Count': '#',
+            'StatusToBlackboard': '📝',
+
+            // Actions - Basic
+            'Success': '✓',
+            'Failure': '✗',
+            'Running': '⟳',
+            'Dummy': '○',
+
+            // Actions - Time-based
+            'Wait': '⏳',
+            'TickCounter': '🔢',
+            'SuccessEveryN': '⚡',
+            'Periodic': '🔄',
+            'StatusQueue': '📋',
+
+            // Actions - Blackboard
+            'SetBlackboardVariable': '✍',
+            'CheckBlackboardVariableValue': '🔍',
+            'CheckBlackboardVariableExists': '📌',
+            'UnsetBlackboardVariable': '🗑',
+
+            // Actions - Debug
+            'PrintBlackboard': '🖨',
+            'PrintStatus': '📄',
+
+            // Default
+            'default': '●'
+        };
+
+        // Comprehensive node type descriptions for tooltips
+        const NODE_DESCRIPTIONS = {
+            // Composites
+            'Sequence': 'Executes children in order until one fails or all succeed. Useful for step-by-step tasks.',
+            'Selector': 'Executes children in order until one succeeds or all fail. Useful for fallback behaviors.',
+            'Parallel': 'Executes all children concurrently. Success policy determines when the parallel succeeds/fails.',
+
+            // Decorators - Status Converters
+            'Inverter': 'Inverts child result: SUCCESS ↔ FAILURE. Useful for negating conditions.',
+            'SuccessIsFailure': 'Converts SUCCESS to FAILURE. Leaves other statuses unchanged.',
+            'FailureIsSuccess': 'Converts FAILURE to SUCCESS. Useful for optional tasks.',
+            'FailureIsRunning': 'Converts FAILURE to RUNNING. Keeps trying on failure.',
+            'RunningIsFailure': 'Converts RUNNING to FAILURE. Fails on non-immediate completion.',
+            'RunningIsSuccess': 'Converts RUNNING to SUCCESS. Succeeds on any progress.',
+            'SuccessIsRunning': 'Converts SUCCESS to RUNNING. Prevents tree from terminating early.',
+            'PassThrough': 'Returns child status unchanged. Useful for monitoring.',
+
+            // Decorators - Control Flow
+            'Retry': 'Retries child on failure up to N times. Returns SUCCESS if any attempt succeeds.',
+            'Repeat': 'Repeats child on success up to N times. Useful for repeated actions.',
+            'OneShot': 'Executes child only once, then returns cached result. Useful for initialization.',
+            'Timeout': 'Fails if child runs longer than duration. Prevents hanging behaviors.',
+            'EternalGuard': 'Only runs child if blackboard condition is met, checks every tick.',
+            'Condition': 'Runs child only if blackboard condition is true. Checks once at start.',
+            'Count': 'Counts how many times child succeeds. Stores count on blackboard.',
+            'StatusToBlackboard': 'Writes child status to blackboard variable.',
+
+            // Actions - Basic Status
+            'Success': 'Always returns SUCCESS. Useful for testing or placeholder.',
+            'Failure': 'Always returns FAILURE. Useful for testing or forced failure.',
+            'Running': 'Always returns RUNNING. Useful for testing or keeping tree active.',
+            'Dummy': 'Does nothing, returns SUCCESS. Useful for placeholder nodes.',
+
+            // Actions - Time-based
+            'Wait': 'Waits for specified duration, then returns SUCCESS.',
+            'TickCounter': 'Returns RUNNING for N ticks, then returns final status.',
+            'SuccessEveryN': 'Returns SUCCESS every N ticks, otherwise FAILURE.',
+            'Periodic': 'Cycles through SUCCESS/RUNNING every N ticks.',
+            'StatusQueue': 'Returns statuses from a queue in sequence.',
+
+            // Actions - Blackboard
+            'SetBlackboardVariable': 'Sets a variable on the blackboard to a specific value.',
+            'GetBlackboardVariable': 'Reads a variable from the blackboard. Returns FAILURE if missing.',
+            'UnsetBlackboardVariable': 'Removes a variable from the blackboard.',
+            'BlackboardToStatus': 'Converts blackboard variable value to node status.',
+
+            // Actions - Utilities
+            'Log': 'Logs a message to console. Returns SUCCESS.',
+            'CheckBlackboardCondition': 'Checks if blackboard variable meets condition. Returns SUCCESS/FAILURE.',
+
+            // Conditions
+            'CheckBlackboardVariableExists': 'Returns SUCCESS if variable exists on blackboard.',
+            'WaitForBlackboardVariable': 'Returns RUNNING until variable exists on blackboard.',
+            'WaitForBlackboardVariableValue': 'Returns RUNNING until variable matches expected value.',
+            'CheckBlackboardVariableValue': 'Returns SUCCESS if variable matches expected value.',
+            'CheckBlackboardVariableValues': 'Checks multiple blackboard conditions with AND/OR logic.',
+
+            // Probabilistic
+            'ProbabilisticBehaviour': 'Randomly chooses between behaviors based on weights.',
+
+            // Custom
+            // Default
+            'default': 'Behavior tree node. Hover for more details.'
+        };
+
         // Node Definitions (40+ node types)
         const NODE_DEFS = {
             // ===== COMPOSITES (3) =====
@@ -1472,7 +1816,6 @@
             'ProbabilisticBehaviour': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { weights: [1.0, 1.0, 1.0] } },
 
             // ===== CUSTOM (1+) =====
-            'CheckBattery': { category: 'action', canHaveChildren: false, maxChildren: 0, config: { threshold: 0.2 } }
         };
 
         // Resize canvas to match container (CRITICAL FIX for viewport bugs)
@@ -1491,7 +1834,7 @@
         window.addEventListener('load', () => {
             canvas = document.getElementById('treeCanvas');
             ctx = canvas.getContext('2d');
-            minimap = document.getElementById('minimap');
+            minimap = document.getElementById('minimapCanvas');
             minimapCtx = minimap.getContext('2d');
 
             // Resize canvas to match container
@@ -1501,6 +1844,32 @@
             window.addEventListener('resize', () => {
                 resizeCanvas();
             });
+
+            // Watch for minimap panel resize
+            const minimapPanel = document.getElementById('minimapPanel');
+            if (minimapPanel) {
+                let resizeTimeout;
+                const resizeObserver = new ResizeObserver((entries) => {
+                    // Debounce to prevent feedback loop
+                    clearTimeout(resizeTimeout);
+                    resizeTimeout = setTimeout(() => {
+                        for (let entry of entries) {
+                            const rect = entry.contentRect;
+                            const headerHeight = 28; // Header bar height
+                            const newWidth = Math.max(150, Math.floor(rect.width));
+                            const newHeight = Math.max(100, Math.floor(rect.height - headerHeight));
+
+                            // Only update if size actually changed significantly
+                            if (Math.abs(minimap.width - newWidth) > 5 || Math.abs(minimap.height - newHeight) > 5) {
+                                minimap.width = newWidth;
+                                minimap.height = newHeight;
+                                renderMinimap();
+                            }
+                        }
+                    }, 100);
+                });
+                resizeObserver.observe(minimapPanel);
+            }
 
             setupDragAndDrop();
             setupCanvas();
@@ -1719,6 +2088,30 @@
                     }
                 }
 
+                // Check for node hover (for tooltips)
+                if (!isDragging && !isPanning) {
+                    const nodeAtMouse = getNodeAt(worldX, worldY);
+
+                    if (nodeAtMouse !== hoveredNode) {
+                        hoveredNode = nodeAtMouse;
+                        clearTimeout(tooltipTimeout);
+                        hideNodeTooltip();
+
+                        if (hoveredNode) {
+                            tooltipTimeout = setTimeout(() => {
+                                showNodeTooltip(hoveredNode, e.clientX, e.clientY);
+                            }, 500); // Show after 500ms hover
+                        }
+                    } else if (hoveredNode) {
+                        // Update tooltip position if still hovering
+                        const tooltip = document.getElementById('nodeTooltip');
+                        if (tooltip && tooltip.style.display === 'block') {
+                            tooltip.style.left = (e.clientX + 15) + 'px';
+                            tooltip.style.top = (e.clientY + 15) + 'px';
+                        }
+                    }
+                }
+
                 // Check if we should start dragging (threshold exceeded)
                 if (selectedNode && !isDragging && !hasMovedMouse && mouseDownPos.x !== 0) {
                     const deltaX = e.clientX - mouseDownPos.x;
@@ -1729,6 +2122,10 @@
                         hasMovedMouse = true;
                         isDragging = true;
                         canvas.style.cursor = 'grabbing';
+                        // Hide tooltip when dragging starts
+                        clearTimeout(tooltipTimeout);
+                        hideNodeTooltip();
+                        hoveredNode = null;
                         // Disable minimap pointer events during drag
                         minimap.style.pointerEvents = 'none';
                     }
@@ -1857,6 +2254,13 @@
                 }
             });
 
+            // Hide tooltip when mouse leaves canvas
+            canvas.addEventListener('mouseleave', (e) => {
+                clearTimeout(tooltipTimeout);
+                hideNodeTooltip();
+                hoveredNode = null;
+            });
+
             // Minimap navigation
             minimap.addEventListener('click', (e) => {
                 if (nodes.length === 0) return;
@@ -1874,24 +2278,25 @@
                     maxY = Math.max(maxY, node.y + 60);
                 });
 
-                const treeWidth = maxX - minX;
-                const treeHeight = maxY - minY;
+                const treeWidth = maxX - minX + 400;
+                const treeHeight = maxY - minY + 400;
+                const scaleX = minimap.width / treeWidth;
+                const scaleY = minimap.height / treeHeight;
+                const scale = Math.min(scaleX, scaleY) * 0.9;
 
-                // Calculate scale - must match renderMinimap exactly
-                const scale = Math.min(minimap.width / treeWidth, minimap.height / treeHeight, 1);
+                const offsetX = (minimap.width - (treeWidth * scale)) / 2;
+                const offsetY = (minimap.height - (treeHeight * scale)) / 2;
 
-                // The minimap rendering uses: ctx.scale(scale); ctx.translate(-minX, -minY);
-                // So a world point (wx, wy) renders at minimap point ((wx - minX) * scale, (wy - minY) * scale)
-                // Therefore, to go from minimap click (clickX, clickY) to world coords:
-                const worldX = (clickX / scale) + minX;
-                const worldY = (clickY / scale) + minY;
+                // Convert minimap click to world coordinates
+                const worldX = ((clickX - offsetX) / scale) + minX - 200;
+                const worldY = ((clickY - offsetY) / scale) + minY - 200;
 
                 // Center main viewport on clicked world position
                 viewportX = (canvas.width / 2) - (worldX * viewportScale);
                 viewportY = (canvas.height / 2) - (worldY * viewportScale);
 
                 render();
-                updateStatus(`Jumped to position`);
+                updateStatus(`Navigated to position`);
             });
 
             minimap.style.cursor = 'pointer';
@@ -1931,6 +2336,24 @@
         function updateContextMenuState() {
             const hasSelection = selectedNodes.size > 0;
             const hasClipboard = clipboard !== null;
+
+            // Check if selected node can have children
+            let canAddChild = false;
+            if (selectedNode) {
+                const parentDef = NODE_DEFS[selectedNode.type];
+                canAddChild = parentDef && parentDef.canHaveChildren &&
+                    (parentDef.maxChildren < 0 || selectedNode.children.length < parentDef.maxChildren);
+            }
+
+            // Enable/disable "Add Child" menu item
+            const addChildMenuItem = document.getElementById('addChildMenuItem');
+            if (addChildMenuItem) {
+                if (canAddChild) {
+                    addChildMenuItem.classList.remove('disabled');
+                } else {
+                    addChildMenuItem.classList.add('disabled');
+                }
+            }
 
             // Enable/disable menu items based on state
             const items = document.querySelectorAll('.context-menu-item');
@@ -1983,6 +2406,66 @@
                     selectAll();
                     break;
             }
+        }
+
+        // Add child node to selected node
+        function addChildNode(nodeType) {
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.classList.remove('active');
+
+            if (!selectedNode) {
+                showToast('Please select a parent node first', 'warning');
+                return;
+            }
+
+            const nodeDef = NODE_DEFS[nodeType];
+            if (!nodeDef) {
+                showToast('Unknown node type: ' + nodeType, 'error');
+                return;
+            }
+
+            // Check if parent can have children
+            const parentDef = NODE_DEFS[selectedNode.type];
+            if (!parentDef.canHaveChildren) {
+                showToast(`${selectedNode.type} nodes cannot have children`, 'warning');
+                return;
+            }
+
+            // Check if parent has reached max children
+            if (parentDef.maxChildren > 0 && selectedNode.children.length >= parentDef.maxChildren) {
+                showToast(`${selectedNode.type} can only have ${parentDef.maxChildren} child(ren)`, 'warning');
+                return;
+            }
+
+            // Create the new child node
+            const newNode = {
+                id: nextNodeId++,
+                type: nodeType,
+                category: nodeDef.category,
+                name: nodeType,
+                x: selectedNode.x + 50,
+                y: selectedNode.y + (selectedNode.children.length * 100) + 100,
+                config: JSON.parse(JSON.stringify(nodeDef.config)), // Deep copy config
+                children: [],
+                parent: { id: selectedNode.id },
+                collapsed: false
+            };
+
+            // Add to nodes array
+            nodes.push(newNode);
+
+            // Add to parent's children
+            selectedNode.children.push({ id: newNode.id });
+
+            // Auto-layout to position nicely
+            autoLayoutTree();
+
+            // Select the new node
+            selectNode(newNode);
+
+            render();
+            saveHistory();
+            showToast(`Added ${nodeType} as child of ${selectedNode.name}`, 'success');
         }
 
         // Inline rename functionality
@@ -2829,6 +3312,38 @@
                     ctx.fillRect(node.x, node.y + 1, 150, 1);
                 }
 
+                // Get simulation state for this node
+                const simState = simulationState.nodeStates.get(node.id);
+                if (simState && simState.status !== NodeStatus.IDLE) {
+                    // Add status indicator
+                    const statusColors = {
+                        [NodeStatus.SUCCESS]: '#4caf50',
+                        [NodeStatus.FAILURE]: '#f44336',
+                        [NodeStatus.RUNNING]: '#ff9800',
+                        [NodeStatus.IDLE]: 'transparent'
+                    };
+
+                    const statusColor = statusColors[simState.status] || 'transparent';
+
+                    // Draw status border
+                    if (statusColor !== 'transparent') {
+                        ctx.strokeStyle = statusColor;
+                        ctx.lineWidth = 4;
+                        ctx.strokeRect(node.x, node.y, 150, 60);
+
+                        // Draw status badge in corner
+                        ctx.fillStyle = statusColor;
+                        ctx.beginPath();
+                        ctx.arc(node.x + 150 - 8, node.y + 8, 8, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Tick count now shown in simulation control pane
+                    }
+                }
+
+                // Reset text properties after simulation rendering
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'alphabetic';
                 ctx.shadowBlur = 0;
                 ctx.shadowOffsetY = 0;
 
@@ -2836,7 +3351,15 @@
                 const isSearchResult = searchResults.has(node);
                 const isDragTarget = node === dragTargetNode;
                 let borderColor = '#3e3e42';
+                // Thicker borders for composite nodes (visual hierarchy)
                 let borderWidth = 2;
+                if (node.category === 'composite') {
+                    borderWidth = 3;
+                } else if (node.category === 'decorator') {
+                    borderWidth = 2;
+                } else {
+                    borderWidth = 1.5;
+                }
                 let useDashedBorder = false;
 
                 if (isDragTarget) {
@@ -2890,34 +3413,56 @@
                 ctx.fillStyle = colors[node.category];
                 ctx.fillRect(node.x, node.y, 5, 60);
 
-                // Node name
-                ctx.fillStyle = '#ffffff';
-                ctx.font = '600 13px Segoe UI';
-                const nameText = node.name.substring(0, 16);
-                ctx.fillText(nameText, node.x + 12, node.y + 24);
-
-                // Node type
-                ctx.fillStyle = '#858585';
-                ctx.font = '11px Segoe UI';
-                const typeText = node.type.substring(0, 16);
-                ctx.fillText(typeText, node.x + 12, node.y + 42);
-
-                // Execution order badge
+                // Execution order badge (bottom-right corner)
                 if (node.parent) {
                     const parentNode = nodes.find(n => n.id === node.parent.id);
                     if (parentNode && parentNode.children) {
                         const orderIndex = parentNode.children.findIndex(c => c.id === node.id) + 1;
                         ctx.fillStyle = '#27ae60';
                         ctx.beginPath();
-                        ctx.arc(node.x + 10, node.y + 10, 11, 0, Math.PI * 2);
+                        ctx.arc(node.x + 190, node.y + 60, 11, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.fillStyle = 'white';
                         ctx.font = '600 11px Segoe UI';
                         ctx.textAlign = 'center';
-                        ctx.fillText(orderIndex, node.x + 10, node.y + 14);
+                        ctx.fillText(orderIndex, node.x + 190, node.y + 64);
                         ctx.textAlign = 'left';
                     }
                 }
+
+                // Node name and type (center-left area)
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '600 13px Segoe UI';
+                const nameText = node.name.substring(0, 20);
+                ctx.fillText(nameText, node.x + 10, node.y + 24);
+
+                ctx.fillStyle = '#858585';
+                ctx.font = '11px Segoe UI';
+                const typeText = node.type.substring(0, 20);
+                ctx.fillText(typeText, node.x + 10, node.y + 40);
+
+                // Draw node type icon (bottom-left corner)
+                const icon = NODE_ICONS[node.type] || NODE_ICONS['default'];
+                const iconSize = 14;
+                const iconX = node.x + 10;
+                const iconY = node.y + 52;
+
+                // Draw icon background circle
+                ctx.fillStyle = 'rgba(79, 193, 255, 0.15)';
+                ctx.beginPath();
+                ctx.arc(iconX, iconY, iconSize/2 + 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw icon
+                ctx.fillStyle = '#4fc1ff';
+                ctx.font = `bold ${iconSize}px Arial`;
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(icon, iconX, iconY);
+
+                // Reset text alignment
+                ctx.textAlign = 'left';
+                ctx.textBaseline = 'alphabetic';
 
                 // Child count / collapse badge
                 if (node.children.length > 0) {
@@ -2945,10 +3490,77 @@
             document.getElementById('selectedCount').textContent = selectedNodes.size;
         }
 
-        function renderMinimap() {
-            if (nodes.length === 0) return;
+        // Track hovered node for tooltips
+        let hoveredNode = null;
+        let tooltipTimeout = null;
 
-            minimapCtx.clearRect(0, 0, minimap.width, minimap.height);
+        function showNodeTooltip(node, mouseX, mouseY) {
+            // Create tooltip element if it doesn't exist
+            let tooltip = document.getElementById('nodeTooltip');
+            if (!tooltip) {
+                tooltip = document.createElement('div');
+                tooltip.id = 'nodeTooltip';
+                tooltip.style.cssText = `
+                    position: fixed;
+                    background: rgba(30, 30, 30, 0.95);
+                    border: 1px solid #4fc1ff;
+                    border-radius: 6px;
+                    padding: 12px;
+                    color: #d4d4d4;
+                    font-size: 13px;
+                    max-width: 300px;
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+                    z-index: 10000;
+                    pointer-events: none;
+                `;
+                document.body.appendChild(tooltip);
+            }
+
+            const description = NODE_DESCRIPTIONS[node.type] || NODE_DESCRIPTIONS['default'];
+            const icon = NODE_ICONS[node.type] || NODE_ICONS['default'];
+
+            let configInfo = '';
+            if (Object.keys(node.config).length > 0) {
+                configInfo = '<div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #3e3e42; font-size: 11px; color: #858585;">';
+                for (const [key, value] of Object.entries(node.config)) {
+                    configInfo += `<div><strong>${key}:</strong> ${JSON.stringify(value)}</div>`;
+                }
+                configInfo += '</div>';
+            }
+
+            tooltip.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span style="font-size: 20px;">${icon}</span>
+                    <strong style="color: #4fc1ff;">${node.type}</strong>
+                </div>
+                <div style="color: #d4d4d4; line-height: 1.5;">
+                    ${description}
+                </div>
+                ${configInfo}
+            `;
+
+            tooltip.style.display = 'block';
+            tooltip.style.left = (mouseX + 15) + 'px';
+            tooltip.style.top = (mouseY + 15) + 'px';
+        }
+
+        function hideNodeTooltip() {
+            const tooltip = document.getElementById('nodeTooltip');
+            if (tooltip) {
+                tooltip.style.display = 'none';
+            }
+        }
+
+        function renderMinimap() {
+            if (!minimap || !minimapCtx) return;
+            if (nodes.length === 0) {
+                minimapCtx.clearRect(0, 0, minimap.width, minimap.height);
+                return;
+            }
+
+            // Clear with dark background
+            minimapCtx.fillStyle = '#1e1e1e';
+            minimapCtx.fillRect(0, 0, minimap.width, minimap.height);
 
             // Find bounds
             let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -2959,38 +3571,81 @@
                 maxY = Math.max(maxY, node.y + 60);
             });
 
-            const width = maxX - minX;
-            const height = maxY - minY;
-            const scale = Math.min(minimap.width / width, minimap.height / height, 1);
+            const treeWidth = maxX - minX + 400;
+            const treeHeight = maxY - minY + 400;
+            const scaleX = minimap.width / treeWidth;
+            const scaleY = minimap.height / treeHeight;
+            const scale = Math.min(scaleX, scaleY) * 0.9; // 0.9 for padding
 
-            minimapCtx.save();
-            minimapCtx.scale(scale, scale);
-            minimapCtx.translate(-minX, -minY);
+            const offsetX = (minimap.width - (treeWidth * scale)) / 2;
+            const offsetY = (minimap.height - (treeHeight * scale)) / 2;
 
-            // Draw simplified nodes
+            // Draw connections first
+            minimapCtx.strokeStyle = '#3e3e42';
+            minimapCtx.lineWidth = 1;
             nodes.forEach(node => {
-                const isSelected = selectedNodes.has(node);
-                minimapCtx.fillStyle = isSelected ? '#4fc1ff' : '#37373d';
-                minimapCtx.fillRect(node.x, node.y, 150, 60);
+                if (node.parent) {
+                    const parentNode = nodes.find(n => n.id === node.parent.id);
+                    if (parentNode) {
+                        minimapCtx.beginPath();
+                        const x1 = ((parentNode.x - minX + 200) * scale) + offsetX;
+                        const y1 = ((parentNode.y - minY + 200) * scale) + offsetY;
+                        const x2 = ((node.x - minX + 200) * scale) + offsetX;
+                        const y2 = ((node.y - minY + 200) * scale) + offsetY;
+                        minimapCtx.moveTo(x1, y1);
+                        minimapCtx.lineTo(x2, y2);
+                        minimapCtx.stroke();
+                    }
+                }
             });
 
-            // Draw viewport indicator rectangle
-            // Calculate visible viewport in world coordinates
-            const viewportWidth = canvas.width / viewportScale;
-            const viewportHeight = canvas.height / viewportScale;
-            const viewportLeft = -viewportX / viewportScale;
-            const viewportTop = -viewportY / viewportScale;
+            // Draw nodes with category colors
+            nodes.forEach(node => {
+                const x = ((node.x - minX + 200) * scale) + offsetX;
+                const y = ((node.y - minY + 200) * scale) + offsetY;
+                const nodeWidth = 8;
+                const nodeHeight = 6;
 
-            // Draw semi-transparent overlay showing current view
+                // Color by category
+                let color = '#4fc1ff';
+                if (node.category === 'composite') color = '#ce9178';
+                else if (node.category === 'decorator') color = '#dcdcaa';
+                else if (node.category === 'action') color = '#4fc1ff';
+                else if (node.category === 'condition') color = '#c586c0';
+
+                // Highlight if simulating (check if simulationState exists)
+                if (typeof simulationState !== 'undefined' && simulationState.nodeStates) {
+                    const simState = simulationState.nodeStates.get(node.id);
+                    if (simState && simState.status !== 'IDLE') {
+                        const statusColors = {
+                            'SUCCESS': '#4caf50',
+                            'FAILURE': '#f44336',
+                            'RUNNING': '#ff9800'
+                        };
+                        color = statusColors[simState.status] || color;
+                    }
+                }
+
+                // Highlight if selected
+                if (selectedNodes.has(node)) {
+                    minimapCtx.strokeStyle = '#fff';
+                    minimapCtx.lineWidth = 2;
+                    minimapCtx.strokeRect(x - nodeWidth/2 - 1, y - nodeHeight/2 - 1, nodeWidth + 2, nodeHeight + 2);
+                }
+
+                minimapCtx.fillStyle = color;
+                minimapCtx.fillRect(x - nodeWidth/2, y - nodeHeight/2, nodeWidth, nodeHeight);
+            });
+
+            // Draw viewport indicator
+            const viewportWidth = (canvas.width / viewportScale) * scale;
+            const viewportHeight = (canvas.height / viewportScale) * scale;
+            const viewportX_mini = ((-viewportX / viewportScale - minX + 200) * scale) + offsetX;
+            const viewportY_mini = ((-viewportY / viewportScale - minY + 200) * scale) + offsetY;
+
             minimapCtx.strokeStyle = '#4fc1ff';
-            minimapCtx.lineWidth = 2 / scale; // Scale line width to minimap space
-            minimapCtx.strokeRect(viewportLeft, viewportTop, viewportWidth, viewportHeight);
-
-            // Add subtle fill to make it more visible
-            minimapCtx.fillStyle = 'rgba(79, 193, 255, 0.1)';
-            minimapCtx.fillRect(viewportLeft, viewportTop, viewportWidth, viewportHeight);
-
-            minimapCtx.restore();
+            minimapCtx.lineWidth = 2;
+            minimapCtx.strokeRect(viewportX_mini, viewportY_mini, viewportWidth, viewportHeight);
         }
 
         // Layout - Hierarchical Tree Layout (Reingold-Tilford Algorithm)
@@ -3232,6 +3887,85 @@
             updateStatus(showGrid ? 'Grid enabled' : 'Grid disabled');
         }
 
+        function toggleMinimap() {
+            const panel = document.getElementById('minimapPanel');
+            if (panel) {
+                const isVisible = panel.style.display !== 'none';
+                panel.style.display = isVisible ? 'none' : 'block';
+                updateStatus(isVisible ? 'Minimap hidden' : 'Minimap shown');
+                if (!isVisible) {
+                    render(); // Refresh minimap when shown
+                }
+            }
+        }
+
+        // Make panels draggable
+        function makePanelDraggable(panel) {
+            const header = panel.querySelector('.panel-header');
+            if (!header) return;
+
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+
+            header.addEventListener('mousedown', (e) => {
+                // Don't drag if clicking on button
+                if (e.target.tagName === 'BUTTON') return;
+
+                isDragging = true;
+                const rect = panel.getBoundingClientRect();
+
+                initialX = e.clientX - rect.left;
+                initialY = e.clientY - rect.top;
+
+                panel.style.zIndex = 1000;
+                header.style.cursor = 'grabbing';
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+
+                e.preventDefault();
+
+                currentX = e.clientX - initialX;
+                currentY = e.clientY - initialY;
+
+                // Keep panel within viewport bounds
+                const maxX = window.innerWidth - panel.offsetWidth;
+                const maxY = window.innerHeight - panel.offsetHeight;
+
+                currentX = Math.max(0, Math.min(currentX, maxX));
+                currentY = Math.max(0, Math.min(currentY, maxY));
+
+                panel.style.left = currentX + 'px';
+                panel.style.top = currentY + 'px';
+                panel.style.right = 'auto';
+                panel.style.bottom = 'auto';
+            });
+
+            document.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    isDragging = false;
+                    header.style.cursor = 'move';
+                    panel.style.zIndex = 100;
+                }
+            });
+        }
+
+        // Initialize draggable panels
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.draggable-panel').forEach(makePanelDraggable);
+
+            // Initialize simulation mode toggle to Auto (checked)
+            const toggle = document.getElementById('simModeToggle');
+            if (toggle) {
+                toggle.checked = true;
+                toggleSimulationMode(); // Apply initial state
+            }
+        });
+
         function updateZoomDisplay() {
             document.getElementById('zoomLevel').textContent = Math.round(viewportScale * 100) + '%';
         }
@@ -3329,6 +4063,11 @@
             history = [];
             historyIndex = -1;
 
+            // Reset simulation and clear blackboard
+            pauseSimulation();
+            initializeSimulation();
+            updateBlackboardDisplay();
+
             hideConnectHint();
             showProperties(null);
             updateHistoryButtons();
@@ -3408,6 +4147,11 @@
             connections = [];
             selectedNode = null;
             nodeCounter = 1;
+
+            // Reset simulation and clear blackboard
+            pauseSimulation();
+            initializeSimulation();
+            updateBlackboardDisplay();
 
             // Set tree metadata
             if (treeData.metadata) {
@@ -3814,6 +4558,9 @@ print(f"py_trees result: {pt_root.status}")
             history = [];
             historyIndex = -1;
 
+            // Reset simulation and clear blackboard
+            resetSimulation();
+
             hideQuickStartHint();
             updateTreeNameDisplay();
             updateHistoryButtons();
@@ -3828,30 +4575,128 @@ print(f"py_trees result: {pt_root.status}")
         }
 
         async function openLoadModal() {
-            const library = await getLibrary();
+            document.getElementById('loadModal').classList.add('active');
+            // Default to local mode
+            document.querySelector('input[name="loadMode"][value="local"]').checked = true;
+            await switchLoadMode('local');
+        }
+
+        async function switchLoadMode(mode) {
+            const content = document.getElementById('loadModalContent');
+            content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">Loading...</div>';
+
+            if (mode === 'local') {
+                await loadLocalTrees();
+            } else {
+                await loadRemoteTrees();
+            }
+        }
+
+        async function loadLocalTrees() {
             const content = document.getElementById('loadModalContent');
 
-            if (library.length === 0) {
-                content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">No saved trees in library</div>';
-            } else {
+            try {
+                // Fetch manifest from examples/trees/
+                const response = await fetch('../examples/trees/manifest.json');
+                if (!response.ok) throw new Error('Cannot load manifest');
+
+                const manifest = await response.json();
+
+                if (manifest.length === 0) {
+                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">No example trees found</div>';
+                    return;
+                }
+
                 let html = '';
-                library.forEach(entry => {
-                    const date = new Date(entry.created).toLocaleDateString();
+                manifest.forEach(entry => {
+                    const tags = entry.tags ? entry.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('') : '';
                     html += `
-                        <div class="library-item" onclick="loadFromLibraryAndClose('${entry.id}')">
+                        <div class="library-item" onclick="loadTreeFromLocalFile('${entry.file}', '${entry.name}')">
                             <div class="library-item-title">${entry.name}</div>
                             <div class="library-item-desc">${entry.description || 'No description'}</div>
                             <div class="library-item-meta">
-                                <span>📅 ${date}</span>
-                                <span>🔗 ${entry.nodes.length} nodes</span>
+                                ${tags}
                             </div>
                         </div>
                     `;
                 });
+
                 content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center;">Error loading examples: ${error.message}</div>`;
+            }
+        }
+
+        async function loadRemoteTrees() {
+            const content = document.getElementById('loadModalContent');
+
+            try {
+                // Fetch from API
+                const response = await fetch(`${API_BASE}/trees/`);
+                if (!response.ok) throw new Error('API not available');
+
+                const catalog = await response.json();
+
+                if (catalog.length === 0) {
+                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">No trees in remote library</div>';
+                    return;
+                }
+
+                let html = '';
+                catalog.forEach(entry => {
+                    const tags = entry.tags ? entry.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('') : '';
+                    html += `
+                        <div class="library-item" onclick="loadTreeFromRemoteAPI('${entry.tree_id}', '${entry.tree_name}')">
+                            <div class="library-item-title">${entry.display_name}</div>
+                            <div class="library-item-desc">${entry.description || 'No description'}</div>
+                            <div class="library-item-meta">
+                                <span>v${entry.latest_version}</span>
+                                ${tags}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center;">Error connecting to API: ${error.message}<br><br>Make sure the API server is running at ${API_BASE}</div>`;
+            }
+        }
+
+        async function loadTreeFromLocalFile(filename, treeName) {
+            if (nodes.length > 0 && !confirm(`Load "${treeName}"? Current tree will be lost if not saved.`)) {
+                return;
             }
 
-            document.getElementById('loadModal').classList.add('active');
+            try {
+                const response = await fetch(`../examples/trees/${filename}`);
+                if (!response.ok) throw new Error('Cannot load tree file');
+
+                const treeData = await response.json();
+                await importTreeFromJSON(treeData);
+                closeModal('loadModal');
+                updateStatus(`Loaded: ${treeName}`);
+            } catch (error) {
+                alert(`Error loading tree: ${error.message}`);
+            }
+        }
+
+        async function loadTreeFromRemoteAPI(treeId, treeName) {
+            if (nodes.length > 0 && !confirm(`Load "${treeName}"? Current tree will be lost if not saved.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/trees/${treeId}`);
+                if (!response.ok) throw new Error('Cannot load tree from API');
+
+                const treeData = await response.json();
+                await importTreeFromJSON(treeData);
+                closeModal('loadModal');
+                updateStatus(`Loaded from API: ${treeName}`);
+            } catch (error) {
+                alert(`Error loading tree from API: ${error.message}`);
+            }
         }
 
         async function loadFromLibraryAndClose(id) {
@@ -4037,6 +4882,7 @@ async function getLibrary() {
             const content = document.getElementById('propertiesContent');
             const errors = [];
             const warnings = [];
+            const info = [];
 
             // Check for root
             const roots = nodes.filter(n => !n.parent);
@@ -4046,7 +4892,7 @@ async function getLibrary() {
                 errors.push(`Multiple root nodes found (${roots.length}). Only one root is allowed.`);
             }
 
-            // Check for orphaned nodes
+            // Check for orphaned nodes (unreachable)
             const reachable = new Set();
             function markReachable(node) {
                 reachable.add(node);
@@ -4060,49 +4906,149 @@ async function getLibrary() {
             }
             const orphaned = nodes.filter(n => !reachable.has(n));
             if (orphaned.length > 0) {
-                warnings.push(`${orphaned.length} orphaned node(s) not connected to root.`);
+                warnings.push(`${orphaned.length} unreachable node(s): ${orphaned.map(n => n.name).slice(0, 3).join(', ')}${orphaned.length > 3 ? '...' : ''}`);
             }
+
+            // Blackboard variable tracking
+            const bbWritten = new Set();
+            const bbRead = new Map(); // Map<variable, node[]>
+            const bbNodes = [];
+
+            nodes.forEach(node => {
+                // Track blackboard writes
+                if (node.type === 'SetBlackboardVariable' && node.config.variable) {
+                    bbWritten.add(node.config.variable);
+                    bbNodes.push(node);
+                }
+
+                // Track blackboard reads
+                const readVars = [];
+                if (['CheckBlackboardVariableValue', 'CheckBlackboardVariableExists',
+                     'WaitForBlackboardVariable', 'WaitForBlackboardVariableValue',
+                     'UnsetBlackboardVariable', 'BlackboardToStatus', 'EternalGuard', 'Condition'].includes(node.type)) {
+                    if (node.config.variable) readVars.push(node.config.variable);
+                }
+                if (node.type === 'CheckBlackboardVariableValues' && node.config.checks) {
+                    node.config.checks.forEach(check => readVars.push(check.variable));
+                }
+
+                readVars.forEach(varName => {
+                    if (!bbRead.has(varName)) bbRead.set(varName, []);
+                    bbRead.get(varName).push(node);
+                });
+            });
+
+            // Check for undefined variables being read
+            bbRead.forEach((readingNodes, varName) => {
+                if (!bbWritten.has(varName)) {
+                    warnings.push(`Variable "${varName}" is read by ${readingNodes[0].name} but never written. Initialize it first.`);
+                }
+            });
+
+            // Check for unused variables
+            bbWritten.forEach(varName => {
+                if (!bbRead.has(varName)) {
+                    info.push(`Variable "${varName}" is written but never read. Consider removing it.`);
+                }
+            });
 
             // Check decorator children
             nodes.forEach(node => {
                 const def = NODE_DEFS[node.type];
+                if (!def) return;
+
                 if (def.maxChildren === 1 && node.children.length === 0) {
-                    warnings.push(`Decorator "${node.name}" has no child.`);
+                    warnings.push(`"${node.name}" (${node.type}) requires a child node to function.`);
                 }
                 if (def.maxChildren === 1 && node.children.length > 1) {
-                    errors.push(`Decorator "${node.name}" has ${node.children.length} children (max 1).`);
+                    errors.push(`"${node.name}" (${node.type}) can only have 1 child, has ${node.children.length}.`);
+                }
+                if (def.maxChildren === 0 && node.children.length > 0) {
+                    errors.push(`"${node.name}" (${node.type}) cannot have children.`);
                 }
             });
 
-            // Check leaf nodes with children
+            // Check for missing or invalid config values
             nodes.forEach(node => {
                 const def = NODE_DEFS[node.type];
-                if (!def.canHaveChildren && node.children.length > 0) {
-                    errors.push(`Leaf node "${node.name}" cannot have children.`);
+                if (!def) return;
+
+                // Check Retry decorator
+                if (node.type === 'Retry' && (!node.config.num_failures || node.config.num_failures < 1)) {
+                    warnings.push(`"${node.name}" should have num_failures >= 1.`);
+                }
+
+                // Check Timeout decorator
+                if (node.type === 'Timeout' && (!node.config.duration || node.config.duration <= 0)) {
+                    warnings.push(`"${node.name}" should have duration > 0.`);
+                }
+
+                // Check Wait action
+                if (node.type === 'Wait' && (!node.config.duration || node.config.duration <= 0)) {
+                    warnings.push(`"${node.name}" should have duration > 0.`);
+                }
+
+                // Check blackboard operations have variable names
+                if (['SetBlackboardVariable', 'CheckBlackboardVariableValue', 'CheckBlackboardVariableExists'].includes(node.type)) {
+                    if (!node.config.variable || node.config.variable.trim() === '') {
+                        errors.push(`"${node.name}" requires a variable name.`);
+                    }
+                }
+            });
+
+            // Check for potentially infinite sequences
+            nodes.forEach(node => {
+                if (node.type === 'Sequence') {
+                    const allSuccess = node.children.every(childRef => {
+                        const child = nodes.find(n => n.id === childRef.id);
+                        return child && child.type === 'Success';
+                    });
+                    if (allSuccess && node.children.length > 0) {
+                        info.push(`"${node.name}" contains only Success nodes - will always succeed immediately.`);
+                    }
                 }
             });
 
             // Display results
             let html = '<div class="section-title">Validation Results</div>';
 
-            if (errors.length === 0 && warnings.length === 0) {
-                html += '<div class="validation-message success"><strong>✓ Valid!</strong><br>Tree structure is valid and ready for execution.</div>';
+            if (errors.length === 0 && warnings.length === 0 && info.length === 0) {
+                html += '<div class="validation-message success"><strong>✓ Excellent!</strong><br>Tree structure is valid, well-formed, and ready for execution.</div>';
             }
 
             if (errors.length > 0) {
-                html += '<div class="validation-message"><strong>⚠ Errors:</strong><ul style="margin: 10px 0 0 20px;">';
+                html += '<div class="validation-message error"><strong>⛔ Errors (Must Fix):</strong><ul style="margin: 10px 0 0 20px;">';
                 errors.forEach(err => html += `<li>${err}</li>`);
                 html += '</ul></div>';
             }
 
             if (warnings.length > 0) {
-                html += '<div class="validation-message warning"><strong>⚠ Warnings:</strong><ul style="margin: 10px 0 0 20px;">';
+                html += '<div class="validation-message warning"><strong>⚠ Warnings (Should Fix):</strong><ul style="margin: 10px 0 0 20px;">';
                 warnings.forEach(warn => html += `<li>${warn}</li>`);
                 html += '</ul></div>';
             }
 
+            if (info.length > 0) {
+                html += '<div class="validation-message info"><strong>💡 Suggestions:</strong><ul style="margin: 10px 0 0 20px;">';
+                info.forEach(i => html += `<li>${i}</li>`);
+                html += '</ul></div>';
+            }
+
+            if (bbNodes.length > 0) {
+                html += `<div class="validation-message info"><strong>📊 Blackboard Variables:</strong><br>`;
+                html += `<span style="font-size: 12px; color: #858585;">${Array.from(bbWritten).join(', ') || 'None'}</span></div>`;
+            }
+
             content.innerHTML = html;
             updateStatus(errors.length > 0 ? 'Validation failed' : (warnings.length > 0 ? 'Validation passed with warnings' : 'Validation passed'));
+
+            // Return validation result
+            return {
+                passed: errors.length === 0,
+                errors: errors,
+                warnings: warnings,
+                info: info
+            };
         }
 
         // Connect Mode
@@ -4220,6 +5166,150 @@ async function getLibrary() {
                 document.querySelectorAll('.sidebar-tab')[1].classList.add('active');
                 document.getElementById('paletteTab').style.display = 'none';
                 document.getElementById('libraryTab').style.display = 'block';
+
+                // Load library when switching to it
+                const mode = document.querySelector('input[name="libMode"]:checked')?.value || 'local';
+                loadLibraryMode(mode);
+            }
+        }
+
+        async function loadLibraryMode(mode) {
+            const content = document.getElementById('libraryContent');
+            content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">Loading...</div>';
+
+            if (mode === 'local') {
+                await loadLocalLibrary();
+            } else {
+                await loadRemoteLibrary();
+            }
+        }
+
+        async function loadLocalLibrary() {
+            const content = document.getElementById('libraryContent');
+
+            try {
+                // Try multiple paths for manifest - depends on how HTML is served
+                let response;
+                let manifestPath;
+
+                // Try path from visualization/ directory first
+                try {
+                    response = await fetch('../examples/trees/manifest.json');
+                    if (response.ok) {
+                        manifestPath = '../examples/trees/';
+                    }
+                } catch (e) {
+                    // First path failed, will try second
+                }
+
+                // If first path didn't work, try from repo root
+                if (!response || !response.ok) {
+                    try {
+                        response = await fetch('examples/trees/manifest.json');
+                        if (response.ok) {
+                            manifestPath = 'examples/trees/';
+                        }
+                    } catch (e) {
+                        // Both paths failed
+                    }
+                }
+
+                if (!response || !response.ok) {
+                    throw new Error('Cannot load manifest - make sure HTML is served via HTTP server');
+                }
+
+                const manifest = await response.json();
+
+                if (manifest.length === 0) {
+                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center; font-size: 12px;">No example trees found</div>';
+                    return;
+                }
+
+                let html = '';
+                manifest.forEach(entry => {
+                    html += `
+                        <div class="library-item" onclick="loadLocalTree('${entry.file}', '${entry.name.replace(/'/g, "\\'")}', '${manifestPath}')">
+                            <div class="library-item-title">${entry.name}</div>
+                            <div class="library-item-desc">${entry.description || 'No description'}</div>
+                            <div class="library-item-meta">
+                                ${entry.tags ? entry.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('') : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center; font-size: 11px;">Error loading local examples: ${error.message}<br><br>Make sure the page is served via HTTP (not file://)</div>`;
+            }
+        }
+
+        async function loadRemoteLibrary() {
+            const content = document.getElementById('libraryContent');
+
+            try {
+                // Fetch from API
+                const response = await fetch(`${API_BASE}/trees/`);
+                if (!response.ok) throw new Error('API not available');
+
+                const catalog = await response.json();
+
+                if (catalog.length === 0) {
+                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center; font-size: 12px;">No trees in remote library</div>';
+                    return;
+                }
+
+                let html = '';
+                catalog.forEach(entry => {
+                    html += `
+                        <div class="library-item" onclick="loadRemoteTree('${entry.tree_id}', '${entry.tree_name.replace(/'/g, "\\'")}')">
+                            <div class="library-item-title">${entry.display_name}</div>
+                            <div class="library-item-desc">${entry.description || 'No description'}</div>
+                            <div class="library-item-meta">
+                                <span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">v${entry.latest_version}</span>
+                                ${entry.tags ? entry.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('') : ''}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                content.innerHTML = html;
+            } catch (error) {
+                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center; font-size: 11px;">Error: ${error.message}<br><br>Make sure API is running</div>`;
+            }
+        }
+
+        async function loadLocalTree(filename, treeName, basePath = '../examples/trees/') {
+            if (nodes.length > 0 && !confirm(`Load "${treeName}"? Current tree will be lost if not saved.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${basePath}${filename}`);
+                if (!response.ok) throw new Error('Cannot load tree file');
+
+                const treeData = await response.json();
+                await importTreeFromJSON(treeData);
+                updateStatus(`Loaded: ${treeName}`);
+            } catch (error) {
+                alert(`Error loading tree: ${error.message}`);
+            }
+        }
+
+        async function loadRemoteTree(treeId, treeName) {
+            if (nodes.length > 0 && !confirm(`Load "${treeName}"? Current tree will be lost if not saved.`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/trees/${treeId}`);
+                if (!response.ok) throw new Error('Cannot load tree from API');
+
+                const treeData = await response.json();
+                await importTreeFromJSON(treeData);
+                updateStatus(`Loaded from API: ${treeName}`);
+            } catch (error) {
+                alert(`Error loading tree from API: ${error.message}`);
             }
         }
 
@@ -4754,6 +5844,415 @@ async function getLibrary() {
             showProperties(null);
             render();
             updateStatus(`Deleted ${count} nodes`);
+        }
+
+        // ==================== EXECUTION SIMULATOR ====================
+        let simulationState = {
+            running: false,
+            tick: 0,
+            speed: 1000, // ms between ticks (default 1 tick per second)
+            tps: 1, // ticks per second
+            intervalId: null,
+            mode: 'auto', // 'auto' or 'manual'
+            nodeStates: new Map(), // nodeId -> {status, ticksRun, lastTick}
+            blackboard: new Map(), // variable -> value
+            history: [] // Array of {tick, nodeStates, blackboard}
+        };
+
+        const NodeStatus = {
+            IDLE: 'IDLE',
+            RUNNING: 'RUNNING',
+            SUCCESS: 'SUCCESS',
+            FAILURE: 'FAILURE'
+        };
+
+        function initializeSimulation() {
+            // Reset all node states
+            simulationState.nodeStates.clear();
+            nodes.forEach(node => {
+                simulationState.nodeStates.set(node.id, {
+                    status: NodeStatus.IDLE,
+                    ticksRun: 0,
+                    lastTick: -1
+                });
+            });
+
+            // Clear blackboard completely
+            simulationState.blackboard.clear();
+
+            // Initialize blackboard with example variables based on tree nodes
+            // Only add defaults if the tree uses them
+            const hasSetBlackboard = nodes.some(n => n.type === 'SetBlackboardVariable');
+            if (!hasSetBlackboard) {
+                // Add some example variables for demo purposes
+                simulationState.blackboard.set('battery_level', 100);
+                simulationState.blackboard.set('target_position', {x: 10, y: 20});
+                simulationState.blackboard.set('enemies_detected', false);
+            }
+
+            simulationState.tick = 0;
+            simulationState.history = [];
+        }
+
+        function toggleSimulation() {
+            if (simulationState.running) {
+                pauseSimulation();
+            } else {
+                startSimulation();
+            }
+        }
+
+        function startSimulation() {
+            if (nodes.length === 0) {
+                showToast('No tree to simulate', 'warning');
+                return;
+            }
+
+            // Validate tree before starting simulation
+            const validation = validateTree();
+            if (!validation.passed) {
+                showToast(`Cannot start simulation: Tree has ${validation.errors.length} error(s). See validation panel.`, 'error');
+                return;
+            }
+
+            // Only allow auto-play in auto mode
+            if (simulationState.mode !== 'auto') {
+                showToast('Switch to Auto mode to use Run button', 'warning');
+                return;
+            }
+
+            if (simulationState.tick === 0) {
+                initializeSimulation();
+            }
+
+            simulationState.running = true;
+            document.getElementById('simPlayBtn').innerHTML = '<span class="toolbar-icon">⏸</span> Pause';
+            document.getElementById('simPlayBtn').style.background = '#ff9800';
+            document.getElementById('simStepBtn').disabled = true;
+            document.getElementById('simResetBtn').disabled = false;
+
+            // Run ticks at specified speed
+            simulationState.intervalId = setInterval(() => {
+                tickSimulation();
+            }, simulationState.speed);
+
+            showToast('Simulation started', 'success');
+        }
+
+        function pauseSimulation() {
+            simulationState.running = false;
+            clearInterval(simulationState.intervalId);
+            document.getElementById('simPlayBtn').innerHTML = '<span class="toolbar-icon">▶</span> Run';
+            document.getElementById('simPlayBtn').style.background = '#4caf50';
+            // Only enable step button if not in auto mode
+            document.getElementById('simStepBtn').disabled = simulationState.mode === 'auto';
+            showToast('Simulation paused', 'info');
+        }
+
+        function stepSimulation() {
+            if (nodes.length === 0) {
+                showToast('No tree to simulate', 'warning');
+                return;
+            }
+
+            // Validate tree before first step
+            if (simulationState.tick === 0) {
+                const validation = validateTree();
+                if (!validation.passed) {
+                    showToast(`Cannot start simulation: Tree has ${validation.errors.length} error(s). See validation panel.`, 'error');
+                    return;
+                }
+                initializeSimulation();
+                document.getElementById('simResetBtn').disabled = false;
+            }
+
+            tickSimulation();
+        }
+
+        function resetSimulation() {
+            pauseSimulation();
+            initializeSimulation();
+            render();
+            updateBlackboardDisplay();
+            updateSimTickCounter();
+            document.getElementById('simPlayBtn').innerHTML = '<span class="toolbar-icon">▶</span> Run';
+            document.getElementById('simPlayBtn').style.background = '#4caf50';
+            document.getElementById('simStepBtn').disabled = simulationState.mode === 'auto';
+            document.getElementById('simResetBtn').disabled = true;
+            showToast('Simulation reset', 'info');
+        }
+
+        function updateSimTickCounter() {
+            const counter = document.getElementById('simTickCounter');
+            if (counter) {
+                counter.textContent = `Tick: ${simulationState.tick}`;
+            }
+        }
+
+        function toggleSimulationMode() {
+            const toggle = document.getElementById('simModeToggle');
+            const label = document.getElementById('simModeLabel');
+            const playBtn = document.getElementById('simPlayBtn');
+            const stepBtn = document.getElementById('simStepBtn');
+            const speedSlider = document.getElementById('simSpeedSlider');
+            const speedInput = document.getElementById('simSpeedInput');
+
+            if (toggle.checked) {
+                // Auto mode
+                simulationState.mode = 'auto';
+                label.textContent = 'Auto';
+                playBtn.disabled = false;
+                speedSlider.disabled = false;
+                speedInput.disabled = false;
+                stepBtn.disabled = true;
+                playBtn.style.opacity = '1';
+                speedSlider.style.opacity = '1';
+                speedInput.style.opacity = '1';
+                stepBtn.style.opacity = '0.5';
+            } else {
+                // Manual mode
+                simulationState.mode = 'manual';
+                label.textContent = 'Manual';
+                playBtn.disabled = true;
+                speedSlider.disabled = true;
+                speedInput.disabled = true;
+                stepBtn.disabled = false;
+                playBtn.style.opacity = '0.5';
+                speedSlider.style.opacity = '0.5';
+                speedInput.style.opacity = '0.5';
+                stepBtn.style.opacity = '1';
+
+                // Stop simulation if running
+                if (simulationState.running) {
+                    pauseSimulation();
+                }
+            }
+        }
+
+        function tickSimulation() {
+            simulationState.tick++;
+
+            // Find root node
+            const roots = nodes.filter(n => !n.parent);
+            if (roots.length === 0) return;
+
+            // Execute tree from root
+            executeNode(roots[0]);
+
+            // Save history snapshot
+            simulationState.history.push({
+                tick: simulationState.tick,
+                nodeStates: new Map(simulationState.nodeStates),
+                blackboard: new Map(simulationState.blackboard)
+            });
+
+            // Update display
+            render();
+            updateBlackboardDisplay();
+            updateSimTickCounter();
+        }
+
+        function executeNode(node) {
+            const state = simulationState.nodeStates.get(node.id);
+
+            state.ticksRun++;
+            state.lastTick = simulationState.tick;
+
+            // Simple execution logic based on node type
+            switch (node.type) {
+                case 'Sequence':
+                    state.status = executeSequence(node);
+                    break;
+                case 'Selector':
+                    state.status = executeSelector(node);
+                    break;
+                case 'Parallel':
+                    state.status = executeParallel(node);
+                    break;
+                case 'Success':
+                    state.status = NodeStatus.SUCCESS;
+                    break;
+                case 'Failure':
+                    state.status = NodeStatus.FAILURE;
+                    break;
+                case 'Running':
+                    state.status = NodeStatus.RUNNING;
+                    break;
+                case 'Inverter':
+                    state.status = executeInverter(node);
+                    break;
+                case 'Retry':
+                case 'Timeout':
+                    // Execute child
+                    if (node.children.length > 0) {
+                        const child = nodes.find(n => n.id === node.children[0].id);
+                        if (child) {
+                            state.status = executeNode(child);
+                        }
+                    }
+                    break;
+                case 'SetBlackboardVariable':
+                    // Set blackboard variable
+                    if (node.config && node.config.variable) {
+                        simulationState.blackboard.set(node.config.variable, node.config.value);
+                    }
+                    state.status = NodeStatus.SUCCESS;
+                    break;
+                case 'CheckBlackboardVariableExists':
+                    // Check if variable exists
+                    if (node.config && node.config.variable) {
+                        state.status = simulationState.blackboard.has(node.config.variable)
+                            ? NodeStatus.SUCCESS : NodeStatus.FAILURE;
+                    } else {
+                        state.status = NodeStatus.FAILURE;
+                    }
+                    break;
+                case 'CheckBlackboardVariableValue':
+                    // Check blackboard variable value
+                    if (node.config && node.config.variable && node.config.operator) {
+                        const value = simulationState.blackboard.get(node.config.variable);
+                        const expected = node.config.value;
+                        let result = false;
+
+                        switch (node.config.operator) {
+                            case '==': result = value == expected; break;
+                            case '!=': result = value != expected; break;
+                            case '<': result = value < expected; break;
+                            case '>': result = value > expected; break;
+                            case '<=': result = value <= expected; break;
+                            case '>=': result = value >= expected; break;
+                        }
+
+                        state.status = result ? NodeStatus.SUCCESS : NodeStatus.FAILURE;
+                    } else {
+                        state.status = NodeStatus.FAILURE;
+                    }
+                    break;
+                default:
+                    // For other actions, randomly succeed/fail for demo
+                    state.status = Math.random() > 0.3 ? NodeStatus.SUCCESS : NodeStatus.FAILURE;
+            }
+
+            return state.status;
+        }
+
+        function executeSequence(node) {
+            for (const childRef of node.children) {
+                const child = nodes.find(n => n.id === childRef.id);
+                if (child) {
+                    const childStatus = executeNode(child);
+                    if (childStatus === NodeStatus.FAILURE) {
+                        return NodeStatus.FAILURE;
+                    }
+                    if (childStatus === NodeStatus.RUNNING) {
+                        return NodeStatus.RUNNING;
+                    }
+                }
+            }
+            return NodeStatus.SUCCESS;
+        }
+
+        function executeSelector(node) {
+            for (const childRef of node.children) {
+                const child = nodes.find(n => n.id === childRef.id);
+                if (child) {
+                    const childStatus = executeNode(child);
+                    if (childStatus === NodeStatus.SUCCESS) {
+                        return NodeStatus.SUCCESS;
+                    }
+                    if (childStatus === NodeStatus.RUNNING) {
+                        return NodeStatus.RUNNING;
+                    }
+                }
+            }
+            return NodeStatus.FAILURE;
+        }
+
+        function executeParallel(node) {
+            let successCount = 0;
+            let failureCount = 0;
+
+            for (const childRef of node.children) {
+                const child = nodes.find(n => n.id === childRef.id);
+                if (child) {
+                    const childStatus = executeNode(child);
+                    if (childStatus === NodeStatus.SUCCESS) successCount++;
+                    if (childStatus === NodeStatus.FAILURE) failureCount++;
+                }
+            }
+
+            // Simple policy: succeed if all succeed
+            if (successCount === node.children.length) return NodeStatus.SUCCESS;
+            if (failureCount > 0) return NodeStatus.FAILURE;
+            return NodeStatus.RUNNING;
+        }
+
+        function executeInverter(node) {
+            if (node.children.length > 0) {
+                const child = nodes.find(n => n.id === node.children[0].id);
+                if (child) {
+                    const childStatus = executeNode(child);
+                    if (childStatus === NodeStatus.SUCCESS) return NodeStatus.FAILURE;
+                    if (childStatus === NodeStatus.FAILURE) return NodeStatus.SUCCESS;
+                    return childStatus;
+                }
+            }
+            return NodeStatus.FAILURE;
+        }
+
+        function updateSimSpeedFromTPS(tps) {
+            tps = parseFloat(tps);
+            if (isNaN(tps) || tps <= 0) tps = 0.1;
+            if (tps > 100) tps = 100;
+
+            // Convert TPS to milliseconds between ticks
+            simulationState.speed = 1000 / tps;
+            simulationState.tps = tps;
+
+            // Update both slider and input
+            document.getElementById('simSpeedSlider').value = tps;
+            document.getElementById('simSpeedInput').value = tps.toFixed(1);
+
+            if (simulationState.running) {
+                // Restart with new speed
+                clearInterval(simulationState.intervalId);
+                simulationState.intervalId = setInterval(() => {
+                    tickSimulation();
+                }, simulationState.speed);
+            }
+        }
+
+        function updateSimSpeedFromSlider(tps) {
+            updateSimSpeedFromTPS(tps);
+        }
+
+        function toggleBlackboard() {
+            const panel = document.getElementById('blackboardPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+            if (panel.style.display === 'block') {
+                updateBlackboardDisplay();
+            }
+        }
+
+        function updateBlackboardDisplay() {
+            const content = document.getElementById('blackboardContent');
+            if (simulationState.blackboard.size === 0) {
+                content.innerHTML = '<div style="color: #858585; font-size: 12px; text-align: center; padding: 20px;">No variables</div>';
+                return;
+            }
+
+            let html = '<div style="font-size: 12px;">';
+            simulationState.blackboard.forEach((value, key) => {
+                const valueStr = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                html += `
+                    <div style="padding: 8px; border-bottom: 1px solid #3e3e42; display: flex; justify-content: space-between;">
+                        <strong style="color: #4fc1ff;">${key}</strong>
+                        <span style="color: #d4d4d4;">${valueStr}</span>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            content.innerHTML = html;
         }
     </script>
 </body>

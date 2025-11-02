@@ -47,12 +47,5 @@
       "default": 75.0,
       "description": "Current battery level (0-100)"
     }
-  },
-  "dependencies": {
-    "behaviors": [
-      "Selector",
-      "CheckBattery",
-      "Log"
-    ]
   }
 }

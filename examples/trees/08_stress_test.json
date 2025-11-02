@@ -264,14 +264,5 @@
         ]
       }
     ]
-  },
-  "dependencies": {
-    "behaviors": [
-      "Sequence",
-      "Selector",
-      "Parallel",
-      "Success",
-      "Failure"
-    ]
   }
 }

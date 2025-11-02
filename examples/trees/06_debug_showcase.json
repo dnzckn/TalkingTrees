@@ -105,14 +105,5 @@
       "default": 75.0,
       "description": "Simulated battery level"
     }
-  },
-  "dependencies": {
-    "behaviors": [
-      "Sequence",
-      "Selector",
-      "Log",
-      "Wait",
-      "CheckBattery"
-    ]
   }
 }

@@ -38,12 +38,5 @@
       }
     ]
   },
-  "blackboard_schema": {},
-  "dependencies": {
-    "behaviors": [
-      "Sequence",
-      "Log",
-      "Success"
-    ]
-  }
+  "blackboard_schema": {}
 }

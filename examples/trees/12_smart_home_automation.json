@@ -1,0 +1,899 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "a7f3d2e1-8b4c-4d5e-9f6a-1c2b3d4e5f6a",
+  "metadata": {
+    "name": "Smart Home Automation - A Day in the Life",
+    "description": "Simulates a person moving through their smart home throughout the day. The tree tells a story: wake up, adjust thermostat, make coffee, leave for work, burglar triggers security, return home, do laundry, go to bed, then loop. Demonstrates Sequences, Selectors, Parallel monitoring, and blackboard-driven behavior.",
+    "version": "2.0.0",
+    "created_at": "2025-01-15T10:00:00Z",
+    "tags": ["example", "blackboard", "demo", "automation", "ai", "simulation"],
+    "author": "TalkingTrees"
+  },
+  "root": {
+    "node_type": "Parallel",
+    "name": "Smart Home System",
+    "config": {
+      "policy": "SuccessOnAll",
+      "synchronise": false
+    },
+    "children": [
+      {
+        "node_type": "Selector",
+        "name": "Story Controller",
+        "config": {
+          "memory": false
+        },
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "Scene 1: Morning Wakeup",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "Selector",
+                "name": "Check If Should Restart",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Inverter",
+                    "name": "Scene Not Set?",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableExists",
+                        "name": "Check Scene Exists",
+                        "config": {
+                          "variable": "scene"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Scene Reset?",
+                    "config": {
+                      "variable": "scene",
+                      "operator": "==",
+                      "value": ""
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Start Story",
+                "config": {
+                  "variable": "scene",
+                  "value": "wakeup"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Cold Morning",
+                "config": {
+                  "variable": "temperature",
+                  "value": 16
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Dark Room",
+                "config": {
+                  "variable": "ambient_light",
+                  "value": 10
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Person Awake",
+                "config": {
+                  "variable": "occupancy",
+                  "value": true
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Morning Time",
+                "config": {
+                  "variable": "time_of_day",
+                  "value": "morning"
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 2: Adjust Thermostat",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "In Wakeup Scene?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "wakeup"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "thermostat"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Walk to Hallway",
+                "config": {
+                  "variable": "person_location",
+                  "value": "hallway"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Increase Temperature",
+                "config": {
+                  "variable": "temperature",
+                  "value": 22
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 3: Make Coffee",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "At Thermostat?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "thermostat"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "kitchen"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Walk to Kitchen",
+                "config": {
+                  "variable": "person_location",
+                  "value": "kitchen"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Turn On Lights",
+                "config": {
+                  "variable": "lights_on",
+                  "value": true
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Start Coffee Maker",
+                "config": {
+                  "variable": "appliance_running",
+                  "value": "coffee_maker"
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 4: Leave for Work",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "In Kitchen?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "kitchen"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "leaving"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Person Leaves",
+                "config": {
+                  "variable": "occupancy",
+                  "value": false
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Daytime",
+                "config": {
+                  "variable": "time_of_day",
+                  "value": "day"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Bright Outside",
+                "config": {
+                  "variable": "ambient_light",
+                  "value": 90
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Stop Appliance",
+                "config": {
+                  "variable": "appliance_running",
+                  "value": "none"
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 5: Burglar Detected!",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "Person Left?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "leaving"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "intruder"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Motion Detected",
+                "config": {
+                  "variable": "motion_detected",
+                  "value": true
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Door Opened",
+                "config": {
+                  "variable": "door_locked",
+                  "value": false
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 6: False Alarm - Cat",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "Intruder Alert?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "intruder"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "false_alarm"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "No Motion",
+                "config": {
+                  "variable": "motion_detected",
+                  "value": false
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Lock Door",
+                "config": {
+                  "variable": "door_locked",
+                  "value": true
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 7: Return Home",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "False Alarm Done?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "false_alarm"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "returning"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Person Returns",
+                "config": {
+                  "variable": "occupancy",
+                  "value": true
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Evening Time",
+                "config": {
+                  "variable": "time_of_day",
+                  "value": "evening"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Getting Dark",
+                "config": {
+                  "variable": "ambient_light",
+                  "value": 30
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Open Door",
+                "config": {
+                  "variable": "door_locked",
+                  "value": false
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 8: Do Laundry",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "Just Returned?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "returning"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "laundry"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Walk to Laundry Room",
+                "config": {
+                  "variable": "person_location",
+                  "value": "laundry_room"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Start Washing Machine",
+                "config": {
+                  "variable": "appliance_running",
+                  "value": "washing_machine"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Lock Door",
+                "config": {
+                  "variable": "door_locked",
+                  "value": true
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 9: Bedtime",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "Doing Laundry?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "laundry"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Next Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "bedtime"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Walk to Bedroom",
+                "config": {
+                  "variable": "person_location",
+                  "value": "bedroom"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Night Time",
+                "config": {
+                  "variable": "time_of_day",
+                  "value": "night"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Dark Outside",
+                "config": {
+                  "variable": "ambient_light",
+                  "value": 0
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Turn Off Lights",
+                "config": {
+                  "variable": "lights_on",
+                  "value": false
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Stop Appliance",
+                "config": {
+                  "variable": "appliance_running",
+                  "value": "none"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Lower Temperature",
+                "config": {
+                  "variable": "temperature",
+                  "value": 18
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Scene 10: Reset and Loop",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "At Bedtime?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "bedtime"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Clear Scene to Restart",
+                "config": {
+                  "variable": "scene",
+                  "value": "reset"
+                }
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "Loop Back to Start",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "Reset Complete?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "reset"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "Clear All State",
+                "config": {
+                  "variable": "scene",
+                  "value": ""
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Climate Control System",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "Selector",
+            "name": "Temperature Management",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "Too Cold - Heat Up",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Temp < 20°C?",
+                    "config": {
+                      "variable": "temperature",
+                      "operator": "<",
+                      "value": 20
+                    }
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Someone Home?",
+                    "config": {
+                      "variable": "occupancy",
+                      "operator": "==",
+                      "value": true
+                    }
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Enable Heating",
+                    "config": {
+                      "variable": "heating_status",
+                      "value": "heating"
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "Too Hot - Cool Down",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Temp > 24°C?",
+                    "config": {
+                      "variable": "temperature",
+                      "operator": ">",
+                      "value": 24
+                    }
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Enable Cooling",
+                    "config": {
+                      "variable": "heating_status",
+                      "value": "cooling"
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "Optimal Temperature",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Climate OK",
+                    "config": {
+                      "variable": "heating_status",
+                      "value": "optimal"
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Lighting System",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "Selector",
+            "name": "Light Control",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "Auto Lights On",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Dark?",
+                    "config": {
+                      "variable": "ambient_light",
+                      "operator": "<",
+                      "value": 40
+                    }
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Someone Home?",
+                    "config": {
+                      "variable": "occupancy",
+                      "operator": "==",
+                      "value": true
+                    }
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Lights ON",
+                    "config": {
+                      "variable": "auto_lights",
+                      "value": true
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "Auto Lights Off",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Lights OFF",
+                    "config": {
+                      "variable": "auto_lights",
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Security System",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "Selector",
+            "name": "Security Monitor",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "INTRUDER ALERT!",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "Motion Detected?",
+                    "config": {
+                      "variable": "motion_detected",
+                      "operator": "==",
+                      "value": true
+                    }
+                  },
+                  {
+                    "node_type": "Inverter",
+                    "name": "Nobody Home?",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "name": "Check Occupancy",
+                        "config": {
+                          "variable": "occupancy",
+                          "operator": "==",
+                          "value": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Sound Alarm!",
+                    "config": {
+                      "variable": "security_alert",
+                      "value": true
+                    }
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Notify Owner",
+                    "config": {
+                      "variable": "notification_sent",
+                      "value": true
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "All Clear",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "No Alert",
+                    "config": {
+                      "variable": "security_alert",
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "Energy Management",
+        "config": {
+          "memory": true
+        },
+        "children": [
+          {
+            "node_type": "Selector",
+            "name": "Energy Optimization",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "Activate Energy Saving",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Inverter",
+                    "name": "Nobody Home?",
+                    "config": {},
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "name": "Check Occupancy",
+                        "config": {
+                          "variable": "occupancy",
+                          "operator": "==",
+                          "value": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Enable Energy Mode",
+                    "config": {
+                      "variable": "energy_saving",
+                      "value": true
+                    }
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "Normal Energy",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "Normal Mode",
+                    "config": {
+                      "variable": "energy_saving",
+                      "value": false
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
