@@ -65,15 +65,35 @@ python -m http.server 8080
 6. Save to library (Ctrl+S) or Export JSON
 
 **Keyboard Shortcuts:**
+
+*File & Edit:*
 - `Ctrl+N`: New tree
 - `Ctrl+O`: Open from library
 - `Ctrl+S`: Save to library
 - `Ctrl+Z/Y`: Undo/Redo
+
+*View:*
 - `Ctrl+L`: Auto layout
 - `Ctrl+G`: Toggle grid
-- `Ctrl+V`: Validate
-- `+/-`: Zoom
-- `Delete`: Delete node
+- `+/-`: Zoom in/out
+- `0`: Reset zoom
+
+*Simulation:*
+- `Space`: Play/Pause simulation
+- `S`: Step one tick
+- `R`: Reset simulation
+- `B`: Toggle breakpoint on selected node
+
+*Timeline Scrubber:*
+- `←`: Previous tick in history
+- `→`: Next tick in history
+- `Home`: Jump to first tick
+- `End`: Return to live mode
+
+*Node Operations:*
+- `Delete`: Delete selected node
+- `Backspace`: Disconnect from parent
+- `C`: Collapse/expand subtree
 
 ## Documentation
 
@@ -87,22 +107,31 @@ See [EDITOR_SHOWCASE.md](../EDITOR_SHOWCASE.md) for:
 
 ## Example Trees
 
-### Robot Controller Demo
-```
-Selector "Robot Controller" (memory=false)
-├─ Sequence "Low Battery Handler" (memory=true)
-│  ├─ CheckCondition "battery < 20"
-│  └─ SetVariable "robot_action = charge"
-├─ Sequence "Object Detection" (memory=true)
-│  ├─ CheckCondition "distance < 5"
-│  └─ SetVariable "robot_action = grasp"
-└─ SetVariable "robot_action = patrol"
-```
+The editor includes 12 interactive example trees demonstrating various patterns:
 
-This tree is ready to export and test with:
-```bash
-python test_complete_flow.py
-```
+**Tutorial Trees:**
+1. **Simple Sequence** - Basic sequential execution
+2. **Simple Selector** - Fallback behavior
+3. **Retry Pattern** - Decorator usage
+4. **Parallel Tasks** - Concurrent execution
+
+**Real-World Examples:**
+5. **Robot Patrol** - Autonomous robot with battery management
+6. **Game AI - NPC Behavior** - Combat and exploration AI
+7. **Smart Home Automation** - Conditional logic with blackboard variables
+8. **Guard Patrol Game** - Interactive 2D grid game with NPCs
+
+**Advanced Demos:**
+9. **Day in the Life** - Complex simulation with multiple needs
+10. **Ultra Complex Demo** - Showcases all node types
+11. **Debug Showcase** - Demonstrates debugging features
+12. **Stress Test** - Large tree for performance testing
+
+**Access Examples:**
+- Click **Library** tab in the editor
+- Choose **Local** or **Remote** mode
+- Click any example to load it
+- Or use **📁 Open Folder** to load from any directory
 
 ## Integration
 
@@ -171,14 +200,26 @@ Key sections:
 - Trees with 100+ nodes: Use collapse feature
 - Enable grid snap for cleaner alignment
 - Use minimap for navigation
+- Timeline buffers last 100 ticks (configurable in code)
 
-### Workflow
-1. **Design**: Sketch structure first
-2. **Build**: Drag nodes, connect, configure
-3. **Validate**: Check for errors (Ctrl+V)
-4. **Save**: Store in library for reuse
-5. **Test**: Export and run with test script
-6. **Deploy**: Save to API for server storage
+### Debugging Workflow
+1. **Build**: Create your tree with nodes and connections
+2. **Validate**: Run validation (Ctrl+V) to check for errors
+3. **Simulate**: Click **▶ Run** to start live execution
+4. **Watch**: Open Blackboard Inspector to see variable changes
+5. **Debug**: Set breakpoints on nodes to pause execution
+6. **Scrub**: Use timeline to replay and analyze past ticks
+7. **Fix**: Adjust tree based on observed behavior
+8. **Iterate**: Repeat until tree behaves correctly
+
+### Development Workflow
+1. **Design**: Sketch tree structure on paper first
+2. **Build**: Drag nodes, connect with Shift+Click
+3. **Configure**: Set properties in right panel
+4. **Validate**: Check for structural errors (Ctrl+V)
+5. **Test**: Run simulation and verify behavior
+6. **Save**: Store in library for reuse (Ctrl+S)
+7. **Deploy**: Export JSON or save to API for production
 
 ### Best Practices
 - One root node (Sequence or Selector)

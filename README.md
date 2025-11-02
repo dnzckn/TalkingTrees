@@ -8,9 +8,11 @@
 
 ## About
 
-TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Serialize trees to JSON for version control, edit them programmatically or via FastAPI-based REST API, and deserialize back to executable py_trees with zero data loss.
+TalkingTrees provides bidirectional JSON serialization for [py_trees](https://github.com/splintered-reality/py_trees) behavior trees with 100% reversibility. Create trees visually in the GUI editor, edit them programmatically via Python SDK or REST API, version control as JSON, and execute with py_trees runtime—all with zero data loss.
 
-Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
+Perfect round-trip conversion: `py_trees ↔ TalkingTrees (JSON) ↔ py_trees`
+
+Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runtime`
 
 ## Why TalkingTrees?
 
@@ -160,31 +162,52 @@ talkingtrees export tree <TREE_ID> -o output.json
 ## Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  py_trees (Executable Runtime)                           │
-└────────────┬─────────────────────────────────────────────┘
-             │ from_py_trees() / to_py_trees()
-┌────────────▼─────────────────────────────────────────────┐
-│  TalkingTrees Core                                       │
-│  • Constants (type-safe config keys)                     │
-│  • Utilities (comparison, parallel policy, UUID)         │
-│  • Registry (extensible node type system)                │
-│  • Enhanced errors (context + suggestions)               │
-└────────────┬─────────────────────────────────────────────┘
-             │
-┌────────────▼─────────────────────────────────────────────┐
-│  Pydantic Models (TreeDefinition, validation)            │
-└────────────┬─────────────────────────────────────────────┘
-             │ save_tree() / load_tree()
-┌────────────▼─────────────────────────────────────────────┐
-│  JSON Files (Version Control, Storage)                   │
-└──────────────────────────────────────────────────────────┘
-             │ (Optional)
-┌────────────▼─────────────────────────────────────────────┐
-│  FastAPI-based REST API - 47 endpoints                   │
-│  • Trees • Executions • Debug • Visualization            │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│  Creation Layer (Choose One or Both)                            │
+├──────────────────────────────┬──────────────────────────────────┤
+│  GUI Editor (Visual)         │  py_trees (Code)                 │
+│  • Drag-and-drop interface   │  • Python behavior tree API      │
+│  • Live simulation           │  • Programmatic creation         │
+│  • Timeline scrubber         │  • Runtime execution             │
+│  • Breakpoint debugging      │                                  │
+└──────────────┬───────────────┴──────────────┬───────────────────┘
+               │                              │
+               │  export JSON    from_py_trees() / to_py_trees()
+               │                              │
+               └──────────────┬───────────────┘
+                              ▼
+               ┌──────────────────────────────────────────────────┐
+               │  TalkingTrees Core (Central Format)             │
+               │  • Constants (type-safe config keys)            │
+               │  • Utilities (comparison, parallel policy, UUID) │
+               │  • Registry (extensible node type system)       │
+               │  • Enhanced errors (context + suggestions)      │
+               └──────────────┬───────────────────────────────────┘
+                              │
+               ┌──────────────▼───────────────────────────────────┐
+               │  Pydantic Models (TreeDefinition, validation)    │
+               └──────────────┬───────────────────────────────────┘
+                              │ save_tree() / load_tree()
+               ┌──────────────▼───────────────────────────────────┐
+               │  JSON Files (Version Control, Storage)           │
+               │  • Git-friendly format                           │
+               │  • Human-readable structure                      │
+               │  • Portable across systems                       │
+               └──────────────┬───────────────────────────────────┘
+                              │ (Optional)
+               ┌──────────────▼───────────────────────────────────┐
+               │  FastAPI REST API - 47 endpoints                 │
+               │  • Tree Management • Execution • Debug           │
+               │  • Remote collaboration • Team workflows         │
+               └──────────────────────────────────────────────────┘
 ```
+
+**Key Insight**: TalkingTrees sits in the middle, providing a universal JSON format that can be:
+- Created visually in the GUI editor
+- Generated from existing py_trees code
+- Edited via REST API or Python SDK
+- Version controlled in Git
+- Executed by converting back to py_trees
 
 ### Key Components
 
