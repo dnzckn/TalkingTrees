@@ -20,13 +20,24 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
 
 ## Core Features
 
-- **Complete Reversibility** - Perfect round-trip with zero data loss
+- **Complete Reversibility** - Perfect round-trip conversion with zero data loss
 - **40+ Node Types** - All composites, decorators, and behaviors from py_trees 2.3+
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
+<<<<<<< Updated upstream
 - **FastAPI-based REST API** - Optional HTTP API with 47 endpoints for tree management
 - **Visual Tree Editor** - Browser-based drag-and-drop editor with 100% node coverage
 - **Python SDK** - High-level API for tree creation and manipulation
+=======
+- **FastAPI REST API** - Optional HTTP API with 47 endpoints for tree management
+- **Professional GUI Editor** - Browser-based visual editor with:
+  - Live execution simulation with timeline scrubber
+  - Breakpoint debugging and blackboard inspector
+  - Auto-discovery library (local folders or remote API)
+  - Smart validation with unused variable detection
+  - 12 interactive example trees
+- **Python SDK** - High-level API for programmatic tree creation and manipulation
+>>>>>>> Stashed changes
 
 ## Quick Start
 
@@ -140,7 +151,23 @@ Launch the browser-based tree editor:
   <img src="images/visualizer_screenshot.png" alt="TalkingTrees Tree Editor" width="800"/>
 </p>
 
+<<<<<<< Updated upstream
 Opens at `http://localhost:8000` - Drag-and-drop interface with all 40+ node types, enum dropdowns, array editors, and organized palette. Build any tree entirely in the GUI with full backend parity.
+=======
+**Professional drag-and-drop interface** with all 40+ node types, live execution simulation, and debugging tools:
+
+**Core Features:**
+- **Visual Tree Building**: Drag nodes from palette, Shift+Click to connect
+- **Live Simulation**: Execute trees in real-time with visual feedback
+- **Timeline Scrubber**: Rewind/replay execution history (last 100 ticks)
+- **Breakpoint Debugging**: Pause execution at any node
+- **Blackboard Inspector**: Watch variables change in real-time
+- **Smart Validation**: Detects unreachable nodes, infinite loops, unused variables
+- **Library Management**: Load/save trees locally or via remote API
+- **12 Example Trees**: Interactive demos from basic tutorials to complex simulations
+
+Opens at `http://localhost:8000` - zero-configuration, works offline, 100% node coverage.
+>>>>>>> Stashed changes
 
 ## CLI Tools
 
