@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="images/TalkingTrees_logo.png" alt="TalkingTrees Logo" width="800"/>
+  <img src="images/TalkingTrees_logo.png" alt="TalkingTrees Logo" width="850"/>
 </p>
 
 # TalkingTrees
