@@ -1,24 +1,35 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "a7f3d2e1-8b4c-4d5e-9f6a-1c2b3d4e5f6a",
   "metadata": {
     "name": "Smart Home Automation - A Day in the Life",
-    "description": "Simulates a person moving through their smart home throughout the day. The tree tells a story: wake up, adjust thermostat, make coffee, leave for work, burglar triggers security, return home, do laundry, go to bed, then loop. Demonstrates Sequences, Selectors, Parallel monitoring, and blackboard-driven behavior.",
-    "version": "2.0.0",
+    "version": "3.0.0",
+    "author": "TalkingTrees",
     "created_at": "2025-01-15T10:00:00Z",
-    "tags": ["example", "blackboard", "demo", "automation", "ai", "simulation"],
-    "author": "TalkingTrees"
+    "modified_at": "2025-11-02T12:00:00.000000",
+    "description": "Enhanced smart home simulation with conditional logic based on time, location, occupancy, and ambient light. Demonstrates proper use of blackboard variables for decision-making.",
+    "tags": [
+      "example",
+      "blackboard",
+      "demo",
+      "automation",
+      "simulation"
+    ],
+    "changelog": null,
+    "status": "draft"
   },
   "root": {
     "node_type": "Parallel",
+    "node_id": "30e7da5a-e3b3-4a58-8551-6c1fc95f859e",
     "name": "Smart Home System",
     "config": {
       "policy": "SuccessOnAll",
       "synchronise": false
     },
+    "description": null,
     "children": [
       {
         "node_type": "Selector",
+        "node_id": "09829284-cf22-473d-9160-d3d65bfec04a",
         "name": "Story Controller",
         "config": {
           "memory": false
@@ -26,6 +37,7 @@
         "children": [
           {
             "node_type": "Sequence",
+            "node_id": "f34f2cc5-746d-4d94-9129-c4c83947dbcb",
             "name": "Scene 1: Morning Wakeup",
             "config": {
               "memory": false
@@ -33,18 +45,20 @@
             "children": [
               {
                 "node_type": "Selector",
-                "name": "Check If Should Restart",
+                "node_id": "172b1c4e-8e38-4265-8ada-6ae2a4f1bae5",
+                "name": "Check If Should Start",
                 "config": {
                   "memory": false
                 },
                 "children": [
                   {
                     "node_type": "Inverter",
+                    "node_id": "0187695a-a410-4d6e-819c-b3906133519c",
                     "name": "Scene Not Set?",
-                    "config": {},
                     "children": [
                       {
                         "node_type": "CheckBlackboardVariableExists",
+                        "node_id": "e9cacbee-9dd3-461a-b641-211f72cfc3af",
                         "name": "Check Scene Exists",
                         "config": {
                           "variable": "scene"
@@ -54,6 +68,7 @@
                   },
                   {
                     "node_type": "CheckBlackboardVariableValue",
+                    "node_id": "b3bc85dc-76e4-4378-b94b-655a933dd39d",
                     "name": "Scene Reset?",
                     "config": {
                       "variable": "scene",
@@ -65,6 +80,7 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
+                "node_id": "66dae319-c3df-48f0-888b-e8fa35250482",
                 "name": "Start Story",
                 "config": {
                   "variable": "scene",
@@ -73,47 +89,49 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Cold Morning",
-                "config": {
-                  "variable": "temperature",
-                  "value": 16
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Dark Room",
-                "config": {
-                  "variable": "ambient_light",
-                  "value": 10
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Person Awake",
-                "config": {
-                  "variable": "occupancy",
-                  "value": true
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Morning Time",
+                "node_id": "aa0fa611-50a0-4478-bf49-dc81e89e45fa",
+                "name": "Set Time: Morning",
                 "config": {
                   "variable": "time_of_day",
                   "value": "morning"
                 }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "ab7946a6-f89c-4f79-a60c-efb2e9bb6308",
+                "name": "Person Wakes in Bedroom",
+                "config": {
+                  "variable": "person_location",
+                  "value": "bedroom"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "afa0b04b-6a60-4089-ab14-b89018f0c9d9",
+                "name": "Low Ambient Light",
+                "config": {
+                  "variable": "ambient_light",
+                  "value": 20
+                }
+              },
+              {
+                "node_type": "Success",
+                "node_id": "ca8e07bf-e4a1-4a0e-97e1-2cf24a437532",
+                "name": "Morning Started"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 2: Adjust Thermostat",
+            "node_id": "63d5c819-57a3-44cb-9cb5-432f4702671d",
+            "name": "Scene 2: Smart Lighting Control",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
+                "node_id": "f96e0884-e86b-4482-b0ca-d3bf683d3d19",
                 "name": "In Wakeup Scene?",
                 "config": {
                   "variable": "scene",
@@ -123,57 +141,274 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "a59cfd7e-5238-498f-9458-9a24cace8a38",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
-                  "value": "thermostat"
+                  "value": "lighting"
                 }
               },
               {
-                "node_type": "SetBlackboardVariable",
-                "name": "Walk to Hallway",
+                "node_type": "Selector",
+                "node_id": "17a90269-d93d-4b8f-afed-02d649e242ba",
+                "name": "Check if Lights Needed",
                 "config": {
-                  "variable": "person_location",
-                  "value": "hallway"
-                }
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "74d98ec4-6375-4d07-bd0c-43ee2b5654a3",
+                    "name": "Lights Needed (Dark)",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "node_id": "9158e938-fbf2-4cfb-a86b-050493870dd2",
+                        "name": "Ambient Light < 50?",
+                        "config": {
+                          "variable": "ambient_light",
+                          "operator": "<",
+                          "value": 50
+                        }
+                      },
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "node_id": "c3f3c6ba-49b1-40d8-af0c-1bd2cd8f37a3",
+                        "name": "Person in Bedroom?",
+                        "config": {
+                          "variable": "person_location",
+                          "operator": "==",
+                          "value": "bedroom"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "14968fcf-9a28-416a-8d74-391f80689808",
+                        "name": "Turn ON Bedroom Lights",
+                        "config": {
+                          "variable": "lights_on",
+                          "value": true
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "96b01a44-9891-41c7-951b-e11dacbd3c10",
+                        "name": "Enable Auto Lights",
+                        "config": {
+                          "variable": "auto_lights",
+                          "value": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "79af0fc1-604d-4f27-b4d7-665ee7538cd2",
+                    "name": "Lights Not Needed (Bright)",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "d4772916-32f9-4a28-a19e-bd8349dc8619",
+                        "name": "Turn OFF Lights",
+                        "config": {
+                          "variable": "lights_on",
+                          "value": false
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "81728aa7-1d82-4b76-a14e-bd73add38edb",
+                        "name": "Disable Auto Lights",
+                        "config": {
+                          "variable": "auto_lights",
+                          "value": false
+                        }
+                      }
+                    ]
+                  }
+                ]
               },
               {
-                "node_type": "SetBlackboardVariable",
-                "name": "Increase Temperature",
-                "config": {
-                  "variable": "temperature",
-                  "value": 22
-                }
+                "node_type": "Success",
+                "node_id": "6812e917-7217-46d8-8e88-ded73f6be368",
+                "name": "Lighting Controlled"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 3: Make Coffee",
+            "node_id": "3d08b5cc-7bd9-40b6-9b7c-25d67069c039",
+            "name": "Scene 3: Climate Control",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "At Thermostat?",
+                "node_id": "6c8131da-2670-48b7-8881-fc8f571393ca",
+                "name": "In Lighting Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
-                  "value": "thermostat"
+                  "value": "lighting"
                 }
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "30f3dea7-c3b1-4d1b-b675-86cc4dfdd3b6",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
-                  "value": "kitchen"
+                  "value": "climate"
                 }
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Walk to Kitchen",
+                "node_id": "967248f3-7b57-43e1-ab92-4432e714788f",
+                "name": "Move to Bathroom",
+                "config": {
+                  "variable": "person_location",
+                  "value": "bathroom"
+                }
+              },
+              {
+                "node_type": "Selector",
+                "node_id": "0f0b411a-750b-458e-9a8d-9f0abe1cf3ac",
+                "name": "Energy-Aware Heating",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "201ffd6d-2716-4263-a377-5db4b7eb440c",
+                    "name": "Morning: Comfort Mode",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "node_id": "6a6c6af6-5469-4a18-abe4-ae46f9b93284",
+                        "name": "Is Morning?",
+                        "config": {
+                          "variable": "time_of_day",
+                          "operator": "==",
+                          "value": "morning"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "05525450-b228-4aec-944c-7f0dce5f61b9",
+                        "name": "Set Comfortable Temp",
+                        "config": {
+                          "variable": "temperature",
+                          "value": 22
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "46208c7e-b949-4b2a-9dcc-6184fc3924d4",
+                        "name": "Heating ON",
+                        "config": {
+                          "variable": "heating_status",
+                          "value": "on"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "28dab615-21d7-4b7d-ad54-a5b761fcf7dc",
+                        "name": "Energy Saving OFF",
+                        "config": {
+                          "variable": "energy_saving",
+                          "value": false
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "26d658c9-69b2-46f1-9217-dc8031f583fd",
+                    "name": "Other Times: Eco Mode",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "8134e41b-7376-4ca8-a57a-d543ed745d08",
+                        "name": "Set Eco Temp",
+                        "config": {
+                          "variable": "temperature",
+                          "value": 19
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "da57cf89-9b93-4fa0-9bb8-aba1bdedf587",
+                        "name": "Heating ECO",
+                        "config": {
+                          "variable": "heating_status",
+                          "value": "eco"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "24c55994-7bf1-4047-8122-407a73f5d3b8",
+                        "name": "Energy Saving ON",
+                        "config": {
+                          "variable": "energy_saving",
+                          "value": true
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "node_type": "Success",
+                "node_id": "78b6fb21-aa71-4b6e-b9dd-df5ff72bfb9b",
+                "name": "Climate Set"
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "node_id": "f5d15d75-d896-492a-8717-ba247765ab52",
+            "name": "Scene 4: Morning Coffee",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "node_id": "fe646e0a-bcd6-417b-9bb5-0b6ea62362d3",
+                "name": "In Climate Scene?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "climate"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "93e95cc7-4ade-47bc-99b4-71c1f4bd6991",
+                "name": "Advance Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "coffee"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "cb74312d-5890-4e96-87c8-f5bc628e4ad6",
+                "name": "Move to Kitchen",
                 "config": {
                   "variable": "person_location",
                   "value": "kitchen"
@@ -181,41 +416,51 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Turn On Lights",
-                "config": {
-                  "variable": "lights_on",
-                  "value": true
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Start Coffee Maker",
+                "node_id": "86fc8800-fc3f-4254-b05d-5dd43e4fb9e3",
+                "name": "Coffee Maker Running",
                 "config": {
                   "variable": "appliance_running",
                   "value": "coffee_maker"
                 }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "5a4df3fe-8e6a-40f6-9966-51e94247e601",
+                "name": "Occupancy: Home",
+                "config": {
+                  "variable": "occupancy",
+                  "value": "home"
+                }
+              },
+              {
+                "node_type": "Success",
+                "node_id": "5967eaf0-2d03-4576-8c0b-ba33c68d29b9",
+                "name": "Coffee Started"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 4: Leave for Work",
+            "node_id": "89c6120d-b6a4-4b78-9648-b2e9cd21e06f",
+            "name": "Scene 5: Leaving Home",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "In Kitchen?",
+                "node_id": "1bdac8cc-f3d7-4cc4-9a5d-b85370bbd201",
+                "name": "In Coffee Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
-                  "value": "kitchen"
+                  "value": "coffee"
                 }
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "c88b4feb-937b-468f-a336-db5835762d03",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
                   "value": "leaving"
@@ -223,15 +468,8 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Person Leaves",
-                "config": {
-                  "variable": "occupancy",
-                  "value": false
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Daytime",
+                "node_id": "20a577f0-8a11-4147-bb13-f509fd09fed8",
+                "name": "Time: Day",
                 "config": {
                   "variable": "time_of_day",
                   "value": "day"
@@ -239,32 +477,68 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Bright Outside",
+                "node_id": "dbba05b3-6788-4f6c-a9b0-510fac17f411",
+                "name": "Move to Entrance",
                 "config": {
-                  "variable": "ambient_light",
-                  "value": 90
+                  "variable": "person_location",
+                  "value": "entrance"
                 }
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Stop Appliance",
+                "node_id": "48794e18-078b-455d-935c-60282178a818",
+                "name": "Lock Door",
                 "config": {
-                  "variable": "appliance_running",
-                  "value": "none"
+                  "variable": "door_locked",
+                  "value": true
                 }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "acff0c96-2455-4093-b14f-54ca203283db",
+                "name": "Occupancy: Away",
+                "config": {
+                  "variable": "occupancy",
+                  "value": "away"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "85c18020-d0c9-42c5-a3f2-194b71ea66d7",
+                "name": "All Lights OFF",
+                "config": {
+                  "variable": "lights_on",
+                  "value": false
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "f43d0002-489b-47f2-9314-8e0d19f7d177",
+                "name": "Energy Saving Mode",
+                "config": {
+                  "variable": "energy_saving",
+                  "value": true
+                }
+              },
+              {
+                "node_type": "Success",
+                "node_id": "d09cd084-e374-4627-974c-42b9400f004d",
+                "name": "Left Home"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 5: Burglar Detected!",
+            "node_id": "4ec9394e-2c65-4c93-ab12-d6d0f4ea5e4c",
+            "name": "Scene 6: Security Event",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "Person Left?",
+                "node_id": "9f145731-84b2-47b8-8164-3574da5ac709",
+                "name": "In Leaving Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
@@ -273,91 +547,127 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "1916023c-d543-495a-9713-109ff88e94e9",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
-                  "value": "intruder"
+                  "value": "security"
                 }
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Motion Detected",
+                "node_id": "df4784ee-6136-4352-a3b8-4404fb1643ed",
+                "name": "Detect Motion",
                 "config": {
                   "variable": "motion_detected",
                   "value": true
                 }
               },
               {
-                "node_type": "SetBlackboardVariable",
-                "name": "Door Opened",
+                "node_type": "Selector",
+                "node_id": "272827fb-6c14-42cc-8982-d86a51b908ef",
+                "name": "Security Decision",
                 "config": {
-                  "variable": "door_locked",
-                  "value": false
-                }
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "c371e7d6-d8e9-4077-9628-0dfd6ee3fcd9",
+                    "name": "Alert: Motion When Away",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "node_id": "5928534d-ec3f-4de2-9736-b6232b76f7c8",
+                        "name": "House Empty?",
+                        "config": {
+                          "variable": "occupancy",
+                          "operator": "==",
+                          "value": "away"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "d6dd8934-2f3c-4fec-8c5a-87ca641bb353",
+                        "name": "SECURITY ALERT!",
+                        "config": {
+                          "variable": "security_alert",
+                          "value": "intruder_detected"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "3c4a0588-36c8-43b7-b65f-2a00d2da4d27",
+                        "name": "Send Notification",
+                        "config": {
+                          "variable": "notification_sent",
+                          "value": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "b5157c77-93e3-4152-8946-69f1a336e49b",
+                    "name": "No Alert: Expected Motion",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "670c9ef7-975c-460a-b8f9-f47128384f0e",
+                        "name": "No Alert",
+                        "config": {
+                          "variable": "security_alert",
+                          "value": "none"
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "2402374e-b585-4e7c-8f9b-f0711926db4a",
+                        "name": "No Notification",
+                        "config": {
+                          "variable": "notification_sent",
+                          "value": false
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "node_type": "Success",
+                "node_id": "6cb4bc0c-0ff1-4abe-8dc5-98366ab35c2c",
+                "name": "Security Checked"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 6: False Alarm - Cat",
+            "node_id": "716b7f95-0655-4df7-b0d7-e7ab87140e6d",
+            "name": "Scene 7: Arriving Home",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "Intruder Alert?",
+                "node_id": "b6624681-271a-41b7-a544-bd6a39098c64",
+                "name": "In Security Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
-                  "value": "intruder"
+                  "value": "security"
                 }
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
-                "config": {
-                  "variable": "scene",
-                  "value": "false_alarm"
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "No Motion",
-                "config": {
-                  "variable": "motion_detected",
-                  "value": false
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Lock Door",
-                "config": {
-                  "variable": "door_locked",
-                  "value": true
-                }
-              }
-            ]
-          },
-          {
-            "node_type": "Sequence",
-            "name": "Scene 7: Return Home",
-            "config": {
-              "memory": false
-            },
-            "children": [
-              {
-                "node_type": "CheckBlackboardVariableValue",
-                "name": "False Alarm Done?",
-                "config": {
-                  "variable": "scene",
-                  "operator": "==",
-                  "value": "false_alarm"
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "5b41d521-3d38-44a4-8cd0-8b9b6daceb49",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
                   "value": "returning"
@@ -365,15 +675,8 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Person Returns",
-                "config": {
-                  "variable": "occupancy",
-                  "value": true
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Evening Time",
+                "node_id": "094a741c-ad41-4a80-bd34-feebd2569d0a",
+                "name": "Time: Evening",
                 "config": {
                   "variable": "time_of_day",
                   "value": "evening"
@@ -381,32 +684,68 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Getting Dark",
+                "node_id": "176f2f92-7cba-449e-a6f1-6714b2b941c2",
+                "name": "Enter Home",
+                "config": {
+                  "variable": "person_location",
+                  "value": "entrance"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "70fc19f8-4c23-4040-a33e-3f2d888e54c3",
+                "name": "Unlock Door",
+                "config": {
+                  "variable": "door_locked",
+                  "value": false
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "5dad9621-6831-4cb0-a4cd-bc76802f1f1f",
+                "name": "Occupancy: Home",
+                "config": {
+                  "variable": "occupancy",
+                  "value": "home"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "7379c067-e14b-4b0f-ad74-3585af8be915",
+                "name": "Clear Alert",
+                "config": {
+                  "variable": "security_alert",
+                  "value": "none"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "ca2f9807-e90b-40dc-b69d-281059060a05",
+                "name": "Evening Light Low",
                 "config": {
                   "variable": "ambient_light",
                   "value": 30
                 }
               },
               {
-                "node_type": "SetBlackboardVariable",
-                "name": "Open Door",
-                "config": {
-                  "variable": "door_locked",
-                  "value": false
-                }
+                "node_type": "Success",
+                "node_id": "df9904c4-69a1-49f2-8256-943ee89a53b5",
+                "name": "Returned Home"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 8: Do Laundry",
+            "node_id": "404c17b6-78a1-4942-a219-be9668692c07",
+            "name": "Scene 8: Evening Activities",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "Just Returned?",
+                "node_id": "9ba2cb50-d3df-42dd-9537-78c0bfc9e115",
+                "name": "In Returning Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
@@ -415,7 +754,95 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "f8a4cd37-b8ab-4c75-b890-a6d4adc09eea",
+                "name": "Advance Scene",
+                "config": {
+                  "variable": "scene",
+                  "value": "evening"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "9978ff96-45d1-4d97-b304-adfc3e95fb8e",
+                "name": "Move to Living Room",
+                "config": {
+                  "variable": "person_location",
+                  "value": "living_room"
+                }
+              },
+              {
+                "node_type": "Selector",
+                "node_id": "4724de17-f527-4d49-bb61-8e3041b102c5",
+                "name": "Evening Lighting",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "866c1b5b-d266-491a-85a8-8264983655a5",
+                    "name": "Auto Lights Active",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "node_id": "478dade2-ed7e-415b-8553-b292aa8cbf6e",
+                        "name": "Auto Lights On?",
+                        "config": {
+                          "variable": "auto_lights",
+                          "operator": "==",
+                          "value": true
+                        }
+                      },
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "fc56d0f1-7c5d-4e51-9048-e774c26db6f9",
+                        "name": "Auto Turn ON Lights",
+                        "config": {
+                          "variable": "lights_on",
+                          "value": true
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Success",
+                    "node_id": "a71abe16-cdd9-47b8-a5d4-a80fb61bde2f",
+                    "name": "Manual Mode"
+                  }
+                ]
+              },
+              {
+                "node_type": "Success",
+                "node_id": "46a7b00a-8f8e-4994-af25-f79bf76e7e5c",
+                "name": "Evening Started"
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "node_id": "c4b0b9de-660d-40ab-8022-b76c4fc62df1",
+            "name": "Scene 9: Laundry",
+            "config": {
+              "memory": false
+            },
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "node_id": "78a91024-b9ee-4118-97b6-4d8fdffc644f",
+                "name": "In Evening Scene?",
+                "config": {
+                  "variable": "scene",
+                  "operator": "==",
+                  "value": "evening"
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "ba9ba60f-6b1f-4049-bace-1caa8c372641",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
                   "value": "laundry"
@@ -423,7 +850,8 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Walk to Laundry Room",
+                "node_id": "0684595d-df56-4b4f-9af0-97db2277c1cd",
+                "name": "Move to Laundry Room",
                 "config": {
                   "variable": "person_location",
                   "value": "laundry_room"
@@ -431,32 +859,32 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Start Washing Machine",
+                "node_id": "fe3d43a1-312a-48a9-aee8-651200f15982",
+                "name": "Washer Running",
                 "config": {
                   "variable": "appliance_running",
                   "value": "washing_machine"
                 }
               },
               {
-                "node_type": "SetBlackboardVariable",
-                "name": "Lock Door",
-                "config": {
-                  "variable": "door_locked",
-                  "value": true
-                }
+                "node_type": "Success",
+                "node_id": "6b1bb9c5-6c3e-4f3d-b5dc-e2cd7fc7e71c",
+                "name": "Laundry Started"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 9: Bedtime",
+            "node_id": "a8a22322-43d8-4be7-99f2-106d93c9d15d",
+            "name": "Scene 10: Bedtime Routine",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "Doing Laundry?",
+                "node_id": "a84aac11-a664-45fa-b9bb-467c11408bac",
+                "name": "In Laundry Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
@@ -465,7 +893,8 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Next Scene",
+                "node_id": "2007738d-0520-445a-bd2a-77b33c53faa5",
+                "name": "Advance Scene",
                 "config": {
                   "variable": "scene",
                   "value": "bedtime"
@@ -473,15 +902,8 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Walk to Bedroom",
-                "config": {
-                  "variable": "person_location",
-                  "value": "bedroom"
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Night Time",
+                "node_id": "9f0005cc-8233-4bfc-a802-d5ceaf1ba27f",
+                "name": "Time: Night",
                 "config": {
                   "variable": "time_of_day",
                   "value": "night"
@@ -489,15 +911,76 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Dark Outside",
+                "node_id": "e7821083-ec23-4f9d-aa2d-3b62064356f4",
+                "name": "Move to Bedroom",
                 "config": {
-                  "variable": "ambient_light",
-                  "value": 0
+                  "variable": "person_location",
+                  "value": "bedroom"
                 }
               },
               {
+                "node_type": "Selector",
+                "node_id": "b620874e-0e54-4b43-9766-2baa0609dc99",
+                "name": "Security Check",
+                "config": {
+                  "memory": false
+                },
+                "children": [
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "21c0b886-cda8-40d8-b4a2-e9bd2ff66eb4",
+                    "name": "Door Already Locked",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "CheckBlackboardVariableValue",
+                        "node_id": "316bb8a0-65dc-4a1d-9953-173bc914e005",
+                        "name": "Door Locked?",
+                        "config": {
+                          "variable": "door_locked",
+                          "operator": "==",
+                          "value": true
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "node_id": "77185f32-b953-4796-a18d-b5aae4919c2a",
+                        "name": "Already Secure"
+                      }
+                    ]
+                  },
+                  {
+                    "node_type": "Sequence",
+                    "node_id": "aca59097-e244-4ac5-b814-c968b1e06bfe",
+                    "name": "Need to Lock Door",
+                    "config": {
+                      "memory": false
+                    },
+                    "children": [
+                      {
+                        "node_type": "SetBlackboardVariable",
+                        "node_id": "a00bfddb-a83e-459f-b98b-d52f16a401e7",
+                        "name": "Lock Door Now",
+                        "config": {
+                          "variable": "door_locked",
+                          "value": true
+                        }
+                      },
+                      {
+                        "node_type": "Success",
+                        "node_id": "3ab9a624-3120-467b-aab4-bc91159f4522",
+                        "name": "Now Secure"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
                 "node_type": "SetBlackboardVariable",
-                "name": "Turn Off Lights",
+                "node_id": "76150ecd-ad5b-486a-bbac-5523975e63b6",
+                "name": "All Lights OFF",
                 "config": {
                   "variable": "lights_on",
                   "value": false
@@ -505,32 +988,41 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Stop Appliance",
+                "node_id": "7dd1df8a-0170-462a-b417-064f807d8c23",
+                "name": "Night Temp",
+                "config": {
+                  "variable": "temperature",
+                  "value": 18
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "node_id": "41e49440-cb41-4341-8245-91630665d811",
+                "name": "All Appliances OFF",
                 "config": {
                   "variable": "appliance_running",
                   "value": "none"
                 }
               },
               {
-                "node_type": "SetBlackboardVariable",
-                "name": "Lower Temperature",
-                "config": {
-                  "variable": "temperature",
-                  "value": 18
-                }
+                "node_type": "Success",
+                "node_id": "f4cc0ebb-5276-4492-aa69-fb5951a59e2b",
+                "name": "Ready for Sleep"
               }
             ]
           },
           {
             "node_type": "Sequence",
-            "name": "Scene 10: Reset and Loop",
+            "node_id": "8c01bbc3-c828-4a17-bb9d-cebddb764476",
+            "name": "Scene 11: New Day (Loop)",
             "config": {
               "memory": false
             },
             "children": [
               {
                 "node_type": "CheckBlackboardVariableValue",
-                "name": "At Bedtime?",
+                "node_id": "906bddf1-dba2-4f82-bf2d-b585052b3178",
+                "name": "In Bedtime Scene?",
                 "config": {
                   "variable": "scene",
                   "operator": "==",
@@ -539,361 +1031,99 @@
               },
               {
                 "node_type": "SetBlackboardVariable",
-                "name": "Clear Scene to Restart",
-                "config": {
-                  "variable": "scene",
-                  "value": "reset"
-                }
-              }
-            ]
-          },
-          {
-            "node_type": "Sequence",
-            "name": "Loop Back to Start",
-            "config": {
-              "memory": false
-            },
-            "children": [
-              {
-                "node_type": "CheckBlackboardVariableValue",
-                "name": "Reset Complete?",
-                "config": {
-                  "variable": "scene",
-                  "operator": "==",
-                  "value": "reset"
-                }
-              },
-              {
-                "node_type": "SetBlackboardVariable",
-                "name": "Clear All State",
+                "node_id": "d7e170b0-9f34-4166-b2b7-9c24df554264",
+                "name": "Reset Scene to Loop",
                 "config": {
                   "variable": "scene",
                   "value": ""
                 }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Climate Control System",
-        "config": {
-          "memory": true
-        },
-        "children": [
-          {
-            "node_type": "Selector",
-            "name": "Temperature Management",
-            "config": {
-              "memory": false
-            },
-            "children": [
-              {
-                "node_type": "Sequence",
-                "name": "Too Cold - Heat Up",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "CheckBlackboardVariableValue",
-                    "name": "Temp < 20°C?",
-                    "config": {
-                      "variable": "temperature",
-                      "operator": "<",
-                      "value": 20
-                    }
-                  },
-                  {
-                    "node_type": "CheckBlackboardVariableValue",
-                    "name": "Someone Home?",
-                    "config": {
-                      "variable": "occupancy",
-                      "operator": "==",
-                      "value": true
-                    }
-                  },
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Enable Heating",
-                    "config": {
-                      "variable": "heating_status",
-                      "value": "heating"
-                    }
-                  }
-                ]
               },
               {
-                "node_type": "Sequence",
-                "name": "Too Hot - Cool Down",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "CheckBlackboardVariableValue",
-                    "name": "Temp > 24°C?",
-                    "config": {
-                      "variable": "temperature",
-                      "operator": ">",
-                      "value": 24
-                    }
-                  },
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Enable Cooling",
-                    "config": {
-                      "variable": "heating_status",
-                      "value": "cooling"
-                    }
-                  }
-                ]
-              },
-              {
-                "node_type": "Sequence",
-                "name": "Optimal Temperature",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Climate OK",
-                    "config": {
-                      "variable": "heating_status",
-                      "value": "optimal"
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Lighting System",
-        "config": {
-          "memory": true
-        },
-        "children": [
-          {
-            "node_type": "Selector",
-            "name": "Light Control",
-            "config": {
-              "memory": false
-            },
-            "children": [
-              {
-                "node_type": "Sequence",
-                "name": "Auto Lights On",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "CheckBlackboardVariableValue",
-                    "name": "Dark?",
-                    "config": {
-                      "variable": "ambient_light",
-                      "operator": "<",
-                      "value": 40
-                    }
-                  },
-                  {
-                    "node_type": "CheckBlackboardVariableValue",
-                    "name": "Someone Home?",
-                    "config": {
-                      "variable": "occupancy",
-                      "operator": "==",
-                      "value": true
-                    }
-                  },
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Lights ON",
-                    "config": {
-                      "variable": "auto_lights",
-                      "value": true
-                    }
-                  }
-                ]
-              },
-              {
-                "node_type": "Sequence",
-                "name": "Auto Lights Off",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Lights OFF",
-                    "config": {
-                      "variable": "auto_lights",
-                      "value": false
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Security System",
-        "config": {
-          "memory": true
-        },
-        "children": [
-          {
-            "node_type": "Selector",
-            "name": "Security Monitor",
-            "config": {
-              "memory": false
-            },
-            "children": [
-              {
-                "node_type": "Sequence",
-                "name": "INTRUDER ALERT!",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "CheckBlackboardVariableValue",
-                    "name": "Motion Detected?",
-                    "config": {
-                      "variable": "motion_detected",
-                      "operator": "==",
-                      "value": true
-                    }
-                  },
-                  {
-                    "node_type": "Inverter",
-                    "name": "Nobody Home?",
-                    "config": {},
-                    "children": [
-                      {
-                        "node_type": "CheckBlackboardVariableValue",
-                        "name": "Check Occupancy",
-                        "config": {
-                          "variable": "occupancy",
-                          "operator": "==",
-                          "value": true
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Sound Alarm!",
-                    "config": {
-                      "variable": "security_alert",
-                      "value": true
-                    }
-                  },
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Notify Owner",
-                    "config": {
-                      "variable": "notification_sent",
-                      "value": true
-                    }
-                  }
-                ]
-              },
-              {
-                "node_type": "Sequence",
-                "name": "All Clear",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "No Alert",
-                    "config": {
-                      "variable": "security_alert",
-                      "value": false
-                    }
-                  }
-                ]
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "node_type": "Sequence",
-        "name": "Energy Management",
-        "config": {
-          "memory": true
-        },
-        "children": [
-          {
-            "node_type": "Selector",
-            "name": "Energy Optimization",
-            "config": {
-              "memory": false
-            },
-            "children": [
-              {
-                "node_type": "Sequence",
-                "name": "Activate Energy Saving",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "Inverter",
-                    "name": "Nobody Home?",
-                    "config": {},
-                    "children": [
-                      {
-                        "node_type": "CheckBlackboardVariableValue",
-                        "name": "Check Occupancy",
-                        "config": {
-                          "variable": "occupancy",
-                          "operator": "==",
-                          "value": true
-                        }
-                      }
-                    ]
-                  },
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Enable Energy Mode",
-                    "config": {
-                      "variable": "energy_saving",
-                      "value": true
-                    }
-                  }
-                ]
-              },
-              {
-                "node_type": "Sequence",
-                "name": "Normal Energy",
-                "config": {
-                  "memory": false
-                },
-                "children": [
-                  {
-                    "node_type": "SetBlackboardVariable",
-                    "name": "Normal Mode",
-                    "config": {
-                      "variable": "energy_saving",
-                      "value": false
-                    }
-                  }
-                ]
+                "node_type": "Success",
+                "node_id": "5237ff99-958e-4885-ae62-ade203fd30cc",
+                "name": "Day Complete - Will Loop"
               }
             ]
           }
         ]
       }
     ]
+  },
+  "blackboard_schema": {
+    "scene": {
+      "type": "string",
+      "default": "",
+      "description": "Current scene in the story"
+    },
+    "time_of_day": {
+      "type": "string",
+      "default": "morning",
+      "description": "Time period: morning/day/evening/night"
+    },
+    "person_location": {
+      "type": "string",
+      "default": "bedroom",
+      "description": "Room where person is located"
+    },
+    "occupancy": {
+      "type": "string",
+      "default": "home",
+      "description": "home or away"
+    },
+    "temperature": {
+      "type": "number",
+      "default": 20,
+      "description": "Target temperature in Celsius"
+    },
+    "ambient_light": {
+      "type": "number",
+      "default": 50,
+      "description": "Light level 0-100"
+    },
+    "lights_on": {
+      "type": "boolean",
+      "default": false,
+      "description": "Are lights currently on"
+    },
+    "auto_lights": {
+      "type": "boolean",
+      "default": false,
+      "description": "Automatic lighting enabled"
+    },
+    "heating_status": {
+      "type": "string",
+      "default": "off",
+      "description": "on/eco/off"
+    },
+    "energy_saving": {
+      "type": "boolean",
+      "default": false,
+      "description": "Energy saving mode active"
+    },
+    "door_locked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Front door locked"
+    },
+    "motion_detected": {
+      "type": "boolean",
+      "default": false,
+      "description": "Motion sensor triggered"
+    },
+    "security_alert": {
+      "type": "string",
+      "default": "none",
+      "description": "Security alert status"
+    },
+    "notification_sent": {
+      "type": "boolean",
+      "default": false,
+      "description": "Alert notification sent"
+    },
+    "appliance_running": {
+      "type": "string",
+      "default": "none",
+      "description": "Which appliance is active"
+    }
   }
 }

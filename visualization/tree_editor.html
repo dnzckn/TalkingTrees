@@ -3418,14 +3418,16 @@
                     const parentNode = nodes.find(n => n.id === node.parent.id);
                     if (parentNode && parentNode.children) {
                         const orderIndex = parentNode.children.findIndex(c => c.id === node.id) + 1;
+                        const badgeX = node.x + 150 - 15; // Node width (150) - margin (15)
+                        const badgeY = node.y + 60 - 15;  // Node height (60) - margin (15)
                         ctx.fillStyle = '#27ae60';
                         ctx.beginPath();
-                        ctx.arc(node.x + 190, node.y + 60, 11, 0, Math.PI * 2);
+                        ctx.arc(badgeX, badgeY, 11, 0, Math.PI * 2);
                         ctx.fill();
                         ctx.fillStyle = 'white';
                         ctx.font = '600 11px Segoe UI';
                         ctx.textAlign = 'center';
-                        ctx.fillText(orderIndex, node.x + 190, node.y + 64);
+                        ctx.fillText(orderIndex, badgeX, badgeY + 4);
                         ctx.textAlign = 'left';
                     }
                 }

@@ -4,83 +4,125 @@
     "name": "Simple Sequence",
     "description": "Demonstrates a basic sequence that executes actions in order",
     "file": "01_simple_sequence.json",
-    "tags": ["tutorial", "basic", "sequence"]
+    "tags": [
+      "tutorial",
+      "basic",
+      "sequence"
+    ]
   },
   {
     "id": "02_simple_selector",
     "name": "Simple Selector",
     "description": "Demonstrates a selector that tries children until one succeeds",
     "file": "02_simple_selector.json",
-    "tags": ["tutorial", "basic", "selector"]
+    "tags": [
+      "tutorial",
+      "basic",
+      "selector"
+    ]
   },
   {
     "id": "03_retry_pattern",
     "name": "Retry Pattern",
     "description": "Demonstrates retry decorator for handling failures",
     "file": "03_retry_pattern.json",
-    "tags": ["tutorial", "decorator", "retry"]
+    "tags": [
+      "tutorial",
+      "decorator",
+      "retry"
+    ]
   },
   {
     "id": "04_parallel_tasks",
     "name": "Parallel Tasks",
     "description": "Demonstrates parallel execution of multiple tasks",
     "file": "04_parallel_tasks.json",
-    "tags": ["tutorial", "parallel"]
+    "tags": [
+      "tutorial",
+      "parallel"
+    ]
   },
   {
     "id": "05_robot_patrol",
     "name": "Robot Patrol",
     "description": "Autonomous robot patrol behavior with battery management",
     "file": "05_robot_patrol.json",
-    "tags": ["example", "robot"]
+    "tags": [
+      "example",
+      "robot"
+    ]
   },
   {
     "id": "06_debug_showcase",
     "name": "Debug Showcase",
     "description": "Demonstrates debugging features: breakpoints, watches, and step execution",
     "file": "06_debug_showcase.json",
-    "tags": ["tutorial", "debug"]
+    "tags": [
+      "tutorial",
+      "debug"
+    ]
   },
   {
     "id": "07_game_ai_npc",
     "name": "Game AI - NPC Behavior",
     "description": "Game AI decision tree for NPC behavior with combat and exploration",
     "file": "07_game_ai_npc.json",
-    "tags": ["example", "game", "ai"]
+    "tags": [
+      "example",
+      "game",
+      "ai"
+    ]
   },
   {
     "id": "08_stress_test",
     "name": "Stress Test - Large Tree",
     "description": "Large tree for performance and stress testing",
     "file": "08_stress_test.json",
-    "tags": ["test", "performance"]
+    "tags": [
+      "test",
+      "performance"
+    ]
   },
   {
     "id": "09_day_in_life",
     "name": "Day in the Life Simulation",
     "description": "Complex simulation of a person's day with hunger, thirst, energy, stress, and time management",
     "file": "09_day_in_life.json",
-    "tags": ["simulation", "demo"]
+    "tags": [
+      "simulation",
+      "demo"
+    ]
   },
   {
     "id": "10_guard_patrol_game",
     "name": "Guard Patrol Game",
     "description": "Interactive 2D grid game with guard NPCs patrolling, investigating, and chasing intruders",
     "file": "10_guard_patrol_game.json",
-    "tags": ["game", "demo", "visual"]
+    "tags": [
+      "game",
+      "demo",
+      "visual"
+    ]
   },
   {
     "id": "11_ultra_complex",
     "name": "Ultra Complex Demo - All Node Types",
     "description": "Comprehensive demonstration showcasing decorators, parallel execution, status converters, and blackboard operations",
-    "file": "11_ultra_complex_demo.json",
-    "tags": ["demo", "comprehensive"]
+    "file": "11_ultra_complex.json",
+    "tags": [
+      "demo",
+      "comprehensive"
+    ]
   },
   {
     "id": "12_smart_home",
     "name": "Smart Home Automation - A Day in the Life",
-    "description": "Simulates a person moving through their smart home throughout the day. The tree tells a story: wake up, adjust thermostat, make coffee, leave for work, burglar triggers security, return home, do laundry, go to bed, then loop. Pure py_trees nodes with blackboard-driven behavior.",
+    "description": "Smart home simulation with conditional logic based on time, location, occupancy, and ambient light",
     "file": "12_smart_home_automation.json",
-    "tags": ["example", "blackboard", "demo", "simulation"]
+    "tags": [
+      "example",
+      "demo",
+      "simulation"
+    ]
   }
 ]
