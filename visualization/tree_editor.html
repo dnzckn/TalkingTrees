@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PyForest - Behavior Tree Editor</title>
+    <title>TalkingTrees - Behavior Tree Editor</title>
     <style>
         * {
             margin: 0;
@@ -697,6 +697,29 @@
                 linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
         }
+
+        /* Toast Notification Animations */
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideOutRight {
+            from {
+                transform: translateX(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 
@@ -762,7 +785,7 @@
                 <button class="toolbar-btn success" onclick="exportTree()" data-tooltip="Export JSON">
                     <span class="toolbar-icon">📦</span> Export
                 </button>
-                <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Save to PyForest API">
+                <button class="toolbar-btn primary" onclick="saveToAPI()" data-tooltip="Save to TalkingTrees API">
                     <span class="toolbar-icon">☁</span> API
                 </button>
                 <button class="toolbar-btn" onclick="openCopyPythonModal()"
@@ -1119,6 +1142,9 @@
         </div>
     </div>
 
+    <!-- Toast Notifications Container -->
+    <div id="toastContainer" style="position: fixed; top: 20px; right: 20px; z-index: 10000; display: flex; flex-direction: column; gap: 10px; pointer-events: none;"></div>
+
     <!-- Save Modal -->
     <div class="modal-overlay" id="saveModal">
         <div class="modal">
@@ -1150,25 +1176,29 @@
 
     <!-- Keyboard Shortcuts Modal -->
     <div class="modal-overlay" id="shortcutsModal">
-        <div class="modal" style="max-width: 700px;">
+        <div class="modal" style="max-width: 900px;">
             <div class="modal-title">⌨️ Keyboard Shortcuts</div>
-            <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="modal-body" style="max-height: 600px; overflow-y: auto;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px;">
                     <div>
                         <h3 style="color: #4fc1ff; margin-bottom: 10px; font-size: 14px;">File Operations</h3>
                         <div class="shortcut-item"><kbd>Ctrl+N</kbd><span>New Tree</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+S</kbd><span>Save to Library</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+Shift+P</kbd><span>Command Palette</span></div>
 
                         <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Edit Operations</h3>
                         <div class="shortcut-item"><kbd>Ctrl+Z</kbd><span>Undo</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+Y</kbd><span>Redo</span></div>
-                        <div class="shortcut-item"><kbd>Ctrl+C</kbd><span>Copy</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+C</kbd><span>Copy Node</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+Shift+C</kbd><span>Copy Node Path</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+X</kbd><span>Cut</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+V</kbd><span>Paste</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+Shift+V</kbd><span>Validate Tree</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+D</kbd><span>Duplicate</span></div>
                         <div class="shortcut-item"><kbd>Ctrl+A</kbd><span>Select All</span></div>
                         <div class="shortcut-item"><kbd>Delete</kbd><span>Delete Node</span></div>
                         <div class="shortcut-item"><kbd>DD</kbd><span>Delete (vim-style)</span></div>
+                        <div class="shortcut-item"><kbd>Backspace</kbd><span>Disconnect from Parent</span></div>
                     </div>
                     <div>
                         <h3 style="color: #4fc1ff; margin-bottom: 10px; font-size: 14px;">View Operations</h3>
@@ -1177,21 +1207,57 @@
                         <div class="shortcut-item"><kbd>Ctrl+0</kbd><span>Zoom to Fit</span></div>
                         <div class="shortcut-item"><kbd>+</kbd><span>Zoom In</span></div>
                         <div class="shortcut-item"><kbd>-</kbd><span>Zoom Out</span></div>
+                        <div class="shortcut-item"><kbd>Space+Drag</kbd><span>Pan Canvas</span></div>
 
-                        <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Tree Operations</h3>
+                        <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Navigation</h3>
+                        <div class="shortcut-item"><kbd>↑</kbd><span>Select Parent</span></div>
+                        <div class="shortcut-item"><kbd>↓</kbd><span>Select First Child</span></div>
+                        <div class="shortcut-item"><kbd>←</kbd><span>Select Previous Sibling</span></div>
+                        <div class="shortcut-item"><kbd>→</kbd><span>Select Next Sibling</span></div>
+                        <div class="shortcut-item"><kbd>Ctrl+F</kbd><span>Search Nodes</span></div>
+                    </div>
+                    <div>
+                        <h3 style="color: #4fc1ff; margin-bottom: 10px; font-size: 14px;">Node Operations</h3>
+                        <div class="shortcut-item"><kbd>F2</kbd><span>Rename Node</span></div>
+                        <div class="shortcut-item"><kbd>Enter</kbd><span>Toggle Collapse</span></div>
                         <div class="shortcut-item"><kbd>S</kbd><span>Toggle Connect Mode</span></div>
-                        <div class="shortcut-item"><kbd>Escape</kbd><span>Exit Connect Mode</span></div>
+                        <div class="shortcut-item"><kbd>Escape</kbd><span>Clear Selection / Exit Mode</span></div>
                         <div class="shortcut-item"><kbd>Shift+Click</kbd><span>Multi-select</span></div>
-                        <div class="shortcut-item"><kbd>Ctrl+Drag</kbd><span>Pan Canvas</span></div>
                         <div class="shortcut-item"><kbd>Right-Click</kbd><span>Context Menu</span></div>
 
                         <h3 style="color: #4fc1ff; margin: 15px 0 10px; font-size: 14px;">Help</h3>
                         <div class="shortcut-item"><kbd>F1</kbd><span>Show Shortcuts</span></div>
+                        <div class="shortcut-item"><kbd>?</kbd><span>Show Shortcuts</span></div>
                     </div>
+                </div>
+                <div style="margin-top: 20px; padding: 15px; background: rgba(79, 193, 255, 0.1); border-radius: 8px; border-left: 3px solid #4fc1ff;">
+                    <strong style="color: #4fc1ff;">Pro Tip:</strong> Press <kbd>Ctrl+Shift+P</kbd> to open the Command Palette for quick access to all commands!
                 </div>
             </div>
             <div class="modal-actions">
                 <button class="modal-btn primary" onclick="closeModal('shortcutsModal')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Palette Modal -->
+    <div class="modal-overlay" id="commandPaletteModal" style="background: rgba(0,0,0,0.7);">
+        <div class="modal" style="max-width: 600px; margin-top: 100px;">
+            <div class="modal-title" style="padding: 15px 20px;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 18px;">⌘</span>
+                    <span>Command Palette</span>
+                </div>
+            </div>
+            <div style="padding: 0 20px 20px;">
+                <input type="text" id="commandPaletteInput"
+                    placeholder="Type a command..."
+                    style="width: 100%; padding: 12px; background: #2a2a2a; border: 2px solid #4fc1ff; border-radius: 6px; color: #e0e0e0; font-size: 14px; outline: none;"
+                    oninput="filterCommands()"
+                    onkeydown="handleCommandPaletteKey(event)">
+                <div id="commandPaletteResults" style="max-height: 400px; overflow-y: auto; margin-top: 10px;">
+                    <!-- Commands will be populated here -->
+                </div>
             </div>
         </div>
     </div>
@@ -1229,7 +1295,7 @@
                             <strong style="color: #4fc1ff; font-size: 15px;">Save to API & Load from Server</strong>
                         </div>
                         <p style="color: #888; font-size: 13px; margin: 0; line-height: 1.5;">
-                            Save tree to PyForest API, then load it from the server. Best for shared/collaborative
+                            Save tree to TalkingTrees API, then load it from the server. Best for shared/collaborative
                             environments.
                         </p>
                     </div>
@@ -1289,8 +1355,8 @@
     <script>
         // Configuration
         const API_BASE = 'http://localhost:8000';
-        const STORAGE_KEY_LIBRARY = 'pyforest_tree_library';
-        const STORAGE_KEY_CURRENT = 'pyforest_current_tree';
+        const STORAGE_KEY_LIBRARY = 'talkingtrees_tree_library';
+        const STORAGE_KEY_CURRENT = 'talkingtrees_current_tree';
         const LIBRARY_VERSION = '3.0'; // Increment to force reload demos
 
         // State
@@ -2114,10 +2180,16 @@
                     toggleConnectMode();
                 }
 
-                // F1 for keyboard shortcuts reference
-                if (e.key === 'F1') {
+                // F1 or ? for keyboard shortcuts reference
+                if (e.key === 'F1' || e.key === '?') {
                     e.preventDefault();
                     document.getElementById('shortcutsModal').classList.add('active');
+                }
+
+                // Ctrl+Shift+P for command palette
+                if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') {
+                    e.preventDefault();
+                    openCommandPalette();
                 }
 
                 // Zoom with +/-
@@ -3292,7 +3364,7 @@
                 "metadata": {
                     "name": currentTreeName,
                     "version": "1.0.0",
-                    "description": "Created with PyForest Editor",
+                    "description": "Created with TalkingTrees Editor",
                     "tags": ["editor"],
                     "status": "draft"
                 },
@@ -3430,7 +3502,7 @@
                 "metadata": {
                     "name": currentTreeName,
                     "version": "1.0.0",
-                    "description": "Created with PyForest Editor",
+                    "description": "Created with TalkingTrees Editor",
                     "tags": ["editor"],
                     "status": "draft"
                 },
@@ -3448,7 +3520,7 @@
                     const result = await response.json();
                     currentTreeId = result.tree_id;
                     updateStatus(`Tree saved to API! ID: ${result.tree_id}`);
-                    alert('Tree saved successfully to PyForest API!');
+                    alert('Tree saved successfully to TalkingTrees API!');
                 } else {
                     const error = await response.text();
                     alert('Failed to save tree: ' + error);
@@ -3499,7 +3571,7 @@
                 "metadata": {
                     "name": currentTreeName,
                     "version": "1.0.0",
-                    "description": "Created with PyForest Editor",
+                    "description": "Created with TalkingTrees Editor",
                     "tags": ["editor"],
                     "status": "draft"
                 },
@@ -3511,14 +3583,14 @@
                 const filename = `${currentTreeName.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
 
                 generatedPythonCode = `"""
-${currentTreeName} - PyForest Behavior Tree
-Generated by PyForest Tree Editor
+${currentTreeName} - TalkingTrees Behavior Tree
+Generated by TalkingTrees Tree Editor
 """
 
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
-# Initialize PyForest SDK
-pf = PyForest()
+# Initialize TalkingTrees SDK
+pf = TalkingTrees()
 
 # Load tree from JSON file
 # (First, export the tree using the 'Export' button to save ${filename})
@@ -3538,7 +3610,7 @@ print(f"Execution result: {result.status}")
 print(f"Blackboard: {result.blackboard}")
 
 # Option 2: Use with py_trees (convert back)
-from py_forest.adapters import to_py_trees
+from talking_trees.adapters import to_py_trees
 
 pt_root = to_py_trees(tree)
 pt_root.setup_with_descendants()
@@ -3566,15 +3638,15 @@ print(f"py_trees result: {pt_root.status}")
 
                         // Generate code to load from API
                         generatedPythonCode = `"""
-${currentTreeName} - PyForest Behavior Tree
-Generated by PyForest Tree Editor
+${currentTreeName} - TalkingTrees Behavior Tree
+Generated by TalkingTrees Tree Editor
 Saved to API with ID: ${result.tree_id}
 """
 
-from py_forest.sdk import PyForest
+from talking_trees.sdk import TalkingTrees
 
-# Initialize PyForest SDK with API connection
-pf = PyForest(api_url="http://localhost:8000")
+# Initialize TalkingTrees SDK with API connection
+pf = TalkingTrees(api_url="http://localhost:8000")
 
 # Load tree from API
 tree = pf.get_tree("${result.tree_id}")
@@ -3595,7 +3667,7 @@ print(f"Execution result: {result.status}")
 print(f"Blackboard: {result.blackboard}")
 
 # Option: Use with py_trees (convert back)
-from py_forest.adapters import to_py_trees
+from talking_trees.adapters import to_py_trees
 
 pt_root = to_py_trees(tree)
 pt_root.setup_with_descendants()
@@ -4201,6 +4273,57 @@ async function getLibrary() {
             document.getElementById('treeNameDisplay').innerHTML = `<strong>${currentTreeName}</strong>`;
         }
 
+        // Toast Notification System
+        function showToast(message, type = 'info', duration = 2000) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+
+            const icons = {
+                success: '✓',
+                error: '✗',
+                warning: '⚠',
+                info: 'ℹ'
+            };
+
+            const colors = {
+                success: '#4caf50',
+                error: '#f44336',
+                warning: '#ff9800',
+                info: '#4fc1ff'
+            };
+
+            toast.style.cssText = `
+                background: ${colors[type] || colors.info};
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 500;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                pointer-events: auto;
+                animation: slideInRight 0.3s ease-out;
+                min-width: 200px;
+                max-width: 400px;
+            `;
+
+            toast.innerHTML = `
+                <span style="font-size: 16px;">${icons[type] || icons.info}</span>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    container.removeChild(toast);
+                }, 300);
+            }, duration);
+        }
+
         function updateBreadcrumbPath() {
             const pathText = document.getElementById('pathText');
 
@@ -4303,6 +4426,129 @@ async function getLibrary() {
                 }
             });
         });
+
+        // Command Palette
+        let commandPaletteIndex = 0;
+        const commands = [
+            { name: 'New Tree', shortcut: 'Ctrl+N', action: () => newTree(), category: 'File' },
+            { name: 'Save to Library', shortcut: 'Ctrl+S', action: () => saveToLibrary(), category: 'File' },
+            { name: 'Load from Library', shortcut: '', action: () => openLoadModal(), category: 'File' },
+            { name: 'Export Tree (JSON)', shortcut: '', action: () => exportJSON(), category: 'File' },
+            { name: 'Export Tree (Python)', shortcut: '', action: () => exportPython(), category: 'File' },
+            { name: 'Import Tree (JSON)', shortcut: '', action: () => importFromJSON(), category: 'File' },
+
+            { name: 'Undo', shortcut: 'Ctrl+Z', action: () => undo(), category: 'Edit' },
+            { name: 'Redo', shortcut: 'Ctrl+Y', action: () => redo(), category: 'Edit' },
+            { name: 'Copy Node', shortcut: 'Ctrl+C', action: () => copySelected(), category: 'Edit' },
+            { name: 'Copy Node Path', shortcut: 'Ctrl+Shift+C', action: () => copyNodePath(), category: 'Edit' },
+            { name: 'Cut Node', shortcut: 'Ctrl+X', action: () => cutSelected(), category: 'Edit' },
+            { name: 'Paste Node', shortcut: 'Ctrl+V', action: () => pasteFromClipboard(), category: 'Edit' },
+            { name: 'Duplicate Node', shortcut: 'Ctrl+D', action: () => duplicateSelected(), category: 'Edit' },
+            { name: 'Delete Node', shortcut: 'Delete', action: () => selectedNode ? deleteSelectedNode() : null, category: 'Edit' },
+            { name: 'Select All Nodes', shortcut: 'Ctrl+A', action: () => selectAll(), category: 'Edit' },
+            { name: 'Clear Selection', shortcut: 'Esc', action: () => { selectedNode = null; selectedNodes.clear(); render(); }, category: 'Edit' },
+
+            { name: 'Auto Layout', shortcut: 'Ctrl+L', action: () => autoLayout(), category: 'View' },
+            { name: 'Toggle Grid', shortcut: 'Ctrl+G', action: () => toggleGrid(), category: 'View' },
+            { name: 'Zoom to Fit', shortcut: 'Ctrl+0', action: () => zoomFit(), category: 'View' },
+            { name: 'Zoom In', shortcut: '+', action: () => zoomIn(), category: 'View' },
+            { name: 'Zoom Out', shortcut: '-', action: () => zoomOut(), category: 'View' },
+            { name: 'Reset Zoom', shortcut: '', action: () => { viewportScale = 1; viewportX = 0; viewportY = 0; render(); }, category: 'View' },
+
+            { name: 'Validate Tree', shortcut: 'Ctrl+Shift+V', action: () => validateTree(), category: 'Tree' },
+            { name: 'Toggle Connect Mode', shortcut: 'S', action: () => toggleConnectMode(), category: 'Tree' },
+            { name: 'Rename Node', shortcut: 'F2', action: () => selectedNode ? startInlineRename(selectedNode, (selectedNode.x * viewportScale) + viewportX + 75, (selectedNode.y * viewportScale) + viewportY + 30) : null, category: 'Tree' },
+            { name: 'Search Nodes', shortcut: 'Ctrl+F', action: () => { document.getElementById('nodeSearchInput').focus(); document.getElementById('nodeSearchInput').select(); }, category: 'Tree' },
+
+            { name: 'Show Keyboard Shortcuts', shortcut: 'F1 or ?', action: () => document.getElementById('shortcutsModal').classList.add('active'), category: 'Help' },
+        ];
+
+        function openCommandPalette() {
+            document.getElementById('commandPaletteModal').classList.add('active');
+            commandPaletteIndex = 0;
+            document.getElementById('commandPaletteInput').value = '';
+            filterCommands();
+            setTimeout(() => {
+                document.getElementById('commandPaletteInput').focus();
+            }, 100);
+        }
+
+        function filterCommands() {
+            const input = document.getElementById('commandPaletteInput').value.toLowerCase();
+            const resultsDiv = document.getElementById('commandPaletteResults');
+
+            const filtered = commands.filter(cmd =>
+                cmd.name.toLowerCase().includes(input) ||
+                cmd.category.toLowerCase().includes(input) ||
+                cmd.shortcut.toLowerCase().includes(input)
+            );
+
+            if (filtered.length === 0) {
+                resultsDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #858585;">No commands found</div>';
+                return;
+            }
+
+            commandPaletteIndex = Math.min(commandPaletteIndex, filtered.length - 1);
+
+            let html = '';
+            let currentCategory = '';
+            filtered.forEach((cmd, idx) => {
+                if (cmd.category !== currentCategory) {
+                    currentCategory = cmd.category;
+                    html += `<div style="padding: 8px 12px; color: #4fc1ff; font-size: 11px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; margin-top: ${idx > 0 ? '10px' : '0'};">${currentCategory}</div>`;
+                }
+
+                const isSelected = idx === commandPaletteIndex;
+                html += `
+                    <div class="command-item"
+                         data-index="${idx}"
+                         onclick="executeCommand(${idx})"
+                         style="padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; ${isSelected ? 'background: #4fc1ff; color: #1e1e1e;' : 'background: transparent; color: #e0e0e0;'} transition: all 0.1s;">
+                        <span>${cmd.name}</span>
+                        ${cmd.shortcut ? `<kbd style="opacity: 0.7; font-size: 11px;">${cmd.shortcut}</kbd>` : ''}
+                    </div>
+                `;
+            });
+
+            resultsDiv.innerHTML = html;
+        }
+
+        function handleCommandPaletteKey(event) {
+            const resultsDiv = document.getElementById('commandPaletteResults');
+            const commandItems = resultsDiv.querySelectorAll('.command-item');
+
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeModal('commandPaletteModal');
+            } else if (event.key === 'ArrowDown') {
+                event.preventDefault();
+                commandPaletteIndex = (commandPaletteIndex + 1) % commandItems.length;
+                filterCommands();
+            } else if (event.key === 'ArrowUp') {
+                event.preventDefault();
+                commandPaletteIndex = (commandPaletteIndex - 1 + commandItems.length) % commandItems.length;
+                filterCommands();
+            } else if (event.key === 'Enter') {
+                event.preventDefault();
+                if (commandItems.length > 0) {
+                    executeCommand(commandPaletteIndex);
+                }
+            }
+        }
+
+        function executeCommand(index) {
+            const input = document.getElementById('commandPaletteInput').value.toLowerCase();
+            const filtered = commands.filter(cmd =>
+                cmd.name.toLowerCase().includes(input) ||
+                cmd.category.toLowerCase().includes(input) ||
+                cmd.shortcut.toLowerCase().includes(input)
+            );
+
+            if (filtered[index]) {
+                closeModal('commandPaletteModal');
+                filtered[index].action();
+            }
+        }
 
         // Copy/Paste/Duplicate Operations
         function copyNodeSubtree(node) {
