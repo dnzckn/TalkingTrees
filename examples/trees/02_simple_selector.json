@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Demonstrates a selector that tries children until one succeeds",
-    "tags": ["tutorial", "basic", "selector"]
+    "tags": [
+      "tutorial",
+      "basic",
+      "selector"
+    ]
   },
   "root": {
     "node_type": "Selector",
@@ -13,25 +17,27 @@
     "config": {},
     "children": [
       {
-        "node_type": "CheckBattery",
+        "node_type": "CheckBlackboardVariableValue",
         "name": "Check Battery High",
         "config": {
-          "threshold": 80.0
+          "variable": "battery",
+          "operator": "<",
+          "value": 80.0
         }
       },
       {
-        "node_type": "CheckBattery",
+        "node_type": "CheckBlackboardVariableValue",
         "name": "Check Battery Medium",
         "config": {
-          "threshold": 50.0
+          "variable": "battery",
+          "operator": "<",
+          "value": 50.0
         }
       },
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Battery Low Warning",
-        "config": {
-          "message": "Battery critically low!"
-        }
+        "config": {}
       }
     ]
   },
@@ -43,6 +49,10 @@
     }
   },
   "dependencies": {
-    "behaviors": ["Selector", "CheckBattery", "Log"]
+    "behaviors": [
+      "Selector",
+      "CheckBattery",
+      "Log"
+    ]
   }
 }

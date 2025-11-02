@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Demonstrates parallel execution of multiple tasks",
-    "tags": ["tutorial", "parallel", "concurrent"]
+    "tags": [
+      "tutorial",
+      "parallel",
+      "concurrent"
+    ]
   },
   "root": {
     "node_type": "Parallel",
@@ -22,25 +26,22 @@
         "config": {},
         "children": [
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Start A",
-            "config": {
-              "message": "Starting task A"
-            }
+            "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Wait A",
             "config": {
-              "duration": 1.0
+              "duration": 10,
+              "completion_status": "SUCCESS"
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Finish A",
-            "config": {
-              "message": "Completed task A"
-            }
+            "config": {}
           }
         ]
       },
@@ -50,31 +51,33 @@
         "config": {},
         "children": [
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Start B",
-            "config": {
-              "message": "Starting task B"
-            }
+            "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Wait B",
             "config": {
-              "duration": 0.5
+              "duration": 5,
+              "completion_status": "SUCCESS"
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Finish B",
-            "config": {
-              "message": "Completed task B"
-            }
+            "config": {}
           }
         ]
       }
     ]
   },
   "dependencies": {
-    "behaviors": ["Parallel", "Sequence", "Log", "Wait"]
+    "behaviors": [
+      "Parallel",
+      "Sequence",
+      "Log",
+      "Wait"
+    ]
   }
 }

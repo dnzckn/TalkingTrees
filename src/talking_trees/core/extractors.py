@@ -193,8 +193,33 @@ class CheckBlackboardVariableValuesExtractor(ConfigExtractor):
                 checks_list.append(ComparisonExpressionUtil.extract(check))
             config["checks"] = checks_list
 
-        if hasattr(node, "logical_operator"):
-            config["logical_operator"] = str(node.logical_operator)
+        if hasattr(node, "operator"):
+            from talking_trees.core.utils import logical_operator_to_string
+
+            config["operator"] = logical_operator_to_string(node.operator)
+
+        if hasattr(node, "namespace") and node.namespace is not None:
+            config["namespace"] = node.namespace
+
+        return config
+
+
+class CompareBlackboardVariablesExtractor(ConfigExtractor):
+    """Extract config from CompareBlackboardVariables nodes."""
+
+    def extract(self, node, context: Optional = None) -> dict[str, Any]:
+        config = {}
+
+        if hasattr(node, "var1_key"):
+            config["var1_key"] = node.var1_key
+
+        if hasattr(node, "var2_key"):
+            config["var2_key"] = node.var2_key
+
+        if hasattr(node, "operator"):
+            from talking_trees.core.utils import operator_to_string
+
+            config["operator"] = operator_to_string(node.operator)
 
         return config
 
@@ -218,10 +243,10 @@ class TickCounterExtractor(ConfigExtractor):
 
     def extract(self, node, context: Optional = None) -> dict[str, Any]:
         config = {}
-        if hasattr(node, "num_ticks"):
-            config["num_ticks"] = node.num_ticks
-        if hasattr(node, "final_status"):
-            config["final_status"] = str(node.final_status)
+        if hasattr(node, "duration"):
+            config["duration"] = node.duration
+        if hasattr(node, "completion_status"):
+            config["completion_status"] = node.completion_status.value if hasattr(node.completion_status, 'value') else str(node.completion_status)
         return config
 
 
@@ -329,12 +354,18 @@ class EternalGuardExtractor(ComparisonBasedExtractor):
         return {}
 
 
-class ConditionExtractor(ComparisonBasedExtractor):
+class ConditionExtractor(ConfigExtractor):
     """Extract config from Condition decorator."""
 
     def extract(self, node, context: Optional = None) -> dict[str, Any]:
-        if hasattr(node, "check"):
-            return self.extract_comparison(node.check)
+        if hasattr(node, "succeed_status"):
+            return {
+                "status": (
+                    node.succeed_status.value
+                    if hasattr(node.succeed_status, "value")
+                    else str(node.succeed_status)
+                )
+            }
         return {}
 
 
@@ -342,9 +373,12 @@ class ForEachExtractor(ConfigExtractor):
     """Extract config from ForEach decorator."""
 
     def extract(self, node, context: Optional = None) -> dict[str, Any]:
-        if hasattr(node, "variable_name"):
-            return {"variable": node.variable_name}
-        return {}
+        config = {}
+        if hasattr(node, "source_key"):
+            config["source_key"] = node.source_key
+        if hasattr(node, "target_key"):
+            config["target_key"] = node.target_key
+        return config
 
 
 class StatusToBlackboardExtractor(ConfigExtractor):
@@ -370,6 +404,7 @@ EXTRACTOR_REGISTRY: dict[str, ConfigExtractor] = {
     "WaitForBlackboardVariable": WaitForBlackboardVariableExtractor(),
     "WaitForBlackboardVariableValue": WaitForBlackboardVariableValueExtractor(),
     "CheckBlackboardVariableValues": CheckBlackboardVariableValuesExtractor(),
+    "CompareBlackboardVariables": CompareBlackboardVariablesExtractor(),
     "BlackboardToStatus": BlackboardToStatusExtractor(),
     # Time-based behaviors
     "TickCounter": TickCounterExtractor(),

@@ -4,21 +4,56 @@
     "name": "Guard Patrol Game",
     "version": "1.0.0",
     "description": "Interactive 2D grid game with guard NPCs patrolling, investigating, and chasing intruders",
-    "tags": ["game", "demo", "visual", "interactive"],
+    "tags": [
+      "game",
+      "demo",
+      "visual",
+      "interactive"
+    ],
     "author": "TalkingTrees Demo",
     "status": "draft"
   },
   "blackboard_schema": {
-    "guard_x": {"type": "int", "default": 5},
-    "guard_y": {"type": "int", "default": 5},
-    "patrol_index": {"type": "int", "default": 0},
-    "alert_level": {"type": "int", "default": 0},
-    "intruder_x": {"type": "int", "default": -1},
-    "intruder_y": {"type": "int", "default": -1},
-    "state": {"type": "string", "default": "patrolling"},
-    "target_x": {"type": "int", "default": 5},
-    "target_y": {"type": "int", "default": 5},
-    "tick_count": {"type": "int", "default": 0}
+    "guard_x": {
+      "type": "int",
+      "default": 5
+    },
+    "guard_y": {
+      "type": "int",
+      "default": 5
+    },
+    "patrol_index": {
+      "type": "int",
+      "default": 0
+    },
+    "alert_level": {
+      "type": "int",
+      "default": 0
+    },
+    "intruder_x": {
+      "type": "int",
+      "default": -1
+    },
+    "intruder_y": {
+      "type": "int",
+      "default": -1
+    },
+    "state": {
+      "type": "string",
+      "default": "patrolling"
+    },
+    "target_x": {
+      "type": "int",
+      "default": 5
+    },
+    "target_y": {
+      "type": "int",
+      "default": 5
+    },
+    "tick_count": {
+      "type": "int",
+      "default": 0
+    }
   },
   "root": {
     "node_type": "Sequence",
@@ -26,11 +61,9 @@
     "config": {},
     "children": [
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Tick Start",
-        "config": {
-          "message": "=== Guard AI Tick ==="
-        }
+        "config": {}
       },
       {
         "node_type": "Selector",
@@ -50,11 +83,9 @@
                 }
               },
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "Chasing",
-                "config": {
-                  "message": "ALERT! Chasing intruder!"
-                }
+                "config": {}
               },
               {
                 "node_type": "Success",
@@ -69,11 +100,9 @@
             "config": {},
             "children": [
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "Patrolling",
-                "config": {
-                  "message": "Patrolling waypoint..."
-                }
+                "config": {}
               },
               {
                 "node_type": "Selector",
@@ -86,11 +115,9 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Moving North",
-                        "config": {
-                          "message": "Moving North ↑"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",
@@ -105,11 +132,9 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Moving East",
-                        "config": {
-                          "message": "Moving East →"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",
@@ -124,11 +149,9 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Moving South",
-                        "config": {
-                          "message": "Moving South ↓"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",
@@ -143,11 +166,9 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Moving West",
-                        "config": {
-                          "message": "Moving West ←"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",

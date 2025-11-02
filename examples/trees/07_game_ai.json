@@ -5,7 +5,12 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Game AI decision tree for NPC behavior with combat and exploration",
-    "tags": ["example", "game", "ai", "npc"]
+    "tags": [
+      "example",
+      "game",
+      "ai",
+      "npc"
+    ]
   },
   "root": {
     "node_type": "Selector",
@@ -44,20 +49,20 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "CheckBattery",
+                        "node_type": "CheckBlackboardVariableValue",
                         "name": "Check Health > 30%",
                         "config": {
-                          "threshold": 30.0
+                          "variable": "battery",
+                          "operator": "<",
+                          "value": 30.0
                         }
                       }
                     ]
                   },
                   {
-                    "node_type": "Log",
+                    "node_type": "Success",
                     "name": "Retreating",
-                    "config": {
-                      "message": "Health low! Retreating..."
-                    }
+                    "config": {}
                   },
                   {
                     "node_type": "Success",
@@ -72,11 +77,9 @@
                 "config": {},
                 "children": [
                   {
-                    "node_type": "Log",
+                    "node_type": "Success",
                     "name": "Attacking",
-                    "config": {
-                      "message": "Engaging enemy!"
-                    }
+                    "config": {}
                   },
                   {
                     "node_type": "Success",
@@ -103,11 +106,9 @@
         },
         "children": [
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Exploring",
-            "config": {
-              "message": "Exploring area..."
-            }
+            "config": {}
           },
           {
             "node_type": "Selector",
@@ -130,18 +131,17 @@
                 "config": {},
                 "children": [
                   {
-                    "node_type": "Wait",
+                    "node_type": "TickCounter",
                     "name": "Rest",
                     "config": {
-                      "duration": 1.0
+                      "duration": 10,
+                      "completion_status": "SUCCESS"
                     }
                   },
                   {
-                    "node_type": "Log",
+                    "node_type": "Success",
                     "name": "Resting",
-                    "config": {
-                      "message": "Standing idle..."
-                    }
+                    "config": {}
                   }
                 ]
               }
@@ -171,6 +171,14 @@
     }
   },
   "dependencies": {
-    "behaviors": ["Selector", "Sequence", "Inverter", "CheckBattery", "Log", "Wait", "Success"]
+    "behaviors": [
+      "Selector",
+      "Sequence",
+      "Inverter",
+      "CheckBattery",
+      "Log",
+      "Wait",
+      "Success"
+    ]
   }
 }

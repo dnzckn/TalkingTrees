@@ -4,7 +4,11 @@
     "name": "Day in the Life Simulation",
     "version": "1.0.0",
     "description": "Complex simulation of a person's day with hunger, thirst, energy, stress, and time management across morning, work, and evening phases",
-    "tags": ["simulation", "demo", "complex"],
+    "tags": [
+      "simulation",
+      "demo",
+      "complex"
+    ],
     "author": "TalkingTrees Demo"
   },
   "root": {
@@ -13,11 +17,9 @@
     "config": {},
     "children": [
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Start Day",
-        "config": {
-          "message": "=== NEW DAY BEGINS ==="
-        }
+        "config": {}
       },
       {
         "node_type": "Selector",
@@ -34,11 +36,9 @@
             },
             "children": [
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "Morning Check",
-                "config": {
-                  "message": "Morning phase: Checking status and having breakfast"
-                }
+                "config": {}
               },
               {
                 "node_type": "Selector",
@@ -51,18 +51,14 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Very Hungry",
-                        "config": {
-                          "message": "Hunger critical! Having large breakfast"
-                        }
+                        "config": {}
                       },
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Big Breakfast",
-                        "config": {
-                          "message": "Eating eggs, toast, and fruit (-$8, +40 hunger, +10 energy)"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",
@@ -77,18 +73,14 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Somewhat Hungry",
-                        "config": {
-                          "message": "Having normal breakfast"
-                        }
+                        "config": {}
                       },
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Regular Breakfast",
-                        "config": {
-                          "message": "Eating cereal and coffee (-$5, +25 hunger, +15 energy)"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",
@@ -98,11 +90,9 @@
                     ]
                   },
                   {
-                    "node_type": "Log",
+                    "node_type": "Success",
                     "name": "Not Hungry",
-                    "config": {
-                      "message": "Skipping breakfast, just coffee (-$2, +5 energy)"
-                    }
+                    "config": {}
                   }
                 ]
               },
@@ -117,18 +107,14 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Dehydrated",
-                        "config": {
-                          "message": "Thirst critical! Drinking large water bottle"
-                        }
+                        "config": {}
                       },
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Large Drink",
-                        "config": {
-                          "message": "Drinking 1L water (-$0, +50 thirst)"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Success",
@@ -138,26 +124,23 @@
                     ]
                   },
                   {
-                    "node_type": "Log",
+                    "node_type": "Success",
                     "name": "Normal Drink",
-                    "config": {
-                      "message": "Having morning coffee and water (-$0, +20 thirst)"
-                    }
+                    "config": {}
                   }
                 ]
               },
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "Morning Prep",
-                "config": {
-                  "message": "Getting ready for work: shower, dress, pack bag"
-                }
+                "config": {}
               },
               {
-                "node_type": "Wait",
+                "node_type": "TickCounter",
                 "name": "Morning Activities",
                 "config": {
-                  "duration": 0.5
+                  "duration": 5,
+                  "completion_status": "SUCCESS"
                 }
               }
             ]
@@ -172,11 +155,9 @@
             },
             "children": [
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "Commute",
-                "config": {
-                  "message": "Commuting to work (-5 energy, -3 thirst, +5 stress)"
-                }
+                "config": {}
               },
               {
                 "node_type": "Selector",
@@ -193,11 +174,9 @@
                     },
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Critical State",
-                        "config": {
-                          "message": "EMERGENCY: Critical hunger/thirst/energy during work!"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Selector",
@@ -210,11 +189,9 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Quick Snack",
-                                "config": {
-                                  "message": "Grabbing vending machine snack (-$3, +15 hunger, +5 energy)"
-                                }
+                                "config": {}
                               },
                               {
                                 "node_type": "Success",
@@ -224,11 +201,9 @@
                             ]
                           },
                           {
-                            "node_type": "Log",
+                            "node_type": "Success",
                             "name": "Water Fountain",
-                            "config": {
-                              "message": "Using water fountain (-$0, +10 thirst)"
-                            }
+                            "config": {}
                           }
                         ]
                       }
@@ -252,17 +227,16 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Morning Tasks",
-                                "config": {
-                                  "message": "Working on tasks: emails, meetings (-10 energy, -8 hunger, -10 thirst, +15 stress)"
-                                }
+                                "config": {}
                               },
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Work Duration",
                                 "config": {
-                                  "duration": 0.3
+                                  "duration": 3,
+                                  "completion_status": "SUCCESS"
                                 }
                               },
                               {
@@ -278,10 +252,11 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Wait for Lunch",
                                 "config": {
-                                  "duration": 0.2
+                                  "duration": 2,
+                                  "completion_status": "SUCCESS"
                                 }
                               },
                               {
@@ -295,17 +270,16 @@
                                     "config": {},
                                     "children": [
                                       {
-                                        "node_type": "Log",
+                                        "node_type": "Success",
                                         "name": "Restaurant",
-                                        "config": {
-                                          "message": "Going to restaurant for lunch (-$15, +45 hunger, +20 thirst, -10 stress)"
-                                        }
+                                        "config": {}
                                       },
                                       {
-                                        "node_type": "Wait",
+                                        "node_type": "TickCounter",
                                         "name": "Lunch Time",
                                         "config": {
-                                          "duration": 0.3
+                                          "duration": 3,
+                                          "completion_status": "SUCCESS"
                                         }
                                       },
                                       {
@@ -321,17 +295,16 @@
                                     "config": {},
                                     "children": [
                                       {
-                                        "node_type": "Log",
+                                        "node_type": "Success",
                                         "name": "Packed Lunch",
-                                        "config": {
-                                          "message": "Eating packed lunch at desk (-$0, +30 hunger, +15 thirst, -5 stress)"
-                                        }
+                                        "config": {}
                                       },
                                       {
-                                        "node_type": "Wait",
+                                        "node_type": "TickCounter",
                                         "name": "Quick Meal",
                                         "config": {
-                                          "duration": 0.15
+                                          "duration": 1,
+                                          "completion_status": "SUCCESS"
                                         }
                                       },
                                       {
@@ -342,11 +315,9 @@
                                     ]
                                   },
                                   {
-                                    "node_type": "Log",
+                                    "node_type": "Success",
                                     "name": "Skip Lunch",
-                                    "config": {
-                                      "message": "Too busy, skipping lunch (+20 stress, -5 energy)"
-                                    }
+                                    "config": {}
                                   }
                                 ]
                               }
@@ -355,17 +326,16 @@
                         ]
                       },
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Afternoon Work",
-                        "config": {
-                          "message": "Afternoon tasks: project work, deadlines (-15 energy, -10 hunger, -12 thirst, +20 stress)"
-                        }
+                        "config": {}
                       },
                       {
-                        "node_type": "Wait",
+                        "node_type": "TickCounter",
                         "name": "Afternoon Duration",
                         "config": {
-                          "duration": 0.3
+                          "duration": 3,
+                          "completion_status": "SUCCESS"
                         }
                       },
                       {
@@ -379,17 +349,16 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Working Late",
-                                "config": {
-                                  "message": "Overtime! Deadline approaching (-10 energy, -8 hunger, -8 thirst, +25 stress)"
-                                }
+                                "config": {}
                               },
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Extra Hours",
                                 "config": {
-                                  "duration": 0.2
+                                  "duration": 2,
+                                  "completion_status": "SUCCESS"
                                 }
                               },
                               {
@@ -400,11 +369,9 @@
                             ]
                           },
                           {
-                            "node_type": "Log",
+                            "node_type": "Success",
                             "name": "Regular End",
-                            "config": {
-                              "message": "Work day complete, heading home"
-                            }
+                            "config": {}
                           }
                         ]
                       }
@@ -424,11 +391,9 @@
             },
             "children": [
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "Arrive Home",
-                "config": {
-                  "message": "Commute home complete (-3 energy, -2 thirst, -5 stress from relief)"
-                }
+                "config": {}
               },
               {
                 "node_type": "Selector",
@@ -441,11 +406,9 @@
                     "config": {},
                     "children": [
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Exhausted State",
-                        "config": {
-                          "message": "Completely exhausted! Need immediate recovery"
-                        }
+                        "config": {}
                       },
                       {
                         "node_type": "Parallel",
@@ -460,27 +423,24 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Fast Food",
-                                "config": {
-                                  "message": "Ordering takeout (-$20, +50 hunger, +20 thirst)"
-                                }
+                                "config": {}
                               },
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Eating",
                                 "config": {
-                                  "duration": 0.2
+                                  "duration": 2,
+                                  "completion_status": "SUCCESS"
                                 }
                               }
                             ]
                           },
                           {
-                            "node_type": "Log",
+                            "node_type": "Success",
                             "name": "Rest",
-                            "config": {
-                              "message": "Resting on couch (+20 energy, -15 stress)"
-                            }
+                            "config": {}
                           }
                         ]
                       }
@@ -502,17 +462,16 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Cooking",
-                                "config": {
-                                  "message": "Cooking healthy dinner (-$12, -5 energy, +55 hunger, +25 thirst, -10 stress)"
-                                }
+                                "config": {}
                               },
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Cooking Time",
                                 "config": {
-                                  "duration": 0.3
+                                  "duration": 3,
+                                  "completion_status": "SUCCESS"
                                 }
                               },
                               {
@@ -528,27 +487,24 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Delivery",
-                                "config": {
-                                  "message": "Ordering delivery (-$18, +45 hunger, +20 thirst)"
-                                }
+                                "config": {}
                               },
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Wait for Food",
                                 "config": {
-                                  "duration": 0.2
+                                  "duration": 2,
+                                  "completion_status": "SUCCESS"
                                 }
                               }
                             ]
                           },
                           {
-                            "node_type": "Log",
+                            "node_type": "Success",
                             "name": "Light Snack",
-                            "config": {
-                              "message": "Just having a light snack (-$5, +20 hunger, +10 thirst)"
-                            }
+                            "config": {}
                           }
                         ]
                       },
@@ -563,11 +519,9 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Need Stress Relief",
-                                "config": {
-                                  "message": "Stress very high! Need active relief"
-                                }
+                                "config": {}
                               },
                               {
                                 "node_type": "Selector",
@@ -580,17 +534,16 @@
                                     "config": {},
                                     "children": [
                                       {
-                                        "node_type": "Log",
+                                        "node_type": "Success",
                                         "name": "Workout",
-                                        "config": {
-                                          "message": "Going to gym (-15 energy, -10 thirst, -30 stress, +5 hunger)"
-                                        }
+                                        "config": {}
                                       },
                                       {
-                                        "node_type": "Wait",
+                                        "node_type": "TickCounter",
                                         "name": "Exercise Time",
                                         "config": {
-                                          "duration": 0.3
+                                          "duration": 3,
+                                          "completion_status": "SUCCESS"
                                         }
                                       }
                                     ]
@@ -601,27 +554,24 @@
                                     "config": {},
                                     "children": [
                                       {
-                                        "node_type": "Log",
+                                        "node_type": "Success",
                                         "name": "Meet Friends",
-                                        "config": {
-                                          "message": "Going out with friends (-$25, -8 energy, -5 thirst, -35 stress)"
-                                        }
+                                        "config": {}
                                       },
                                       {
-                                        "node_type": "Wait",
+                                        "node_type": "TickCounter",
                                         "name": "Social Time",
                                         "config": {
-                                          "duration": 0.4
+                                          "duration": 4,
+                                          "completion_status": "SUCCESS"
                                         }
                                       }
                                     ]
                                   },
                                   {
-                                    "node_type": "Log",
+                                    "node_type": "Success",
                                     "name": "Gaming",
-                                    "config": {
-                                      "message": "Playing video games (-5 energy, -20 stress)"
-                                    }
+                                    "config": {}
                                   }
                                 ]
                               }
@@ -633,17 +583,16 @@
                             "config": {},
                             "children": [
                               {
-                                "node_type": "Log",
+                                "node_type": "Success",
                                 "name": "Chill Time",
-                                "config": {
-                                  "message": "Watching TV, reading, relaxing (-2 energy, -10 stress)"
-                                }
+                                "config": {}
                               },
                               {
-                                "node_type": "Wait",
+                                "node_type": "TickCounter",
                                 "name": "Leisure",
                                 "config": {
-                                  "duration": 0.3
+                                  "duration": 3,
+                                  "completion_status": "SUCCESS"
                                 }
                               }
                             ]
@@ -651,17 +600,16 @@
                         ]
                       },
                       {
-                        "node_type": "Log",
+                        "node_type": "Success",
                         "name": "Bedtime Prep",
-                        "config": {
-                          "message": "Getting ready for bed: shower, teeth, wind down"
-                        }
+                        "config": {}
                       },
                       {
-                        "node_type": "Wait",
+                        "node_type": "TickCounter",
                         "name": "Night Routine",
                         "config": {
-                          "duration": 0.2
+                          "duration": 2,
+                          "completion_status": "SUCCESS"
                         }
                       }
                     ]
@@ -669,22 +617,18 @@
                 ]
               },
               {
-                "node_type": "Log",
+                "node_type": "Success",
                 "name": "End of Day",
-                "config": {
-                  "message": "Going to sleep. Day complete! (+100 energy, +10 hunger, +10 thirst, reset stress)"
-                }
+                "config": {}
               }
             ]
           }
         ]
       },
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Day Summary",
-        "config": {
-          "message": "=== DAY COMPLETE === Starting new cycle..."
-        }
+        "config": {}
       }
     ]
   },

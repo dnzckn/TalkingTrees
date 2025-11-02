@@ -5,7 +5,12 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Demonstrates debugging features: breakpoints, watches, and step execution",
-    "tags": ["tutorial", "debug", "breakpoint", "watch"]
+    "tags": [
+      "tutorial",
+      "debug",
+      "breakpoint",
+      "watch"
+    ]
   },
   "root": {
     "node_type": "Sequence",
@@ -16,15 +21,9 @@
     },
     "children": [
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Initialize",
-        "config": {
-          "message": "Starting debug demo - set breakpoint here!"
-        },
-        "ui_metadata": {
-          "breakpoint": true,
-          "notes": "Good place for initial breakpoint"
-        }
+        "config": {}
       },
       {
         "node_type": "Sequence",
@@ -32,42 +31,35 @@
         "config": {},
         "children": [
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Iteration 1",
-            "config": {
-              "message": "Loop iteration 1"
-            }
+            "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Pause 1",
             "config": {
-              "duration": 0.5
+              "duration": 5,
+              "completion_status": "SUCCESS"
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Iteration 2",
-            "config": {
-              "message": "Loop iteration 2"
-            },
-            "ui_metadata": {
-              "notes": "Watch counter variable changes here"
-            }
+            "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Pause 2",
             "config": {
-              "duration": 0.5
+              "duration": 5,
+              "completion_status": "SUCCESS"
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Iteration 3",
-            "config": {
-              "message": "Loop iteration 3"
-            }
+            "config": {}
           }
         ]
       },
@@ -80,31 +72,25 @@
         },
         "children": [
           {
-            "node_type": "CheckBattery",
+            "node_type": "CheckBlackboardVariableValue",
             "name": "Check High Battery",
             "config": {
-              "threshold": 80.0
+              "variable": "battery",
+              "operator": "<",
+              "value": 80.0
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Battery Not High",
-            "config": {
-              "message": "Battery below 80%"
-            }
+            "config": {}
           }
         ]
       },
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Complete",
-        "config": {
-          "message": "Debug demo complete!"
-        },
-        "ui_metadata": {
-          "breakpoint": true,
-          "notes": "Final breakpoint to inspect state"
-        }
+        "config": {}
       }
     ]
   },
@@ -121,6 +107,12 @@
     }
   },
   "dependencies": {
-    "behaviors": ["Sequence", "Selector", "Log", "Wait", "CheckBattery"]
+    "behaviors": [
+      "Sequence",
+      "Selector",
+      "Log",
+      "Wait",
+      "CheckBattery"
+    ]
   }
 }

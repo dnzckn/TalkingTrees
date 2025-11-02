@@ -1,0 +1,264 @@
+================================================================================
+Round-Trip Conversion Test Report
+================================================================================
+
+SUMMARY
+--------------------------------------------------------------------------------
+Total Files:  11
+Passed:       1 (9.1%)
+Failed:       10
+
+DETAILED RESULTS
+--------------------------------------------------------------------------------
+Status       File                                Original   RoundTrip  Match   
+--------------------------------------------------------------------------------
+❌ FAIL       01_simple_sequence.json             0          0          ✓       
+❌ FAIL       02_simple_selector.json             0          0          ✓       
+❌ FAIL       03_retry_pattern.json               0          0          ✓       
+❌ FAIL       04_parallel_tasks.json              0          0          ✓       
+❌ FAIL       05_patrol_robot.json                0          0          ✓       
+❌ FAIL       06_debug_showcase.json              0          0          ✓       
+❌ FAIL       07_game_ai.json                     0          0          ✓       
+✅ PASS       08_stress_test.json                 45         45         ✓       
+❌ FAIL       09_day_in_life_sim.json             0          0          ✓       
+❌ FAIL       10_guard_patrol_game.json           0          0          ✓       
+❌ FAIL       11_ultra_complex.json               0          0          ✓       
+
+ERRORS AND WARNINGS
+--------------------------------------------------------------------------------
+
+01_simple_sequence.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+02_simple_selector.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+03_retry_pattern.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+04_parallel_tasks.json:
+  ERROR: ValueError: Unknown parallel policy: {'synchronise': False}
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 92, in test_tree_roundtrip
+    py_tree = serializer.deserialize(tree_def)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 169, in _build_node
+    return self._build_parallel(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 234, in _build_parallel
+    policy = ParallelPolicyFactory.create(policy_name, synchronise)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/utils.py", line 180, in create
+    raise ValueError(f"Unknown parallel policy: {policy_name}")
+ValueError: Unknown parallel policy: {'synchronise': False}
+
+
+05_patrol_robot.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 173, in _build_node
+    return self._build_decorator(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 269, in _build_decorator
+    child = self._build_node(node_def.children[0], depth + 1)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+06_debug_showcase.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+07_game_ai.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 173, in _build_node
+    return self._build_decorator(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 269, in _build_decorator
+    child = self._build_node(node_def.children[0], depth + 1)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+09_day_in_life_sim.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+10_guard_patrol_game.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+11_ultra_complex.json:
+  ERROR: ValueError: Unknown node type: Action
+  Full traceback:
+Traceback (most recent call last):
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/tests/test_all_examples_roundtrip.py", line 112, in test_tree_roundtrip
+    roundtrip_py_tree = serializer.deserialize(roundtrip_tree)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 64, in deserialize
+    root_node = self._build_node(resolved_root, depth=0)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 167, in _build_node
+    return self._build_composite(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in _build_composite
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 191, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 169, in _build_node
+    return self._build_parallel(node_def, depth)
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 227, in _build_parallel
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 227, in <listcomp>
+    children = [self._build_node(child, depth + 1) for child in node_def.children]
+  File "/Users/deniz/Documents/GitHub/TalkingTrees/src/talking_trees/core/serializer.py", line 162, in _build_node
+    raise ValueError(f"Unknown node type: {node_def.node_type}")
+ValueError: Unknown node type: Action
+
+
+================================================================================
+⚠️  10 TEST(S) FAILED
+================================================================================

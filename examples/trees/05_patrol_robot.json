@@ -5,7 +5,12 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Autonomous robot patrol behavior with battery management",
-    "tags": ["example", "robot", "patrol", "realistic"]
+    "tags": [
+      "example",
+      "robot",
+      "patrol",
+      "realistic"
+    ]
   },
   "root": {
     "node_type": "Selector",
@@ -23,20 +28,20 @@
             "config": {},
             "children": [
               {
-                "node_type": "CheckBattery",
+                "node_type": "CheckBlackboardVariableValue",
                 "name": "Check Battery > 20%",
                 "config": {
-                  "threshold": 20.0
+                  "variable": "battery",
+                  "operator": "<",
+                  "value": 20.0
                 }
               }
             ]
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Battery Low Alert",
-            "config": {
-              "message": "Battery low! Returning to charge station"
-            }
+            "config": {}
           },
           {
             "node_type": "Success",
@@ -44,18 +49,17 @@
             "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Charging",
             "config": {
-              "duration": 2.0
+              "duration": 20,
+              "completion_status": "SUCCESS"
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Charged",
-            "config": {
-              "message": "Battery fully charged"
-            }
+            "config": {}
           }
         ]
       },
@@ -65,11 +69,9 @@
         "config": {},
         "children": [
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Patrolling",
-            "config": {
-              "message": "Patrolling area..."
-            }
+            "config": {}
           },
           {
             "node_type": "Success",
@@ -77,10 +79,11 @@
             "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Scan Area 1",
             "config": {
-              "duration": 1.0
+              "duration": 10,
+              "completion_status": "SUCCESS"
             }
           },
           {
@@ -89,18 +92,17 @@
             "config": {}
           },
           {
-            "node_type": "Wait",
+            "node_type": "TickCounter",
             "name": "Scan Area 2",
             "config": {
-              "duration": 1.0
+              "duration": 10,
+              "completion_status": "SUCCESS"
             }
           },
           {
-            "node_type": "Log",
+            "node_type": "Success",
             "name": "Patrol Complete",
-            "config": {
-              "message": "Patrol cycle completed"
-            }
+            "config": {}
           }
         ]
       }
@@ -121,6 +123,14 @@
     }
   },
   "dependencies": {
-    "behaviors": ["Selector", "Sequence", "Inverter", "CheckBattery", "Log", "Wait", "Success"]
+    "behaviors": [
+      "Selector",
+      "Sequence",
+      "Inverter",
+      "CheckBattery",
+      "Log",
+      "Wait",
+      "Success"
+    ]
   }
 }

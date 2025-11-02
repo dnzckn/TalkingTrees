@@ -425,34 +425,22 @@ class BehaviorRegistry:
                 node_type="Condition",
                 category=NodeCategory.DECORATOR,
                 display_name="Condition",
-                description="Blocking conditional - waits for condition to be true before executing child",
+                description="Blocking conditional - waits for child to return specified status",
                 icon="condition",
                 color="#16A085",
                 config_schema={
-                    "variable": ConfigPropertySchema(
+                    "status": ConfigPropertySchema(
                         type="string",
-                        default="condition",
-                        description="Blackboard variable to check",
-                        ui_hints={"widget": "text"},
-                    ),
-                    "operator": ConfigPropertySchema(
-                        type="string",
-                        default="==",
-                        enum=["<", "<=", "==", "!=", ">=", ">"],
-                        description="Comparison operator",
+                        default="SUCCESS",
+                        enum=["SUCCESS", "FAILURE", "RUNNING"],
+                        description="Status to wait for from child",
                         ui_hints={"widget": "select"},
-                    ),
-                    "value": ConfigPropertySchema(
-                        type="number",
-                        default=0,
-                        description="Value to compare against",
-                        ui_hints={"widget": "number"},
                     ),
                 },
                 child_constraints=ChildConstraints(min_children=1, max_children=1),
                 status_behavior=StatusBehavior(
-                    returns=["SUCCESS", "FAILURE", "RUNNING"],
-                    description="RUNNING while waiting, child status when condition met",
+                    returns=["SUCCESS", "RUNNING"],
+                    description="RUNNING while waiting for child status, SUCCESS when condition met",
                 ),
                 is_builtin=True,
             ),
@@ -500,6 +488,45 @@ class BehaviorRegistry:
                 status_behavior=StatusBehavior(
                     returns=["SUCCESS", "FAILURE", "RUNNING"],
                     description="Passes through child status",
+                ),
+                is_builtin=True,
+            ),
+        )
+
+        # ForEach (only in py_trees 2.3+)
+        if hasattr(decorators, 'ForEach'):
+            self.register(
+                node_type="ForEach",
+                implementation=decorators.ForEach,
+                schema=BehaviorSchema(
+                node_type="ForEach",
+                category=NodeCategory.DECORATOR,
+                display_name="For Each",
+                description="Execute child for each item in blackboard iterable",
+                icon="for_each",
+                color="#9B59B6",
+                config_schema={
+                    "source_key": ConfigPropertySchema(
+                        type="string",
+                        default="items",
+                        description="Blackboard key containing iterable",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "target_key": ConfigPropertySchema(
+                        type="string",
+                        default="current_item",
+                        description="Blackboard key to set for each iteration",
+                        ui_hints={"widget": "text"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=1, max_children=1),
+                blackboard_access=BlackboardAccess(
+                    reads=["source_key"],
+                    writes=["target_key"],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS", "FAILURE", "RUNNING"],
+                    description="SUCCESS when all items processed, RUNNING while iterating",
                 ),
                 is_builtin=True,
             ),
@@ -618,14 +645,14 @@ class BehaviorRegistry:
                 icon="tick_counter",
                 color="#3498DB",
                 config_schema={
-                    "num_ticks": ConfigPropertySchema(
+                    "duration": ConfigPropertySchema(
                         type="integer",
                         default=1,
                         minimum=1,
                         description="Number of ticks to count",
                         ui_hints={"widget": "number"},
                     ),
-                    "final_status": ConfigPropertySchema(
+                    "completion_status": ConfigPropertySchema(
                         type="string",
                         default="SUCCESS",
                         enum=["SUCCESS", "FAILURE"],
@@ -765,6 +792,50 @@ class BehaviorRegistry:
         )
 
         self.register(
+            node_type="CheckBlackboardVariableValue",
+            implementation=py_trees.behaviours.CheckBlackboardVariableValue,
+            schema=BehaviorSchema(
+                node_type="CheckBlackboardVariableValue",
+                category=NodeCategory.CONDITION,
+                display_name="Check Variable Value",
+                description="Check if a blackboard variable meets a comparison condition",
+                icon="check_value",
+                color="#16A085",
+                config_schema={
+                    "variable": ConfigPropertySchema(
+                        type="string",
+                        default="value",
+                        description="Blackboard variable name to check",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "operator": ConfigPropertySchema(
+                        type="string",
+                        default="==",
+                        enum=["<", "<=", "==", "!=", ">=", ">"],
+                        description="Comparison operator",
+                        ui_hints={"widget": "select"},
+                    ),
+                    "value": ConfigPropertySchema(
+                        type="number",
+                        default=0,
+                        description="Value to compare against",
+                        ui_hints={"widget": "number"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=0, max_children=0),
+                blackboard_access=BlackboardAccess(
+                    reads=["variable"],
+                    writes=[],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS", "FAILURE"],
+                    description="SUCCESS if comparison passes, FAILURE otherwise",
+                ),
+                is_builtin=True,
+            ),
+        )
+
+        self.register(
             node_type="UnsetBlackboardVariable",
             implementation=py_trees.behaviours.UnsetBlackboardVariable,
             schema=BehaviorSchema(
@@ -887,12 +958,18 @@ class BehaviorRegistry:
                         description="List of check objects {variable, operator, value}",
                         ui_hints={"widget": "textarea"},
                     ),
-                    "logical_operator": ConfigPropertySchema(
+                    "operator": ConfigPropertySchema(
                         type="string",
                         default="and",
-                        enum=["and", "or"],
+                        enum=["and", "or", "xor"],
                         description="Logical operator to combine checks",
                         ui_hints={"widget": "select"},
+                    ),
+                    "namespace": ConfigPropertySchema(
+                        type="string",
+                        default=None,
+                        description="Optional namespace to store check results",
+                        ui_hints={"widget": "text"},
                     ),
                 },
                 child_constraints=ChildConstraints(min_children=0, max_children=0),
@@ -903,6 +980,52 @@ class BehaviorRegistry:
                 status_behavior=StatusBehavior(
                     returns=["SUCCESS", "FAILURE"],
                     description="SUCCESS if all/any checks pass, FAILURE otherwise",
+                ),
+                is_builtin=True,
+            ),
+        )
+
+        # CompareBlackboardVariables (only in py_trees 2.3+)
+        if hasattr(py_trees.behaviours, 'CompareBlackboardVariables'):
+            self.register(
+                node_type="CompareBlackboardVariables",
+                implementation=py_trees.behaviours.CompareBlackboardVariables,
+                schema=BehaviorSchema(
+                node_type="CompareBlackboardVariables",
+                category=NodeCategory.CONDITION,
+                display_name="Compare Two Variables",
+                description="Compare two blackboard variables using an operator",
+                icon="compare_vars",
+                color="#16A085",
+                config_schema={
+                    "var1_key": ConfigPropertySchema(
+                        type="string",
+                        default="var1",
+                        description="First blackboard variable name",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "var2_key": ConfigPropertySchema(
+                        type="string",
+                        default="var2",
+                        description="Second blackboard variable name",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "operator": ConfigPropertySchema(
+                        type="string",
+                        default="==",
+                        enum=["<", "<=", "==", "!=", ">=", ">"],
+                        description="Comparison operator",
+                        ui_hints={"widget": "select"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=0, max_children=0),
+                blackboard_access=BlackboardAccess(
+                    reads=["var1_key", "var2_key"],
+                    writes=[],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS", "FAILURE"],
+                    description="SUCCESS if comparison holds, FAILURE otherwise",
                 ),
                 is_builtin=True,
             ),
@@ -974,93 +1097,8 @@ class BehaviorRegistry:
         """Register custom TalkingTrees behaviors."""
         from talking_trees.behaviors import examples
 
-        self.register(
-            node_type="CheckBattery",
-            implementation=examples.CheckBattery,
-            schema=BehaviorSchema(
-                node_type="CheckBattery",
-                category=NodeCategory.CONDITION,
-                display_name="Battery Check",
-                description="Check if battery level is above threshold",
-                icon="battery",
-                color="#F39C12",
-                config_schema={
-                    "threshold": ConfigPropertySchema(
-                        type="number",
-                        default=0.2,
-                        minimum=0.0,
-                        maximum=1.0,
-                        description="Minimum battery level (0.0-1.0)",
-                        ui_hints={"widget": "slider", "step": 0.05},
-                    )
-                },
-                child_constraints=ChildConstraints(min_children=0, max_children=0),
-                blackboard_access=BlackboardAccess(
-                    reads=["/battery/level"],
-                    writes=[],
-                ),
-                status_behavior=StatusBehavior(
-                    returns=["SUCCESS", "FAILURE"],
-                    description="SUCCESS if battery above threshold, FAILURE otherwise",
-                ),
-                is_builtin=False,
-            ),
-        )
 
-        self.register(
-            node_type="Log",
-            implementation=examples.Log,
-            schema=BehaviorSchema(
-                node_type="Log",
-                category=NodeCategory.ACTION,
-                display_name="Log Message",
-                description="Log a message and return SUCCESS",
-                icon="log",
-                color="#3498DB",
-                config_schema={
-                    "message": ConfigPropertySchema(
-                        type="string",
-                        default="",
-                        description="Message to log",
-                        ui_hints={"widget": "textarea"},
-                    )
-                },
-                child_constraints=ChildConstraints(min_children=0, max_children=0),
-                status_behavior=StatusBehavior(
-                    returns=["SUCCESS"],
-                    description="Always returns SUCCESS after logging",
-                ),
-                is_builtin=False,
-            ),
-        )
 
-        self.register(
-            node_type="Wait",
-            implementation=examples.Wait,
-            schema=BehaviorSchema(
-                node_type="Wait",
-                category=NodeCategory.ACTION,
-                display_name="Wait/Delay",
-                description="Wait for specified duration before returning SUCCESS",
-                icon="wait",
-                color="#9B59B6",
-                config_schema={
-                    "duration": ConfigPropertySchema(
-                        type="number",
-                        default=1.0,
-                        minimum=0.1,
-                        description="Wait duration in seconds",
-                        ui_hints={"widget": "number", "step": 0.1},
-                    )
-                },
-                child_constraints=ChildConstraints(min_children=0, max_children=0),
-                status_behavior=StatusBehavior(
-                    returns=["RUNNING", "SUCCESS"],
-                    description="RUNNING while waiting, SUCCESS when complete",
-                ),
-                is_builtin=False,
-            ),
-        )
 
         self.register(
             node_type="SetBlackboardVariable",
@@ -1099,80 +1137,7 @@ class BehaviorRegistry:
             ),
         )
 
-        self.register(
-            node_type="GetBlackboardVariable",
-            implementation=examples.GetBlackboardVariable,
-            schema=BehaviorSchema(
-                node_type="GetBlackboardVariable",
-                category=NodeCategory.ACTION,
-                display_name="Get Variable",
-                description="Read a blackboard variable (for debugging/testing)",
-                icon="get_variable",
-                color="#3498DB",
-                config_schema={
-                    "variable": ConfigPropertySchema(
-                        type="string",
-                        default="result",
-                        description="Blackboard variable name to read",
-                        ui_hints={"widget": "text"},
-                    ),
-                },
-                child_constraints=ChildConstraints(min_children=0, max_children=0),
-                blackboard_access=BlackboardAccess(
-                    reads=["variable"],
-                    writes=[],
-                ),
-                status_behavior=StatusBehavior(
-                    returns=["SUCCESS", "FAILURE"],
-                    description="SUCCESS if variable exists, FAILURE if not found",
-                ),
-                is_builtin=False,
-            ),
-        )
 
-        self.register(
-            node_type="CheckBlackboardCondition",
-            implementation=examples.CheckBlackboardCondition,
-            schema=BehaviorSchema(
-                node_type="CheckBlackboardCondition",
-                category=NodeCategory.CONDITION,
-                display_name="Check Condition",
-                description="Check blackboard value with comparison operator",
-                icon="condition_check",
-                color="#16A085",
-                config_schema={
-                    "variable": ConfigPropertySchema(
-                        type="string",
-                        default="value",
-                        description="Blackboard variable name to check",
-                        ui_hints={"widget": "text"},
-                    ),
-                    "operator_str": ConfigPropertySchema(
-                        type="string",
-                        default="==",
-                        enum=["<", "<=", "==", "!=", ">=", ">"],
-                        description="Comparison operator",
-                        ui_hints={"widget": "select"},
-                    ),
-                    "value": ConfigPropertySchema(
-                        type="number",
-                        default=0,
-                        description="Value to compare against",
-                        ui_hints={"widget": "number"},
-                    ),
-                },
-                child_constraints=ChildConstraints(min_children=0, max_children=0),
-                blackboard_access=BlackboardAccess(
-                    reads=["variable"],
-                    writes=[],
-                ),
-                status_behavior=StatusBehavior(
-                    returns=["SUCCESS", "FAILURE", "RUNNING"],
-                    description="Child status if condition passes, FAILURE if condition fails",
-                ),
-                is_builtin=False,
-            ),
-        )
 
     def register(
         self,
@@ -1324,35 +1289,10 @@ class BehaviorRegistry:
                 # Composites with memory parameter
                 memory = config.get("memory", True)
                 return implementation(name=name, memory=memory)
-            elif node_type == "CheckBattery":
-                threshold = config.get("threshold", 0.2)
-                return implementation(name=name, threshold=threshold)
-            elif node_type == "Log":
-                message = config.get("message", "")
-                return implementation(name=name, message=message)
-            elif node_type == "Wait":
-                duration = config.get("duration", 1.0)
-                return implementation(name=name, duration=duration)
             elif node_type == "SetBlackboardVariable":
                 variable = config.get("variable", "result")
                 value = config.get("value", "")
                 return implementation(name=name, variable=variable, value=value)
-            elif node_type == "GetBlackboardVariable":
-                variable = config.get("variable", "result")
-                return implementation(name=name, variable=variable)
-            elif node_type == "CheckBlackboardCondition":
-                # Conditional decorator needs child parameter (will be added later)
-                dummy_child = py_trees.behaviours.Success(name="dummy")
-                variable = config.get("variable", "value")
-                operator_str = config.get("operator_str", "==")
-                value = config.get("value", 0)
-                return implementation(
-                    name=name,
-                    child=dummy_child,
-                    variable=variable,
-                    operator_str=operator_str,
-                    value=value,
-                )
             else:
                 # Simple behaviors (Success, Failure, Running, etc.)
                 return implementation(name=name)

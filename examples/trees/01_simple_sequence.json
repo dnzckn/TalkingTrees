@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Demonstrates a basic sequence that executes actions in order",
-    "tags": ["tutorial", "basic", "sequence"]
+    "tags": [
+      "tutorial",
+      "basic",
+      "sequence"
+    ]
   },
   "root": {
     "node_type": "Sequence",
@@ -13,25 +17,19 @@
     "config": {},
     "children": [
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Step 1",
-        "config": {
-          "message": "Executing step 1"
-        }
+        "config": {}
       },
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Step 2",
-        "config": {
-          "message": "Executing step 2"
-        }
+        "config": {}
       },
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Step 3",
-        "config": {
-          "message": "Executing step 3"
-        }
+        "config": {}
       },
       {
         "node_type": "Success",
@@ -42,6 +40,10 @@
   },
   "blackboard_schema": {},
   "dependencies": {
-    "behaviors": ["Sequence", "Log", "Success"]
+    "behaviors": [
+      "Sequence",
+      "Log",
+      "Success"
+    ]
   }
 }

@@ -5,7 +5,11 @@
     "version": "1.0.0",
     "description": "Comprehensive demonstration showcasing decorators, parallel execution, status converters, and blackboard operations",
     "author": "TalkingTrees",
-    "tags": ["demo", "comprehensive", "advanced"],
+    "tags": [
+      "demo",
+      "comprehensive",
+      "advanced"
+    ],
     "status": "active"
   },
   "root": {
@@ -23,11 +27,11 @@
         },
         "children": [
           {
-            "node_type": "CheckBlackboardCondition",
+            "node_type": "CheckBlackboardVariableValue",
             "name": "Check Battery Low",
             "config": {
               "variable": "battery",
-              "operator_str": "<",
+              "operator": "<",
               "value": 20
             }
           },
@@ -66,12 +70,12 @@
         "children": [
           {
             "node_type": "SuccessIsFailure",
-            "name": "Success → Failure",
+            "name": "Success \u2192 Failure",
             "config": {},
             "children": [
               {
                 "node_type": "FailureIsSuccess",
-                "name": "Failure → Success",
+                "name": "Failure \u2192 Success",
                 "config": {},
                 "children": [
                   {
@@ -85,7 +89,7 @@
           },
           {
             "node_type": "RunningIsSuccess",
-            "name": "Running → Success",
+            "name": "Running \u2192 Success",
             "config": {},
             "children": [
               {
@@ -169,17 +173,19 @@
             },
             "children": [
               {
-                "node_type": "Wait",
+                "node_type": "TickCounter",
                 "name": "Camera Scan",
                 "config": {
-                  "duration": 2.0
+                  "duration": 20,
+                  "completion_status": "SUCCESS"
                 }
               },
               {
-                "node_type": "Wait",
+                "node_type": "TickCounter",
                 "name": "Lidar Scan",
                 "config": {
-                  "duration": 2.0
+                  "duration": 20,
+                  "completion_status": "SUCCESS"
                 }
               },
               {
@@ -207,7 +213,7 @@
             }
           },
           {
-            "node_type": "GetBlackboardVariable",
+            "node_type": "CheckBlackboardVariableExists",
             "name": "Get Counter",
             "config": {
               "variable": "counter"
@@ -238,7 +244,7 @@
         "children": [
           {
             "node_type": "FailureIsRunning",
-            "name": "Failure → Running",
+            "name": "Failure \u2192 Running",
             "config": {},
             "children": [
               {
@@ -250,7 +256,7 @@
           },
           {
             "node_type": "RunningIsFailure",
-            "name": "Running → Failure",
+            "name": "Running \u2192 Failure",
             "config": {},
             "children": [
               {
@@ -262,7 +268,7 @@
           },
           {
             "node_type": "SuccessIsRunning",
-            "name": "Success → Running",
+            "name": "Success \u2192 Running",
             "config": {},
             "children": [
               {

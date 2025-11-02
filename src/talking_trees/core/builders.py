@@ -189,18 +189,18 @@ class ConditionBuilder(DecoratorBuilder):
     """Build Condition decorator."""
 
     def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
-        from talking_trees.core.utils import ComparisonExpressionUtil
-
         child = self.get_child(kwargs)
-        variable = config.get(ConfigKeys.VARIABLE, "condition")
-        value = config.get(ConfigKeys.VALUE, True)
-        op_str = config.get(ConfigKeys.OPERATOR, "==")
+        status_str = config.get("status", "SUCCESS")
 
-        check = ComparisonExpressionUtil.create(variable, op_str, value)
+        # Convert string to Status enum
+        status_map = {
+            "SUCCESS": py_trees.common.Status.SUCCESS,
+            "FAILURE": py_trees.common.Status.FAILURE,
+            "RUNNING": py_trees.common.Status.RUNNING,
+        }
+        status = status_map.get(status_str, py_trees.common.Status.SUCCESS)
 
-        return py_trees.decorators.Condition(
-            name=name, child=child, blackboard_keys=[variable], status=check
-        )
+        return py_trees.decorators.Condition(name=name, child=child, status=status)
 
 
 class CountBuilder(DecoratorBuilder):
@@ -219,6 +219,18 @@ class StatusToBlackboardBuilder(DecoratorBuilder):
         variable = config.get(ConfigKeys.VARIABLE, "status")
         return py_trees.decorators.StatusToBlackboard(
             name=name, child=child, variable_name=variable
+        )
+
+
+class ForEachBuilder(DecoratorBuilder):
+    """Build ForEach decorator."""
+
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
+        child = self.get_child(kwargs)
+        source_key = config.get("source_key", "items")
+        target_key = config.get("target_key", "current_item")
+        return py_trees.decorators.ForEach(
+            name=name, child=child, source_key=source_key, target_key=target_key
         )
 
 
@@ -323,6 +335,21 @@ class CheckBlackboardVariableExistsBuilder(NodeBuilder):
         )
 
 
+class CheckBlackboardVariableValueBuilder(NodeBuilder):
+    """Builder for CheckBlackboardVariableValue (singular)."""
+
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
+        from talking_trees.core.utils import ComparisonExpressionUtil
+
+        variable = config.get(ConfigKeys.VARIABLE, "value")
+        value = config.get(ConfigKeys.VALUE, 0)
+        op_str = config.get("operator", "==")
+
+        check = ComparisonExpressionUtil.create(variable, op_str, value)
+
+        return py_trees.behaviours.CheckBlackboardVariableValue(name=name, check=check)
+
+
 class UnsetBlackboardVariableBuilder(NodeBuilder):
     """Builder for UnsetBlackboardVariable."""
 
@@ -338,6 +365,54 @@ class WaitForBlackboardVariableBuilder(NodeBuilder):
         variable = config.get(ConfigKeys.VARIABLE, "var")
         return py_trees.behaviours.WaitForBlackboardVariable(
             name=name, variable_name=variable
+        )
+
+
+class CheckBlackboardVariableValuesBuilder(NodeBuilder):
+    """Builder for CheckBlackboardVariableValues (plural)."""
+
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
+        from talking_trees.core.utils import (
+            ComparisonExpressionUtil,
+            string_to_logical_operator,
+        )
+
+        # Build list of ComparisonExpression objects from checks config
+        checks_config = config.get("checks", [])
+        checks = []
+        for check_dict in checks_config:
+            variable = check_dict.get("variable", "var")
+            op_str = check_dict.get("operator", "==")
+            value = check_dict.get("value", True)
+            check = ComparisonExpressionUtil.create(variable, op_str, value)
+            checks.append(check)
+
+        # Convert operator string to function
+        operator_str = config.get("operator", "and")
+        operator_func = string_to_logical_operator(operator_str)
+
+        # Optional namespace
+        namespace = config.get("namespace", None)
+
+        return py_trees.behaviours.CheckBlackboardVariableValues(
+            name=name, checks=checks, operator=operator_func, namespace=namespace
+        )
+
+
+class CompareBlackboardVariablesBuilder(NodeBuilder):
+    """Builder for CompareBlackboardVariables."""
+
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
+        from talking_trees.core.utils import string_to_operator
+
+        var1_key = config.get("var1_key", "var1")
+        var2_key = config.get("var2_key", "var2")
+        op_str = config.get("operator", "==")
+
+        operator_func = string_to_operator(op_str)
+
+        return py_trees.behaviours.CompareBlackboardVariables(
+            name=name, var1_key=var1_key, var2_key=var2_key, operator=operator_func
         )
 
 
@@ -362,6 +437,7 @@ DECORATOR_BUILDERS: dict[str, NodeBuilder] = {
     "Condition": ConditionBuilder(),
     "Count": CountBuilder(),
     "StatusToBlackboard": StatusToBlackboardBuilder(),
+    "ForEach": ForEachBuilder(),
     "PassThrough": PassThroughBuilder(),
 }
 
@@ -385,6 +461,9 @@ SPECIAL_BEHAVIOR_BUILDERS: dict[str, NodeBuilder] = {
     "CheckBlackboardCondition": CheckBlackboardConditionBuilder(),
     "SetBlackboardVariable": SetBlackboardVariableBuilder(),
     "CheckBlackboardVariableExists": CheckBlackboardVariableExistsBuilder(),
+    "CheckBlackboardVariableValue": CheckBlackboardVariableValueBuilder(),
+    "CheckBlackboardVariableValues": CheckBlackboardVariableValuesBuilder(),
+    "CompareBlackboardVariables": CompareBlackboardVariablesBuilder(),
     "UnsetBlackboardVariable": UnsetBlackboardVariableBuilder(),
     "WaitForBlackboardVariable": WaitForBlackboardVariableBuilder(),
 }

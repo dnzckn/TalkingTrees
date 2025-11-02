@@ -30,6 +30,19 @@ STRING_TO_OPERATOR: dict[str, Callable] = {
     "!=": op.ne,
 }
 
+# Logical operator mappings for CheckBlackboardVariableValues
+LOGICAL_OPERATOR_TO_STRING: dict[Callable, str] = {
+    op.and_: "and",
+    op.or_: "or",
+    op.xor: "xor",
+}
+
+STRING_TO_LOGICAL_OPERATOR: dict[str, Callable] = {
+    "and": op.and_,
+    "or": op.or_,
+    "xor": op.xor,
+}
+
 
 def operator_to_string(op_func: Callable) -> str:
     """Convert operator.* function to string representation.
@@ -76,6 +89,45 @@ def string_to_operator(op_str: str) -> Callable:
         True
     """
     return STRING_TO_OPERATOR.get(op_str, op.eq)
+
+
+def logical_operator_to_string(op_func: Callable) -> str:
+    """Convert logical operator function to string representation.
+
+    Args:
+        op_func: Logical operator function (e.g., operator.and_, operator.or_)
+
+    Returns:
+        String representation (e.g., "and", "or"), defaults to "and" if unknown
+
+    Example:
+        >>> import operator
+        >>> logical_operator_to_string(operator.and_)
+        "and"
+        >>> logical_operator_to_string(operator.or_)
+        "or"
+    """
+    return LOGICAL_OPERATOR_TO_STRING.get(op_func, "and")
+
+
+def string_to_logical_operator(op_str: str) -> Callable:
+    """Convert string to logical operator function.
+
+    Args:
+        op_str: String representation (e.g., "and", "or", "xor")
+
+    Returns:
+        Logical operator function, defaults to operator.and_ if unknown
+
+    Example:
+        >>> op_func = string_to_logical_operator("and")
+        >>> op_func(True, False)
+        False
+        >>> op_func = string_to_logical_operator("or")
+        >>> op_func(True, False)
+        True
+    """
+    return STRING_TO_LOGICAL_OPERATOR.get(op_str, op.and_)
 
 
 # =============================================================================

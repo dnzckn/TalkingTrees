@@ -5,7 +5,12 @@
     "version": "1.0.0",
     "author": "TalkingTrees Examples",
     "description": "Demonstrates retry decorator for handling failures",
-    "tags": ["tutorial", "decorator", "retry", "pattern"]
+    "tags": [
+      "tutorial",
+      "decorator",
+      "retry",
+      "pattern"
+    ]
   },
   "root": {
     "node_type": "Sequence",
@@ -13,11 +18,9 @@
     "config": {},
     "children": [
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Start Task",
-        "config": {
-          "message": "Starting unreliable task with retry"
-        }
+        "config": {}
       },
       {
         "node_type": "Retry",
@@ -34,15 +37,18 @@
         ]
       },
       {
-        "node_type": "Log",
+        "node_type": "Success",
         "name": "Task Succeeded",
-        "config": {
-          "message": "Task completed successfully!"
-        }
+        "config": {}
       }
     ]
   },
   "dependencies": {
-    "behaviors": ["Sequence", "Retry", "Log", "Success"]
+    "behaviors": [
+      "Sequence",
+      "Retry",
+      "Log",
+      "Success"
+    ]
   }
 }
