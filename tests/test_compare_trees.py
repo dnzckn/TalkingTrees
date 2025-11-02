@@ -184,7 +184,7 @@ def test_compare_raise_on_difference():
     # Should raise with raise_on_difference=True
     try:
         compare_py_trees(root1, root2, raise_on_difference=True)
-        assert False, "Should have raised ValueError"
+        raise AssertionError("Should have raised ValueError")
     except ValueError as e:
         assert "not equivalent" in str(e).lower()
 

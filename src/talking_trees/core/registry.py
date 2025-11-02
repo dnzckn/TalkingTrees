@@ -1094,48 +1094,12 @@ class BehaviorRegistry:
         self._register_custom_behaviors()
 
     def _register_custom_behaviors(self) -> None:
-        """Register custom TalkingTrees behaviors."""
-        from talking_trees.behaviors import examples
+        """Register custom TalkingTrees behaviors.
 
-
-
-
-        self.register(
-            node_type="SetBlackboardVariable",
-            implementation=examples.SetBlackboardVariable,
-            schema=BehaviorSchema(
-                node_type="SetBlackboardVariable",
-                category=NodeCategory.ACTION,
-                display_name="Set Variable",
-                description="Set a blackboard variable to a value (REAL ACTION for automation)",
-                icon="set_variable",
-                color="#E67E22",
-                config_schema={
-                    "variable": ConfigPropertySchema(
-                        type="string",
-                        default="result",
-                        description="Blackboard variable name to set",
-                        ui_hints={"widget": "text"},
-                    ),
-                    "value": ConfigPropertySchema(
-                        type="string",
-                        default="",
-                        description="Value to set (JSON string, number, or boolean)",
-                        ui_hints={"widget": "text"},
-                    ),
-                },
-                child_constraints=ChildConstraints(min_children=0, max_children=0),
-                blackboard_access=BlackboardAccess(
-                    reads=[],
-                    writes=["variable"],
-                ),
-                status_behavior=StatusBehavior(
-                    returns=["SUCCESS"],
-                    description="Always returns SUCCESS after setting variable",
-                ),
-                is_builtin=False,
-            ),
-        )
+        Note: Custom behaviors are available in talking_trees.behaviors.examples
+        for demonstration purposes, but they are not automatically registered.
+        TalkingTrees only serializes/deserializes py_trees nodes."""
+        pass
 
 
 

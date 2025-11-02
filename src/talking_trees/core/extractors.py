@@ -8,8 +8,6 @@ extractor that knows how to safely extract its configuration.
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Optional
 
-from talking_trees.core.utils import operator_to_string
-
 # Type checking imports to avoid circular dependencies
 if TYPE_CHECKING:
     pass

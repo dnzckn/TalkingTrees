@@ -204,7 +204,7 @@ class FileSystemTreeLibrary(TreeLibrary):
                 )
                 entries.append(entry)
 
-            except (json.JSONDecodeError, KeyError) as e:
+            except (json.JSONDecodeError, KeyError):
                 # Skip invalid metadata files
                 continue
 

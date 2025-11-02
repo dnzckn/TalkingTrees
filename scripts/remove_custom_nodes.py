@@ -10,7 +10,6 @@ Converts custom nodes to real py_trees equivalents:
 """
 
 import json
-import os
 from pathlib import Path
 
 
@@ -97,7 +96,7 @@ def convert_file(filepath):
     """Convert a single JSON file."""
     print(f"Converting {filepath}...")
 
-    with open(filepath, 'r') as f:
+    with open(filepath) as f:
         data = json.load(f)
 
     # Convert the tree
@@ -108,7 +107,7 @@ def convert_file(filepath):
     with open(filepath, 'w') as f:
         json.dump(data, f, indent=2)
 
-    print(f"  [PASS] Done")
+    print("  [PASS] Done")
 
 
 def main():

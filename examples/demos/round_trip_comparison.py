@@ -9,6 +9,7 @@ This answers the question: "Are these two trees functionally identical?"
 """
 
 import py_trees
+
 from talking_trees.adapters import compare_py_trees, from_py_trees, to_py_trees
 from talking_trees.sdk import TalkingTrees
 

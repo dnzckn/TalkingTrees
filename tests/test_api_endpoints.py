@@ -2,11 +2,14 @@
 """Test all REST API endpoints after custom node removal and signature fixes."""
 
 import sys
+
 sys.path.insert(0, 'src')
 
 import json
 from uuid import uuid4
+
 from fastapi.testclient import TestClient
+
 from talking_trees.api.main import app
 
 # Create test client
@@ -46,7 +49,7 @@ def test_get_behaviors():
             print(f"[FAIL] FAIL: Custom node '{custom_node}' still in schemas!")
             return False
 
-    print(f"[PASS] All custom nodes removed from schemas")
+    print("[PASS] All custom nodes removed from schemas")
 
     # Verify real py_trees nodes are present
     required_nodes = ['Sequence', 'Selector', 'Parallel', 'Success', 'Failure',
@@ -57,7 +60,7 @@ def test_get_behaviors():
             print(f"[FAIL] FAIL: Required node '{required}' missing!")
             return False
 
-    print(f"[PASS] All required py_trees nodes present")
+    print("[PASS] All required py_trees nodes present")
     print("[PASS] PASS")
     return True
 
@@ -142,7 +145,7 @@ def test_get_tree(tree_id):
 
 def test_create_execution(tree_id):
     """Test creating an execution."""
-    print(f"\n=== Testing POST /executions ===")
+    print("\n=== Testing POST /executions ===")
 
     execution_data = {
         "tree_id": tree_id,
@@ -196,7 +199,7 @@ def test_with_example_tree():
     """Test with a real example tree."""
     print("\n=== Testing with Example Tree (01_simple_sequence.json) ===")
 
-    with open('examples/trees/01_simple_sequence.json', 'r') as f:
+    with open('examples/trees/01_simple_sequence.json') as f:
         tree_data = json.load(f)
 
     # Ensure tree has a unique ID

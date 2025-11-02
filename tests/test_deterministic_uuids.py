@@ -56,7 +56,7 @@ def test_uuid_stability():
             print(f"[X] Different number of children at {path}")
             return False
 
-        for i, (child1, child2) in enumerate(zip(node1.children, node2.children)):
+        for _i, (child1, child2) in enumerate(zip(node1.children, node2.children, strict=False)):
             if not compare_nodes(child1, child2, f"{path}/{child1.name}"):
                 return False
 

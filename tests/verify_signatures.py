@@ -7,16 +7,14 @@ extractors, and builders match the actual py_trees node signatures.
 This ensures perfect round-trip conversion (py_trees ↔ JSON ↔ py_trees).
 """
 
-import sys
 import inspect
-from typing import get_type_hints
+import sys
 
 sys.path.insert(0, 'src')
 
-import py_trees
-from talking_trees.core.registry import BehaviorRegistry
 from talking_trees.core.builders import BUILDER_REGISTRY
 from talking_trees.core.extractors import EXTRACTOR_REGISTRY
+from talking_trees.core.registry import BehaviorRegistry
 
 
 def get_py_trees_signature(node_type: str, implementation):
@@ -55,7 +53,7 @@ def verify_node_type(node_type: str, registry: BehaviorRegistry):
     issues = []
 
     # Check each config_schema parameter against actual signature
-    for config_key, config_prop in schema.config_schema.items():
+    for config_key, _config_prop in schema.config_schema.items():
         if config_key not in actual_sig:
             # Config key doesn't match any py_trees parameter
             # Check for common renamings
@@ -101,7 +99,7 @@ def verify_node_type(node_type: str, registry: BehaviorRegistry):
     if not has_extractor and schema.config_schema:
         issues.append({
             'severity': 'WARNING',
-            'message': f'No extractor found (needed if node has config)'
+            'message': 'No extractor found (needed if node has config)'
         })
 
     # Check if builder exists
@@ -109,7 +107,7 @@ def verify_node_type(node_type: str, registry: BehaviorRegistry):
     if not has_builder:
         issues.append({
             'severity': 'WARNING',
-            'message': f'No explicit builder found (will use registry.create_node fallback)'
+            'message': 'No explicit builder found (will use registry.create_node fallback)'
         })
 
     status = 'PASS'
@@ -149,7 +147,7 @@ def main():
     failed = sum(1 for r in results.values() if r['status'] == 'FAIL')
     errors = sum(1 for r in results.values() if r['status'] == 'ERROR')
 
-    print(f" Summary:")
+    print(" Summary:")
     print(f"   [PASS] PASS:    {passed}/{len(all_node_types)}")
     print(f"   [WARNING]  WARNING: {warned}/{len(all_node_types)}")
     print(f"   [FAIL] FAIL:    {failed}/{len(all_node_types)}")

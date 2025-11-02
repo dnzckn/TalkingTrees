@@ -33,7 +33,6 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
-from talking_trees.core.utils import string_to_operator
 from talking_trees.models.tree import (
     TreeDefinition,
     TreeDependencies,
@@ -94,8 +93,9 @@ class ConversionContext:
 
 
 # UUID generation moved to core/utils.py - import from there
-from talking_trees.core.utils import generate_deterministic_uuid as _generate_deterministic_uuid
-
+from talking_trees.core.utils import (
+    generate_deterministic_uuid as _generate_deterministic_uuid,
+)
 
 # =============================================================================
 # ComparisonExpression Abstraction

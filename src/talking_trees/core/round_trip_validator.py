@@ -298,6 +298,6 @@ class RoundTripValidator:
             return  # Can't compare children if counts differ
 
         # Recursively compare each child
-        for i, (orig_child, rt_child) in enumerate(zip(orig_children, rt_children)):
+        for i, (orig_child, rt_child) in enumerate(zip(orig_children, rt_children, strict=False)):
             child_path = f"{path}/{orig_child.name}[{i}]"
             self._compare_nodes(orig_child, rt_child, child_path)

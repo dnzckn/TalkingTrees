@@ -11,7 +11,7 @@ from typing import Any
 import py_trees
 from py_trees import behaviour
 
-from talking_trees.core.constants import ConfigKeys, DefaultValues, OneShotPolicyNames
+from talking_trees.core.constants import ConfigKeys, DefaultValues
 from talking_trees.core.utils import string_to_operator
 
 # =============================================================================
@@ -408,7 +408,6 @@ class CompareBlackboardVariablesBuilder(NodeBuilder):
     """Builder for CompareBlackboardVariables."""
 
     def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
-        from talking_trees.core.utils import string_to_operator
 
         var1_key = config.get("var1_key", "var1")
         var2_key = config.get("var2_key", "var2")

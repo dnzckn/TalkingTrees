@@ -83,6 +83,9 @@ select = [
 ignore = [
     "E501", # line too long, handled by black
     "B008", # do not perform function calls in argument defaults
+    "B904", # raise from inside except - overly pedantic for our use case
+    "B007", # unused loop variable - stylistic preference
+    "E402", # module level import not at top - we need this for sys.path manipulation
 ]
 
 [tool.mypy]

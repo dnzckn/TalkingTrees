@@ -89,7 +89,7 @@ class TreeSerializer:
         """
         # If this node has a $ref, replace it with the subtree
         if node.ref:
-            ref_name = node.ref.lstrip("#/subtrees/")
+            ref_name = node.ref.removeprefix("#/subtrees/")
 
             # Cycle detection: check if we've already visited this ref
             if ref_name in visited_refs:
@@ -159,7 +159,24 @@ class TreeSerializer:
         # Get implementation from registry
         implementation = self.registry.get_implementation(node_def.node_type)
         if implementation is None:
-            raise ValueError(f"Unknown node type: {node_def.node_type}")
+            # Fallback 1: try _py_trees_class from config if node_type not found
+            py_trees_class = node_def.config.get("_py_trees_class") if node_def.config else None
+            if py_trees_class:
+                implementation = self.registry.get_implementation(py_trees_class)
+
+            # Fallback 2: Handle generic CheckBlackboardCondition
+            if implementation is None and node_def.node_type == "CheckBlackboardCondition":
+                # Infer specific implementation from config
+                config = node_def.config or {}
+                if "value" in config and "operator" in config:
+                    # Has comparison value/operator -> CheckBlackboardVariableValue
+                    implementation = self.registry.get_implementation("CheckBlackboardVariableValue")
+                elif "variable" in config:
+                    # Just checks existence -> CheckBlackboardVariableExists
+                    implementation = self.registry.get_implementation("CheckBlackboardVariableExists")
+
+            if implementation is None:
+                raise ValueError(f"Unknown node type: {node_def.node_type}")
 
         # Handle different node categories differently
         if node_def.node_type in [NodeTypes.SEQUENCE, NodeTypes.SELECTOR]:
@@ -292,7 +309,18 @@ class TreeSerializer:
         # Use builder registry to create the behavior
         from talking_trees.core.builders import build_behavior
 
-        node = build_behavior(node_def.node_type, node_def.name, node_def.config or {})
+        # Use _py_trees_class from config if available (for generic node types)
+        config = node_def.config or {}
+        node_type_to_build = config.get("_py_trees_class", node_def.node_type)
+
+        # Handle generic CheckBlackboardCondition
+        if node_type_to_build == "CheckBlackboardCondition":
+            if "value" in config and "operator" in config:
+                node_type_to_build = "CheckBlackboardVariableValue"
+            elif "variable" in config:
+                node_type_to_build = "CheckBlackboardVariableExists"
+
+        node = build_behavior(node_type_to_build, node_def.name, config)
 
         # Store UUID mapping
         self._store_node_mapping(node_def.node_id, node)

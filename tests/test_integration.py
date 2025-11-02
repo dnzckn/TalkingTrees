@@ -287,8 +287,8 @@ class TestValidation:
         """Test behavior validation."""
         response = requests.post(
             f"{BASE_URL}/validation/behaviors",
-            params={"behavior_type": "Log"},
-            json={"message": "Test message"},
+            params={"behavior_type": "Success"},
+            json={},
         )
         assert response.status_code == 200
         result = response.json()

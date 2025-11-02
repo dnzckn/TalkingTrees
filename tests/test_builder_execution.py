@@ -7,11 +7,9 @@ Focus: Test the builder contract, not comprehensive execution testing.
        Comprehensive execution is py_trees' responsibility.
 """
 
-import operator
 from uuid import uuid4
 
 import py_trees
-import pytest
 
 from talking_trees.adapters import to_py_trees
 from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
@@ -48,10 +46,10 @@ def test_comparison_expression_builder_creates_executable_node():
                     children=[],
                 ),
                 TreeNodeDefinition(
-                    node_type="Log",
+                    node_type="Success",
                     node_id=uuid4(),
-                    name="Log Low Battery",
-                    config={"message": "Battery is low!"},
+                    name="Action",
+                    config={},
                     children=[],
                 ),
             ],

@@ -25,12 +25,10 @@ import sys
 import traceback
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
 
-from talking_trees.adapters import compare_py_trees, from_py_trees, to_py_trees
+from talking_trees.adapters import compare_py_trees, from_py_trees
 from talking_trees.core.serializer import TreeSerializer
 from talking_trees.models.tree import TreeDefinition, TreeNodeDefinition
-from talking_trees.sdk import TalkingTrees
 
 
 @dataclass

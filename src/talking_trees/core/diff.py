@@ -445,7 +445,7 @@ class TreeDiffer:
 
             if old_val != new_val:
                 # Check if type changed
-                if type(old_val) != type(new_val):
+                if type(old_val) is not type(new_val):
                     diffs.append(
                         PropertyDiff(
                             property_name=f"{prefix}.{key}",

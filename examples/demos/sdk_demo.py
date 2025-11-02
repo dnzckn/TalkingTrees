@@ -26,7 +26,11 @@ def demo_validation():
     # Create a simple tree (in practice, you'd load from file)
     from uuid import uuid4
 
-    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import (
+        TreeDefinition,
+        TreeMetadata,
+        TreeNodeDefinition,
+    )
 
     metadata = TreeMetadata(
         name="Demo Tree", version="1.0.0", description="Example for validation demo"
@@ -71,7 +75,11 @@ def demo_search():
     # Create a more complex tree
     from uuid import uuid4
 
-    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import (
+        TreeDefinition,
+        TreeMetadata,
+        TreeNodeDefinition,
+    )
 
     metadata = TreeMetadata(name="Search Demo Tree", version="1.0.0")
 
@@ -149,7 +157,11 @@ def demo_statistics():
     # Create a tree with variety of nodes
     from uuid import uuid4
 
-    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import (
+        TreeDefinition,
+        TreeMetadata,
+        TreeNodeDefinition,
+    )
 
     metadata = TreeMetadata(name="Statistics Demo", version="1.0.0")
 
@@ -256,7 +268,11 @@ def demo_tree_manipulation():
     # Create original tree
     from uuid import uuid4
 
-    from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
+    from talking_trees.models.tree import (
+        TreeDefinition,
+        TreeMetadata,
+        TreeNodeDefinition,
+    )
 
     metadata = TreeMetadata(name="Original", version="1.0.0")
     root = TreeNodeDefinition(

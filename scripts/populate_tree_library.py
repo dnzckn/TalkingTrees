@@ -2,6 +2,7 @@
 """Populate the tree library with all example trees."""
 
 import sys
+
 sys.path.insert(0, 'src')
 
 import json
@@ -9,6 +10,7 @@ from pathlib import Path
 from uuid import uuid4
 
 from talking_trees.storage.filesystem import FileSystemTreeLibrary
+
 
 def populate_library():
     """Populate the library with all example trees."""
@@ -28,7 +30,7 @@ def populate_library():
         print(f"\nLoading: {tree_file.name}")
 
         # Load tree JSON
-        with open(tree_file, 'r') as f:
+        with open(tree_file) as f:
             tree_data = json.load(f)
 
         # Ensure tree has proper structure
