@@ -867,6 +867,49 @@ class BehaviorRegistry:
         )
 
         self.register(
+            node_type="SetBlackboardVariable",
+            implementation=py_trees.behaviours.SetBlackboardVariable,
+            schema=BehaviorSchema(
+                node_type="SetBlackboardVariable",
+                category=NodeCategory.ACTION,
+                display_name="Set Variable",
+                description="Set a blackboard variable to a value",
+                icon="set_variable",
+                color="#E67E22",
+                config_schema={
+                    "variable": ConfigPropertySchema(
+                        type="string",
+                        default="var",
+                        description="Blackboard variable name to set",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "value": ConfigPropertySchema(
+                        type="string",
+                        default="",
+                        description="Value to set",
+                        ui_hints={"widget": "text"},
+                    ),
+                    "overwrite": ConfigPropertySchema(
+                        type="boolean",
+                        default=True,
+                        description="Whether to overwrite existing value",
+                        ui_hints={"widget": "checkbox"},
+                    ),
+                },
+                child_constraints=ChildConstraints(min_children=0, max_children=0),
+                blackboard_access=BlackboardAccess(
+                    reads=[],
+                    writes=["variable"],
+                ),
+                status_behavior=StatusBehavior(
+                    returns=["SUCCESS"],
+                    description="Always returns SUCCESS after setting variable",
+                ),
+                is_builtin=True,
+            ),
+        )
+
+        self.register(
             node_type="WaitForBlackboardVariable",
             implementation=py_trees.behaviours.WaitForBlackboardVariable,
             schema=BehaviorSchema(

@@ -4695,37 +4695,17 @@ print(f"py_trees result: {pt_root.status}")
 
         async function loadLocalTrees() {
             const content = document.getElementById('loadModalContent');
-
-            try {
-                // Fetch manifest from examples/trees/
-                const response = await fetch('../examples/trees/manifest.json');
-                if (!response.ok) throw new Error('Cannot load manifest');
-
-                const manifest = await response.json();
-
-                if (manifest.length === 0) {
-                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center;">No example trees found</div>';
-                    return;
-                }
-
-                let html = '';
-                manifest.forEach(entry => {
-                    const tags = entry.tags ? entry.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('') : '';
-                    html += `
-                        <div class="library-item" onclick="loadTreeFromLocalFile('${entry.file}', '${entry.name}')">
-                            <div class="library-item-title">${entry.name}</div>
-                            <div class="library-item-desc">${entry.description || 'No description'}</div>
-                            <div class="library-item-meta">
-                                ${tags}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                content.innerHTML = html;
-            } catch (error) {
-                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center;">Error loading examples: ${error.message}</div>`;
-            }
+            content.innerHTML = `
+                <div style="color: #858585; padding: 30px; text-align: center; font-size: 12px; line-height: 1.6;">
+                    <div style="font-size: 14px; margin-bottom: 15px; color: #abb2bf;">Load Trees via File Picker or API</div>
+                    <div style="margin-bottom: 10px;">To load example trees, use:</div>
+                    <div style="margin: 10px 0;">• <strong>File → Open</strong> to browse local .json files</div>
+                    <div style="margin: 10px 0;">• <strong>API Library</strong> tab to load from running API server</div>
+                    <div style="margin-top: 20px; font-size: 11px; color: #5c6370;">
+                        Example trees are located in <code style="background: #3e3e42; padding: 2px 6px; border-radius: 3px;">examples/trees/</code>
+                    </div>
+                </div>
+            `;
         }
 
         async function loadRemoteTrees() {
@@ -5287,62 +5267,17 @@ async function getLibrary() {
 
         async function loadLocalLibrary() {
             const content = document.getElementById('libraryContent');
-
-            try {
-                // Try multiple paths for manifest - depends on how HTML is served
-                let response;
-                let manifestPath;
-
-                // Try path from visualization/ directory first
-                try {
-                    response = await fetch('../examples/trees/manifest.json');
-                    if (response.ok) {
-                        manifestPath = '../examples/trees/';
-                    }
-                } catch (e) {
-                    // First path failed, will try second
-                }
-
-                // If first path didn't work, try from repo root
-                if (!response || !response.ok) {
-                    try {
-                        response = await fetch('examples/trees/manifest.json');
-                        if (response.ok) {
-                            manifestPath = 'examples/trees/';
-                        }
-                    } catch (e) {
-                        // Both paths failed
-                    }
-                }
-
-                if (!response || !response.ok) {
-                    throw new Error('Cannot load manifest - make sure HTML is served via HTTP server');
-                }
-
-                const manifest = await response.json();
-
-                if (manifest.length === 0) {
-                    content.innerHTML = '<div style="color: #858585; padding: 20px; text-align: center; font-size: 12px;">No example trees found</div>';
-                    return;
-                }
-
-                let html = '';
-                manifest.forEach(entry => {
-                    html += `
-                        <div class="library-item" onclick="loadLocalTree('${entry.file}', '${entry.name.replace(/'/g, "\\'")}', '${manifestPath}')">
-                            <div class="library-item-title">${entry.name}</div>
-                            <div class="library-item-desc">${entry.description || 'No description'}</div>
-                            <div class="library-item-meta">
-                                ${entry.tags ? entry.tags.map(t => `<span style="background: #3e3e42; padding: 2px 6px; border-radius: 3px; font-size: 10px; margin-right: 4px;">${t}</span>`).join('') : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-
-                content.innerHTML = html;
-            } catch (error) {
-                content.innerHTML = `<div style="color: #e06c75; padding: 20px; text-align: center; font-size: 11px;">Error loading local examples: ${error.message}<br><br>Make sure the page is served via HTTP (not file://)</div>`;
-            }
+            content.innerHTML = `
+                <div style="color: #858585; padding: 30px; text-align: center; font-size: 12px; line-height: 1.6;">
+                    <div style="font-size: 14px; margin-bottom: 15px; color: #abb2bf;">Use File Picker or Remote API</div>
+                    <div style="margin-bottom: 10px;">To browse and load trees:</div>
+                    <div style="margin: 10px 0;">• Use <strong>File → Open</strong> to pick local .json files</div>
+                    <div style="margin: 10px 0;">• Switch to <strong>Remote</strong> tab for API library</div>
+                    <div style="margin-top: 20px; font-size: 11px; color: #5c6370;">
+                        Example trees: <code style="background: #3e3e42; padding: 2px 6px; border-radius: 3px;">examples/trees/*.json</code>
+                    </div>
+                </div>
+            `;
         }
 
         async function loadRemoteLibrary() {

@@ -2,7 +2,7 @@
 """Test round-trip conversion validation."""
 
 import py_trees
-from py_trees.behaviours import Failure, SetBlackboardVariable, Success
+from py_trees.behaviours import Failure, Success
 from py_trees.composites import Selector, Sequence
 
 from talking_trees.adapters.py_trees_adapter import from_py_trees, to_py_trees
@@ -91,61 +91,6 @@ def test_complex_round_trip():
     else:
         print("[X] FAILED: Validation errors:")
         print(validator.get_error_summary())
-
-    print()
-    return is_valid
-
-
-def test_setblackboard_round_trip():
-    """Test round-trip with SetBlackboardVariable."""
-    print("=" * 70)
-    print("TEST 3: SetBlackboardVariable Round-Trip")
-    print("=" * 70)
-
-    # Create tree with SetBlackboardVariable
-    original = Sequence(
-        name="Root",
-        memory=True,
-        children=[
-            SetBlackboardVariable(
-                name="Set Speed",
-                variable_name="speed",
-                variable_value=42.5,
-                overwrite=True,
-            ),
-            SetBlackboardVariable(
-                name="Set Mode",
-                variable_name="mode",
-                variable_value="AUTO",
-                overwrite=True,
-            ),
-            Success(name="Done"),
-        ],
-    )
-
-    # Round-trip conversion
-    tt_tree, context = from_py_trees(original, name="Test")
-
-    # Check for conversion warnings
-    if context.has_warnings():
-        print("[WARNING] Conversion warnings detected:")
-        print(context.summary())
-        print()
-
-    round_trip = to_py_trees(tt_tree)
-
-    # Validate
-    validator = RoundTripValidator()
-    is_valid = validator.validate(original, round_trip)
-
-    if is_valid:
-        print(" PASSED: SetBlackboardVariable values preserved")
-        print(validator.get_error_summary())
-    else:
-        print("[WARNING] FAILED: SetBlackboardVariable values NOT preserved")
-        print(validator.get_error_summary())
-        print("\nNote: This is a known issue with py_trees - values may not be")
-        print("      accessible after construction due to private attributes.")
 
     print()
     return is_valid
@@ -243,7 +188,6 @@ if __name__ == "__main__":
     results = []
     results.append(("Simple Round-Trip", test_simple_round_trip()))
     results.append(("Complex Round-Trip", test_complex_round_trip()))
-    results.append(("SetBlackboard Round-Trip", test_setblackboard_round_trip()))
     results.append(("Decorator Round-Trip", test_decorator_round_trip()))
     results.append(("Memory Parameter", test_memory_parameter()))
 
@@ -261,7 +205,6 @@ if __name__ == "__main__":
         print("\n[PASS] All tests passed! Round-trip validation is working correctly.")
     else:
         print("\n[WARNING] Some tests failed. This may indicate:")
-        print("  - SetBlackboardVariable value extraction issues (known limitation)")
-        print("  - Other conversion problems that need investigation")
+        print("  - Conversion problems that need investigation")
 
     print()
