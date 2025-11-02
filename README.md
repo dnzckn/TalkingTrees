@@ -25,10 +25,13 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 - **FastAPI-based REST API** - Optional HTTP API with 47 endpoints for tree management
 - **Visual Tree Editor** - Browser-based drag-and-drop editor with 100% node coverage
 - **Python SDK** - High-level API for tree creation and manipulation
 =======
+=======
+>>>>>>> Stashed changes
 - **FastAPI REST API** - Optional HTTP API with 47 endpoints for tree management
 - **Professional GUI Editor** - Browser-based visual editor with:
   - Live execution simulation with timeline scrubber
@@ -37,6 +40,9 @@ Multiple creation methods: `GUI Editor → TalkingTrees (JSON) → py_trees Runt
   - Smart validation with unused variable detection
   - 12 interactive example trees
 - **Python SDK** - High-level API for programmatic tree creation and manipulation
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 ## Quick Start
@@ -152,8 +158,11 @@ Launch the browser-based tree editor:
 </p>
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 Opens at `http://localhost:8000` - Drag-and-drop interface with all 40+ node types, enum dropdowns, array editors, and organized palette. Build any tree entirely in the GUI with full backend parity.
 =======
+=======
+>>>>>>> Stashed changes
 **Professional drag-and-drop interface** with all 40+ node types, live execution simulation, and debugging tools:
 
 **Core Features:**
@@ -167,6 +176,9 @@ Opens at `http://localhost:8000` - Drag-and-drop interface with all 40+ node typ
 - **12 Example Trees**: Interactive demos from basic tutorials to complex simulations
 
 Opens at `http://localhost:8000` - zero-configuration, works offline, 100% node coverage.
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 
 ## CLI Tools
