@@ -23,7 +23,7 @@ Perfect round-trip conversion: `py_trees ↔ JSON ↔ py_trees`
 - **Type-Safe Architecture** - Constants-based configuration system prevents typos
 - **Enhanced Error Messages** - Detailed context with tree paths and suggestions
 - **FastAPI-based REST API** - Optional HTTP API with 47 endpoints for tree management
-- **Visual Tree Editor** - Professional browser-based drag-and-drop editor with 100% node coverage
+- **Visual Tree Editor** - Browser-based drag-and-drop editor with 100% node coverage
 - **Python SDK** - High-level API for tree creation and manipulation
 
 ## Quick Start
@@ -138,7 +138,7 @@ Launch the browser-based tree editor:
   <img src="images/visualizer_screenshot.png" alt="TalkingTrees Tree Editor" width="800"/>
 </p>
 
-Opens at `http://localhost:8000` - professional drag-and-drop interface with all 40+ node types, enum dropdowns, array editors, and organized palette. Build any tree entirely in the GUI with full backend parity.
+Opens at `http://localhost:8000` - Drag-and-drop interface with all 40+ node types, enum dropdowns, array editors, and organized palette. Build any tree entirely in the GUI with full backend parity.
 
 ## CLI Tools
 
