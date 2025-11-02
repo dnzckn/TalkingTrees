@@ -2,7 +2,7 @@
 # Run both the API server and a simple HTTP server for the visualization
 
 echo "================================"
-echo "PyForest Visualization Launcher"
+echo "TalkingTrees Visualization Launcher"
 echo "================================"
 echo ""
 
@@ -11,7 +11,7 @@ if curl -s http://localhost:8000/trees/ > /dev/null 2>&1; then
     echo "✓ API server is already running at http://localhost:8000"
 else
     echo "Starting API server..."
-    python run_server.py > /tmp/pyforest_server.log 2>&1 &
+    python run_server.py > /tmp/talkingtrees_server.log 2>&1 &
     SERVER_PID=$!
     echo "✓ API server started (PID: $SERVER_PID)"
 
@@ -28,13 +28,14 @@ fi
 
 echo ""
 echo "Starting HTTP server for visualization..."
-cd /Users/deniz/Documents/GitHub/py_forest
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR/.."
 
 # Check if port 8080 is already in use
 if lsof -Pi :8080 -sTCP:LISTEN -t >/dev/null 2>&1; then
     echo "✓ HTTP server already running at http://localhost:8080"
 else
-    python3 -m http.server 8080 > /tmp/pyforest_http.log 2>&1 &
+    python3 -m http.server 8080 > /tmp/talkingtrees_http.log 2>&1 &
     HTTP_PID=$!
     echo "✓ HTTP server started (PID: $HTTP_PID)"
     sleep 2
@@ -60,6 +61,6 @@ echo "  2. Watch the simulation run!"
 echo "  3. Switch between tabs to see different views"
 echo ""
 echo "To stop servers later, run:"
-echo "  pkill -f 'uvicorn py_forest.api.main:app'"
+echo "  pkill -f 'uvicorn talking_trees.api.main:app'"
 echo "  pkill -f 'python3 -m http.server 8080'"
 echo ""
