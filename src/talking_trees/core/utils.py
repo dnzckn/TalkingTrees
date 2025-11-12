@@ -4,8 +4,12 @@ This module provides common utilities used across the conversion pipeline,
 particularly for operator mappings between py_trees and TalkingTrees formats.
 """
 
+import hashlib
 import operator as op
 from collections.abc import Callable
+from uuid import UUID
+
+import py_trees
 
 # =============================================================================
 # Operator Mappings
@@ -160,8 +164,6 @@ class ParallelPolicyFactory:
             >>> policy = ParallelPolicyFactory.create("SuccessOnAll", synchronise=True)
             >>> parallel = py_trees.composites.Parallel(name="MyParallel", policy=policy)
         """
-        import py_trees
-
         if policy_name == "SuccessOnAll":
             return py_trees.common.ParallelPolicy.SuccessOnAll(synchronise=synchronise)
         elif policy_name == "SuccessOnOne":
@@ -239,8 +241,6 @@ class ComparisonExpressionUtil:
             ...     name="Low Battery", check=check
             ... )
         """
-        import py_trees
-
         operator_func = string_to_operator(operator_str)
         # NOTE: ComparisonExpression signature is (variable, value, operator)
         # NOT (variable, operator, value)!
@@ -274,9 +274,6 @@ def generate_deterministic_uuid(
         >>> uuid2 = generate_deterministic_uuid(node, "Root/Sequence")
         >>> assert uuid1 == uuid2  # Same UUID!
     """
-    import hashlib
-    from uuid import UUID
-
     # Build path including this node
     path = f"{parent_path}/{node.name}" if parent_path else node.name
 

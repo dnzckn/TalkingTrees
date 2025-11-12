@@ -8,6 +8,12 @@ from talking_trees.models.visualization import (
     VisualizationSnapshot,
 )
 
+try:
+    import graphviz
+    GRAPHVIZ_AVAILABLE = True
+except ImportError:
+    GRAPHVIZ_AVAILABLE = False
+
 
 class TreeVisualizer:
     """Generate visualizations from tree snapshots.
@@ -246,9 +252,7 @@ class TreeVisualizer:
         Raises:
             ImportError: If graphviz not installed
         """
-        try:
-            import graphviz
-        except ImportError:
+        if not GRAPHVIZ_AVAILABLE:
             raise ImportError(
                 "graphviz package required for SVG export. "
                 "Install with: pip install graphviz"
@@ -278,9 +282,7 @@ class TreeVisualizer:
         Raises:
             ImportError: If graphviz not installed
         """
-        try:
-            import graphviz
-        except ImportError:
+        if not GRAPHVIZ_AVAILABLE:
             raise ImportError(
                 "graphviz package required for PNG export. "
                 "Install with: pip install graphviz"

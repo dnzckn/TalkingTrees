@@ -15,6 +15,7 @@ from talking_trees.core.templates import TemplateLibrary
 from talking_trees.core.validation import BehaviorValidator, TreeValidator
 from talking_trees.models.tree import TreeDefinition
 from talking_trees.models.validation import (
+    BehaviorParameter,
     BehaviorValidationSchema,
     TemplateInstantiationRequest,
     TreeTemplate,
@@ -114,8 +115,6 @@ def validate_behavior(
         )
 
     # Convert to BehaviorValidationSchema
-    from talking_trees.models.validation import BehaviorParameter
-
     parameters = []
     for param_name, param_schema in behavior_schema.config_schema.items():
         parameters.append(

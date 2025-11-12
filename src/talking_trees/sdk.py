@@ -19,7 +19,7 @@ from collections import defaultdict
 from collections.abc import Callable
 from pathlib import Path
 from typing import Any
-from uuid import UUID
+from uuid import UUID, uuid4
 
 import py_trees
 
@@ -878,8 +878,6 @@ class TalkingTrees:
         )
 
         # Create new tree with node as root
-        from uuid import uuid4
-
         return TreeDefinition(
             tree_id=uuid4(),
             metadata=new_metadata,

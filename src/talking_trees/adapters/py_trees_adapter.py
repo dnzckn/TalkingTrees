@@ -33,6 +33,9 @@ from datetime import datetime
 from typing import Any
 from uuid import UUID, uuid4
 
+import py_trees
+from py_trees.common import ComparisonExpression
+
 from talking_trees.models.tree import (
     TreeDefinition,
     TreeDependencies,
@@ -143,8 +146,6 @@ class ComparisonExpressionExtractor:
         Returns:
             ComparisonExpression instance
         """
-        from py_trees.common import ComparisonExpression
-
         # NOTE: ComparisonExpression signature is (variable, value, operator)
         return ComparisonExpression(variable, value, operator_func)
 
@@ -214,8 +215,6 @@ def _get_node_type(py_trees_node, context: ConversionContext | None = None) -> s
         return NODE_TYPE_MAP[class_name]
 
     # Check base classes
-    import py_trees
-
     if isinstance(py_trees_node, py_trees.composites.Sequence):
         return "Sequence"
     elif isinstance(py_trees_node, py_trees.composites.Selector):
@@ -416,7 +415,6 @@ def to_py_trees(tree: TreeDefinition):
         >>> root = to_py_trees(tree)
         >>>
         >>> # Use with py_trees
-        >>> import py_trees
         >>> py_trees.display.print_ascii_tree(root)
     """
     from talking_trees.core.serializer import TreeSerializer
@@ -432,8 +430,6 @@ def print_comparison(py_trees_root, tt_tree: TreeDefinition):
 
     Useful for debugging conversions.
     """
-    import py_trees
-
     print("=" * 70)
     print("py_trees Tree:")
     print("=" * 70)

@@ -14,7 +14,7 @@ from talking_trees.core.scheduler import ExecutionScheduler
 from talking_trees.core.serializer import TreeSerializer
 from talking_trees.core.snapshot import capture_snapshot
 from talking_trees.core.statistics import StatisticsTracker
-from talking_trees.models.debug import DebugState, StepMode
+from talking_trees.models.debug import DebugState, StepMode, WatchCondition
 from talking_trees.models.events import (
     BreakpointHitEvent,
     TickCompleteEvent,
@@ -820,8 +820,6 @@ class ExecutionService:
         Raises:
             ValueError: If execution not found
         """
-        from talking_trees.models.debug import WatchCondition
-
         instance = self.get_execution(execution_id)
         watch_cond = WatchCondition(condition)
         instance.debug.add_watch(key, watch_cond, target_value)

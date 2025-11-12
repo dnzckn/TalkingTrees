@@ -1,8 +1,16 @@
 """Main CLI entry point for TalkingTrees."""
 
+import time
+
 import typer
+from rich.console import Console
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 
 from talking_trees.cli import commands
+from talking_trees.cli.client import get_client
+from talking_trees.cli.config import get_config, save_config
 
 app = typer.Typer(
     name="talkingtrees",
@@ -32,8 +40,6 @@ def config(
     api_url: str | None = typer.Option(None, "--api-url", help="Set API base URL"),
 ):
     """Manage CLI configuration."""
-    from talking_trees.cli.config import get_config, save_config
-
     config_obj = get_config()
 
     if show:
@@ -74,15 +80,6 @@ def profile(
     ),
 ):
     """Profile a behavior tree's performance."""
-    import time
-
-    from rich.console import Console
-    from rich.panel import Panel
-    from rich.progress import Progress, SpinnerColumn, TextColumn
-    from rich.table import Table
-
-    from talking_trees.cli.client import get_client
-
     console = Console()
 
     try:
