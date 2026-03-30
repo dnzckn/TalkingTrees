@@ -2,12 +2,11 @@ import { useRef, useEffect, useCallback, useState } from 'react';
 import { useTreeStore } from '../../store/treeStore';
 import { useUIStore } from '../../store/uiStore';
 import { getNodeTypeInfo } from '../Palette/nodeRegistry';
-import type { CanvasNode, NodeCategory } from '../../types/tree';
+import type { CanvasNode } from '../../types/tree';
 
 const NODE_W = 180;
 const NODE_H = 68;
 const PORT_R = 5;
-const V_GAP = 100;
 
 const CAT_COLORS: Record<string, string> = {
   composite: '#4ec9b0', decorator: '#dcdcaa', action: '#4c9eff',

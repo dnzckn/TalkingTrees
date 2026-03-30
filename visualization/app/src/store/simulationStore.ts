@@ -1,7 +1,7 @@
 /** Simulation engine — ports the legacy editor's tick/execute logic. */
 import { create } from 'zustand';
 import { useTreeStore } from './treeStore';
-import type { CanvasNode } from '../types/tree';
+
 
 type Status = 'SUCCESS' | 'FAILURE' | 'RUNNING' | 'INVALID';
 
