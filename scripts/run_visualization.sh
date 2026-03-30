@@ -51,7 +51,7 @@ echo ""
 echo "Opening Tree Editor in browser..."
 
 # Open in default browser
-EDITOR_URL="http://localhost:8080/visualization/tree_editor.html"
+EDITOR_URL="http://localhost:5173"
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS
     open "$EDITOR_URL"

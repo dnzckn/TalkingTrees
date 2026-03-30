@@ -8,6 +8,7 @@ from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich.table import Table
 
+from talking_trees import __version__
 from talking_trees.cli import commands
 from talking_trees.cli.client import get_client
 from talking_trees.cli.config import get_config, save_config
@@ -28,7 +29,7 @@ app.add_typer(commands.export_app, name="export", help="Import/export commands")
 @app.command()
 def version():
     """Show TalkingTrees version."""
-    typer.echo("TalkingTrees version 0.1.0")
+    typer.echo(f"TalkingTrees version {__version__}")
 
 
 @app.command()

@@ -1,7 +1,8 @@
 """File system based tree library storage."""
 
 import json
-from datetime import datetime
+import shutil
+from datetime import datetime, timezone
 from pathlib import Path
 from uuid import UUID
 
@@ -56,7 +57,7 @@ class FileSystemTreeLibrary(TreeLibrary):
             with open(self.catalog_path) as f:
                 data = json.load(f)
                 return {
-                    entry["tree_id"]: TreeCatalogEntry(**entry)
+                    entry["tree_id"]: TreeCatalogEntry.model_validate(entry)
                     for entry in data.get("entries", [])
                 }
         return {}
@@ -200,7 +201,7 @@ class FileSystemTreeLibrary(TreeLibrary):
                     status=tree_status,
                     tags=metadata.get("tags", []),
                     description=metadata.get("description", ""),
-                    modified_at=metadata.get("modified_at", datetime.utcnow()),
+                    modified_at=metadata.get("modified_at", datetime.now(timezone.utc)),
                 )
                 entries.append(entry)
 
@@ -262,7 +263,7 @@ class FileSystemTreeLibrary(TreeLibrary):
 
         with open(tree_path) as f:
             data = json.load(f)
-            return TreeDefinition(**data)
+            return TreeDefinition.model_validate(data)
 
     def save_tree(
         self,
@@ -307,7 +308,7 @@ class FileSystemTreeLibrary(TreeLibrary):
             version_info = {
                 "version": version,
                 "file_name": version_file,
-                "created_at": datetime.utcnow().isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat(),
                 "status": tree.metadata.status.value,
                 "is_latest": True,
                 "changelog": tree.metadata.changelog,
@@ -343,8 +344,6 @@ class FileSystemTreeLibrary(TreeLibrary):
 
         if version is None:
             # Delete entire tree
-            import shutil
-
             shutil.rmtree(tree_dir)
             if str(tree_id) in self.catalog:
                 del self.catalog[str(tree_id)]

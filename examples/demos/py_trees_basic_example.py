@@ -128,7 +128,7 @@ def main():
     print(" Success! ")
     print("=" * 60)
     print("\nNext steps:")
-    print("  1. Open visualization/tree_editor_pro.html in a browser")
+    print("  1. Run: cd visualization/app && npm run dev")
     print("  2. Load examples/py_trees_robot.json")
     print("  3. View your tree visually!")
     print("\nFor advanced features, see TESTING_STATUS.md")

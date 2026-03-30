@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "3d454a09-dead-406d-bf09-7af274efcc11",
+  "tree_id": "5340259e-fa4a-4370-8a99-887b4088ae4e",
   "metadata": {
     "name": "Task Manager",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-11-01 04:28:23.134106",
-    "modified_at": "2025-11-01 04:28:23.134108",
+    "created_at": "2026-03-30 03:05:55.230353+00:00",
+    "modified_at": "2026-03-30 03:05:55.230356+00:00",
     "description": "Manages emergency and normal operations",
     "tags": [],
     "changelog": null,
@@ -38,13 +38,19 @@
             "name": "Critical Error?",
             "config": {
               "variable": "error_level",
-              "value": 90,
-              "operator": ">",
+              "operator": "==",
+              "value": "<built-in function gt>",
               "_py_trees_class": "CheckBlackboardVariableValue"
             },
             "description": null,
             "children": [],
-            "$ref": null
+            "$ref": null,
+            "tree_id": null,
+            "tree_file": null,
+            "parameter_map": null,
+            "blackboard_input": null,
+            "blackboard_output": null,
+            "macro": null
           },
           {
             "node_type": "SetBlackboardVariable",
@@ -58,10 +64,22 @@
             },
             "description": null,
             "children": [],
-            "$ref": null
+            "$ref": null,
+            "tree_id": null,
+            "tree_file": null,
+            "parameter_map": null,
+            "blackboard_input": null,
+            "blackboard_output": null,
+            "macro": null
           }
         ],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       },
       {
         "node_type": "Sequence",
@@ -82,7 +100,13 @@
             },
             "description": null,
             "children": [],
-            "$ref": null
+            "$ref": null,
+            "tree_id": null,
+            "tree_file": null,
+            "parameter_map": null,
+            "blackboard_input": null,
+            "blackboard_output": null,
+            "macro": null
           },
           {
             "node_type": "SetBlackboardVariable",
@@ -96,22 +120,36 @@
             },
             "description": null,
             "children": [],
-            "$ref": null
+            "$ref": null,
+            "tree_id": null,
+            "tree_file": null,
+            "parameter_map": null,
+            "blackboard_input": null,
+            "blackboard_output": null,
+            "macro": null
           }
         ],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       }
     ],
-    "$ref": null
+    "$ref": null,
+    "tree_id": null,
+    "tree_file": null,
+    "parameter_map": null,
+    "blackboard_input": null,
+    "blackboard_output": null,
+    "macro": null
   },
   "subtrees": {},
   "dependencies": {
     "behaviors": [],
     "subtrees": [],
     "external": []
-  },
-  "validation": {
-    "warnings": [],
-    "errors": []
   }
 }

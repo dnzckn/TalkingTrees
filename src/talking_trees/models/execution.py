@@ -1,6 +1,6 @@
 """Pydantic models for execution state and runtime configuration."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID
@@ -114,7 +114,7 @@ class ExecutionSnapshot(BaseModel):
         description="Blackboard metadata (readers, writers, activity)",
     )
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Snapshot timestamp",
     )
     mode: ExecutionMode = Field(description="Current execution mode")

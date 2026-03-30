@@ -278,7 +278,7 @@ def load_tree_from_editor():
         print()
 
         # Fallback to example file
-        tree = tt.load_tree("examples/robot_v1.json")
+        tree = tt.load_tree("examples/trees/05_patrol_robot.json")
         print(f" Loaded tree: {tree.metadata.name}")
         print()
         return tree
@@ -465,7 +465,7 @@ def test_scenarios():
     try:
         tree = tt.load_tree("robot_controller.json")
     except FileNotFoundError:
-        tree = tt.load_tree("examples/robot_v1.json")
+        tree = tt.load_tree("examples/trees/05_patrol_robot.json")
 
     # Scenario 1: Normal operation
     print("Scenario 1: Normal Operation (Battery: 80%)")

@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "ecd270b3-460f-48fa-b009-300614141147",
+  "tree_id": "42ce33b1-f1bc-4663-845d-8f29aad49d23",
   "metadata": {
     "name": "Simple Robot Controller",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-11-01 04:28:23.124549",
-    "modified_at": "2025-11-01 04:28:23.124791",
+    "created_at": "2026-03-30 03:05:55.226828+00:00",
+    "modified_at": "2026-03-30 03:05:55.227118+00:00",
     "description": "Basic sequence converted from py_trees",
     "tags": [],
     "changelog": null,
@@ -31,7 +31,13 @@
         },
         "description": null,
         "children": [],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       },
       {
         "node_type": "Success",
@@ -42,7 +48,13 @@
         },
         "description": null,
         "children": [],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       },
       {
         "node_type": "Success",
@@ -53,19 +65,27 @@
         },
         "description": null,
         "children": [],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       }
     ],
-    "$ref": null
+    "$ref": null,
+    "tree_id": null,
+    "tree_file": null,
+    "parameter_map": null,
+    "blackboard_input": null,
+    "blackboard_output": null,
+    "macro": null
   },
   "subtrees": {},
   "dependencies": {
     "behaviors": [],
     "subtrees": [],
     "external": []
-  },
-  "validation": {
-    "warnings": [],
-    "errors": []
   }
 }

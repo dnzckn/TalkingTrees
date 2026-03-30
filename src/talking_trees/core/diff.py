@@ -1,6 +1,6 @@
 """Tree diff and merge utilities for comparing and combining tree versions."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any
 from uuid import UUID
@@ -475,6 +475,161 @@ class TreeDiffer:
         old_meta = old_tree.metadata.model_dump(exclude={"created_at", "modified_at"})
         new_meta = new_tree.metadata.model_dump(exclude={"created_at", "modified_at"})
         return self._diff_dict(old_meta, new_meta, "metadata")
+
+
+@dataclass
+class MergeConflict:
+    """A merge conflict between two versions of a node."""
+
+    node_id: UUID
+    node_name: str
+    property_name: str
+    base_value: Any
+    ours_value: Any
+    theirs_value: Any
+
+
+@dataclass
+class MergeResult:
+    """Result of a three-way merge."""
+
+    merged_tree: TreeDefinition | None
+    conflicts: list[MergeConflict]
+    auto_resolved: list[str] = field(default_factory=list)
+
+    @property
+    def has_conflicts(self) -> bool:
+        return len(self.conflicts) > 0
+
+
+def _collect_nodes(node: TreeNodeDefinition) -> dict[UUID, TreeNodeDefinition]:
+    """Collect all nodes into a UUID->node dict."""
+    result: dict[UUID, TreeNodeDefinition] = {}
+
+    def walk(n: TreeNodeDefinition) -> None:
+        result[n.node_id] = n
+        for child in n.children:
+            walk(child)
+
+    walk(node)
+    return result
+
+
+def three_way_merge(
+    base: TreeDefinition,
+    ours: TreeDefinition,
+    theirs: TreeDefinition,
+) -> MergeResult:
+    """Perform a three-way merge of tree definitions.
+
+    Uses node UUIDs as identity to match nodes across versions.
+
+    Args:
+        base: Common ancestor tree
+        ours: Our modified version
+        theirs: Their modified version
+
+    Returns:
+        MergeResult with merged tree and any conflicts
+    """
+    base_nodes = _collect_nodes(base.root)
+    ours_nodes = _collect_nodes(ours.root)
+    theirs_nodes = _collect_nodes(theirs.root)
+
+    conflicts: list[MergeConflict] = []
+    auto_resolved: list[str] = []
+
+    def merge_node(node: TreeNodeDefinition) -> TreeNodeDefinition:
+        nid = node.node_id
+        base_node = base_nodes.get(nid)
+        theirs_node = theirs_nodes.get(nid)
+
+        merged_config = dict(node.config)
+        merged_name = node.name
+        merged_node_type = node.node_type
+
+        if base_node and theirs_node:
+            # Check each property for conflicts
+            for prop in ("name", "node_type"):
+                base_val = getattr(base_node, prop)
+                ours_val = getattr(node, prop)
+                theirs_val = getattr(theirs_node, prop)
+
+                if ours_val != base_val and theirs_val != base_val:
+                    if ours_val != theirs_val:
+                        conflicts.append(
+                            MergeConflict(
+                                node_id=nid,
+                                node_name=node.name,
+                                property_name=prop,
+                                base_value=base_val,
+                                ours_value=ours_val,
+                                theirs_value=theirs_val,
+                            )
+                        )
+                elif theirs_val != base_val:
+                    if prop == "name":
+                        merged_name = theirs_val
+                    elif prop == "node_type":
+                        merged_node_type = theirs_val
+                    auto_resolved.append(
+                        f"Auto-resolved: {prop} on node '{node.name}' (took theirs)"
+                    )
+
+            # Merge configs
+            base_config = base_node.config or {}
+            theirs_config = theirs_node.config or {}
+            ours_config = node.config or {}
+
+            all_keys = set(base_config) | set(ours_config) | set(theirs_config)
+            for key in all_keys:
+                b = base_config.get(key)
+                o = ours_config.get(key)
+                t = theirs_config.get(key)
+
+                if o != b and t != b:
+                    if o != t:
+                        conflicts.append(
+                            MergeConflict(
+                                node_id=nid,
+                                node_name=node.name,
+                                property_name=f"config.{key}",
+                                base_value=b,
+                                ours_value=o,
+                                theirs_value=t,
+                            )
+                        )
+                elif t != b:
+                    merged_config[key] = t
+                    auto_resolved.append(
+                        f"Auto-resolved: config.{key} on node '{node.name}' (took theirs)"
+                    )
+
+        children = [merge_node(child) for child in node.children]
+
+        return TreeNodeDefinition(
+            node_type=merged_node_type,
+            node_id=node.node_id,
+            name=merged_name,
+            config=merged_config,
+            description=node.description,
+            children=children,
+        )
+
+    merged_root = merge_node(ours.root)
+
+    merged_tree = TreeDefinition(
+        tree_id=ours.tree_id,
+        metadata=ours.metadata.model_copy(deep=True),
+        root=merged_root,
+        subtrees=dict(ours.subtrees),
+    )
+
+    return MergeResult(
+        merged_tree=merged_tree if not conflicts else None,
+        conflicts=conflicts,
+        auto_resolved=auto_resolved,
+    )
 
 
 class TreeMerger:

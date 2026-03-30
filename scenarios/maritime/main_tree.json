@@ -1,0 +1,287 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "bbbbbbbb-0001-0001-0001-000000000001",
+  "metadata": {
+    "name": "Maritime Threat Detection Pipeline",
+    "version": "1.0.0",
+    "description": "4-tier coastal monitoring cascade: hydrophone → classification → radar → response",
+    "tags": ["maritime", "threat-detection", "cascade"],
+    "status": "active"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "detection_pipeline",
+    "config": {"memory": true},
+    "macro": {
+      "name": "Maritime Threat Detection Pipeline",
+      "description": "Full 4-tier detection and response cascade",
+      "collapsed": false,
+      "color": "#1A5276"
+    },
+    "children": [
+      {
+        "node_type": "Selector",
+        "name": "tier1_detection",
+        "macro": {
+          "name": "Tier 1 — Hydrophone Detection",
+          "description": "Passive acoustic detection from 12 sensor nodes",
+          "collapsed": true,
+          "color": "#2ECC71"
+        },
+        "blackboard_output": {
+          "acoustic_energy_db": {"type": "float", "required": true},
+          "bearing_deg": {"type": "float", "required": true},
+          "frequency_peak_hz": {"type": "float", "required": true},
+          "hydrophone_node_id": {"type": "str", "required": true}
+        },
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "energy_check",
+            "config": {"memory": true},
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "check_energy_above_threshold",
+                "config": {
+                  "variable": "acoustic_energy_db",
+                  "operator": ">",
+                  "value": 55.0
+                }
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "set_detected",
+                "config": {"variable": "detected", "value": true}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "tier2_classification",
+        "config": {"memory": true},
+        "macro": {
+          "name": "Tier 2 — Acoustic Classification",
+          "description": "CNN-based classification of acoustic signatures",
+          "collapsed": true,
+          "color": "#F39C12"
+        },
+        "blackboard_input": {
+          "acoustic_energy_db": {"type": "float", "required": true},
+          "bearing_deg": {"type": "float", "required": true},
+          "frequency_peak_hz": {"type": "float", "required": true}
+        },
+        "blackboard_output": {
+          "classification": {"type": "str", "required": true},
+          "confidence": {"type": "float", "required": true}
+        },
+        "children": [
+          {
+            "node_type": "SetBlackboardVariable",
+            "name": "run_classifier",
+            "config": {
+              "variable": "classification",
+              "value": "vessel"
+            }
+          },
+          {
+            "node_type": "CheckBlackboardVariableValue",
+            "name": "check_confidence",
+            "config": {
+              "variable": "confidence",
+              "operator": ">=",
+              "value": 0.70
+            }
+          },
+          {
+            "node_type": "Selector",
+            "name": "route_by_classification",
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "is_vessel_branch",
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_is_vessel",
+                    "config": {
+                      "variable": "classification",
+                      "operator": "==",
+                      "value": "vessel"
+                    }
+                  },
+                  {
+                    "node_type": "Success",
+                    "name": "vessel_continue"
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "is_wildlife_branch",
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_is_wildlife",
+                    "config": {
+                      "variable": "classification",
+                      "operator": "==",
+                      "value": "wildlife"
+                    }
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "log_wildlife",
+                    "config": {"variable": "action", "value": "log_only"}
+                  }
+                ]
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "discard_noise",
+                "config": {"variable": "action", "value": "discard"}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Selector",
+        "name": "tier3_radar",
+        "macro": {
+          "name": "Tier 3 — Radar Confirmation",
+          "description": "X-band radar target tracking and zone check",
+          "collapsed": true,
+          "color": "#E74C3C"
+        },
+        "blackboard_input": {
+          "bearing_deg": {"type": "float", "required": true},
+          "classification": {"type": "str", "required": true}
+        },
+        "blackboard_output": {
+          "radar_status": {"type": "str", "required": true},
+          "in_restricted_zone": {"type": "bool", "required": true}
+        },
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "radar_primary",
+            "config": {"memory": true},
+            "children": [
+              {
+                "node_type": "Success",
+                "name": "acquire_radar_slot"
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "set_radar_confirmed",
+                "config": {"variable": "radar_status", "value": "confirmed_track"}
+              }
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "radar_fallback",
+            "config": {"memory": true},
+            "children": [
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "set_bearing_only",
+                "config": {"variable": "radar_status", "value": "bearing_only"}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "tier4_response",
+        "config": {"memory": true},
+        "macro": {
+          "name": "Tier 4 — Response Decision",
+          "description": "Deterministic threat assessment and response action",
+          "collapsed": true,
+          "color": "#8E44AD"
+        },
+        "blackboard_input": {
+          "classification": {"type": "str", "required": true},
+          "confidence": {"type": "float", "required": true},
+          "radar_status": {"type": "str", "required": true},
+          "in_restricted_zone": {"type": "bool", "required": true}
+        },
+        "blackboard_output": {
+          "action": {"type": "str", "required": true}
+        },
+        "children": [
+          {
+            "node_type": "Selector",
+            "name": "evaluate_threat",
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "dispatch_criteria",
+                "config": {"memory": true},
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_vessel_class",
+                    "config": {"variable": "classification", "operator": "==", "value": "vessel"}
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_radar_confirmed",
+                    "config": {"variable": "radar_status", "operator": "==", "value": "confirmed_track"}
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_in_zone",
+                    "config": {"variable": "in_restricted_zone", "operator": "==", "value": true}
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_high_confidence",
+                    "config": {"variable": "confidence", "operator": ">=", "value": 0.85}
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "dispatch_drone",
+                    "config": {"variable": "action", "value": "dispatch_drone"}
+                  }
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "alert_criteria",
+                "config": {"memory": true},
+                "children": [
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_vessel_for_alert",
+                    "config": {"variable": "classification", "operator": "==", "value": "vessel"}
+                  },
+                  {
+                    "node_type": "CheckBlackboardVariableValue",
+                    "name": "check_zone_for_alert",
+                    "config": {"variable": "in_restricted_zone", "operator": "==", "value": true}
+                  },
+                  {
+                    "node_type": "SetBlackboardVariable",
+                    "name": "alert_operator",
+                    "config": {"variable": "action", "value": "alert_operator"}
+                  }
+                ]
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "default_log",
+                "config": {"variable": "action", "value": "log_only"}
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

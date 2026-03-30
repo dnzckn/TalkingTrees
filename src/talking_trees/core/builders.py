@@ -420,6 +420,61 @@ class CompareBlackboardVariablesBuilder(NodeBuilder):
         )
 
 
+class RemoteSubtreeBuilder(NodeBuilder):
+    """Builder for RemoteSubtree nodes."""
+
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
+        from talking_trees.behaviors.remote_subtree import RemoteSubtreeBehaviour
+
+        return RemoteSubtreeBehaviour(
+            name=name,
+            endpoint=config.get("endpoint", "http://localhost:8000"),
+            remote_execution_id=config.get("remote_execution_id"),
+            timeout_ms=config.get("timeout_ms", 5000),
+            blackboard_send=config.get("blackboard_send") or config.get("blackboard_keys"),
+            blackboard_receive=config.get("blackboard_receive"),
+            auth_token=config.get("auth_token"),
+        )
+
+
+class AsyncActionBuilder(NodeBuilder):
+    """Builder for AsyncAction nodes."""
+    def build(self, name: str, config: dict[str, Any], **kwargs) -> behaviour.Behaviour:
+        from talking_trees.execution.async_action import AsyncActionBehaviour
+        return AsyncActionBehaviour(
+            name=name,
+            callable_path=config.get("callable", ""),
+            timeout_ms=config.get("timeout_ms", 5000),
+            on_timeout=config.get("on_timeout", "FAILURE"),
+            output_key=config.get("output_key"),
+        )
+
+
+class RateLimiterBuilder(NodeBuilder):
+    def build(self, name, config, **kwargs):
+        from talking_trees.behaviors.rate_limiting import RateLimiterBehaviour
+        return RateLimiterBehaviour(name=name, child=kwargs.get("child"),
+            max_count=config.get("max_count", 10),
+            window_seconds=config.get("window_seconds", 1.0),
+            on_limit=config.get("on_limit", "FAILURE"))
+
+
+class DebounceBuilder(NodeBuilder):
+    def build(self, name, config, **kwargs):
+        from talking_trees.behaviors.rate_limiting import DebounceBehaviour
+        return DebounceBehaviour(name=name, child=kwargs.get("child"),
+            cooldown_seconds=config.get("cooldown_seconds", 1.0),
+            on_cooldown=config.get("on_cooldown", "RUNNING"))
+
+
+class WindowedAggregatorBuilder(NodeBuilder):
+    def build(self, name, config, **kwargs):
+        from talking_trees.behaviors.rate_limiting import WindowedAggregatorBehaviour
+        return WindowedAggregatorBehaviour(name=name, child=kwargs.get("child"),
+            window_seconds=config.get("window_seconds", 10.0),
+            min_successes=config.get("min_successes", 3))
+
+
 # =============================================================================
 # Builder Registry
 # =============================================================================
@@ -440,6 +495,9 @@ DECORATOR_BUILDERS: dict[str, NodeBuilder] = {
     "EternalGuard": EternalGuardBuilder(),
     "Condition": ConditionBuilder(),
     "Count": CountBuilder(),
+    "RateLimiter": RateLimiterBuilder(),
+    "Debounce": DebounceBuilder(),
+    "WindowedAggregator": WindowedAggregatorBuilder(),
     "StatusToBlackboard": StatusToBlackboardBuilder(),
     "ForEach": ForEachBuilder(),
     "PassThrough": PassThroughBuilder(),
@@ -470,6 +528,8 @@ SPECIAL_BEHAVIOR_BUILDERS: dict[str, NodeBuilder] = {
     "UnsetBlackboardVariable": UnsetBlackboardVariableBuilder(),
     "WaitForBlackboardVariable": WaitForBlackboardVariableBuilder(),
     "TickCounter": TickCounterBuilder(),
+    "RemoteSubtree": RemoteSubtreeBuilder(),
+    "AsyncAction": AsyncActionBuilder(),
 }
 
 # Combined registry

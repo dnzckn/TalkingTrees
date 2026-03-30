@@ -9,11 +9,17 @@ from talking_trees.core.templates import TemplateLibrary
 from talking_trees.storage.base import TreeLibrary
 from talking_trees.storage.filesystem import FileSystemTreeLibrary
 
-# Global instances
-_tree_library: TreeLibrary | None = None
-_execution_service: ExecutionService | None = None
-_behavior_registry: BehaviorRegistry | None = None
-_template_library: TemplateLibrary | None = None
+
+class _AppState:
+    """Application state holder for singleton services."""
+
+    tree_library: TreeLibrary | None = None
+    execution_service: ExecutionService | None = None
+    behavior_registry: BehaviorRegistry | None = None
+    template_library: TemplateLibrary | None = None
+
+
+_state = _AppState()
 
 
 def get_tree_library(data_path: Path | None = None) -> TreeLibrary:
@@ -25,12 +31,11 @@ def get_tree_library(data_path: Path | None = None) -> TreeLibrary:
     Returns:
         TreeLibrary instance
     """
-    global _tree_library
-    if _tree_library is None:
+    if _state.tree_library is None:
         if data_path is None:
             data_path = Path.cwd() / "data"
-        _tree_library = FileSystemTreeLibrary(data_path)
-    return _tree_library
+        _state.tree_library = FileSystemTreeLibrary(data_path)
+    return _state.tree_library
 
 
 def get_execution_service() -> ExecutionService:
@@ -39,11 +44,10 @@ def get_execution_service() -> ExecutionService:
     Returns:
         ExecutionService instance
     """
-    global _execution_service
-    if _execution_service is None:
+    if _state.execution_service is None:
         library = get_tree_library()
-        _execution_service = ExecutionService(library)
-    return _execution_service
+        _state.execution_service = ExecutionService(library)
+    return _state.execution_service
 
 
 def get_behavior_registry() -> BehaviorRegistry:
@@ -52,10 +56,9 @@ def get_behavior_registry() -> BehaviorRegistry:
     Returns:
         BehaviorRegistry instance
     """
-    global _behavior_registry
-    if _behavior_registry is None:
-        _behavior_registry = get_registry()
-    return _behavior_registry
+    if _state.behavior_registry is None:
+        _state.behavior_registry = get_registry()
+    return _state.behavior_registry
 
 
 def get_template_library(templates_path: Path | None = None) -> TemplateLibrary:
@@ -67,12 +70,11 @@ def get_template_library(templates_path: Path | None = None) -> TemplateLibrary:
     Returns:
         TemplateLibrary instance
     """
-    global _template_library
-    if _template_library is None:
+    if _state.template_library is None:
         if templates_path is None:
             templates_path = Path.cwd() / "data" / "templates"
-        _template_library = TemplateLibrary(templates_path)
-    return _template_library
+        _state.template_library = TemplateLibrary(templates_path)
+    return _state.template_library
 
 
 # FastAPI dependency functions

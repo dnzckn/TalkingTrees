@@ -1,7 +1,7 @@
 """Background execution scheduler for auto and interval modes."""
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from talking_trees.models.execution import (
@@ -128,7 +128,7 @@ class ExecutionScheduler:
             )
 
             context.state = SchedulerState.RUNNING
-            context.started_at = datetime.utcnow()
+            context.started_at = datetime.now(timezone.utc)
             context.should_pause = False
             context.should_stop = False
 
@@ -211,7 +211,7 @@ class ExecutionScheduler:
                 context.task.cancel()
 
             context.state = SchedulerState.STOPPED
-            context.stopped_at = datetime.utcnow()
+            context.stopped_at = datetime.now(timezone.utc)
 
         return context.get_status()
 
@@ -307,7 +307,7 @@ class ExecutionScheduler:
             async with self._lock:
                 if not context.should_stop:
                     context.state = SchedulerState.STOPPED
-                    context.stopped_at = datetime.utcnow()
+                    context.stopped_at = datetime.now(timezone.utc)
 
     async def _run_interval(self, context: SchedulerContext, tick_callback) -> None:
         """Run in INTERVAL mode (tick at specified intervals).
@@ -357,7 +357,7 @@ class ExecutionScheduler:
             async with self._lock:
                 if not context.should_stop:
                     context.state = SchedulerState.STOPPED
-                    context.stopped_at = datetime.utcnow()
+                    context.stopped_at = datetime.now(timezone.utc)
 
     def _get_context(self, execution_id: UUID) -> SchedulerContext:
         """Get scheduler context.

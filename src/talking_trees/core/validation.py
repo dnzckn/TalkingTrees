@@ -1,5 +1,6 @@
 """Tree and behavior validation."""
 
+from dataclasses import dataclass, field
 from uuid import UUID
 
 from talking_trees.core.registry import BehaviorRegistry
@@ -10,6 +11,130 @@ from talking_trees.models.validation import (
     ValidationIssue,
     ValidationLevel,
 )
+
+
+# ---------------------------------------------------------------------------
+# WP2: Typed Blackboard Contracts – dataflow validation
+# ---------------------------------------------------------------------------
+
+
+@dataclass
+class DataflowIssue:
+    """A single dataflow validation issue."""
+
+    level: str  # "error" or "warning"
+    message: str
+    node_name: str | None = None
+    node_id: str | None = None
+    key: str | None = None
+
+
+@dataclass
+class DataflowValidationResult:
+    """Result of dataflow validation."""
+
+    issues: list[DataflowIssue] = field(default_factory=list)
+
+    @property
+    def is_valid(self) -> bool:
+        return not any(i.level == "error" for i in self.issues)
+
+    @property
+    def error_count(self) -> int:
+        return sum(1 for i in self.issues if i.level == "error")
+
+    @property
+    def warning_count(self) -> int:
+        return sum(1 for i in self.issues if i.level == "warning")
+
+
+def validate_dataflow(
+    tree: TreeDefinition,
+    initial_blackboard_keys: dict[str, str] | None = None,
+) -> DataflowValidationResult:
+    """Validate blackboard data flow through a tree.
+
+    Walks the tree checking that:
+    - Required input keys are provided by upstream outputs or initial blackboard
+    - Type consistency between connected ports
+    - Orphan outputs (written but never read) are flagged as warnings
+
+    Args:
+        tree: Tree to validate
+        initial_blackboard_keys: Initial blackboard keys with their types {key: type_str}
+
+    Returns:
+        DataflowValidationResult with issues found
+    """
+    issues: list[DataflowIssue] = []
+
+    # Available keys: maps key name -> type string
+    available: dict[str, str] = dict(initial_blackboard_keys) if initial_blackboard_keys else {}
+
+    # Track which keys are actually consumed (read) by any node
+    consumed_keys: set[str] = set()
+
+    def _walk(node: TreeNodeDefinition) -> None:
+        # --- check inputs ---------------------------------------------------
+        if node.blackboard_input:
+            for key, port in node.blackboard_input.items():
+                if key in available:
+                    consumed_keys.add(key)
+                    # Type consistency check
+                    available_type = available[key]
+                    if available_type and port.type and available_type != port.type:
+                        issues.append(
+                            DataflowIssue(
+                                level="error",
+                                message=(
+                                    f"Type mismatch for key '{key}': "
+                                    f"expected '{port.type}' but upstream provides '{available_type}'"
+                                ),
+                                node_name=node.name,
+                                node_id=str(node.node_id),
+                                key=key,
+                            )
+                        )
+                else:
+                    # Key not available
+                    if port.required:
+                        issues.append(
+                            DataflowIssue(
+                                level="error",
+                                message=(
+                                    f"Required input key '{key}' is not provided by any upstream "
+                                    f"output or initial blackboard"
+                                ),
+                                node_name=node.name,
+                                node_id=str(node.node_id),
+                                key=key,
+                            )
+                        )
+
+        # --- register outputs ------------------------------------------------
+        if node.blackboard_output:
+            for key, port in node.blackboard_output.items():
+                available[key] = port.type
+
+        # --- recurse into children -------------------------------------------
+        for child in node.children:
+            _walk(child)
+
+    _walk(tree.root)
+
+    # --- orphan outputs (written but never consumed) -------------------------
+    initial_keys = set(initial_blackboard_keys.keys()) if initial_blackboard_keys else set()
+    for key in available:
+        if key not in consumed_keys and key not in initial_keys:
+            issues.append(
+                DataflowIssue(
+                    level="warning",
+                    message=f"Output key '{key}' is written but never read by any downstream node",
+                    key=key,
+                )
+            )
+
+    return DataflowValidationResult(issues=issues)
 
 
 class TreeValidator:

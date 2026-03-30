@@ -2,8 +2,10 @@
 
 import os
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+from talking_trees.security.middleware import get_current_role
 
 from talking_trees.api.routers import (
     behaviors,
@@ -79,3 +81,11 @@ def root():
 def health_check():
     """Health check endpoint."""
     return {"status": "healthy", "service": "talkingtrees-api"}
+
+
+@app.get("/auth/whoami")
+def whoami(role=Depends(get_current_role)):
+    """Get current authentication identity and role."""
+    if role is None:
+        return {"authenticated": False, "message": "Security disabled"}
+    return {"authenticated": True, "role": role.value}

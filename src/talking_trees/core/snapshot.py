@@ -1,6 +1,6 @@
 """State snapshot capture using py_trees visitors."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID
 
@@ -163,7 +163,7 @@ def capture_snapshot(
         node_states=visitor.node_states,
         blackboard=bb_storage,
         blackboard_metadata=bb_metadata,
-        timestamp=datetime.utcnow(),
+        timestamp=datetime.now(timezone.utc),
         mode=mode,
         is_running=is_running,
         tree=tree_structure,

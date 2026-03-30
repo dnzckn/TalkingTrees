@@ -1,12 +1,12 @@
 {
   "$schema": "1.0.0",
-  "tree_id": "f35a3b60-3b3e-4e53-96df-f491c81feeb2",
+  "tree_id": "0de08033-0a33-4bff-afef-3f3105ff54c3",
   "metadata": {
     "name": "Sensor Monitor",
     "version": "1.0.0",
     "author": null,
-    "created_at": "2025-11-01 04:28:23.137639",
-    "modified_at": "2025-11-01 04:28:23.137640",
+    "created_at": "2026-03-30 03:05:55.234427+00:00",
+    "modified_at": "2026-03-30 03:05:55.234429+00:00",
     "description": "Converted from py_trees",
     "tags": [],
     "changelog": null,
@@ -31,7 +31,13 @@
         },
         "description": null,
         "children": [],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       },
       {
         "node_type": "SetBlackboardVariable",
@@ -45,19 +51,27 @@
         },
         "description": null,
         "children": [],
-        "$ref": null
+        "$ref": null,
+        "tree_id": null,
+        "tree_file": null,
+        "parameter_map": null,
+        "blackboard_input": null,
+        "blackboard_output": null,
+        "macro": null
       }
     ],
-    "$ref": null
+    "$ref": null,
+    "tree_id": null,
+    "tree_file": null,
+    "parameter_map": null,
+    "blackboard_input": null,
+    "blackboard_output": null,
+    "macro": null
   },
   "subtrees": {},
   "dependencies": {
     "behaviors": [],
     "subtrees": [],
     "external": []
-  },
-  "validation": {
-    "warnings": [],
-    "errors": []
   }
 }

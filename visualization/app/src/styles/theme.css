@@ -1,0 +1,92 @@
+/* ═══════════════════════════════════════════════════════
+   TalkingTrees Design System
+   Industrial-precision behavior tree editor
+   ═══════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ── Surface hierarchy ── */
+  --surface-0: #0f1117;
+  --surface-1: #161920;
+  --surface-2: #1c1f28;
+  --surface-3: #242832;
+  --surface-4: #2c313d;
+  --surface-hover: #333845;
+  --surface-active: #0d3868;
+  --surface-overlay: rgba(0, 0, 0, 0.6);
+
+  /* ── Text ── */
+  --text-0: #e8eaed;
+  --text-1: #b8bcc4;
+  --text-2: #7c818c;
+  --text-3: #4e5360;
+
+  /* ── Borders ── */
+  --border-0: #2a2e38;
+  --border-1: #383d4a;
+  --border-focus: #4c9eff;
+
+  /* ── Accent ── */
+  --accent: #4c9eff;
+  --accent-dim: rgba(76, 158, 255, 0.15);
+  --accent-glow: rgba(76, 158, 255, 0.3);
+
+  /* ── Status ── */
+  --status-success: #3dd68c;
+  --status-failure: #ff5c5c;
+  --status-running: #ffc145;
+  --status-invalid: #7c818c;
+
+  /* ── Node categories ── */
+  --cat-composite: #4ec9b0;
+  --cat-decorator: #dcdcaa;
+  --cat-action: #4c9eff;
+  --cat-condition: #c586c0;
+  --cat-custom: #ce9178;
+  --cat-rate-limit: #ff6b6b;
+  --cat-resource: #3dd68c;
+  --cat-async: #ffc145;
+
+  /* ── Layout ── */
+  --sidebar-w: 260px;
+  --props-w: 300px;
+  --toolbar-h: 42px;
+  --timeline-h: 38px;
+  --statusbar-h: 26px;
+
+  /* ── Type ── */
+  --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+  --fs-xs: 10px;
+  --fs-sm: 11px;
+  --fs-md: 12px;
+  --fs-lg: 13px;
+  --fs-xl: 14px;
+
+  /* ── Motion ── */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --duration: 120ms;
+
+  /* ── Radius ── */
+  --r-sm: 3px;
+  --r-md: 5px;
+  --r-lg: 8px;
+}
+
+[data-theme="light"] {
+  --surface-0: #f8f9fa;
+  --surface-1: #ffffff;
+  --surface-2: #f0f1f3;
+  --surface-3: #e8e9eb;
+  --surface-4: #dcdee2;
+  --surface-hover: #e4e6ea;
+  --surface-active: #cde4ff;
+  --surface-overlay: rgba(0, 0, 0, 0.3);
+  --text-0: #1a1c20;
+  --text-1: #4a4d55;
+  --text-2: #8a8d95;
+  --text-3: #b0b3b8;
+  --border-0: #e0e2e6;
+  --border-1: #c8cad0;
+}

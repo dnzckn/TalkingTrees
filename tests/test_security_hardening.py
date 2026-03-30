@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Test security hardening features (cycle detection, depth limits)."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import uuid4
 
 from talking_trees.core.serializer import TreeSerializer
@@ -69,8 +69,8 @@ def test_cycle_detection():
             name="Circular Test",
             version="1.0.0",
             description="Test circular references",
-            created_at=datetime.utcnow(),
-            modified_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            modified_at=datetime.now(timezone.utc),
             status=TreeStatus.DRAFT,
         ),
         root=root,
@@ -120,8 +120,8 @@ def test_depth_limit():
             name="Deep Test",
             version="1.0.0",
             description="Test depth limits",
-            created_at=datetime.utcnow(),
-            modified_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            modified_at=datetime.now(timezone.utc),
             status=TreeStatus.DRAFT,
         ),
         root=current,
@@ -173,8 +173,8 @@ def test_normal_deep_tree():
             name="Normal Deep Test",
             version="1.0.0",
             description="Test normal depth",
-            created_at=datetime.utcnow(),
-            modified_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            modified_at=datetime.now(timezone.utc),
             status=TreeStatus.DRAFT,
         ),
         root=current,
@@ -235,8 +235,8 @@ def test_subtree_depth_limit():
             name="Subtree Depth Test",
             version="1.0.0",
             description="Test depth limits with subtrees",
-            created_at=datetime.utcnow(),
-            modified_at=datetime.utcnow(),
+            created_at=datetime.now(timezone.utc),
+            modified_at=datetime.now(timezone.utc),
             status=TreeStatus.DRAFT,
         ),
         root=current,

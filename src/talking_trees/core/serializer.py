@@ -1,12 +1,18 @@
 """Tree serialization between JSON and py_trees objects."""
 
+import json
+from collections.abc import Callable
+from pathlib import Path
 from uuid import UUID
 
 import py_trees
 from py_trees import behaviour
 
+from talking_trees.core.builders import build_behavior, build_decorator
 from talking_trees.core.constants import ConfigKeys, DefaultValues, NodeTypes
 from talking_trees.core.registry import get_registry
+from talking_trees.core.utils import ParallelPolicyFactory
+from talking_trees.models.schema import NodeCategory
 from talking_trees.models.tree import TreeDefinition, TreeNodeDefinition
 
 
@@ -33,17 +39,20 @@ class TreeSerializer:
         self.max_depth = max_depth
 
         # Cache decorator types from registry for efficient lookup
-        from talking_trees.models.schema import NodeCategory
-
         self.decorator_types = self.registry.get_node_types_by_category(
             NodeCategory.DECORATOR
         )
 
-    def deserialize(self, tree_def: TreeDefinition) -> py_trees.trees.BehaviourTree:
+    def deserialize(
+        self,
+        tree_def: TreeDefinition,
+        resolver: Callable[[str], TreeDefinition] | None = None,
+    ) -> py_trees.trees.BehaviourTree:
         """Convert TreeDefinition to executable py_trees.BehaviourTree.
 
         Args:
             tree_def: Tree definition from JSON
+            resolver: Optional callback to resolve tree_id references to TreeDefinition
 
         Returns:
             Executable behaviour tree
@@ -57,7 +66,7 @@ class TreeSerializer:
         # Resolve subtree references first (with cycle detection)
         visited_refs = set()
         resolved_root = self._resolve_subtrees(
-            tree_def.root, tree_def.subtrees, visited_refs
+            tree_def.root, tree_def.subtrees, visited_refs, resolver
         )
 
         # Build the tree recursively (with depth limits)
@@ -73,13 +82,15 @@ class TreeSerializer:
         node: TreeNodeDefinition,
         subtrees: dict[str, TreeNodeDefinition],
         visited_refs: set[str],
+        resolver: Callable[[str], TreeDefinition] | None = None,
     ) -> TreeNodeDefinition:
-        """Resolve $ref pointers to subtrees with cycle detection.
+        """Resolve $ref, tree_file, and tree_id pointers with cycle detection.
 
         Args:
-            node: Node definition (may have $ref)
+            node: Node definition (may have $ref, tree_file, or tree_id)
             subtrees: Available subtree definitions
             visited_refs: Set of already visited refs (for cycle detection)
+            resolver: Optional callback to resolve tree_id references
 
         Returns:
             Resolved node definition
@@ -117,10 +128,58 @@ class TreeSerializer:
             )
             node = resolved
 
+        # Handle external file reference
+        if node.tree_file:
+            ref_key = f"file:{node.tree_file}"
+            if ref_key in visited_refs:
+                raise ValueError(f"Circular subtree reference detected: {node.tree_file}")
+            visited_refs.add(ref_key)
+
+            file_path = Path(node.tree_file)
+            if not file_path.exists():
+                raise ValueError(f"Subtree file not found: {node.tree_file}")
+            with open(file_path) as f:
+                ext_tree = TreeDefinition.model_validate(json.load(f))
+
+            # Apply parameter map (blackboard key remapping)
+            resolved_root = ext_tree.root
+            if node.parameter_map:
+                resolved_root = self._apply_parameter_map(resolved_root, node.parameter_map)
+
+            node = TreeNodeDefinition(
+                node_type=resolved_root.node_type,
+                node_id=node.node_id,
+                name=node.name or resolved_root.name,
+                config=resolved_root.config,
+                description=node.description or resolved_root.description,
+                children=resolved_root.children,
+            )
+
+        # Handle external ID reference
+        if node.tree_id and resolver:
+            ref_key = f"id:{node.tree_id}"
+            if ref_key in visited_refs:
+                raise ValueError(f"Circular subtree reference detected: {node.tree_id}")
+            visited_refs.add(ref_key)
+
+            ext_tree = resolver(node.tree_id)
+            resolved_root = ext_tree.root
+            if node.parameter_map:
+                resolved_root = self._apply_parameter_map(resolved_root, node.parameter_map)
+
+            node = TreeNodeDefinition(
+                node_type=resolved_root.node_type,
+                node_id=node.node_id,
+                name=node.name or resolved_root.name,
+                config=resolved_root.config,
+                description=node.description or resolved_root.description,
+                children=resolved_root.children,
+            )
+
         # Recursively resolve children (share visited_refs to detect cycles)
         if node.children:
             resolved_children = [
-                self._resolve_subtrees(child, subtrees, visited_refs)
+                self._resolve_subtrees(child, subtrees, visited_refs, resolver)
                 for child in node.children
             ]
             node = TreeNodeDefinition(
@@ -133,6 +192,39 @@ class TreeSerializer:
             )
 
         return node
+
+    def _apply_parameter_map(
+        self, node: TreeNodeDefinition, param_map: dict[str, str]
+    ) -> TreeNodeDefinition:
+        """Remap blackboard keys in node configs according to parameter_map.
+
+        Args:
+            node: Node to remap
+            param_map: Mapping of {local_key: subtree_key}
+
+        Returns:
+            Node with remapped config keys
+        """
+        config = dict(node.config) if node.config else {}
+        # Remap variable/key references in config
+        for local_key, subtree_key in param_map.items():
+            for config_key in ["variable", "key", "var1_key", "var2_key", "source_key", "target_key"]:
+                if config.get(config_key) == subtree_key:
+                    config[config_key] = local_key
+
+        children = [
+            self._apply_parameter_map(child, param_map)
+            for child in node.children
+        ]
+
+        return TreeNodeDefinition(
+            node_type=node.node_type,
+            node_id=node.node_id,
+            name=node.name,
+            config=config,
+            description=node.description,
+            children=children,
+        )
 
     def _build_node(
         self, node_def: TreeNodeDefinition, depth: int = 0
@@ -244,8 +336,6 @@ class TreeSerializer:
         children = [self._build_node(child, depth + 1) for child in node_def.children]
 
         # Create policy using factory
-        from talking_trees.core.utils import ParallelPolicyFactory
-
         policy_name = node_def.config.get(ConfigKeys.POLICY, DefaultValues.POLICY)
         synchronise = node_def.config.get(ConfigKeys.SYNCHRONISE, DefaultValues.SYNCHRONISE)
         policy = ParallelPolicyFactory.create(policy_name, synchronise)
@@ -286,8 +376,6 @@ class TreeSerializer:
         child = self._build_node(node_def.children[0], depth + 1)
 
         # Use builder registry to create decorator
-        from talking_trees.core.builders import build_decorator
-
         decorator = build_decorator(
             node_def.node_type, node_def.name, node_def.config or {}, child
         )
@@ -307,8 +395,6 @@ class TreeSerializer:
             Behavior instance
         """
         # Use builder registry to create the behavior
-        from talking_trees.core.builders import build_behavior
-
         # Use _py_trees_class from config if available (for generic node types)
         config = node_def.config or {}
         node_type_to_build = config.get("_py_trees_class", node_def.node_type)

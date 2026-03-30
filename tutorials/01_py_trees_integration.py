@@ -71,7 +71,7 @@ def example_1_basic_conversion():
     print("\nStep 3: Save to JSON...")
     tt.save_tree(tt_tree, "tutorials/assets/py_trees_simple.json")
     print(" Saved to tutorials/assets/py_trees_simple.json")
-    print("  Open in visualization/tree_editor_pro.html to view!")
+    print("  Open in visualization/app/ (run: cd visualization/app && npm run dev) to view!")
 
     # Step 4: Run with TalkingTrees SDK
     print("\nStep 4: Run with TalkingTrees SDK...")
@@ -242,7 +242,7 @@ def example_3_complete_workflow():
     tt.save_tree(tt_tree, output_path)
 
     print(f" Saved to {output_path}")
-    print("  → Open in visualization/tree_editor_pro.html")
+    print("  → Open in visualization/app/ (run: cd visualization/app && npm run dev)")
     print("  → View structure visually")
     print("  → Make edits if needed")
     print("  → Export back to JSON")
@@ -349,7 +349,7 @@ def example_5_reverse_conversion():
 
     # Load a TalkingTrees tree
     tt = TalkingTrees()
-    tt_tree = tt.load_tree("examples/robot_v1.json")
+    tt_tree = tt.load_tree("examples/trees/05_patrol_robot.json")
 
     print(f"Loaded TalkingTrees tree: {tt_tree.metadata.name}")
     print(f"  Root: {tt_tree.root.node_type}")
@@ -532,5 +532,5 @@ if __name__ == "__main__":
     print("  • tutorials/assets/py_trees_task_manager.json")
     print("  • tutorials/assets/py_trees_decorators.json")
     print("  • tutorials/assets/py_trees_custom.json")
-    print("\n Open these in visualization/tree_editor_pro.html to view!")
+    print("\n Open these in visualization/app/ (run: cd visualization/app && npm run dev) to view!")
     print()

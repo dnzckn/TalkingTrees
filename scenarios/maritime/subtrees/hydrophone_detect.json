@@ -1,0 +1,41 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "aaaaaaaa-0001-0001-0001-000000000001",
+  "metadata": {
+    "name": "Hydrophone Detection",
+    "version": "1.0.0",
+    "description": "Reusable subtree for single hydrophone node detection logic",
+    "tags": ["tier1", "hydrophone", "detection"],
+    "status": "active"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "hydrophone_detect_seq",
+    "config": {"memory": true},
+    "blackboard_output": {
+      "acoustic_energy_db": {"type": "float", "required": true},
+      "bearing_deg": {"type": "float", "required": true},
+      "frequency_peak_hz": {"type": "float", "required": true},
+      "hydrophone_node_id": {"type": "str", "required": true}
+    },
+    "children": [
+      {
+        "node_type": "CheckBlackboardVariableValue",
+        "name": "check_energy_threshold",
+        "config": {
+          "variable": "acoustic_energy_db",
+          "operator": ">",
+          "value": 55.0
+        }
+      },
+      {
+        "node_type": "SetBlackboardVariable",
+        "name": "mark_detected",
+        "config": {
+          "variable": "detected",
+          "value": true
+        }
+      }
+    ]
+  }
+}

@@ -1,8 +1,11 @@
 """Execution service for managing tree instances."""
 
-from datetime import datetime
+import time as _time
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
+
+import logging
 
 import py_trees
 
@@ -33,6 +36,8 @@ from talking_trees.models.execution import (
 from talking_trees.models.tree import TreeDefinition
 from talking_trees.models.visualization import ExecutionStatistics
 from talking_trees.storage.base import TreeLibrary
+
+logger = logging.getLogger(__name__)
 
 
 class ExecutionInstance:
@@ -70,7 +75,7 @@ class ExecutionInstance:
         self.tree = tree
         self.serializer = serializer
         self.config = config
-        self.created_at = datetime.utcnow()
+        self.created_at = datetime.now(timezone.utc)
         self.last_tick_at: datetime | None = None
         self.is_running = False
 
@@ -93,6 +98,30 @@ class ExecutionInstance:
         )
         if self.profiler:
             self.profiler.start_profiling(str(execution_id), tree_def.tree_id)
+
+        # Observability collectors (WP7)
+        self._collectors: list = []
+
+        # Dynamic topology support (WP4)
+        from talking_trees.core.tree_adapter import TopologyManager
+        self.topology = TopologyManager(tree)
+        self._adapters: list = []
+
+    def add_adapter(self, adapter) -> None:
+        """Register a TreeAdapter for pre/post-tick hooks."""
+        self._adapters.append(adapter)
+
+    def remove_adapter(self, adapter) -> None:
+        """Unregister a TreeAdapter."""
+        self._adapters.remove(adapter)
+
+    def add_collector(self, collector) -> None:
+        """Register an ObservabilityCollector for metrics."""
+        self._collectors.append(collector)
+
+    def remove_collector(self, collector) -> None:
+        """Unregister an ObservabilityCollector."""
+        self._collectors.remove(collector)
 
     def tick(self, count: int = 1) -> TickResponse:
         """Tick the tree.
@@ -137,9 +166,17 @@ class ExecutionInstance:
                 if root_uuid:
                     self.profiler.before_tick(self.tree.root, root_uuid)
 
+            # Run adapter before_tick hooks
+            if self._adapters:
+                bb_dict = self._get_blackboard_dict()
+                for adapter in self._adapters:
+                    adapter.before_tick(self.tree, bb_dict)
+
             # Execute tick
+            _tick_start = _time.perf_counter()
             self.tree.tick()
-            self.last_tick_at = datetime.utcnow()
+            _tick_duration_ms = (_time.perf_counter() - _tick_start) * 1000
+            self.last_tick_at = datetime.now(timezone.utc)
 
             # Profiler: End tick profiling
             if self.profiler:
@@ -153,6 +190,22 @@ class ExecutionInstance:
             # Statistics: End tick timing
             root_status = Status(self.tree.root.status.value)
             self.statistics.on_tick_end(root_status)
+
+            # Run adapter after_tick hooks
+            if self._adapters:
+                bb_dict = self._get_blackboard_dict()
+                for adapter in self._adapters:
+                    adapter.after_tick(self.tree, bb_dict, self.tree.root.status)
+
+            # Notify observability collectors (WP7)
+            if self._collectors:
+                for collector in self._collectors:
+                    collector.on_tick(
+                        self.execution_id,
+                        self.tree_def.tree_id,
+                        self.tree.count,
+                        _tick_duration_ms,
+                    )
 
             # Post-tick: Check breakpoints at tip node
             tip = self.tree.tip()
@@ -293,7 +346,7 @@ class ExecutionInstance:
         try:
             self.tree.shutdown()
         except Exception as e:
-            print(f"Warning: Error shutting down tree: {e}")
+            logger.warning("Error shutting down tree: %s", e)
 
         # Deserialize new tree
         new_serializer = TreeSerializer()
@@ -301,13 +354,9 @@ class ExecutionInstance:
 
         # Restore blackboard if preserved
         if preserved_blackboard:
-            bb = py_trees.blackboard.Client(name="Reloader")
-            for key, value in preserved_blackboard.items():
-                try:
-                    bb.register_key(key=key, access=py_trees.common.Access.WRITE)
-                    bb.set(key, value, overwrite=True)
-                except Exception as e:
-                    print(f"Warning: Could not restore blackboard key {key}: {e}")
+            from talking_trees.core.utils import update_blackboard
+
+            update_blackboard(preserved_blackboard, client_name="Reloader")
 
         # Setup new tree
         new_tree.setup()
@@ -395,10 +444,9 @@ class ExecutionService:
 
         # Apply initial blackboard values
         if config.initial_blackboard:
-            bb = py_trees.blackboard.Client(name="Initializer")
-            for key, value in config.initial_blackboard.items():
-                bb.register_key(key=key, access=py_trees.common.Access.WRITE)
-                bb.set(key, value, overwrite=True)
+            from talking_trees.core.utils import update_blackboard
+
+            update_blackboard(config.initial_blackboard, client_name="Initializer")
 
         # Setup tree
         tree.setup()
@@ -470,18 +518,9 @@ class ExecutionService:
 
         # Apply blackboard updates (sensor inputs) before ticking
         if blackboard_updates:
-            bb = py_trees.blackboard.Client(name="ExternalSensor")
-            for key, value in blackboard_updates.items():
-                # Register and set key
-                try:
-                    bb.register_key(key=key, access=py_trees.common.Access.WRITE)
-                    bb.set(key, value, overwrite=True)
-                except Exception as e:
-                    # Already registered or other error - try to set anyway
-                    try:
-                        bb.set(key, value, overwrite=True)
-                    except Exception:
-                        print(f"Warning: Could not set blackboard key {key}: {e}")
+            from talking_trees.core.utils import update_blackboard
+
+            update_blackboard(blackboard_updates)
 
         # Tick the tree
         response = instance.tick(count)
@@ -544,7 +583,7 @@ class ExecutionService:
             try:
                 instance.tree.shutdown()
             except Exception:
-                pass  # Best effort cleanup
+                logger.debug("Error during tree shutdown cleanup", exc_info=True)
 
             # Clear history if enabled
             if self.history:
@@ -554,7 +593,7 @@ class ExecutionService:
             return True
         return False
 
-    def cleanup_stale_executions(self, max_age_hours: int = 24) -> int:
+    async def cleanup_stale_executions(self, max_age_hours: int = 24) -> int:
         """Cleanup old execution instances.
 
         Args:
@@ -563,7 +602,7 @@ class ExecutionService:
         Returns:
             Number of instances cleaned up
         """
-        cutoff = datetime.utcnow().timestamp() - (max_age_hours * 3600)
+        cutoff = datetime.now(timezone.utc).timestamp() - (max_age_hours * 3600)
         to_delete = []
 
         for exec_id, instance in self.instances.items():
@@ -571,7 +610,7 @@ class ExecutionService:
                 to_delete.append(exec_id)
 
         for exec_id in to_delete:
-            self.delete_execution(exec_id)
+            await self.delete_execution(exec_id)
 
         return len(to_delete)
 

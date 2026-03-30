@@ -1,6 +1,6 @@
 """Event models for real-time execution monitoring."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID
@@ -48,7 +48,7 @@ class ExecutionEvent(BaseModel):
     type: EventType = Field(description="Event type")
     execution_id: UUID = Field(description="Execution instance ID")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Event timestamp"
+        default_factory=lambda: datetime.now(timezone.utc), description="Event timestamp"
     )
     tick: int | None = Field(
         default=None, description="Tick number when event occurred"
@@ -157,5 +157,5 @@ class WebSocketMessage(BaseModel):
     action: str = Field(description="Action type: event, subscribe, unsubscribe, error")
     data: dict[str, Any] = Field(default_factory=dict, description="Message data")
     timestamp: datetime = Field(
-        default_factory=datetime.utcnow, description="Message timestamp"
+        default_factory=lambda: datetime.now(timezone.utc), description="Message timestamp"
     )

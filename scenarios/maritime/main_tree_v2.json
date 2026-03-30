@@ -1,0 +1,147 @@
+{
+  "$schema": "1.0.0",
+  "tree_id": "bbbbbbbb-0001-0001-0001-000000000001",
+  "metadata": {
+    "name": "Maritime Threat Detection Pipeline",
+    "version": "2.0.0",
+    "description": "v2: Added vessel size estimation node in classification tier",
+    "tags": ["maritime", "threat-detection", "cascade", "v2"],
+    "status": "active",
+    "changelog": "Added vessel size estimation based on acoustic signature analysis"
+  },
+  "root": {
+    "node_type": "Sequence",
+    "name": "detection_pipeline",
+    "config": {"memory": true},
+    "children": [
+      {
+        "node_type": "Selector",
+        "name": "tier1_detection",
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "energy_check",
+            "config": {"memory": true},
+            "children": [
+              {
+                "node_type": "CheckBlackboardVariableValue",
+                "name": "check_energy_above_threshold",
+                "config": {"variable": "acoustic_energy_db", "operator": ">", "value": 55.0}
+              },
+              {
+                "node_type": "SetBlackboardVariable",
+                "name": "set_detected",
+                "config": {"variable": "detected", "value": true}
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "tier2_classification",
+        "config": {"memory": true},
+        "children": [
+          {
+            "node_type": "SetBlackboardVariable",
+            "name": "run_classifier",
+            "config": {"variable": "classification", "value": "vessel"}
+          },
+          {
+            "node_type": "SetBlackboardVariable",
+            "name": "estimate_vessel_size",
+            "config": {"variable": "vessel_size_class", "value": "medium"},
+            "description": "NEW in v2: Estimate vessel size from acoustic signature bandwidth and energy"
+          },
+          {
+            "node_type": "CheckBlackboardVariableValue",
+            "name": "check_confidence",
+            "config": {"variable": "confidence", "operator": ">=", "value": 0.70}
+          },
+          {
+            "node_type": "Selector",
+            "name": "route_by_classification",
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "is_vessel_branch",
+                "children": [
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_is_vessel", "config": {"variable": "classification", "operator": "==", "value": "vessel"}},
+                  {"node_type": "Success", "name": "vessel_continue"}
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "is_wildlife_branch",
+                "children": [
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_is_wildlife", "config": {"variable": "classification", "operator": "==", "value": "wildlife"}},
+                  {"node_type": "SetBlackboardVariable", "name": "log_wildlife", "config": {"variable": "action", "value": "log_only"}}
+                ]
+              },
+              {"node_type": "SetBlackboardVariable", "name": "discard_noise", "config": {"variable": "action", "value": "discard"}}
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Selector",
+        "name": "tier3_radar",
+        "children": [
+          {
+            "node_type": "Sequence",
+            "name": "radar_primary",
+            "config": {"memory": true},
+            "children": [
+              {"node_type": "Success", "name": "acquire_radar_slot"},
+              {"node_type": "SetBlackboardVariable", "name": "set_radar_confirmed", "config": {"variable": "radar_status", "value": "confirmed_track"}}
+            ]
+          },
+          {
+            "node_type": "Sequence",
+            "name": "radar_fallback",
+            "config": {"memory": true},
+            "children": [
+              {"node_type": "SetBlackboardVariable", "name": "set_bearing_only", "config": {"variable": "radar_status", "value": "bearing_only"}}
+            ]
+          }
+        ]
+      },
+      {
+        "node_type": "Sequence",
+        "name": "tier4_response",
+        "config": {"memory": true},
+        "children": [
+          {
+            "node_type": "Selector",
+            "name": "evaluate_threat",
+            "children": [
+              {
+                "node_type": "Sequence",
+                "name": "dispatch_criteria",
+                "config": {"memory": true},
+                "children": [
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_vessel_class", "config": {"variable": "classification", "operator": "==", "value": "vessel"}},
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_radar_confirmed", "config": {"variable": "radar_status", "operator": "==", "value": "confirmed_track"}},
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_in_zone", "config": {"variable": "in_restricted_zone", "operator": "==", "value": true}},
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_high_confidence", "config": {"variable": "confidence", "operator": ">=", "value": 0.85}},
+                  {"node_type": "SetBlackboardVariable", "name": "dispatch_drone", "config": {"variable": "action", "value": "dispatch_drone"}}
+                ]
+              },
+              {
+                "node_type": "Sequence",
+                "name": "alert_criteria",
+                "config": {"memory": true},
+                "children": [
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_vessel_for_alert", "config": {"variable": "classification", "operator": "==", "value": "vessel"}},
+                  {"node_type": "CheckBlackboardVariableValue", "name": "check_zone_for_alert", "config": {"variable": "in_restricted_zone", "operator": "==", "value": true}},
+                  {"node_type": "SetBlackboardVariable", "name": "alert_operator", "config": {"variable": "action", "value": "alert_operator"}}
+                ]
+              },
+              {"node_type": "SetBlackboardVariable", "name": "default_log", "config": {"variable": "action", "value": "log_only"}}
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

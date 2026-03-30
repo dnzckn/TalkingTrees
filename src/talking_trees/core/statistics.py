@@ -1,6 +1,6 @@
 """Execution statistics tracking."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from talking_trees.models.execution import Status
@@ -38,7 +38,7 @@ class StatisticsTracker:
 
     def on_tick_start(self) -> None:
         """Record tick start."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         if self.started_at is None:
             self.started_at = now
 
@@ -63,7 +63,7 @@ class StatisticsTracker:
 
         # Update counts
         self.total_ticks += 1
-        self.last_tick_at = datetime.utcnow()
+        self.last_tick_at = datetime.now(timezone.utc)
 
         if root_status == Status.SUCCESS:
             self.successful_ticks += 1
@@ -119,7 +119,7 @@ class StatisticsTracker:
 
         # Update counts
         stats.tick_count += 1
-        stats.last_tick_at = datetime.utcnow()
+        stats.last_tick_at = datetime.now(timezone.utc)
         stats.last_status = status.value
 
         if status == Status.SUCCESS:

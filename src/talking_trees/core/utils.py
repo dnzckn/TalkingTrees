@@ -7,6 +7,7 @@ particularly for operator mappings between py_trees and TalkingTrees formats.
 import hashlib
 import operator as op
 from collections.abc import Callable
+from typing import Any
 from uuid import UUID
 
 import py_trees
@@ -314,3 +315,30 @@ def generate_deterministic_uuid(
 
     # Use first 16 bytes as UUID
     return UUID(bytes=hash_bytes[:16])
+
+
+def update_blackboard(
+    updates: dict[str, Any],
+    client_name: str = "ExternalSensor",
+) -> None:
+    """Apply key-value updates to the py_trees blackboard.
+
+    Handles the register-then-set dance, tolerating already-registered keys.
+
+    Args:
+        updates: Dictionary of key-value pairs to set on the blackboard
+        client_name: Name for the blackboard client
+    """
+    import logging
+
+    logger = logging.getLogger(__name__)
+    bb = py_trees.blackboard.Client(name=client_name)
+    for key, value in updates.items():
+        try:
+            bb.register_key(key=key, access=py_trees.common.Access.WRITE)
+        except KeyError:
+            pass  # Already registered
+        try:
+            bb.set(key, value, overwrite=True)
+        except Exception:
+            logger.warning("Could not set blackboard key %s", key, exc_info=True)

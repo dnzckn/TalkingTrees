@@ -1,0 +1,24 @@
+{
+  "mappings": [
+    {
+      "topic": "hydrophone_detection",
+      "blackboard_writes": {
+        "acoustic_energy_db": "acoustic_energy_db",
+        "bearing_deg": "bearing_deg",
+        "frequency_peak_hz": "frequency_peak_hz",
+        "hydrophone_node_id": "node_id",
+        "_ground_truth_target": "_ground_truth_target"
+      },
+      "trigger_tick": true,
+      "debounce_ms": 200
+    },
+    {
+      "topic": "failure_injection",
+      "blackboard_writes": {
+        "failure_type": "type",
+        "failure_time": "time_s"
+      },
+      "trigger_tick": false
+    }
+  ]
+}

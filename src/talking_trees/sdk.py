@@ -15,8 +15,10 @@ Perfect for Jupyter notebooks, scripts, and experimentation.
 
 import hashlib
 import json
+import logging
 from collections import defaultdict
 from collections.abc import Callable
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 from uuid import UUID, uuid4
@@ -36,6 +38,8 @@ from talking_trees.core.validation import TreeValidator
 from talking_trees.models.tree import TreeDefinition, TreeMetadata, TreeNodeDefinition
 from talking_trees.models.validation import TreeValidationResult
 
+logger = logging.getLogger(__name__)
+
 # Import adapter functions for py_trees integration
 try:
     from talking_trees.adapters import from_py_trees, to_py_trees
@@ -53,39 +57,18 @@ except ImportError:
     YAML_AVAILABLE = False
 
 
+@dataclass
 class TreeStatistics:
     """Statistics about a tree structure."""
 
-    def __init__(
-        self,
-        node_count: int,
-        max_depth: int,
-        avg_depth: float,
-        type_distribution: dict[str, int],
-        category_distribution: dict[str, int],
-        leaf_count: int,
-        composite_count: int,
-        decorator_count: int,
-    ):
-        self.node_count = node_count
-        self.max_depth = max_depth
-        self.avg_depth = avg_depth
-        self.type_distribution = type_distribution
-        self.category_distribution = category_distribution
-        self.leaf_count = leaf_count
-        self.composite_count = composite_count
-        self.decorator_count = decorator_count
-
-    def __repr__(self) -> str:
-        return (
-            f"TreeStatistics(\n"
-            f"  nodes={self.node_count}, "
-            f"depth={self.max_depth}, "
-            f"leaves={self.leaf_count}, "
-            f"composites={self.composite_count}, "
-            f"decorators={self.decorator_count}\n"
-            f")"
-        )
+    node_count: int
+    max_depth: int
+    avg_depth: float
+    type_distribution: dict[str, int]
+    category_distribution: dict[str, int]
+    leaf_count: int
+    composite_count: int
+    decorator_count: int
 
     def summary(self) -> str:
         """Get a formatted summary of tree statistics."""
@@ -231,10 +214,9 @@ class TalkingTrees:
 
         # Apply initial blackboard
         if initial_blackboard:
-            bb = py_trees.blackboard.Client(name="Initializer")
-            for key, value in initial_blackboard.items():
-                bb.register_key(key=key, access=py_trees.common.Access.WRITE)
-                bb.set(key, value, overwrite=True)
+            from talking_trees.core.utils import update_blackboard
+
+            update_blackboard(initial_blackboard, client_name="Initializer")
 
         # Setup tree
         py_tree.setup()
@@ -250,6 +232,71 @@ class TalkingTrees:
             serializer=serializer,
             profiling_level=profiling,
             profiler=self.profiler,
+        )
+
+    def flatten_tree(self, tree: TreeDefinition) -> TreeDefinition:
+        """Flatten all subtree references into a single monolithic tree.
+
+        Inlines all $ref, tree_file, and tree_id references recursively,
+        producing a self-contained tree with no external dependencies.
+
+        Args:
+            tree: Tree with potential subtree references
+
+        Returns:
+            New TreeDefinition with all references inlined
+        """
+        def flatten_node(node: TreeNodeDefinition, subtrees: dict[str, TreeNodeDefinition]) -> TreeNodeDefinition:
+            # Resolve inline $ref
+            if node.ref:
+                ref_name = node.ref.removeprefix("#/subtrees/")
+                if ref_name in subtrees:
+                    subtree = subtrees[ref_name]
+                    node = TreeNodeDefinition(
+                        node_type=subtree.node_type,
+                        node_id=node.node_id,
+                        name=node.name or subtree.name,
+                        config=subtree.config,
+                        description=node.description or subtree.description,
+                        children=subtree.children,
+                    )
+
+            # Resolve tree_file reference
+            if node.tree_file:
+                ext_tree = self.load_tree(node.tree_file)
+                node = TreeNodeDefinition(
+                    node_type=ext_tree.root.node_type,
+                    node_id=node.node_id,
+                    name=node.name or ext_tree.root.name,
+                    config=ext_tree.root.config,
+                    description=node.description or ext_tree.root.description,
+                    children=ext_tree.root.children,
+                )
+
+            # Recursively flatten children
+            if node.children:
+                flattened_children = [
+                    flatten_node(child, subtrees) for child in node.children
+                ]
+                node = TreeNodeDefinition(
+                    node_type=node.node_type,
+                    node_id=node.node_id,
+                    name=node.name,
+                    config=node.config,
+                    description=node.description,
+                    children=flattened_children,
+                )
+
+            return node
+
+        flattened_root = flatten_node(tree.root, tree.subtrees)
+
+        return TreeDefinition(
+            tree_id=tree.tree_id,
+            metadata=tree.metadata.model_copy(deep=True),
+            root=flattened_root,
+            subtrees={},  # All inlined
+            dependencies=tree.dependencies.model_copy(deep=True),
         )
 
     def diff_trees(
@@ -373,6 +420,37 @@ class TalkingTrees:
                     ]
                     path = f" [{issue.node_path}]" if issue.node_path else ""
                     print(f"  {level_icon} {issue.code}{path}: {issue.message}")
+
+        return result
+
+    def validate_dataflow(
+        self,
+        tree: TreeDefinition,
+        initial_blackboard: dict[str, str] | None = None,
+        verbose: bool = False,
+    ) -> "DataflowValidationResult":
+        """Validate blackboard data flow through a tree.
+
+        Args:
+            tree: Tree to validate
+            initial_blackboard: Initial blackboard keys with types {key: type_str}
+            verbose: Print validation results
+
+        Returns:
+            DataflowValidationResult
+        """
+        from talking_trees.core.validation import validate_dataflow
+
+        result = validate_dataflow(tree, initial_blackboard)
+
+        if verbose:
+            status = "VALID" if result.is_valid else "INVALID"
+            print(f"\nDataflow Validation: {status}")
+            print(f"Errors: {result.error_count}, Warnings: {result.warning_count}")
+            for issue in result.issues:
+                icon = "[X]" if issue.level == "error" else "[!]"
+                node_info = f" [{issue.node_name}]" if issue.node_name else ""
+                print(f"  {icon}{node_info}: {issue.message}")
 
         return result
 
@@ -850,6 +928,187 @@ class TalkingTrees:
         """
         return self.hash_tree(tree1) == self.hash_tree(tree2)
 
+    # =============================================================================
+    # Macro Nodes (WP3)
+    # =============================================================================
+
+    def create_macro(
+        self,
+        tree: TreeDefinition,
+        name: str,
+        node_ids: list[UUID],
+        description: str | None = None,
+    ) -> TreeDefinition:
+        """Create a macro (collapsible group) from specified nodes.
+
+        Finds the lowest common ancestor of the given nodes and marks it
+        as a macro with the given name.
+
+        Args:
+            tree: Tree to modify
+            name: Macro name
+            node_ids: UUIDs of nodes to include in the macro
+            description: Optional description
+
+        Returns:
+            New TreeDefinition with the macro applied
+        """
+        from talking_trees.models.tree import MacroMetadata
+
+        tree = self.clone_tree(tree)
+        node_id_set = set(node_ids)
+
+        def apply_macro(node: TreeNodeDefinition) -> TreeNodeDefinition:
+            # Check if this node or any of its descendants contain all target nodes
+            descendant_ids: set[UUID] = set()
+            _collect_ids(node, descendant_ids)
+
+            if node.node_id in node_id_set or node_id_set.issubset(descendant_ids):
+                # This node should be the macro root
+                children = [apply_macro(child) for child in node.children]
+                return TreeNodeDefinition(
+                    node_type=node.node_type,
+                    node_id=node.node_id,
+                    name=node.name,
+                    config=node.config,
+                    description=node.description,
+                    children=children,
+                    macro=MacroMetadata(name=name, description=description, collapsed=True),
+                    blackboard_input=node.blackboard_input,
+                    blackboard_output=node.blackboard_output,
+                )
+
+            children = [apply_macro(child) for child in node.children]
+            return TreeNodeDefinition(
+                node_type=node.node_type,
+                node_id=node.node_id,
+                name=node.name,
+                config=node.config,
+                description=node.description,
+                children=children,
+                macro=node.macro,
+                blackboard_input=node.blackboard_input,
+                blackboard_output=node.blackboard_output,
+            )
+
+        def _collect_ids(node: TreeNodeDefinition, ids: set[UUID]) -> None:
+            ids.add(node.node_id)
+            for child in node.children:
+                _collect_ids(child, ids)
+
+        new_root = apply_macro(tree.root)
+        tree.root = new_root
+        return tree
+
+    def expand_macro(
+        self,
+        tree: TreeDefinition,
+        macro_node_id: UUID,
+    ) -> TreeDefinition:
+        """Expand (un-group) a macro node.
+
+        Removes the MacroMetadata from the specified node.
+
+        Args:
+            tree: Tree containing the macro
+            macro_node_id: UUID of the macro node to expand
+
+        Returns:
+            New TreeDefinition with macro expanded
+        """
+        tree = self.clone_tree(tree)
+
+        def remove_macro(node: TreeNodeDefinition) -> TreeNodeDefinition:
+            macro = None if node.node_id == macro_node_id else node.macro
+            children = [remove_macro(child) for child in node.children]
+            return TreeNodeDefinition(
+                node_type=node.node_type,
+                node_id=node.node_id,
+                name=node.name,
+                config=node.config,
+                description=node.description,
+                children=children,
+                macro=macro,
+                blackboard_input=node.blackboard_input,
+                blackboard_output=node.blackboard_output,
+            )
+
+        tree.root = remove_macro(tree.root)
+        return tree
+
+    def extract_to_subtree(
+        self,
+        tree: TreeDefinition,
+        macro_node_id: UUID,
+        filepath: str,
+    ) -> tuple[TreeDefinition, TreeDefinition]:
+        """Extract a macro into a separate subtree file.
+
+        Saves the macro's subtree as a standalone tree file and replaces
+        the macro node with a tree_file reference.
+
+        Args:
+            tree: Tree containing the macro
+            macro_node_id: UUID of the macro node to extract
+            filepath: Path to save the extracted subtree
+
+        Returns:
+            Tuple of (modified_tree, extracted_subtree)
+
+        Raises:
+            ValueError: If macro node not found
+        """
+        from talking_trees.models.tree import TreeMetadata as _TreeMetadata
+
+        # Find the macro node
+        macro_node = self.get_node_by_id(tree, macro_node_id)
+        if macro_node is None:
+            raise ValueError(f"Node not found: {macro_node_id}")
+
+        # Create standalone subtree
+        subtree_name = macro_node.macro.name if macro_node.macro else macro_node.name
+        extracted = TreeDefinition(
+            tree_id=uuid4(),
+            metadata=_TreeMetadata(
+                name=subtree_name,
+                version="1.0.0",
+                description=f"Extracted from {tree.metadata.name}",
+            ),
+            root=macro_node.model_copy(deep=True),
+        )
+        # Remove macro metadata from extracted root
+        extracted.root.macro = None
+
+        # Save the extracted subtree
+        self.save_tree(extracted, filepath)
+
+        # Replace the macro node in the original tree with a tree_file ref
+        tree = self.clone_tree(tree)
+
+        def replace_node(node: TreeNodeDefinition) -> TreeNodeDefinition:
+            if node.node_id == macro_node_id:
+                return TreeNodeDefinition(
+                    node_type="SubTreeRef",
+                    node_id=node.node_id,
+                    name=node.name,
+                    tree_file=filepath,
+                )
+            children = [replace_node(child) for child in node.children]
+            return TreeNodeDefinition(
+                node_type=node.node_type,
+                node_id=node.node_id,
+                name=node.name,
+                config=node.config,
+                description=node.description,
+                children=children,
+                macro=node.macro,
+                blackboard_input=node.blackboard_input,
+                blackboard_output=node.blackboard_output,
+            )
+
+        tree.root = replace_node(tree.root)
+        return tree, extracted
+
     def get_subtree(self, tree: TreeDefinition, node_id: UUID) -> TreeDefinition | None:
         """Extract a subtree starting from a specific node.
 
@@ -943,16 +1202,9 @@ class Execution:
         """
         # Apply blackboard updates
         if blackboard_updates:
-            bb = py_trees.blackboard.Client(name="ExternalSensor")
-            for key, value in blackboard_updates.items():
-                try:
-                    bb.register_key(key=key, access=py_trees.common.Access.WRITE)
-                    bb.set(key, value, overwrite=True)
-                except Exception:
-                    try:
-                        bb.set(key, value, overwrite=True)
-                    except Exception as e:
-                        print(f"Warning: Could not set {key}: {e}")
+            from talking_trees.core.utils import update_blackboard
+
+            update_blackboard(blackboard_updates)
 
         # Profile if enabled
         if self.profiler:
@@ -984,7 +1236,7 @@ class Execution:
         return TickResult(
             status=self.py_tree.root.status.value,
             tick_count=self.py_tree.count,
-            blackboard=Blackboard(blackboard_dict),
+            blackboard=Blackboard(_data=blackboard_dict),
             tip_node=self.py_tree.tip().name if self.py_tree.tip() else None,
         )
 
@@ -1027,16 +1279,11 @@ class Execution:
         )
 
 
+@dataclass
 class Blackboard:
     """Wrapper around blackboard for convenient access."""
 
-    def __init__(self, data: dict[str, Any]):
-        """Initialize with blackboard data.
-
-        Args:
-            data: Dictionary of blackboard values
-        """
-        self._data = data
+    _data: dict[str, Any]
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get a blackboard value.
@@ -1048,7 +1295,6 @@ class Blackboard:
         Returns:
             Value or default
         """
-        # Try with and without leading slash
         if key in self._data:
             return self._data[key]
 
@@ -1063,56 +1309,22 @@ class Blackboard:
         return default
 
     def keys(self) -> list[str]:
-        """Get all blackboard keys.
-
-        Returns:
-            List of keys
-        """
+        """Get all blackboard keys."""
         return list(self._data.keys())
 
-    def items(self) -> list[tuple]:
-        """Get all blackboard items.
-
-        Returns:
-            List of (key, value) tuples
-        """
+    def items(self) -> list[tuple[str, Any]]:
+        """Get all blackboard items."""
         return list(self._data.items())
 
-    def __repr__(self) -> str:
-        """String representation."""
-        return f"Blackboard({self._data})"
 
-
+@dataclass
 class TickResult:
     """Result of a tree tick operation."""
 
-    def __init__(
-        self,
-        status: str,
-        tick_count: int,
-        blackboard: Blackboard,
-        tip_node: str | None,
-    ):
-        """Initialize tick result.
-
-        Args:
-            status: Root node status
-            tick_count: Total ticks executed
-            blackboard: Blackboard state
-            tip_node: Name of tip node (currently executing)
-        """
-        self.status = status
-        self.tick_count = tick_count
-        self.blackboard = blackboard
-        self.tip_node = tip_node
-
-    def __repr__(self) -> str:
-        """String representation."""
-        return (
-            f"TickResult(status={self.status}, "
-            f"tick_count={self.tick_count}, "
-            f"tip={self.tip_node})"
-        )
+    status: str
+    tick_count: int
+    blackboard: Blackboard
+    tip_node: str | None
 
 
 # Convenience functions for quick usage

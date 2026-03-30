@@ -3,7 +3,7 @@
 import copy
 import json
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 from uuid import uuid4
@@ -66,8 +66,8 @@ class TemplateEngine:
                 version=tree_version,
                 description=f"Generated from template: {template.name}",
                 tags=template.tags + ["template-generated"],
-                created_at=datetime.utcnow(),
-                modified_at=datetime.utcnow(),
+                created_at=datetime.now(timezone.utc),
+                modified_at=datetime.now(timezone.utc),
             ),
             root=tree_structure["root"],
             subtrees=tree_structure.get("subtrees", {}),

@@ -313,3 +313,69 @@ def get_scheduler_status(
         return service.get_scheduler_status(execution_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.get("/{execution_id}/topology")
+def get_topology(
+    execution_id: UUID,
+    service: ExecutionService = Depends(execution_service_dependency),
+):
+    """Get distributed tree topology with remote node status."""
+    try:
+        instance = service.get_execution(execution_id)
+        # Collect remote subtree info from the tree
+        remote_nodes = []
+        for node in instance.tree.root.iterate():
+            if hasattr(node, 'endpoint'):
+                remote_nodes.append({
+                    "node_id": str(getattr(node, "_talkingtrees_uuid", None)),
+                    "name": node.name,
+                    "endpoint": node.endpoint,
+                    "last_status": node.last_remote_status,
+                    "last_error": node.last_error,
+                })
+
+        disabled = [str(uid) for uid in instance.topology.get_disabled_subtrees()]
+
+        return {
+            "execution_id": str(execution_id),
+            "tree_id": str(instance.tree_def.tree_id),
+            "remote_nodes": remote_nodes,
+            "disabled_subtrees": disabled,
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.post("/{execution_id}/adapt")
+def adapt_execution(
+    execution_id: UUID,
+    action: dict,
+    service: ExecutionService = Depends(execution_service_dependency),
+):
+    """Modify execution topology dynamically.
+
+    Actions:
+    - {"action": "disable", "node_id": "<uuid>"}
+    - {"action": "enable", "node_id": "<uuid>"}
+    - {"action": "list_disabled"}
+    """
+    try:
+        instance = service.get_execution(execution_id)
+        action_type = action.get("action")
+
+        if action_type == "disable":
+            node_id = UUID(action["node_id"])
+            instance.topology.disable_subtree(node_id)
+            return {"status": "disabled", "node_id": str(node_id)}
+        elif action_type == "enable":
+            node_id = UUID(action["node_id"])
+            instance.topology.enable_subtree(node_id)
+            return {"status": "enabled", "node_id": str(node_id)}
+        elif action_type == "list_disabled":
+            disabled = instance.topology.get_disabled_subtrees()
+            return {"disabled": [str(uid) for uid in disabled]}
+        else:
+            raise ValueError(f"Unknown action: {action_type}")
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

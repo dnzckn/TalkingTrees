@@ -1,6 +1,6 @@
 """Pydantic models for behavior tree definitions."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from uuid import UUID, uuid4
@@ -17,11 +17,50 @@ class TreeStatus(str, Enum):
     ARCHIVED = "archived"
 
 
+class BlackboardPort(BaseModel):
+    """Typed port declaration for blackboard data flow contracts."""
+
+    type: str = Field(
+        description="Python type string: 'float', 'str', 'bool', 'int', 'dict', 'list', 'Any'"
+    )
+    required: bool = Field(
+        default=True,
+        description="Whether this port is required",
+    )
+    description: str | None = Field(
+        default=None,
+        description="Human-readable description of this port",
+    )
+    default: Any | None = Field(
+        default=None,
+        description="Default value if not provided",
+    )
+
+
+class MacroMetadata(BaseModel):
+    """Metadata for a macro node (collapsible group)."""
+
+    name: str = Field(description="Macro display name")
+    description: str | None = Field(
+        default=None,
+        description="Description of what this macro does",
+    )
+    collapsed: bool = Field(
+        default=True,
+        description="Whether the macro is collapsed in the editor",
+    )
+    color: str | None = Field(
+        default=None,
+        description="Hex color for editor display (e.g., '#FF5733')",
+    )
+
+
 class TreeNodeDefinition(BaseModel):
     """Definition of a single node in a behavior tree.
 
     This represents both the structure and configuration of a node.
-    Supports references to subtrees via $ref.
+    Supports references to subtrees via $ref, external subtree refs,
+    typed blackboard contracts, and macro grouping.
     """
 
     node_type: str = Field(
@@ -47,7 +86,34 @@ class TreeNodeDefinition(BaseModel):
     ref: str | None = Field(
         default=None,
         alias="$ref",
-        description="Reference to a subtree definition",
+        description="Reference to an inline subtree definition",
+    )
+    # WP1: External subtree references
+    tree_id: str | None = Field(
+        default=None,
+        description="Reference to an external tree by ID (resolved via API/resolver)",
+    )
+    tree_file: str | None = Field(
+        default=None,
+        description="Reference to an external tree by file path",
+    )
+    parameter_map: dict[str, str] | None = Field(
+        default=None,
+        description="Blackboard key remapping at subtree boundary {local_key: subtree_key}",
+    )
+    # WP2: Typed blackboard contracts
+    blackboard_input: dict[str, BlackboardPort] | None = Field(
+        default=None,
+        description="Declared blackboard inputs {key_name: port_spec}",
+    )
+    blackboard_output: dict[str, BlackboardPort] | None = Field(
+        default=None,
+        description="Declared blackboard outputs {key_name: port_spec}",
+    )
+    # WP3: Macro nodes
+    macro: MacroMetadata | None = Field(
+        default=None,
+        description="Macro metadata for collapsible node grouping",
     )
 
     @field_validator("node_type")
@@ -84,24 +150,6 @@ class TreeDependencies(BaseModel):
     )
 
 
-class ValidationResult(BaseModel):
-    """Results from tree validation."""
-
-    warnings: list[str] = Field(
-        default_factory=list,
-        description="Non-fatal issues",
-    )
-    errors: list[str] = Field(
-        default_factory=list,
-        description="Fatal issues preventing execution",
-    )
-
-    @property
-    def is_valid(self) -> bool:
-        """Check if tree is valid (no errors)."""
-        return len(self.errors) == 0
-
-
 class TreeMetadata(BaseModel):
     """Metadata about a tree definition."""
 
@@ -112,11 +160,11 @@ class TreeMetadata(BaseModel):
         description="Author email or identifier",
     )
     created_at: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Creation timestamp",
     )
     modified_at: datetime = Field(
-        default_factory=datetime.utcnow,
+        default_factory=lambda: datetime.now(timezone.utc),
         description="Last modification timestamp",
     )
     description: str | None = Field(
@@ -164,10 +212,6 @@ class TreeDefinition(BaseModel):
     dependencies: TreeDependencies = Field(
         default_factory=TreeDependencies,
         description="Required dependencies",
-    )
-    validation: ValidationResult = Field(
-        default_factory=ValidationResult,
-        description="Validation results",
     )
 
     model_config = ConfigDict(

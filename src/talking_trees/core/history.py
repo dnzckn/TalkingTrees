@@ -1,7 +1,7 @@
 """Execution history storage and management."""
 
 from abc import ABC, abstractmethod
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import UUID
 
 from talking_trees.models.execution import ExecutionSnapshot
@@ -187,7 +187,7 @@ class InMemoryHistoryStore(HistoryStore):
         Returns:
             Number of executions cleaned up
         """
-        cutoff = datetime.utcnow() - timedelta(hours=max_age_hours)
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=max_age_hours)
         to_delete = []
 
         for execution_id, history in self._history.items():

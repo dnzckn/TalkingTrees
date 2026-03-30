@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "talking-trees"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Serializable behavior trees with REST API - built on py_trees"
 readme = "README.md"
-requires-python = ">=3.10,<3.11"
+requires-python = ">=3.10"
 license = {text = "MIT"}
 authors = [
     {name = "Deniz N. Cakan"}
@@ -19,6 +19,9 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 
 dependencies = [
@@ -44,9 +47,11 @@ dev = [
     "mypy>=1.18.2",
     "httpx>=0.28.1",
 ]
+yaml = [
+    "pyyaml>=6.0.3",
+]
 viz = [
     "graphviz>=0.21",
-    "pyyaml>=6.0.3",
 ]
 
 [project.scripts]
@@ -57,6 +62,9 @@ Homepage = "https://github.com/dnzckn/talking_trees"
 Documentation = "https://talking-trees.readthedocs.io"
 Repository = "https://github.com/dnzckn/talking_trees"
 Issues = "https://github.com/dnzckn/talking_trees/issues"
+
+[tool.setuptools.dynamic]
+version = {attr = "talking_trees.__version__"}
 
 [tool.setuptools.packages.find]
 where = ["src"]

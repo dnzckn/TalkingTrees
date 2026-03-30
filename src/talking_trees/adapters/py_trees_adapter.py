@@ -29,7 +29,7 @@ Example:
     tt.save_tree(tt_tree, "my_tree.json")
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 from uuid import UUID, uuid4
 
@@ -377,8 +377,8 @@ def from_py_trees(
         name=name,
         version=version,
         description=description,
-        created_at=datetime.utcnow(),
-        modified_at=datetime.utcnow(),
+        created_at=datetime.now(timezone.utc),
+        modified_at=datetime.now(timezone.utc),
         status=TreeStatus.DRAFT,
     )
 
