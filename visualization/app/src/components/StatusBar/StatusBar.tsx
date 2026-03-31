@@ -1,33 +1,63 @@
 import { useTreeStore } from '../../store/treeStore';
 import { useUIStore } from '../../store/uiStore';
+import { useSimStore } from '../../store/simulationStore';
 
 export function StatusBar() {
   const { nodes, selectedIds, treeName, isDirty } = useTreeStore();
   const { zoom } = useUIStore();
+  const { running, tick } = useSimStore();
 
   const nodeCount = Object.keys(nodes).length;
   const connCount = Object.values(nodes).reduce((s, n) => s + n.childIds.length, 0);
   const selCount = selectedIds.size;
 
+  // Breadcrumb for selected node
+  let breadcrumb = '';
+  const selId = [...selectedIds][0];
+  if (selId) {
+    const parts: string[] = [];
+    let cur: string | null = selId;
+    while (cur && nodes[cur]) {
+      parts.unshift(nodes[cur].name);
+      cur = nodes[cur].parentId;
+    }
+    breadcrumb = parts.join(' > ');
+  }
+
   return (
     <div style={{
-      display: 'flex', alignItems: 'center', gap: 14,
+      display: 'flex', alignItems: 'center', gap: 12,
       height: 'var(--statusbar-h)', padding: '0 12px',
-      background: '#0066b8', color: 'rgba(255,255,255,0.9)',
-      fontSize: 'var(--fs-xs)', fontFamily: 'var(--font)',
+      background: 'var(--surface-2)', borderTop: '1px solid var(--border-0)',
+      fontSize: 'var(--fs-xs)', color: 'var(--text-2)',
     }}>
-      <Item>{isDirty ? '●' : '◦'} {treeName}</Item>
-      <Item>Nodes: {nodeCount}</Item>
-      <Item>Connections: {connCount}</Item>
-      {selCount > 0 && <Item>Selected: {selCount}</Item>}
+      {/* Status indicator */}
+      <div style={{
+        width: 8, height: 8, borderRadius: '50%',
+        background: running ? 'var(--status-running)' : isDirty ? 'var(--accent)' : 'var(--status-success)',
+      }} />
+
+      <span style={{ color: 'var(--text-1)' }}>{treeName}</span>
+
+      <Sep />
+      <span>Nodes: {nodeCount}</span>
+      <span>Connections: {connCount}</span>
+      {selCount > 0 && <span>Selected: {selCount}</span>}
+      {running && <span style={{ color: 'var(--status-running)' }}>Simulating (tick {tick})</span>}
+
+      {breadcrumb && <>
+        <Sep />
+        <span style={{ color: 'var(--text-1)', fontFamily: 'var(--font-mono)', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          {breadcrumb}
+        </span>
+      </>}
+
       <div style={{ flex: 1 }} />
-      <Item>Right-click for context menu</Item>
-      <Item>Drag bottom port ● to connect</Item>
-      <Item style={{ fontFamily: 'var(--font-mono)' }}>{Math.round(zoom * 100)}%</Item>
+      <span style={{ fontFamily: 'var(--font-mono)' }}>{Math.round(zoom * 100)}%</span>
     </div>
   );
 }
 
-function Item({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
-  return <span style={style}>{children}</span>;
+function Sep() {
+  return <div style={{ width: 1, height: 12, background: 'var(--border-0)' }} />;
 }

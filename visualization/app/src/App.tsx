@@ -11,6 +11,7 @@ import { Minimap } from './components/Panels/Minimap';
 import { BlackboardInspector } from './components/Panels/BlackboardInspector';
 import { ValidationPanel } from './components/Panels/ValidationPanel';
 import { ShortcutsModal } from './components/Modals/ShortcutsModal';
+import { CommandPalette } from './components/Modals/CommandPalette';
 import { useUIStore } from './store/uiStore';
 import { useTreeStore } from './store/treeStore';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
@@ -21,6 +22,7 @@ export default function App() {
   const [showBB, setShowBB] = useState(false);
   const [showValidation, setShowValidation] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
+  const [showCmdPalette, setShowCmdPalette] = useState(false);
 
   useKeyboardShortcuts();
 
@@ -30,15 +32,19 @@ export default function App() {
     const onVal = () => setShowValidation(v => !v);
     const onSC = () => setShowShortcuts(v => !v);
     const onF1 = (e: KeyboardEvent) => { if (e.key === 'F1') { e.preventDefault(); setShowShortcuts(v => !v); } };
+    const onCmdP = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'p') { e.preventDefault(); setShowCmdPalette(v => !v); } };
     window.addEventListener('show-blackboard', onBB);
     window.addEventListener('show-validation', onVal);
     window.addEventListener('show-shortcuts', onSC);
+    window.addEventListener('show-command-palette', () => setShowCmdPalette(v => !v));
     window.addEventListener('keydown', onF1);
+    window.addEventListener('keydown', onCmdP);
     return () => {
       window.removeEventListener('show-blackboard', onBB);
       window.removeEventListener('show-validation', onVal);
       window.removeEventListener('show-shortcuts', onSC);
       window.removeEventListener('keydown', onF1);
+      window.removeEventListener('keydown', onCmdP);
     };
   }, []);
 
@@ -95,6 +101,7 @@ export default function App() {
       {/* Overlays */}
       <ToastContainer />
       {showShortcuts && <ShortcutsModal onClose={() => setShowShortcuts(false)} />}
+      {showCmdPalette && <CommandPalette onClose={() => setShowCmdPalette(false)} />}
     </div>
   );
 }
