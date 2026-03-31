@@ -5,7 +5,7 @@ interface ToastMsg { id: number; text: string; type: 'info' | 'success' | 'warni
 let _addToast: (text: string, type?: ToastMsg['type']) => void = () => {};
 export function showToast(text: string, type: ToastMsg['type'] = 'info') { _addToast(text, type); }
 
-const COLORS = { info: 'var(--accent)', success: 'var(--status-success)', warning: 'var(--status-running)', error: 'var(--status-failure)' };
+const COLORS = { info: 'var(--accent)', success: 'var(--success)', warning: 'var(--running)', error: 'var(--failure)' };
 
 export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastMsg[]>([]);
@@ -24,9 +24,9 @@ export function ToastContainer() {
       {toasts.map(t => (
         <div key={t.id} style={{
           padding: '8px 14px', borderRadius: 'var(--r-md)',
-          background: 'var(--surface-3)', border: `1px solid ${COLORS[t.type]}`,
+          background: 'var(--s3)', border: `1px solid ${COLORS[t.type]}`,
           boxShadow: '0 4px 16px rgba(0,0,0,0.4)', fontSize: 'var(--fs-sm)',
-          color: 'var(--text-0)', maxWidth: 320, animation: 'fadeIn 0.2s ease',
+          color: 'var(--t0)', maxWidth: 320, animation: 'fadeIn 0.2s ease',
           borderLeft: `3px solid ${COLORS[t.type]}`,
         }}>
           {t.text}

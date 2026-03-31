@@ -47,18 +47,18 @@ export function ValidationPanel({ onClose }: { onClose: () => void }) {
   const warnings = issues.filter(i => i.level === 'warning').length;
 
   const ICONS = { error: '✕', warning: '⚠', info: 'ℹ' };
-  const COLORS = { error: 'var(--status-failure)', warning: 'var(--status-running)', info: 'var(--accent)' };
+  const COLORS = { error: 'var(--failure)', warning: 'var(--running)', info: 'var(--accent)' };
 
   return (
     <div style={{
       position: 'absolute', bottom: 50, left: '50%', transform: 'translateX(-50%)',
-      width: 440, maxHeight: 260, background: 'var(--surface-2)', border: '1px solid var(--border-1)',
+      width: 440, maxHeight: 260, background: 'var(--s2)', border: '1px solid var(--b1)',
       borderRadius: 'var(--r-md)', boxShadow: '0 8px 32px rgba(0,0,0,0.5)', zIndex: 100,
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
       <div style={{
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '8px 12px', borderBottom: '1px solid var(--border-0)',
+        padding: '8px 12px', borderBottom: '1px solid var(--b0)',
         fontWeight: 600, fontSize: 'var(--fs-sm)',
       }}>
         <span>Validation {errors > 0 ? `— ${errors} error(s)` : warnings > 0 ? `— ${warnings} warning(s)` : '— OK'}</span>
@@ -73,7 +73,7 @@ export function ValidationPanel({ onClose }: { onClose: () => void }) {
             onClick={() => { if (issue.nodeId) useTreeStore.getState().selectNode(issue.nodeId, false); }}
           >
             <span style={{ color: COLORS[issue.level], fontWeight: 700, flexShrink: 0 }}>{ICONS[issue.level]}</span>
-            <span style={{ color: 'var(--text-1)' }}>{issue.msg}</span>
+            <span style={{ color: 'var(--t1)' }}>{issue.msg}</span>
           </div>
         ))}
       </div>

@@ -1,81 +1,54 @@
 @import './theme.css';
 
-*, *::before, *::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html, body, #root {
-  height: 100%;
-  width: 100%;
-  overflow: hidden;
+  height: 100%; width: 100%; overflow: hidden;
   font-family: var(--font);
   font-size: var(--fs-md);
-  color: var(--text-0);
-  background: var(--surface-0);
+  color: var(--t0);
+  background: var(--s0);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--surface-4); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--text-2); }
+::-webkit-scrollbar-thumb { background: var(--s4); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--t2); }
 
-/* ── Base inputs ── */
+/* ── Button ── */
 button {
-  cursor: pointer;
-  border: none;
-  background: var(--surface-3);
-  color: var(--text-0);
-  padding: 5px 10px;
-  border-radius: var(--r-sm);
-  font: 500 var(--fs-sm) var(--font);
-  transition: background var(--duration) var(--ease);
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  white-space: nowrap;
+  cursor: pointer; border: none;
+  background: var(--s3); color: var(--t0);
+  padding: 5px 9px; border-radius: var(--r-sm);
+  font: 500 var(--fs-sm)/1.2 var(--font);
+  transition: all var(--dur) var(--ease);
+  display: inline-flex; align-items: center; gap: 4px;
+  white-space: nowrap; position: relative;
 }
-button:hover { background: var(--surface-hover); }
-button:active { background: var(--surface-active); }
+button:hover { background: var(--s-hover); }
+button:active { background: var(--s-active); transform: scale(0.97); }
+button:disabled { opacity: 0.35; pointer-events: none; }
 
+/* ── Input ── */
 input, select, textarea {
-  background: var(--surface-0);
-  color: var(--text-0);
-  border: 1px solid var(--border-0);
-  border-radius: var(--r-sm);
-  padding: 4px 8px;
-  font: var(--fs-sm) var(--font);
-  outline: none;
-  transition: border-color var(--duration) var(--ease);
+  background: var(--s0); color: var(--t0);
+  border: 1px solid var(--b0); border-radius: var(--r-sm);
+  padding: 5px 8px; font: var(--fs-sm)/1.3 var(--font);
+  outline: none; transition: border-color var(--dur), box-shadow var(--dur);
 }
 input:focus, select:focus, textarea:focus {
-  border-color: var(--border-focus);
-  box-shadow: 0 0 0 1px var(--accent-dim);
+  border-color: var(--b-focus);
+  box-shadow: 0 0 0 2px var(--accent-soft);
 }
 
-/* ── Selection highlight ── */
-::selection { background: var(--accent-dim); }
+/* ── Selection ── */
+::selection { background: var(--accent-soft); }
 
-/* ── Tooltip base ── */
-[data-tooltip] { position: relative; }
-[data-tooltip]::after {
-  content: attr(data-tooltip);
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 8px;
-  background: var(--surface-4);
-  color: var(--text-0);
-  font-size: var(--fs-xs);
-  border-radius: var(--r-sm);
-  white-space: nowrap;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity var(--duration);
-  z-index: 999;
-}
-[data-tooltip]:hover::after { opacity: 1; }
+/* ── Animations ── */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }

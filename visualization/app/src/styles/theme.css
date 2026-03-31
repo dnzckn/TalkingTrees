@@ -1,63 +1,62 @@
-/* ═══════════════════════════════════════════════════════
-   TalkingTrees Design System
-   Industrial-precision behavior tree editor
-   ═══════════════════════════════════════════════════════ */
+/* ═══════════════════════════════════════════════════════════════
+   TalkingTrees — Design System v2
+   Precision-crafted behavior tree IDE
+   ═══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-  /* ── Surface hierarchy ── */
-  --surface-0: #0f1117;
-  --surface-1: #161920;
-  --surface-2: #1c1f28;
-  --surface-3: #242832;
-  --surface-4: #2c313d;
-  --surface-hover: #333845;
-  --surface-active: #0d3868;
-  --surface-overlay: rgba(0, 0, 0, 0.6);
+  /* ── Surface system — 5 levels, each clearly distinct ── */
+  --s0: #0c0e14;
+  --s1: #12151e;
+  --s2: #181c27;
+  --s3: #1f2430;
+  --s4: #272d3b;
+  --s-hover: #2e3545;
+  --s-active: #0e3a6e;
+  --s-overlay: rgba(0, 0, 0, 0.65);
 
-  /* ── Text ── */
-  --text-0: #e8eaed;
-  --text-1: #b8bcc4;
-  --text-2: #7c818c;
-  --text-3: #4e5360;
+  /* ── Text — 4 levels ── */
+  --t0: #eceff4;
+  --t1: #bfc5d0;
+  --t2: #7a8194;
+  --t3: #4a5068;
 
   /* ── Borders ── */
-  --border-0: #2a2e38;
-  --border-1: #383d4a;
-  --border-focus: #4c9eff;
+  --b0: rgba(255, 255, 255, 0.06);
+  --b1: rgba(255, 255, 255, 0.10);
+  --b-focus: #5b9cf6;
 
   /* ── Accent ── */
-  --accent: #4c9eff;
-  --accent-dim: rgba(76, 158, 255, 0.15);
-  --accent-glow: rgba(76, 158, 255, 0.3);
+  --accent: #5b9cf6;
+  --accent-soft: rgba(91, 156, 246, 0.12);
+  --accent-glow: rgba(91, 156, 246, 0.25);
+  --accent-vivid: #7bb3ff;
 
-  /* ── Status ── */
-  --status-success: #3dd68c;
-  --status-failure: #ff5c5c;
-  --status-running: #ffc145;
-  --status-invalid: #7c818c;
+  /* ── Semantic ── */
+  --success: #5ccf8a;
+  --failure: #f06868;
+  --running: #f0b848;
+  --info: #5b9cf6;
 
-  /* ── Node categories ── */
-  --cat-composite: #4ec9b0;
-  --cat-decorator: #dcdcaa;
-  --cat-action: #4c9eff;
-  --cat-condition: #c586c0;
-  --cat-custom: #ce9178;
-  --cat-rate-limit: #ff6b6b;
-  --cat-resource: #3dd68c;
-  --cat-async: #ffc145;
+  /* ── Node category accent colors ── */
+  --c-composite: #56d4b8;
+  --c-decorator: #e2d87a;
+  --c-action: #5b9cf6;
+  --c-condition: #d08ed0;
+  --c-custom: #d4956c;
 
   /* ── Layout ── */
-  --sidebar-w: 260px;
-  --props-w: 300px;
-  --toolbar-h: 42px;
-  --timeline-h: 38px;
-  --statusbar-h: 26px;
+  --sidebar-w: 252px;
+  --props-w: 290px;
+  --toolbar-h: 40px;
+  --timeline-h: 40px;
+  --statusbar-h: 24px;
 
   /* ── Type ── */
-  --font: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'SF Mono', 'Consolas', monospace;
+  --fs-2xs: 9px;
   --fs-xs: 10px;
   --fs-sm: 11px;
   --fs-md: 12px;
@@ -65,28 +64,32 @@
   --fs-xl: 14px;
 
   /* ── Motion ── */
-  --ease: cubic-bezier(0.4, 0, 0.2, 1);
-  --duration: 120ms;
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --dur: 150ms;
+  --dur-slow: 250ms;
 
   /* ── Radius ── */
-  --r-sm: 3px;
-  --r-md: 5px;
-  --r-lg: 8px;
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-xl: 14px;
 }
 
 [data-theme="light"] {
-  --surface-0: #f8f9fa;
-  --surface-1: #ffffff;
-  --surface-2: #f0f1f3;
-  --surface-3: #e8e9eb;
-  --surface-4: #dcdee2;
-  --surface-hover: #e4e6ea;
-  --surface-active: #cde4ff;
-  --surface-overlay: rgba(0, 0, 0, 0.3);
-  --text-0: #1a1c20;
-  --text-1: #4a4d55;
-  --text-2: #8a8d95;
-  --text-3: #b0b3b8;
-  --border-0: #e0e2e6;
-  --border-1: #c8cad0;
+  --s0: #f5f6f8;
+  --s1: #ffffff;
+  --s2: #eef0f4;
+  --s3: #e4e7ed;
+  --s4: #d8dce5;
+  --s-hover: #dde1e8;
+  --s-active: #d0e2ff;
+  --s-overlay: rgba(0, 0, 0, 0.25);
+  --t0: #181b25;
+  --t1: #454b5c;
+  --t2: #8790a0;
+  --t3: #aeb5c2;
+  --b0: rgba(0, 0, 0, 0.06);
+  --b1: rgba(0, 0, 0, 0.10);
 }

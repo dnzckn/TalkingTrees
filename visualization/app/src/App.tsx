@@ -66,12 +66,12 @@ export default function App() {
       display: 'grid',
       gridTemplateColumns: `${showPalette ? 'var(--sidebar-w)' : '0px'} 1fr ${showProperties ? 'var(--props-w)' : '0px'}`,
       gridTemplateRows: `var(--toolbar-h) 1fr ${showTimeline ? 'var(--timeline-h)' : '0px'} var(--statusbar-h)`,
-      height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--surface-0)',
+      height: '100vh', width: '100vw', overflow: 'hidden', background: 'var(--s0)',
     }}>
       <header style={{ gridColumn: '1 / -1' }}><Toolbar /></header>
 
       {showPalette && (
-        <aside style={{ background: 'var(--surface-1)', borderRight: '1px solid var(--border-0)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+        <aside style={{ background: 'var(--s1)', borderRight: '1px solid var(--b0)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
           <Palette />
         </aside>
       )}
@@ -85,13 +85,13 @@ export default function App() {
       </main>
 
       {showProperties && (
-        <aside style={{ background: 'var(--surface-1)', borderLeft: '1px solid var(--border-0)', overflow: 'auto' }}>
+        <aside style={{ background: 'var(--s1)', borderLeft: '1px solid var(--b0)', overflow: 'auto' }}>
           <PropertiesPanel />
         </aside>
       )}
 
       {showTimeline && (
-        <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--border-0)' }}>
+        <div style={{ gridColumn: '1 / -1', borderTop: '1px solid var(--b0)' }}>
           <Timeline />
         </div>
       )}

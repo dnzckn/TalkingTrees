@@ -127,10 +127,12 @@ export function ContextMenu() {
   return (
     <div className="ctx-menu" style={{
       position: 'fixed', left: menu.x, top: menu.y,
-      background: 'var(--surface-2)', border: '1px solid var(--border-1)',
+      background: 'var(--s2)', border: '1px solid var(--b1)',
       borderRadius: 'var(--r-md)', padding: '4px 0', minWidth: 220,
-      boxShadow: '0 8px 40px rgba(0,0,0,0.6)', zIndex: 9999,
-      fontSize: 'var(--fs-sm)',
+      boxShadow: '0 12px 48px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04)',
+      zIndex: 9999, fontSize: 'var(--fs-sm)',
+      animation: 'scaleIn var(--dur) var(--ease)',
+      transformOrigin: 'top left',
     }}>
       {/* ── Add Child / Add Node ── */}
       <div
@@ -142,13 +144,13 @@ export function ContextMenu() {
         {showAdd && (
           <div style={{
             position: 'absolute', left: '100%', top: -4,
-            background: 'var(--surface-2)', border: '1px solid var(--border-1)',
+            background: 'var(--s2)', border: '1px solid var(--b1)',
             borderRadius: 'var(--r-md)', padding: '4px 0', minWidth: 200,
             boxShadow: '0 8px 40px rgba(0,0,0,0.6)', maxHeight: 450, overflow: 'auto',
           }}>
             {QUICK_ADD.map(s => (
               <div key={s.section}>
-                <div style={{ padding: '4px 12px', fontSize: 'var(--fs-xs)', color: 'var(--text-2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                <div style={{ padding: '4px 12px', fontSize: 'var(--fs-xs)', color: 'var(--t2)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                   {s.section}
                 </div>
                 {s.items.map(i => (
@@ -202,19 +204,19 @@ function Item({ icon, label, shortcut, onClick, disabled, danger }: {
         display: 'flex', alignItems: 'center', gap: 8,
         padding: '6px 12px', cursor: disabled ? 'default' : 'pointer',
         opacity: disabled ? 0.4 : 1,
-        color: danger ? 'var(--status-failure)' : 'var(--text-0)',
+        color: danger ? 'var(--failure)' : 'var(--t0)',
         transition: 'background var(--duration)',
       }}
-      onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = 'var(--surface-hover)'; }}
+      onMouseEnter={e => { if (!disabled) e.currentTarget.style.background = 'var(--s-hover)'; }}
       onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
     >
       <span style={{ width: 18, textAlign: 'center', fontSize: 'var(--fs-md)' }}>{icon}</span>
       <span style={{ flex: 1 }}>{label}</span>
-      {shortcut && <span style={{ color: 'var(--text-3)', fontSize: 'var(--fs-xs)', fontFamily: 'var(--font-mono)' }}>{shortcut}</span>}
+      {shortcut && <span style={{ color: 'var(--t3)', fontSize: 'var(--fs-xs)', fontFamily: 'var(--font-mono)' }}>{shortcut}</span>}
     </div>
   );
 }
 
 function Sep() {
-  return <div style={{ height: 1, background: 'var(--border-0)', margin: '3px 10px' }} />;
+  return <div style={{ height: 1, background: 'var(--b0)', margin: '3px 10px' }} />;
 }

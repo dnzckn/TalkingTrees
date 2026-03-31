@@ -86,7 +86,7 @@ export function Minimap() {
   return (
     <div style={{
       position: 'absolute', bottom: 8, right: 8, borderRadius: 'var(--r-md)',
-      border: '1px solid var(--border-1)', overflow: 'hidden', zIndex: 50,
+      border: '1px solid var(--b1)', overflow: 'hidden', zIndex: 50,
       boxShadow: '0 4px 16px rgba(0,0,0,0.4)', cursor: 'pointer',
     }}>
       <canvas ref={ref} width={MM_W} height={MM_H} style={{ width: MM_W, height: MM_H, display: 'block' }} onClick={handleClick} />
